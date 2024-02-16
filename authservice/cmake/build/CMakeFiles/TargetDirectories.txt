@@ -1,0 +1,3 @@
+/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build/CMakeFiles/authservice.dir
+/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build/CMakeFiles/edit_cache.dir
+/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build/CMakeFiles/rebuild_cache.dir
