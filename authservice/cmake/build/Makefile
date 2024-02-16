@@ -129,101 +129,101 @@ authservice/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/build
 .PHONY : authservice/fast
 
-authservice.o: authservice.cpp.o
-.PHONY : authservice.o
+proto/authservice.grpc.pb.o: proto/authservice.grpc.pb.cc.o
+.PHONY : proto/authservice.grpc.pb.o
 
 # target to build an object file
-authservice.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/authservice.cpp.o
-.PHONY : authservice.cpp.o
+proto/authservice.grpc.pb.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.o
+.PHONY : proto/authservice.grpc.pb.cc.o
 
-authservice.i: authservice.cpp.i
-.PHONY : authservice.i
+proto/authservice.grpc.pb.i: proto/authservice.grpc.pb.cc.i
+.PHONY : proto/authservice.grpc.pb.i
 
 # target to preprocess a source file
-authservice.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/authservice.cpp.i
-.PHONY : authservice.cpp.i
+proto/authservice.grpc.pb.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.i
+.PHONY : proto/authservice.grpc.pb.cc.i
 
-authservice.s: authservice.cpp.s
-.PHONY : authservice.s
+proto/authservice.grpc.pb.s: proto/authservice.grpc.pb.cc.s
+.PHONY : proto/authservice.grpc.pb.s
 
 # target to generate assembly for a file
-authservice.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/authservice.cpp.s
-.PHONY : authservice.cpp.s
+proto/authservice.grpc.pb.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.s
+.PHONY : proto/authservice.grpc.pb.cc.s
 
-data.o: data.cpp.o
-.PHONY : data.o
+proto/authservice.pb.o: proto/authservice.pb.cc.o
+.PHONY : proto/authservice.pb.o
 
 # target to build an object file
-data.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/data.cpp.o
-.PHONY : data.cpp.o
+proto/authservice.pb.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/proto/authservice.pb.cc.o
+.PHONY : proto/authservice.pb.cc.o
 
-data.i: data.cpp.i
-.PHONY : data.i
+proto/authservice.pb.i: proto/authservice.pb.cc.i
+.PHONY : proto/authservice.pb.i
 
 # target to preprocess a source file
-data.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/data.cpp.i
-.PHONY : data.cpp.i
+proto/authservice.pb.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/proto/authservice.pb.cc.i
+.PHONY : proto/authservice.pb.cc.i
 
-data.s: data.cpp.s
-.PHONY : data.s
+proto/authservice.pb.s: proto/authservice.pb.cc.s
+.PHONY : proto/authservice.pb.s
 
 # target to generate assembly for a file
-data.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/data.cpp.s
-.PHONY : data.cpp.s
+proto/authservice.pb.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/proto/authservice.pb.cc.s
+.PHONY : proto/authservice.pb.cc.s
 
-jwt.o: jwt.cpp.o
-.PHONY : jwt.o
+source/client.o: source/client.cpp.o
+.PHONY : source/client.o
 
 # target to build an object file
-jwt.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/jwt.cpp.o
-.PHONY : jwt.cpp.o
+source/client.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/source/client.cpp.o
+.PHONY : source/client.cpp.o
 
-jwt.i: jwt.cpp.i
-.PHONY : jwt.i
+source/client.i: source/client.cpp.i
+.PHONY : source/client.i
 
 # target to preprocess a source file
-jwt.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/jwt.cpp.i
-.PHONY : jwt.cpp.i
+source/client.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/source/client.cpp.i
+.PHONY : source/client.cpp.i
 
-jwt.s: jwt.cpp.s
-.PHONY : jwt.s
+source/client.s: source/client.cpp.s
+.PHONY : source/client.s
 
 # target to generate assembly for a file
-jwt.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/jwt.cpp.s
-.PHONY : jwt.cpp.s
+source/client.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/source/client.cpp.s
+.PHONY : source/client.cpp.s
 
-main.o: main.cpp.o
-.PHONY : main.o
+source/client_main.o: source/client_main.cpp.o
+.PHONY : source/client_main.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/main.cpp.o
-.PHONY : main.cpp.o
+source/client_main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/source/client_main.cpp.o
+.PHONY : source/client_main.cpp.o
 
-main.i: main.cpp.i
-.PHONY : main.i
+source/client_main.i: source/client_main.cpp.i
+.PHONY : source/client_main.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/main.cpp.i
-.PHONY : main.cpp.i
+source/client_main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/source/client_main.cpp.i
+.PHONY : source/client_main.cpp.i
 
-main.s: main.cpp.s
-.PHONY : main.s
+source/client_main.s: source/client_main.cpp.s
+.PHONY : source/client_main.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/main.cpp.s
-.PHONY : main.cpp.s
+source/client_main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/authservice.dir/build.make CMakeFiles/authservice.dir/source/client_main.cpp.s
+.PHONY : source/client_main.cpp.s
 
 # Help Target
 help:
@@ -234,18 +234,18 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... authservice"
-	@echo "... authservice.o"
-	@echo "... authservice.i"
-	@echo "... authservice.s"
-	@echo "... data.o"
-	@echo "... data.i"
-	@echo "... data.s"
-	@echo "... jwt.o"
-	@echo "... jwt.i"
-	@echo "... jwt.s"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... proto/authservice.grpc.pb.o"
+	@echo "... proto/authservice.grpc.pb.i"
+	@echo "... proto/authservice.grpc.pb.s"
+	@echo "... proto/authservice.pb.o"
+	@echo "... proto/authservice.pb.i"
+	@echo "... proto/authservice.pb.s"
+	@echo "... source/client.o"
+	@echo "... source/client.i"
+	@echo "... source/client.s"
+	@echo "... source/client_main.o"
+	@echo "... source/client_main.i"
+	@echo "... source/client_main.s"
 .PHONY : help
 
 

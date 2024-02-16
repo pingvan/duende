@@ -69,76 +69,76 @@ include CMakeFiles/authservice.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/authservice.dir/flags.make
 
-CMakeFiles/authservice.dir/main.cpp.o: CMakeFiles/authservice.dir/flags.make
-CMakeFiles/authservice.dir/main.cpp.o: ../../main.cpp
-CMakeFiles/authservice.dir/main.cpp.o: CMakeFiles/authservice.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/authservice.dir/main.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/authservice.dir/main.cpp.o -MF CMakeFiles/authservice.dir/main.cpp.o.d -o CMakeFiles/authservice.dir/main.cpp.o -c /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/main.cpp
+CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.o: CMakeFiles/authservice.dir/flags.make
+CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.o: ../../proto/authservice.grpc.pb.cc
+CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.o: CMakeFiles/authservice.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.o -MF CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.o.d -o CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.o -c /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/proto/authservice.grpc.pb.cc
 
-CMakeFiles/authservice.dir/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/authservice.dir/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/main.cpp > CMakeFiles/authservice.dir/main.cpp.i
+CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/proto/authservice.grpc.pb.cc > CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.i
 
-CMakeFiles/authservice.dir/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/authservice.dir/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/main.cpp -o CMakeFiles/authservice.dir/main.cpp.s
+CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/proto/authservice.grpc.pb.cc -o CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.s
 
-CMakeFiles/authservice.dir/authservice.cpp.o: CMakeFiles/authservice.dir/flags.make
-CMakeFiles/authservice.dir/authservice.cpp.o: ../../authservice.cpp
-CMakeFiles/authservice.dir/authservice.cpp.o: CMakeFiles/authservice.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/authservice.dir/authservice.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/authservice.dir/authservice.cpp.o -MF CMakeFiles/authservice.dir/authservice.cpp.o.d -o CMakeFiles/authservice.dir/authservice.cpp.o -c /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/authservice.cpp
+CMakeFiles/authservice.dir/proto/authservice.pb.cc.o: CMakeFiles/authservice.dir/flags.make
+CMakeFiles/authservice.dir/proto/authservice.pb.cc.o: ../../proto/authservice.pb.cc
+CMakeFiles/authservice.dir/proto/authservice.pb.cc.o: CMakeFiles/authservice.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/authservice.dir/proto/authservice.pb.cc.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/authservice.dir/proto/authservice.pb.cc.o -MF CMakeFiles/authservice.dir/proto/authservice.pb.cc.o.d -o CMakeFiles/authservice.dir/proto/authservice.pb.cc.o -c /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/proto/authservice.pb.cc
 
-CMakeFiles/authservice.dir/authservice.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/authservice.dir/authservice.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/authservice.cpp > CMakeFiles/authservice.dir/authservice.cpp.i
+CMakeFiles/authservice.dir/proto/authservice.pb.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/authservice.dir/proto/authservice.pb.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/proto/authservice.pb.cc > CMakeFiles/authservice.dir/proto/authservice.pb.cc.i
 
-CMakeFiles/authservice.dir/authservice.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/authservice.dir/authservice.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/authservice.cpp -o CMakeFiles/authservice.dir/authservice.cpp.s
+CMakeFiles/authservice.dir/proto/authservice.pb.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/authservice.dir/proto/authservice.pb.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/proto/authservice.pb.cc -o CMakeFiles/authservice.dir/proto/authservice.pb.cc.s
 
-CMakeFiles/authservice.dir/data.cpp.o: CMakeFiles/authservice.dir/flags.make
-CMakeFiles/authservice.dir/data.cpp.o: ../../data.cpp
-CMakeFiles/authservice.dir/data.cpp.o: CMakeFiles/authservice.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/authservice.dir/data.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/authservice.dir/data.cpp.o -MF CMakeFiles/authservice.dir/data.cpp.o.d -o CMakeFiles/authservice.dir/data.cpp.o -c /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/data.cpp
+CMakeFiles/authservice.dir/source/client.cpp.o: CMakeFiles/authservice.dir/flags.make
+CMakeFiles/authservice.dir/source/client.cpp.o: ../../source/client.cpp
+CMakeFiles/authservice.dir/source/client.cpp.o: CMakeFiles/authservice.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/authservice.dir/source/client.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/authservice.dir/source/client.cpp.o -MF CMakeFiles/authservice.dir/source/client.cpp.o.d -o CMakeFiles/authservice.dir/source/client.cpp.o -c /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/source/client.cpp
 
-CMakeFiles/authservice.dir/data.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/authservice.dir/data.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/data.cpp > CMakeFiles/authservice.dir/data.cpp.i
+CMakeFiles/authservice.dir/source/client.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/authservice.dir/source/client.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/source/client.cpp > CMakeFiles/authservice.dir/source/client.cpp.i
 
-CMakeFiles/authservice.dir/data.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/authservice.dir/data.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/data.cpp -o CMakeFiles/authservice.dir/data.cpp.s
+CMakeFiles/authservice.dir/source/client.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/authservice.dir/source/client.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/source/client.cpp -o CMakeFiles/authservice.dir/source/client.cpp.s
 
-CMakeFiles/authservice.dir/jwt.cpp.o: CMakeFiles/authservice.dir/flags.make
-CMakeFiles/authservice.dir/jwt.cpp.o: ../../jwt.cpp
-CMakeFiles/authservice.dir/jwt.cpp.o: CMakeFiles/authservice.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/authservice.dir/jwt.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/authservice.dir/jwt.cpp.o -MF CMakeFiles/authservice.dir/jwt.cpp.o.d -o CMakeFiles/authservice.dir/jwt.cpp.o -c /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/jwt.cpp
+CMakeFiles/authservice.dir/source/client_main.cpp.o: CMakeFiles/authservice.dir/flags.make
+CMakeFiles/authservice.dir/source/client_main.cpp.o: ../../source/client_main.cpp
+CMakeFiles/authservice.dir/source/client_main.cpp.o: CMakeFiles/authservice.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/authservice.dir/source/client_main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/authservice.dir/source/client_main.cpp.o -MF CMakeFiles/authservice.dir/source/client_main.cpp.o.d -o CMakeFiles/authservice.dir/source/client_main.cpp.o -c /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/source/client_main.cpp
 
-CMakeFiles/authservice.dir/jwt.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/authservice.dir/jwt.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/jwt.cpp > CMakeFiles/authservice.dir/jwt.cpp.i
+CMakeFiles/authservice.dir/source/client_main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/authservice.dir/source/client_main.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/source/client_main.cpp > CMakeFiles/authservice.dir/source/client_main.cpp.i
 
-CMakeFiles/authservice.dir/jwt.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/authservice.dir/jwt.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/jwt.cpp -o CMakeFiles/authservice.dir/jwt.cpp.s
+CMakeFiles/authservice.dir/source/client_main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/authservice.dir/source/client_main.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/source/client_main.cpp -o CMakeFiles/authservice.dir/source/client_main.cpp.s
 
 # Object files for target authservice
 authservice_OBJECTS = \
-"CMakeFiles/authservice.dir/main.cpp.o" \
-"CMakeFiles/authservice.dir/authservice.cpp.o" \
-"CMakeFiles/authservice.dir/data.cpp.o" \
-"CMakeFiles/authservice.dir/jwt.cpp.o"
+"CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.o" \
+"CMakeFiles/authservice.dir/proto/authservice.pb.cc.o" \
+"CMakeFiles/authservice.dir/source/client.cpp.o" \
+"CMakeFiles/authservice.dir/source/client_main.cpp.o"
 
 # External object files for target authservice
 authservice_EXTERNAL_OBJECTS =
 
-authservice: CMakeFiles/authservice.dir/main.cpp.o
-authservice: CMakeFiles/authservice.dir/authservice.cpp.o
-authservice: CMakeFiles/authservice.dir/data.cpp.o
-authservice: CMakeFiles/authservice.dir/jwt.cpp.o
+authservice: CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.o
+authservice: CMakeFiles/authservice.dir/proto/authservice.pb.cc.o
+authservice: CMakeFiles/authservice.dir/source/client.cpp.o
+authservice: CMakeFiles/authservice.dir/source/client_main.cpp.o
 authservice: CMakeFiles/authservice.dir/build.make
 authservice: /usr/lib/x86_64-linux-gnu/libcrypto.so
 authservice: /home/kolesovasonya/.local/lib/libprotobuf.a

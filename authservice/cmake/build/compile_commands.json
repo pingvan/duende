@@ -1,0 +1,22 @@
+[
+{
+  "directory": "/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build",
+  "command": "/usr/bin/c++ -DCARES_STATICLIB -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/include -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/proto -I/usr/lib/x86_64-linux-gnu/libcrypto.so -isystem /home/kolesovasonya/.local/include -std=gnu++17 -o CMakeFiles/authservice.dir/proto/authservice.grpc.pb.cc.o -c /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/proto/authservice.grpc.pb.cc",
+  "file": "/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/proto/authservice.grpc.pb.cc"
+},
+{
+  "directory": "/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build",
+  "command": "/usr/bin/c++ -DCARES_STATICLIB -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/include -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/proto -I/usr/lib/x86_64-linux-gnu/libcrypto.so -isystem /home/kolesovasonya/.local/include -std=gnu++17 -o CMakeFiles/authservice.dir/proto/authservice.pb.cc.o -c /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/proto/authservice.pb.cc",
+  "file": "/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/proto/authservice.pb.cc"
+},
+{
+  "directory": "/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build",
+  "command": "/usr/bin/c++ -DCARES_STATICLIB -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/include -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/proto -I/usr/lib/x86_64-linux-gnu/libcrypto.so -isystem /home/kolesovasonya/.local/include -std=gnu++17 -o CMakeFiles/authservice.dir/source/client.cpp.o -c /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/source/client.cpp",
+  "file": "/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/source/client.cpp"
+},
+{
+  "directory": "/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build",
+  "command": "/usr/bin/c++ -DCARES_STATICLIB -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/include -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/proto -I/usr/lib/x86_64-linux-gnu/libcrypto.so -isystem /home/kolesovasonya/.local/include -std=gnu++17 -o CMakeFiles/authservice.dir/source/client_main.cpp.o -c /home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/source/client_main.cpp",
+  "file": "/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/source/client_main.cpp"
+}
+]

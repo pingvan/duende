@@ -3,7 +3,6 @@
 
 #include <grpcpp/grpcpp.h>
 
-
 namespace AuthService {
     
     struct login_user_does_not_exist : public std::exception {

@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -DCARES_STATICLIB
 
-CXX_INCLUDES = -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/include -I/usr/lib/x86_64-linux-gnu/libcrypto.so -isystem /home/kolesovasonya/.local/include
+CXX_INCLUDES = -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/cmake/build -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/include -I/home/kolesovasonya/hse/duende/grpc/examples/cpp/authservice/proto -I/usr/lib/x86_64-linux-gnu/libcrypto.so -isystem /home/kolesovasonya/.local/include
 
-CXX_FLAGS = 
+CXX_FLAGS = -std=gnu++17
 

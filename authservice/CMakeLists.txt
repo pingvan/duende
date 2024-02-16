@@ -2,14 +2,15 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project(AuthService)
 
-add_executable(authservice main.cpp authservice.cpp data.cpp jwt.cpp)
-
-include_directories(include)
+include_directories(include proto)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(PROTOS proto/authservice.grpc.pb.cc proto/authservice.pb.cc)
+
+add_executable(authservice ${PROTOS} source/client.cpp source/client_main.cpp)
 
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
