@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package authservice;
+
+message ServerError {
+    enum ErrorType {
+        NO_ERROR = 0;
+        USER_ALREADY_EXISTS = 1;
+        USER_DOES_NOT_EXIST = 2;
+        INVALID_USERNAME = 3;
+        INVALID_PASSWORD = 4;
+        INVALID_EMAIL = 5;
+        INCORRECT_PASSWORD = 6;
+        PASSWORD_NOT_CONFIRMED = 7;
+        UNEXPECTED_ERROR = 8;
+    }
+  
+    ErrorType type = 1;
+    string error_message = 2;
+};
+
+service AuthService {
+  rpc Login(LoginRequest) returns (LoginResponse) {}
+  rpc Signin(SigninRequest) returns (SigninResponse) {}
+}
+
+message LoginRequest {
+    string username = 1;
+    string password = 2;
+};
+
+message LoginResponse {
+    optional ServerError error = 1;
+};
+
+message SigninRequest {
+    string username = 1;
+    string email = 2;
+    string password = 3;
+    string password_confirmation = 4;
+};
+
+message SigninResponse {
+    optional ServerError error = 1;
+};
