@@ -1,0 +1,29 @@
+version: "3.9"
+services:
+  postgres:
+    container_name: postgres_container
+    image: postgres:15
+    environment:
+      POSTGRES_DB: "duende"
+      POSTGRES_USER: "root"
+      POSTGRES_PASSWORD: "strongpassword"
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4:7.2
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "albov.egor@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "strongpassword"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    networks:
+      - postgres
+
+networks:
+  postgres:
+    driver: bridge
