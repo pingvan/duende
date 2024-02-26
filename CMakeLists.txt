@@ -2,16 +2,16 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project(AuthService)
 
-include_directories(include proto libs)
+include_directories(include src/proto libs)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(PROTOS proto/authservice.grpc.pb.cc proto/authservice.pb.cc)
-set(CLIENT source/client/client.cpp source/client/client_main.cpp)
-set(SERVER source/jwt.cpp source/data.cpp source/server/server.cpp source/server/server_main.cpp)
+set(PROTOS src/proto/authservice.grpc.pb.cc src/proto/authservice.pb.cc)
+set(CLIENT client/client.cpp client/client_main.cpp)
+set(SERVER source/jwt.cpp source/data.cpp include/services/authservice/server.cpp src/server_main.cpp)
 
 add_executable(client ${PROTOS} ${CLIENT})
 add_executable(server ${PROTOS} ${SERVER})
