@@ -7,7 +7,8 @@ CREATE TABLE clients (
 CREATE TABLE tokens (
     client_id INT NOT NULL,
     auth_token text NOT NULL,
-    refresh_token text NOT NULL
+    refresh_token text NOT NULL,
+    FOREIGN KEY (client_id) REFERENCES clients(id)
 );
 
 CREATE TABLE passwords (
@@ -15,6 +16,16 @@ CREATE TABLE passwords (
     password_hash VARCHAR(50) NOT NULL,
     password_salt VARCHAR(10) NOT NULL,
     FOREIGN KEY (client_id) REFERENCES clients(id)
+);
+
+CREATE TABLE forms (
+                       photo BYTEA,
+                       quote VARCHAR(50),
+                       about VARCHAR(250),
+                       client_id INT NOT NULL,
+                       favourite_genres genre[],
+                       views_id INT[],
+                       FOREIGN KEY (client_id) REFERENCES clients(id)
 );
 
 CREATE TYPE genre AS ENUM ('action', 'adventure', 'comedy',
@@ -36,16 +47,6 @@ CREATE TABLE views (
     film_id INT NOT NULL,
     FOREIGN KEY (client_id) REFERENCES clients(id),
     FOREIGN KEY (film_id) REFERENCES films(id)
-);
-
-CREATE TABLE forms (
-    photo BYTEA,
-    quote VARCHAR(50),
-    about VARCHAR(250),
-    client_id INT NOT NULL,
-    favourite_genres genre[],
-    views_id INT[],
-    FOREIGN KEY (client_id) REFERENCES clients(id)
 );
 
 CREATE TABLE films (

@@ -17,6 +17,8 @@ cmake/build
 # Prerequisites
 *.d
 
+.sql
+
 # Compiled Object files
 *.slo
 *.lo
