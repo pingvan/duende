@@ -42,6 +42,63 @@ class ProfileClient {
     }
   }
 
+  std::string ChangePhoto(const std::string& photo) {
+    ProfileRequest request;
+    request.set_photo(photo);
+
+    ProfileReply reply;
+
+    ClientContext context;
+
+    Status status = stub_->ChangePhoto(&context, request, &reply);
+
+    if (status.ok()) {
+      return "Photo changed";
+    } else {
+      std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+      return "RPC failed";
+    }
+  }
+
+  std::string ChangeQuote(const std::string& quote) {
+    ProfileRequest request;
+    request.set_quote(quote);
+
+    ProfileReply reply;
+
+    ClientContext context;
+
+    Status status = stub_->ChangeQuote(&context, request, &reply);
+
+    if (status.ok()) {
+      return "Quote changed";
+    } else {
+      std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+      return "RPC failed";
+    }
+  }
+
+  std::string ChangeBio(const std::string& bio) {
+    ProfileRequest request;
+    request.set_bio(bio);
+
+    ProfileReply reply;
+
+    ClientContext context;
+
+    Status status = stub_->ChangeBio(&context, request, &reply);
+
+    if (status.ok()) {
+      return "Bio changed";
+    } else {
+      std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+      return "RPC failed";
+    }
+  }
+
  private:
   std::unique_ptr<ProfileService::Stub> stub_;
 };

@@ -39,7 +39,42 @@ class ProfileServiceImpl final : public ProfileService::Service {
     reply->set_message("Nickname changed");
     return Status::OK;
   }
+
+  Status ChangePhoto(ServerContext *context, const ProfileRequest *request,
+                     ProfileReply *reply) override {
+    ProfileRequest current_profile = *request;
+    profiles[current_profile.id()].set_photo(current_profile.photo());
+    reply->set_message("Photo changed");
+    return Status::OK;
+  }
+
+  Status ChangeQuote(ServerContext *context, const ProfileRequest *request,
+                     ProfileReply *reply) override {
+    ProfileRequest current_profile = *request;
+    if (current_profile.quote().length() > 100) {
+      reply->set_message("Quote is too long");
+      return Status::OK;
+    }
+    profiles[current_profile.id()].set_quote(current_profile.quote());
+    reply->set_message("Quote changed");
+    return Status::OK;
+  }
+
+  Status ChangeBio(ServerContext *context, const ProfileRequest *request,
+                   ProfileReply *reply) override {
+    ProfileRequest current_profile = *request;
+    if (current_profile.bio().length() > 1000) {
+      reply->set_message("Bio is too long");
+      return Status::OK;
+    }
+    profiles[current_profile.id()].set_bio(current_profile.bio());
+    reply->set_message("Bio changed");
+    return Status::OK;
+  }
+
+  // TODO: ChangeWatchlist, ChangeFavouriteActors, ChangeFavouriteJenres (выбор из списка, хз как пока что)
 };
+
 
 void RunServer() {
   std::string server_address("0.0.0.0:50051");
