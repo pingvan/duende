@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package profile;
+
+service ProfileService {
+  rpc ChangeNickname (ProfileRequest) returns (ProfileReply) {}
+  rpc ChangePhoto (ProfileRequest) returns (ProfileReply) {}
+  rpc ChangeQuote (ProfileRequest) returns (ProfileReply) {}
+  rpc ChangeBio (ProfileRequest) returns (ProfileReply) {}
+}
+
+message ProfileRequest {
+  string id = 1;
+  string nickname = 2;
+  string photo = 3;
+  string quote = 4;
+  string bio = 5;
+}
+
+message ProfileReply {
+  string message = 1;
+}
+

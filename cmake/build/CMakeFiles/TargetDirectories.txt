@@ -1,4 +1,0 @@
-/Users/alina/duende/cmake/build/CMakeFiles/profile_client.dir
-/Users/alina/duende/cmake/build/CMakeFiles/profile_server.dir
-/Users/alina/duende/cmake/build/CMakeFiles/edit_cache.dir
-/Users/alina/duende/cmake/build/CMakeFiles/rebuild_cache.dir
