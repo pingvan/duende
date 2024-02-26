@@ -9,6 +9,7 @@ cmake/build
 *.sln
 *.vcxproj
 *.vcxproj.filters
+.vscode/
 
 # IDE files
 .DS_Store
