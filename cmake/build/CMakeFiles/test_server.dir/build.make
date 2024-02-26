@@ -125,7 +125,7 @@ test_server: CMakeFiles/test_server.dir/profile.grpc.pb.cc.o
 test_server: CMakeFiles/test_server.dir/profile.pb.cc.o
 test_server: CMakeFiles/test_server.dir/build.make
 test_server: /opt/homebrew/Cellar/openssl@3/3.2.1/lib/libcrypto.dylib
-test_server: /opt/homebrew/lib/libgrpc++.1.60.0.dylib
+test_server: /opt/homebrew/lib/libgrpc++.1.62.0.dylib
 test_server: /opt/homebrew/lib/libprotobuf.25.3.0.dylib
 test_server: /opt/homebrew/lib/libabsl_log_internal_check_op.2308.0.0.dylib
 test_server: /opt/homebrew/lib/libabsl_leak_check.2308.0.0.dylib
@@ -142,17 +142,18 @@ test_server: /opt/homebrew/lib/libabsl_log_entry.2308.0.0.dylib
 test_server: /opt/homebrew/lib/libabsl_log_initialize.2308.0.0.dylib
 test_server: /opt/homebrew/lib/libabsl_log_globals.2308.0.0.dylib
 test_server: /opt/homebrew/lib/libabsl_log_internal_globals.2308.0.0.dylib
-test_server: /opt/homebrew/lib/libgrpc.37.0.0.dylib
+test_server: /opt/homebrew/lib/libgrpc.39.0.0.dylib
 test_server: /opt/homebrew/lib/libabsl_statusor.2308.0.0.dylib
-test_server: /opt/homebrew/lib/libupb_collections_lib.37.0.0.dylib
-test_server: /opt/homebrew/lib/libupb_json_lib.37.0.0.dylib
-test_server: /opt/homebrew/lib/libupb_textformat_lib.37.0.0.dylib
-test_server: /opt/homebrew/lib/libutf8_range_lib.37.0.0.dylib
-test_server: /opt/homebrew/lib/libupb.37.0.0.dylib
+test_server: /opt/homebrew/lib/libupb_json_lib.39.0.0.dylib
+test_server: /opt/homebrew/lib/libupb_textformat_lib.39.0.0.dylib
+test_server: /opt/homebrew/lib/libupb_message_lib.39.0.0.dylib
+test_server: /opt/homebrew/lib/libupb_base_lib.39.0.0.dylib
+test_server: /opt/homebrew/lib/libupb_mem_lib.39.0.0.dylib
+test_server: /opt/homebrew/lib/libutf8_range_lib.39.0.0.dylib
 test_server: /opt/homebrew/lib/libre2.11.0.0.dylib
 test_server: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk/usr/lib/libz.tbd
 test_server: /opt/homebrew/lib/libcares.2.11.0.dylib
-test_server: /opt/homebrew/lib/libgpr.37.0.0.dylib
+test_server: /opt/homebrew/lib/libgpr.39.0.0.dylib
 test_server: /opt/homebrew/lib/libabsl_flags.2308.0.0.dylib
 test_server: /opt/homebrew/lib/libabsl_flags_internal.2308.0.0.dylib
 test_server: /opt/homebrew/lib/libabsl_flags_reflection.2308.0.0.dylib
@@ -214,7 +215,7 @@ test_server: /opt/homebrew/lib/libabsl_log_severity.2308.0.0.dylib
 test_server: /opt/homebrew/lib/libabsl_random_seed_gen_exception.2308.0.0.dylib
 test_server: /opt/homebrew/Cellar/openssl@3/3.2.1/lib/libssl.dylib
 test_server: /opt/homebrew/Cellar/openssl@3/3.2.1/lib/libcrypto.dylib
-test_server: /opt/homebrew/lib/libaddress_sorting.37.0.0.dylib
+test_server: /opt/homebrew/lib/libaddress_sorting.39.0.0.dylib
 test_server: CMakeFiles/test_server.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/alina/duende/cmake/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable test_server"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/test_server.dir/link.txt --verbose=$(VERBOSE)

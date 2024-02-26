@@ -208,7 +208,7 @@ class ProfileRequest final :
 
   enum : int {
     kIdFieldNumber = 1,
-    kNameFieldNumber = 2,
+    kNicknameFieldNumber = 2,
     kEmailFieldNumber = 3,
   };
   // string id = 1;
@@ -227,20 +227,20 @@ class ProfileRequest final :
   std::string* _internal_mutable_id();
 
   public:
-  // string name = 2;
-  void clear_name() ;
-  const std::string& name() const;
+  // string nickname = 2;
+  void clear_nickname() ;
+  const std::string& nickname() const;
   template <typename Arg_ = const std::string&, typename... Args_>
-  void set_name(Arg_&& arg, Args_... args);
-  std::string* mutable_name();
-  PROTOBUF_NODISCARD std::string* release_name();
-  void set_allocated_name(std::string* value);
+  void set_nickname(Arg_&& arg, Args_... args);
+  std::string* mutable_nickname();
+  PROTOBUF_NODISCARD std::string* release_nickname();
+  void set_allocated_nickname(std::string* value);
 
   private:
-  const std::string& _internal_name() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(
+  const std::string& _internal_nickname() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_nickname(
       const std::string& value);
-  std::string* _internal_mutable_name();
+  std::string* _internal_mutable_nickname();
 
   public:
   // string email = 3;
@@ -266,7 +266,7 @@ class ProfileRequest final :
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
       2, 3, 0,
-      42, 2>
+      46, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
   friend class ::google::protobuf::Arena;
@@ -283,7 +283,7 @@ class ProfileRequest final :
         inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                               ::google::protobuf::Arena* arena, const Impl_& from);
     ::google::protobuf::internal::ArenaStringPtr id_;
-    ::google::protobuf::internal::ArenaStringPtr name_;
+    ::google::protobuf::internal::ArenaStringPtr nickname_;
     ::google::protobuf::internal::ArenaStringPtr email_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -424,22 +424,22 @@ class ProfileReply final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kResultFieldNumber = 1,
+    kMessageFieldNumber = 1,
   };
-  // string result = 1;
-  void clear_result() ;
-  const std::string& result() const;
+  // string message = 1;
+  void clear_message() ;
+  const std::string& message() const;
   template <typename Arg_ = const std::string&, typename... Args_>
-  void set_result(Arg_&& arg, Args_... args);
-  std::string* mutable_result();
-  PROTOBUF_NODISCARD std::string* release_result();
-  void set_allocated_result(std::string* value);
+  void set_message(Arg_&& arg, Args_... args);
+  std::string* mutable_message();
+  PROTOBUF_NODISCARD std::string* release_message();
+  void set_allocated_message(std::string* value);
 
   private:
-  const std::string& _internal_result() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_result(
+  const std::string& _internal_message() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_message(
       const std::string& value);
-  std::string* _internal_mutable_result();
+  std::string* _internal_mutable_message();
 
   public:
   // @@protoc_insertion_point(class_scope:profile.ProfileReply)
@@ -449,7 +449,7 @@ class ProfileReply final :
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
       0, 1, 0,
-      35, 2>
+      36, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
   friend class ::google::protobuf::Arena;
@@ -465,7 +465,7 @@ class ProfileReply final :
                               ::google::protobuf::Arena* arena);
         inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                               ::google::protobuf::Arena* arena, const Impl_& from);
-    ::google::protobuf::internal::ArenaStringPtr result_;
+    ::google::protobuf::internal::ArenaStringPtr message_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -542,57 +542,57 @@ inline void ProfileRequest::set_allocated_id(std::string* value) {
   // @@protoc_insertion_point(field_set_allocated:profile.ProfileRequest.id)
 }
 
-// string name = 2;
-inline void ProfileRequest::clear_name() {
+// string nickname = 2;
+inline void ProfileRequest::clear_nickname() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.name_.ClearToEmpty();
+  _impl_.nickname_.ClearToEmpty();
 }
-inline const std::string& ProfileRequest::name() const
+inline const std::string& ProfileRequest::nickname() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:profile.ProfileRequest.name)
-  return _internal_name();
+  // @@protoc_insertion_point(field_get:profile.ProfileRequest.nickname)
+  return _internal_nickname();
 }
 template <typename Arg_, typename... Args_>
-inline PROTOBUF_ALWAYS_INLINE void ProfileRequest::set_name(Arg_&& arg,
+inline PROTOBUF_ALWAYS_INLINE void ProfileRequest::set_nickname(Arg_&& arg,
                                                      Args_... args) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
-  _impl_.name_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:profile.ProfileRequest.name)
+  _impl_.nickname_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:profile.ProfileRequest.nickname)
 }
-inline std::string* ProfileRequest::mutable_name() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_name();
-  // @@protoc_insertion_point(field_mutable:profile.ProfileRequest.name)
+inline std::string* ProfileRequest::mutable_nickname() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_nickname();
+  // @@protoc_insertion_point(field_mutable:profile.ProfileRequest.nickname)
   return _s;
 }
-inline const std::string& ProfileRequest::_internal_name() const {
+inline const std::string& ProfileRequest::_internal_nickname() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.name_.Get();
+  return _impl_.nickname_.Get();
 }
-inline void ProfileRequest::_internal_set_name(const std::string& value) {
+inline void ProfileRequest::_internal_set_nickname(const std::string& value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
-  _impl_.name_.Set(value, GetArena());
+  _impl_.nickname_.Set(value, GetArena());
 }
-inline std::string* ProfileRequest::_internal_mutable_name() {
+inline std::string* ProfileRequest::_internal_mutable_nickname() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
-  return _impl_.name_.Mutable( GetArena());
+  return _impl_.nickname_.Mutable( GetArena());
 }
-inline std::string* ProfileRequest::release_name() {
+inline std::string* ProfileRequest::release_nickname() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  // @@protoc_insertion_point(field_release:profile.ProfileRequest.name)
-  return _impl_.name_.Release();
+  // @@protoc_insertion_point(field_release:profile.ProfileRequest.nickname)
+  return _impl_.nickname_.Release();
 }
-inline void ProfileRequest::set_allocated_name(std::string* value) {
+inline void ProfileRequest::set_allocated_nickname(std::string* value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.name_.SetAllocated(value, GetArena());
+  _impl_.nickname_.SetAllocated(value, GetArena());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-        if (_impl_.name_.IsDefault()) {
-          _impl_.name_.Set("", GetArena());
+        if (_impl_.nickname_.IsDefault()) {
+          _impl_.nickname_.Set("", GetArena());
         }
   #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:profile.ProfileRequest.name)
+  // @@protoc_insertion_point(field_set_allocated:profile.ProfileRequest.nickname)
 }
 
 // string email = 3;
@@ -652,57 +652,57 @@ inline void ProfileRequest::set_allocated_email(std::string* value) {
 
 // ProfileReply
 
-// string result = 1;
-inline void ProfileReply::clear_result() {
+// string message = 1;
+inline void ProfileReply::clear_message() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.result_.ClearToEmpty();
+  _impl_.message_.ClearToEmpty();
 }
-inline const std::string& ProfileReply::result() const
+inline const std::string& ProfileReply::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:profile.ProfileReply.result)
-  return _internal_result();
+  // @@protoc_insertion_point(field_get:profile.ProfileReply.message)
+  return _internal_message();
 }
 template <typename Arg_, typename... Args_>
-inline PROTOBUF_ALWAYS_INLINE void ProfileReply::set_result(Arg_&& arg,
+inline PROTOBUF_ALWAYS_INLINE void ProfileReply::set_message(Arg_&& arg,
                                                      Args_... args) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
-  _impl_.result_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:profile.ProfileReply.result)
+  _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:profile.ProfileReply.message)
 }
-inline std::string* ProfileReply::mutable_result() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_result();
-  // @@protoc_insertion_point(field_mutable:profile.ProfileReply.result)
+inline std::string* ProfileReply::mutable_message() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_message();
+  // @@protoc_insertion_point(field_mutable:profile.ProfileReply.message)
   return _s;
 }
-inline const std::string& ProfileReply::_internal_result() const {
+inline const std::string& ProfileReply::_internal_message() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.result_.Get();
+  return _impl_.message_.Get();
 }
-inline void ProfileReply::_internal_set_result(const std::string& value) {
+inline void ProfileReply::_internal_set_message(const std::string& value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
-  _impl_.result_.Set(value, GetArena());
+  _impl_.message_.Set(value, GetArena());
 }
-inline std::string* ProfileReply::_internal_mutable_result() {
+inline std::string* ProfileReply::_internal_mutable_message() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
-  return _impl_.result_.Mutable( GetArena());
+  return _impl_.message_.Mutable( GetArena());
 }
-inline std::string* ProfileReply::release_result() {
+inline std::string* ProfileReply::release_message() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  // @@protoc_insertion_point(field_release:profile.ProfileReply.result)
-  return _impl_.result_.Release();
+  // @@protoc_insertion_point(field_release:profile.ProfileReply.message)
+  return _impl_.message_.Release();
 }
-inline void ProfileReply::set_allocated_result(std::string* value) {
+inline void ProfileReply::set_allocated_message(std::string* value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.result_.SetAllocated(value, GetArena());
+  _impl_.message_.SetAllocated(value, GetArena());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-        if (_impl_.result_.IsDefault()) {
-          _impl_.result_.Set("", GetArena());
+        if (_impl_.message_.IsDefault()) {
+          _impl_.message_.Set("", GetArena());
         }
   #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:profile.ProfileReply.result)
+  // @@protoc_insertion_point(field_set_allocated:profile.ProfileReply.message)
 }
 
 #ifdef __GNUC__

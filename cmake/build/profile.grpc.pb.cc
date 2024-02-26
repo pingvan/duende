@@ -22,7 +22,7 @@
 namespace profile {
 
 static const char* ProfileService_method_names[] = {
-  "/profile.ProfileService/ChangeProfile",
+  "/profile.ProfileService/ChangeNickname",
 };
 
 std::unique_ptr< ProfileService::Stub> ProfileService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -32,28 +32,28 @@ std::unique_ptr< ProfileService::Stub> ProfileService::NewStub(const std::shared
 }
 
 ProfileService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options)
-  : channel_(channel), rpcmethod_ChangeProfile_(ProfileService_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  : channel_(channel), rpcmethod_ChangeNickname_(ProfileService_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
-::grpc::Status ProfileService::Stub::ChangeProfile(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_ChangeProfile_, context, request, response);
+::grpc::Status ProfileService::Stub::ChangeNickname(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_ChangeNickname_, context, request, response);
 }
 
-void ProfileService::Stub::async::ChangeProfile(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ChangeProfile_, context, request, response, std::move(f));
+void ProfileService::Stub::async::ChangeNickname(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ChangeNickname_, context, request, response, std::move(f));
 }
 
-void ProfileService::Stub::async::ChangeProfile(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
-  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ChangeProfile_, context, request, response, reactor);
+void ProfileService::Stub::async::ChangeNickname(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ChangeNickname_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncChangeProfileRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::ProfileRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_ChangeProfile_, context, request);
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncChangeNicknameRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::ProfileRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_ChangeNickname_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncChangeProfileRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncChangeNicknameRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
-    this->PrepareAsyncChangeProfileRaw(context, request, cq);
+    this->PrepareAsyncChangeNicknameRaw(context, request, cq);
   result->StartCall();
   return result;
 }
@@ -67,14 +67,14 @@ ProfileService::Service::Service() {
              ::grpc::ServerContext* ctx,
              const ::profile::ProfileRequest* req,
              ::profile::ProfileReply* resp) {
-               return service->ChangeProfile(ctx, req, resp);
+               return service->ChangeNickname(ctx, req, resp);
              }, this)));
 }
 
 ProfileService::Service::~Service() {
 }
 
-::grpc::Status ProfileService::Service::ChangeProfile(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) {
+::grpc::Status ProfileService::Service::ChangeNickname(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) {
   (void) context;
   (void) request;
   (void) response;

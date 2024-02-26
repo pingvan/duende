@@ -25,14 +25,13 @@ class ProfileClient {
 
   std::string ChangeNickname(const std::string& nickname) {
     ProfileRequest request;
-    // request.set_nickname(nickname);
+    request.set_nickname(nickname);
 
     ProfileReply reply;
 
     ClientContext context;
 
-    // Status status = stub_->ChangeNickname(&context, request, &reply);
-    Status status;
+    Status status = stub_->ChangeNickname(&context, request, &reply);
 
     if (status.ok()) {
       return "Nickname changed";

@@ -73,7 +73,7 @@ CMAKE_FIND_PACKAGE_REDIRECTS_DIR:STATIC=/Users/alina/duende/cmake/build/CMakeFil
 CMAKE_INSTALL_NAME_TOOL:FILEPATH=/usr/bin/install_name_tool
 
 //Install path prefix, prepended onto install directories.
-CMAKE_INSTALL_PREFIX:PATH=/usr/local
+CMAKE_INSTALL_PREFIX:PATH=
 
 //Path to a program.
 CMAKE_LINKER:FILEPATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
@@ -231,8 +231,14 @@ absl_DIR:PATH=/opt/homebrew/lib/cmake/absl
 //The directory containing a CMake configuration file for c-ares.
 c-ares_DIR:PATH=/opt/homebrew/lib/cmake/c-ares
 
+//No help, variable specified on the command line.
+gRPC_BUILD_TESTS:UNINITIALIZED=OFF
+
 //The directory containing a CMake configuration file for gRPC.
 gRPC_DIR:PATH=/opt/homebrew/lib/cmake/grpc
+
+//No help, variable specified on the command line.
+gRPC_INSTALL:UNINITIALIZED=ON
 
 //Value Computed by CMake
 grpc_chat_BINARY_DIR:STATIC=/Users/alina/duende/cmake/build

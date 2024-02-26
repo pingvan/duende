@@ -117,38 +117,38 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named test_client
+# Target rules for targets named profile_client
 
 # Build rule for target.
-test_client: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_client
-.PHONY : test_client
+profile_client: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 profile_client
+.PHONY : profile_client
 
 # fast build rule for target.
-test_client/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_client.dir/build.make CMakeFiles/test_client.dir/build
-.PHONY : test_client/fast
+profile_client/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_client.dir/build.make CMakeFiles/profile_client.dir/build
+.PHONY : profile_client/fast
 
 #=============================================================================
-# Target rules for targets named test_server
+# Target rules for targets named profile_server
 
 # Build rule for target.
-test_server: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_server
-.PHONY : test_server
+profile_server: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 profile_server
+.PHONY : profile_server
 
 # fast build rule for target.
-test_server/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_server.dir/build.make CMakeFiles/test_server.dir/build
-.PHONY : test_server/fast
+profile_server/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_server.dir/build.make CMakeFiles/profile_server.dir/build
+.PHONY : profile_server/fast
 
 profile.grpc.pb.o: profile.grpc.pb.cc.o
 .PHONY : profile.grpc.pb.o
 
 # target to build an object file
 profile.grpc.pb.cc.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_client.dir/build.make CMakeFiles/test_client.dir/profile.grpc.pb.cc.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_server.dir/build.make CMakeFiles/test_server.dir/profile.grpc.pb.cc.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_client.dir/build.make CMakeFiles/profile_client.dir/profile.grpc.pb.cc.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_server.dir/build.make CMakeFiles/profile_server.dir/profile.grpc.pb.cc.o
 .PHONY : profile.grpc.pb.cc.o
 
 profile.grpc.pb.i: profile.grpc.pb.cc.i
@@ -156,8 +156,8 @@ profile.grpc.pb.i: profile.grpc.pb.cc.i
 
 # target to preprocess a source file
 profile.grpc.pb.cc.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_client.dir/build.make CMakeFiles/test_client.dir/profile.grpc.pb.cc.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_server.dir/build.make CMakeFiles/test_server.dir/profile.grpc.pb.cc.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_client.dir/build.make CMakeFiles/profile_client.dir/profile.grpc.pb.cc.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_server.dir/build.make CMakeFiles/profile_server.dir/profile.grpc.pb.cc.i
 .PHONY : profile.grpc.pb.cc.i
 
 profile.grpc.pb.s: profile.grpc.pb.cc.s
@@ -165,8 +165,8 @@ profile.grpc.pb.s: profile.grpc.pb.cc.s
 
 # target to generate assembly for a file
 profile.grpc.pb.cc.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_client.dir/build.make CMakeFiles/test_client.dir/profile.grpc.pb.cc.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_server.dir/build.make CMakeFiles/test_server.dir/profile.grpc.pb.cc.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_client.dir/build.make CMakeFiles/profile_client.dir/profile.grpc.pb.cc.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_server.dir/build.make CMakeFiles/profile_server.dir/profile.grpc.pb.cc.s
 .PHONY : profile.grpc.pb.cc.s
 
 profile.pb.o: profile.pb.cc.o
@@ -174,8 +174,8 @@ profile.pb.o: profile.pb.cc.o
 
 # target to build an object file
 profile.pb.cc.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_client.dir/build.make CMakeFiles/test_client.dir/profile.pb.cc.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_server.dir/build.make CMakeFiles/test_server.dir/profile.pb.cc.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_client.dir/build.make CMakeFiles/profile_client.dir/profile.pb.cc.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_server.dir/build.make CMakeFiles/profile_server.dir/profile.pb.cc.o
 .PHONY : profile.pb.cc.o
 
 profile.pb.i: profile.pb.cc.i
@@ -183,8 +183,8 @@ profile.pb.i: profile.pb.cc.i
 
 # target to preprocess a source file
 profile.pb.cc.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_client.dir/build.make CMakeFiles/test_client.dir/profile.pb.cc.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_server.dir/build.make CMakeFiles/test_server.dir/profile.pb.cc.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_client.dir/build.make CMakeFiles/profile_client.dir/profile.pb.cc.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_server.dir/build.make CMakeFiles/profile_server.dir/profile.pb.cc.i
 .PHONY : profile.pb.cc.i
 
 profile.pb.s: profile.pb.cc.s
@@ -192,8 +192,8 @@ profile.pb.s: profile.pb.cc.s
 
 # target to generate assembly for a file
 profile.pb.cc.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_client.dir/build.make CMakeFiles/test_client.dir/profile.pb.cc.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_server.dir/build.make CMakeFiles/test_server.dir/profile.pb.cc.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_client.dir/build.make CMakeFiles/profile_client.dir/profile.pb.cc.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_server.dir/build.make CMakeFiles/profile_server.dir/profile.pb.cc.s
 .PHONY : profile.pb.cc.s
 
 profile_client.o: profile_client.cpp.o
@@ -201,7 +201,7 @@ profile_client.o: profile_client.cpp.o
 
 # target to build an object file
 profile_client.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_client.dir/build.make CMakeFiles/test_client.dir/profile_client.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_client.dir/build.make CMakeFiles/profile_client.dir/profile_client.cpp.o
 .PHONY : profile_client.cpp.o
 
 profile_client.i: profile_client.cpp.i
@@ -209,7 +209,7 @@ profile_client.i: profile_client.cpp.i
 
 # target to preprocess a source file
 profile_client.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_client.dir/build.make CMakeFiles/test_client.dir/profile_client.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_client.dir/build.make CMakeFiles/profile_client.dir/profile_client.cpp.i
 .PHONY : profile_client.cpp.i
 
 profile_client.s: profile_client.cpp.s
@@ -217,7 +217,7 @@ profile_client.s: profile_client.cpp.s
 
 # target to generate assembly for a file
 profile_client.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_client.dir/build.make CMakeFiles/test_client.dir/profile_client.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_client.dir/build.make CMakeFiles/profile_client.dir/profile_client.cpp.s
 .PHONY : profile_client.cpp.s
 
 profile_server.o: profile_server.cpp.o
@@ -225,7 +225,7 @@ profile_server.o: profile_server.cpp.o
 
 # target to build an object file
 profile_server.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_server.dir/build.make CMakeFiles/test_server.dir/profile_server.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_server.dir/build.make CMakeFiles/profile_server.dir/profile_server.cpp.o
 .PHONY : profile_server.cpp.o
 
 profile_server.i: profile_server.cpp.i
@@ -233,7 +233,7 @@ profile_server.i: profile_server.cpp.i
 
 # target to preprocess a source file
 profile_server.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_server.dir/build.make CMakeFiles/test_server.dir/profile_server.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_server.dir/build.make CMakeFiles/profile_server.dir/profile_server.cpp.i
 .PHONY : profile_server.cpp.i
 
 profile_server.s: profile_server.cpp.s
@@ -241,7 +241,7 @@ profile_server.s: profile_server.cpp.s
 
 # target to generate assembly for a file
 profile_server.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_server.dir/build.make CMakeFiles/test_server.dir/profile_server.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/profile_server.dir/build.make CMakeFiles/profile_server.dir/profile_server.cpp.s
 .PHONY : profile_server.cpp.s
 
 # Help Target
@@ -252,8 +252,8 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... test_client"
-	@echo "... test_server"
+	@echo "... profile_client"
+	@echo "... profile_server"
 	@echo "... profile.grpc.pb.o"
 	@echo "... profile.grpc.pb.i"
 	@echo "... profile.grpc.pb.s"

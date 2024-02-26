@@ -27,7 +27,7 @@ inline constexpr ProfileRequest::Impl_::Impl_(
       : id_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
-        name_(
+        nickname_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
         email_(
@@ -51,7 +51,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 
 inline constexpr ProfileReply::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
-      : result_(
+      : message_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
         _cached_size_{0} {}
@@ -86,7 +86,7 @@ const ::uint32_t TableStruct_profile_2eproto::offsets[] PROTOBUF_SECTION_VARIABL
     ~0u,  // no _split_
     ~0u,  // no sizeof(Split)
     PROTOBUF_FIELD_OFFSET(::profile::ProfileRequest, _impl_.id_),
-    PROTOBUF_FIELD_OFFSET(::profile::ProfileRequest, _impl_.name_),
+    PROTOBUF_FIELD_OFFSET(::profile::ProfileRequest, _impl_.nickname_),
     PROTOBUF_FIELD_OFFSET(::profile::ProfileRequest, _impl_.email_),
     ~0u,  // no _has_bits_
     PROTOBUF_FIELD_OFFSET(::profile::ProfileReply, _internal_metadata_),
@@ -96,7 +96,7 @@ const ::uint32_t TableStruct_profile_2eproto::offsets[] PROTOBUF_SECTION_VARIABL
     ~0u,  // no _inlined_string_donated_
     ~0u,  // no _split_
     ~0u,  // no sizeof(Split)
-    PROTOBUF_FIELD_OFFSET(::profile::ProfileReply, _impl_.result_),
+    PROTOBUF_FIELD_OFFSET(::profile::ProfileReply, _impl_.message_),
 };
 
 static const ::_pbi::MigrationSchema
@@ -110,18 +110,18 @@ static const ::_pb::Message* const file_default_instances[] = {
     &::profile::_ProfileReply_default_instance_._instance,
 };
 const char descriptor_table_protodef_profile_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-    "\n\rprofile.proto\022\007profile\"9\n\016ProfileReque"
-    "st\022\n\n\002id\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\r\n\005email\030\003 "
-    "\001(\t\"\036\n\014ProfileReply\022\016\n\006result\030\001 \001(\t2S\n\016P"
-    "rofileService\022A\n\rChangeProfile\022\027.profile"
-    ".ProfileRequest\032\025.profile.ProfileReply\"\000"
-    "b\006proto3"
+    "\n\rprofile.proto\022\007profile\"=\n\016ProfileReque"
+    "st\022\n\n\002id\030\001 \001(\t\022\020\n\010nickname\030\002 \001(\t\022\r\n\005emai"
+    "l\030\003 \001(\t\"\037\n\014ProfileReply\022\017\n\007message\030\001 \001(\t"
+    "2T\n\016ProfileService\022B\n\016ChangeNickname\022\027.p"
+    "rofile.ProfileRequest\032\025.profile.ProfileR"
+    "eply\"\000b\006proto3"
 };
 static ::absl::once_flag descriptor_table_profile_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_profile_2eproto = {
     false,
     false,
-    208,
+    214,
     descriptor_table_protodef_profile_2eproto,
     "profile.proto",
     &descriptor_table_profile_2eproto_once,
@@ -169,7 +169,7 @@ inline PROTOBUF_NDEBUG_INLINE ProfileRequest::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
     const Impl_& from)
       : id_(arena, from.id_),
-        name_(arena, from.name_),
+        nickname_(arena, from.nickname_),
         email_(arena, from.email_),
         _cached_size_{0} {}
 
@@ -189,7 +189,7 @@ inline PROTOBUF_NDEBUG_INLINE ProfileRequest::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
       : id_(arena),
-        name_(arena),
+        nickname_(arena),
         email_(arena),
         _cached_size_{0} {}
 
@@ -204,7 +204,7 @@ ProfileRequest::~ProfileRequest() {
 inline void ProfileRequest::SharedDtor() {
   ABSL_DCHECK(GetArena() == nullptr);
   _impl_.id_.Destroy();
-  _impl_.name_.Destroy();
+  _impl_.nickname_.Destroy();
   _impl_.email_.Destroy();
   _impl_.~Impl_();
 }
@@ -217,7 +217,7 @@ PROTOBUF_NOINLINE void ProfileRequest::Clear() {
   (void) cached_has_bits;
 
   _impl_.id_.ClearToEmpty();
-  _impl_.name_.ClearToEmpty();
+  _impl_.nickname_.ClearToEmpty();
   _impl_.email_.ClearToEmpty();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -230,7 +230,7 @@ const char* ProfileRequest::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 42, 2> ProfileRequest::_table_ = {
+const ::_pbi::TcParseTable<2, 3, 0, 46, 2> ProfileRequest::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
@@ -248,9 +248,9 @@ const ::_pbi::TcParseTable<2, 3, 0, 42, 2> ProfileRequest::_table_ = {
     // string id = 1;
     {::_pbi::TcParser::FastUS1,
      {10, 63, 0, PROTOBUF_FIELD_OFFSET(ProfileRequest, _impl_.id_)}},
-    // string name = 2;
+    // string nickname = 2;
     {::_pbi::TcParser::FastUS1,
-     {18, 63, 0, PROTOBUF_FIELD_OFFSET(ProfileRequest, _impl_.name_)}},
+     {18, 63, 0, PROTOBUF_FIELD_OFFSET(ProfileRequest, _impl_.nickname_)}},
     // string email = 3;
     {::_pbi::TcParser::FastUS1,
      {26, 63, 0, PROTOBUF_FIELD_OFFSET(ProfileRequest, _impl_.email_)}},
@@ -260,8 +260,8 @@ const ::_pbi::TcParseTable<2, 3, 0, 42, 2> ProfileRequest::_table_ = {
     // string id = 1;
     {PROTOBUF_FIELD_OFFSET(ProfileRequest, _impl_.id_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
-    // string name = 2;
-    {PROTOBUF_FIELD_OFFSET(ProfileRequest, _impl_.name_), 0, 0,
+    // string nickname = 2;
+    {PROTOBUF_FIELD_OFFSET(ProfileRequest, _impl_.nickname_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
     // string email = 3;
     {PROTOBUF_FIELD_OFFSET(ProfileRequest, _impl_.email_), 0, 0,
@@ -269,10 +269,10 @@ const ::_pbi::TcParseTable<2, 3, 0, 42, 2> ProfileRequest::_table_ = {
   }},
   // no aux_entries
   {{
-    "\26\2\4\5\0\0\0\0"
+    "\26\2\10\5\0\0\0\0"
     "profile.ProfileRequest"
     "id"
-    "name"
+    "nickname"
     "email"
   }},
 };
@@ -292,11 +292,11 @@ const ::_pbi::TcParseTable<2, 3, 0, 42, 2> ProfileRequest::_table_ = {
     target = stream->WriteStringMaybeAliased(1, _s, target);
   }
 
-  // string name = 2;
-  if (!this->_internal_name().empty()) {
-    const std::string& _s = this->_internal_name();
+  // string nickname = 2;
+  if (!this->_internal_nickname().empty()) {
+    const std::string& _s = this->_internal_nickname();
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "profile.ProfileRequest.name");
+        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "profile.ProfileRequest.nickname");
     target = stream->WriteStringMaybeAliased(2, _s, target);
   }
 
@@ -331,10 +331,10 @@ const ::_pbi::TcParseTable<2, 3, 0, 42, 2> ProfileRequest::_table_ = {
                                     this->_internal_id());
   }
 
-  // string name = 2;
-  if (!this->_internal_name().empty()) {
+  // string nickname = 2;
+  if (!this->_internal_nickname().empty()) {
     total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                    this->_internal_name());
+                                    this->_internal_nickname());
   }
 
   // string email = 3;
@@ -365,8 +365,8 @@ void ProfileRequest::MergeImpl(::google::protobuf::Message& to_msg, const ::goog
   if (!from._internal_id().empty()) {
     _this->_internal_set_id(from._internal_id());
   }
-  if (!from._internal_name().empty()) {
-    _this->_internal_set_name(from._internal_name());
+  if (!from._internal_nickname().empty()) {
+    _this->_internal_set_nickname(from._internal_nickname());
   }
   if (!from._internal_email().empty()) {
     _this->_internal_set_email(from._internal_email());
@@ -394,7 +394,7 @@ void ProfileRequest::InternalSwap(ProfileRequest* PROTOBUF_RESTRICT other) {
   ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.id_, &other->_impl_.id_, arena);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.name_, &other->_impl_.name_, arena);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.nickname_, &other->_impl_.nickname_, arena);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.email_, &other->_impl_.email_, arena);
 }
 
@@ -417,7 +417,7 @@ ProfileReply::ProfileReply(::google::protobuf::Arena* arena)
 inline PROTOBUF_NDEBUG_INLINE ProfileReply::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
     const Impl_& from)
-      : result_(arena, from.result_),
+      : message_(arena, from.message_),
         _cached_size_{0} {}
 
 ProfileReply::ProfileReply(
@@ -435,7 +435,7 @@ ProfileReply::ProfileReply(
 inline PROTOBUF_NDEBUG_INLINE ProfileReply::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
-      : result_(arena),
+      : message_(arena),
         _cached_size_{0} {}
 
 inline void ProfileReply::SharedCtor(::_pb::Arena* arena) {
@@ -448,7 +448,7 @@ ProfileReply::~ProfileReply() {
 }
 inline void ProfileReply::SharedDtor() {
   ABSL_DCHECK(GetArena() == nullptr);
-  _impl_.result_.Destroy();
+  _impl_.message_.Destroy();
   _impl_.~Impl_();
 }
 
@@ -459,7 +459,7 @@ PROTOBUF_NOINLINE void ProfileReply::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.result_.ClearToEmpty();
+  _impl_.message_.ClearToEmpty();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -471,7 +471,7 @@ const char* ProfileReply::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 35, 2> ProfileReply::_table_ = {
+const ::_pbi::TcParseTable<0, 1, 0, 36, 2> ProfileReply::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
@@ -485,21 +485,21 @@ const ::_pbi::TcParseTable<0, 1, 0, 35, 2> ProfileReply::_table_ = {
     &_ProfileReply_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
   }, {{
-    // string result = 1;
+    // string message = 1;
     {::_pbi::TcParser::FastUS1,
-     {10, 63, 0, PROTOBUF_FIELD_OFFSET(ProfileReply, _impl_.result_)}},
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(ProfileReply, _impl_.message_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // string result = 1;
-    {PROTOBUF_FIELD_OFFSET(ProfileReply, _impl_.result_), 0, 0,
+    // string message = 1;
+    {PROTOBUF_FIELD_OFFSET(ProfileReply, _impl_.message_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
   }},
   // no aux_entries
   {{
-    "\24\6\0\0\0\0\0\0"
+    "\24\7\0\0\0\0\0\0"
     "profile.ProfileReply"
-    "result"
+    "message"
   }},
 };
 
@@ -510,11 +510,11 @@ const ::_pbi::TcParseTable<0, 1, 0, 35, 2> ProfileReply::_table_ = {
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // string result = 1;
-  if (!this->_internal_result().empty()) {
-    const std::string& _s = this->_internal_result();
+  // string message = 1;
+  if (!this->_internal_message().empty()) {
+    const std::string& _s = this->_internal_message();
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "profile.ProfileReply.result");
+        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "profile.ProfileReply.message");
     target = stream->WriteStringMaybeAliased(1, _s, target);
   }
 
@@ -535,10 +535,10 @@ const ::_pbi::TcParseTable<0, 1, 0, 35, 2> ProfileReply::_table_ = {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string result = 1;
-  if (!this->_internal_result().empty()) {
+  // string message = 1;
+  if (!this->_internal_message().empty()) {
     total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                    this->_internal_result());
+                                    this->_internal_message());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
@@ -560,8 +560,8 @@ void ProfileReply::MergeImpl(::google::protobuf::Message& to_msg, const ::google
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (!from._internal_result().empty()) {
-    _this->_internal_set_result(from._internal_result());
+  if (!from._internal_message().empty()) {
+    _this->_internal_set_message(from._internal_message());
   }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -585,7 +585,7 @@ void ProfileReply::InternalSwap(ProfileReply* PROTOBUF_RESTRICT other) {
   auto* arena = GetArena();
   ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.result_, &other->_impl_.result_, arena);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.message_, &other->_impl_.message_, arena);
 }
 
 ::google::protobuf::Metadata ProfileReply::GetMetadata() const {

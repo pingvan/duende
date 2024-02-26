@@ -13,35 +13,30 @@ using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::Status;
-// using profile::Profile;
 using profile::ProfileReply;
 using profile::ProfileRequest;
 using profile::ProfileService;
 
-struct Profile {
-  std::string id;
-  std::string nickname;
-};
 
 class ProfileServiceImpl final : public ProfileService::Service {
-  std::unordered_map<std::string, Profile> profiles;
+  std::unordered_map<std::string, ProfileRequest> profiles;
 
   Status ChangeNickname(ServerContext *context, const ProfileRequest *request,
                         ProfileReply *reply){
-  //   Profile current_profile = request->profile();
-  //   bool nickname_exists = false;
-  //   for (auto &p : profiles) {
-  //     if (p.second.nickname() == current_profile.nickname()) {
-  //       nickname_exists = true;
-  //       break;
-  //     }
-  //   }
-  //   if (nickname_exists) {
-  //     reply->set_message("Nickname already exists");
-  //     return Status::OK;
-  //   }
-  //   profiles[current_profile.id()].nickname() = current_profile.nickname();
-  //   reply->set_message("Nickname changed");
+    ProfileRequest current_profile = *request;
+    bool nickname_exists = false;
+    for (auto &p : profiles) {
+      if (p.second.nickname() == current_profile.nickname()) {
+        nickname_exists = true;
+        break;
+      }
+    }
+    if (nickname_exists) {
+      reply->set_message("Nickname already exists");
+      return Status::OK;
+    }
+    profiles[current_profile.id()].set_nickname(current_profile.nickname());
+    reply->set_message("Nickname changed");
     return Status::OK;
   }
 };

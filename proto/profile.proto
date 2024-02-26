@@ -3,15 +3,16 @@ syntax = "proto3";
 package profile;
 
 service ProfileService {
-  rpc ChangeProfile (ProfileRequest) returns (ProfileReply) {}
+  rpc ChangeNickname (ProfileRequest) returns (ProfileReply) {}
 }
 
 message ProfileRequest {
   string id = 1;
-  string name = 2;
+  string nickname = 2;
   string email = 3;
 }
 
 message ProfileReply {
-  string result = 1;
+  string message = 1;
 }
+

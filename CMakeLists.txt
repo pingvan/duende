@@ -18,24 +18,24 @@ find_package(OpenSSL REQUIRED)
 find_package(protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
-add_executable(test_client profile_client.cpp profile.grpc.pb.cc profile.pb.cc)
-add_executable(test_server profile_server.cpp profile.grpc.pb.cc profile.pb.cc)
+add_executable(profile_client profile_client.cpp profile.grpc.pb.cc profile.pb.cc)
+add_executable(profile_server profile_server.cpp profile.grpc.pb.cc profile.pb.cc)
 
-target_include_directories(test_server PRIVATE
+target_include_directories(profile_server PRIVATE
         ${OPENSSL_CRYPTO_LIBRARY}
         ${OPENSSL_INCLUDE_DIR}
         ${PROTOBUF_INCLUDE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
         )
 
-        target_include_directories(test_client PRIVATE
+        target_include_directories(profile_client PRIVATE
         ${OPENSSL_CRYPTO_LIBRARY}
         ${OPENSSL_INCLUDE_DIR}
         ${PROTOBUF_INCLUDE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
         )
 
-target_link_libraries(test_server
+target_link_libraries(profile_server
         Threads::Threads
         OpenSSL::Crypto
         protobuf::libprotobuf
@@ -43,7 +43,7 @@ target_link_libraries(test_server
         gRPC::grpc++
         )
 
-        target_link_libraries(test_client
+        target_link_libraries(profile_client
         Threads::Threads
         OpenSSL::Crypto
         protobuf::libprotobuf
