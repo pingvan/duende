@@ -2,8 +2,8 @@
 #define ERRORS_HPP_
 
 #include <map>
-#include "authservice.grpc.pb.h"
-#include "authservice.pb.h"
+#include "services/authservice/authservice.grpc.pb.h"
+#include "services/authservice/authservice.pb.h"
 
 using namespace authservice;
 

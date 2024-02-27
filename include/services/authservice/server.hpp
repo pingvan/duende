@@ -2,8 +2,8 @@
 #define SERVER_HPP_
 
 #include <grpcpp/grpcpp.h>
-#include "authservice.grpc.pb.h"
-#include "authservice.pb.h"
+#include "services/authservice/authservice.grpc.pb.h"
+#include "services/authservice/authservice.pb.h"
 
 struct auth_service final : public authservice::AuthService::Service {
     grpc::Status Login(
