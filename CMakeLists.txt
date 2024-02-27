@@ -1,59 +1,40 @@
 cmake_minimum_required(VERSION 3.22.1)
 
-project(AuthService)
+project(duende)
 
-include_directories(include src/proto libs)
+include(./cmake/grpc-generation.cmake)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(PROTOS src/proto/authservice.grpc.pb.cc src/proto/authservice.pb.cc)
-set(CLIENT client/client.cpp client/client_main.cpp)
-set(SERVER source/jwt.cpp source/data.cpp include/services/authservice/server.cpp src/server_main.cpp)
+add_subdirectory(./include/)
 
-add_executable(client ${PROTOS} ${CLIENT})
-add_executable(server ${PROTOS} ${SERVER})
+message(NOTICE "COMPONENTS_SRCS: " ${COMPONENTS_SRCS})
+message(NOTICE "SERVICES_SRCS: " ${SERVICES_SRCS})
 
-add_custom_target(AuthService)
-add_dependencies(AuthService
-        client
-        server
-)
-
-find_package(Threads REQUIRED)
-find_package(OpenSSL REQUIRED)
-find_package(protobuf CONFIG REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
-target_include_directories(client PRIVATE
-        ${OPENSSL_CRYPTO_LIBRARY}
-        ${OPENSSL_INCLUDE_DIR}
-        ${PROTOBUF_INCLUDE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        )
+add_executable(main
+    src/server_main.cpp
 
-target_link_libraries(client
-        Threads::Threads
-        OpenSSL::Crypto
-        protobuf::libprotobuf
-        gRPC::grpc
-        gRPC::grpc++
-        )
+    ${COMPONENTS_SRCS}
+    ${SERVICES_SRCS}
 
-target_include_directories(server PRIVATE
-        ${OPENSSL_CRYPTO_LIBRARY}
-        ${OPENSSL_INCLUDE_DIR}
-        ${PROTOBUF_INCLUDE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
+    ${generated_proto_models_srcs}
 )
 
-target_link_libraries(server
-        Threads::Threads
-        OpenSSL::Crypto
-        protobuf::libprotobuf
-        gRPC::grpc
-        gRPC::grpc++
+add_dependencies(main generate_proto_models)
+
+target_link_libraries(main
+    absl::flags_parse
+    gRPC::grpc++
+    protobuf::libprotobuf
 )
-        
+
+target_include_directories(main PUBLIC
+    ./include
+    ./libs
+    ${CMAKE_CURRENT_BINARY_DIR}
+)
