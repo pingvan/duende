@@ -1,78 +1,61 @@
-#include <iostream>
-
 #include "server.hpp"
+#include <iostream>
 #include "data.hpp"
-#include "errors.hpp"
-
-using namespace authservice;
-
-template <typename Response>
-void set_error(
-    ServerError_ErrorType error_type,
-    ServerError *error,
-    Response *response
-) {
-    error->set_type(error_type);
-    error->set_error_message(error_messages[error_type]);
-    response->set_allocated_error(error);
-}
 
 grpc::Status auth_service::Login(
     grpc::ServerContext *context,
-    const LoginRequest *request,
-    LoginResponse *response
+    const authservice::LoginRequest *request,
+    authservice::LoginResponse *response
 ) {
     std::string username = request->username();
     std::string password = request->password();
-    auto *error = new ServerError;
-    ServerError_ErrorType error_type =
-        ServerError_ErrorType::ServerError_ErrorType_NO_ERROR;
 
     if (users.find(username) == users.end()) {
-        error_type =
-            ServerError_ErrorType::ServerError_ErrorType_USER_DOES_NOT_EXIST;
-    } else if (users[username].second != password) {
-        error_type =
-            ServerError_ErrorType::ServerError_ErrorType_INCORRECT_PASSWORD;
+        return grpc::Status(grpc::StatusCode::NOT_FOUND, "User not found");
+    }
+    if (users[username].second != password) {
+        return grpc::Status(
+            grpc::StatusCode::INVALID_ARGUMENT, "Incorrect password"
+        );
     }
 
-    if (error_type != ServerError_ErrorType::ServerError_ErrorType_NO_ERROR) {
-        set_error(error_type, error, response);
-    } else {
-        std::cout << request->username() << " logged in" << std::endl;
-    }
+    std::cout << request->username() << " logged in" << std::endl;
 
     return grpc::Status::OK;
 }
 
 grpc::Status auth_service::Signin(
     grpc::ServerContext *context,
-    const SigninRequest *request,
-    SigninResponse *response
+    const authservice::SigninRequest *request,
+    authservice::SigninResponse *response
 ) {
     std::string username = request->username();
     std::string email = request->email();
     std::string password = request->password();
     std::string password_confirmation = request->password_confirmation();
-    auto *error = new ServerError;
-    ServerError_ErrorType error_type =
-        ServerError_ErrorType::ServerError_ErrorType_NO_ERROR;
+
+    if (!username_is_valid(username).ok()) {
+        return username_is_valid(username);
+    }
+    if (!email_is_valid(email).ok()) {
+        return email_is_valid(email);
+    }
+    if (!password_is_valid(password).ok()) {
+        return password_is_valid(password);
+    }
 
     if (users.find(username) != users.end()) {
-        ServerError_ErrorType error_type =
-            ServerError_ErrorType::ServerError_ErrorType_USER_ALREADY_EXISTS;
+        return grpc::Status(
+            grpc::StatusCode::ALREADY_EXISTS, "User already exists"
+        );
     }
     if (password != password_confirmation) {
-        error_type =
-            ServerError_ErrorType::ServerError_ErrorType_PASSWORD_NOT_CONFIRMED;
+        return grpc::Status(
+            grpc::StatusCode::INVALID_ARGUMENT, "Passwords do not match"
+        );
     }
 
-    if (error_type != ServerError_ErrorType::ServerError_ErrorType_NO_ERROR) {
-        set_error(error_type, error, response);
-    } else {
-        users[username] = std::make_pair(email, password);
-        std::cout << request->username() << " signed in" << std::endl;
-    }
+    std::cout << request->username() << " signed in" << std::endl;
 
     return grpc::Status::OK;
 }

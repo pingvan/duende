@@ -37,8 +37,13 @@ void execute(Commands command, client &new_client) {
             std::string username = read_field("username");
             std::string email = read_field("email");
             std::string password = read_field("password");
-            std::string password_confirmation = read_field("password confirmation");
-            if (new_client.registration(username, email, password, password_confirmation).ok()) {
+            std::string password_confirmation =
+                read_field("password confirmation");
+            if (new_client
+                    .registration(
+                        username, email, password, password_confirmation
+                    )
+                    .ok()) {
                 std::cout << "Signin successful. Welcome!" << std::endl;
             }
             break;

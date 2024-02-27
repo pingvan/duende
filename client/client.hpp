@@ -1,5 +1,4 @@
-#ifndef CLIENT_HPP_
-#define CLIENT_HPP_
+#pragma once
 
 #include <grpcpp/grpcpp.h>
 #include <memory>
@@ -23,9 +22,4 @@ public:
         const std::string &password,
         const std::string &password_confirmation
     );
-
-    template <typename Response>
-    grpc::Status error_processing(Response *response);
 };
-
-#endif

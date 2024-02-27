@@ -1,7 +1,7 @@
 #include <grpcpp/grpcpp.h>
 #include "services/authservice/server.hpp"
 
-std::string server_address("127.0.0.1:12345");
+std::string server_address("0.0.0.0:50051");
 
 void run_server() {
     auth_service service;
@@ -10,7 +10,7 @@ void run_server() {
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
     builder.RegisterService(&service);
 
-    std::unique_ptr<grpc::Server> server = builder.BuildAndStart();
+    std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << '\n';
     server->Wait();
 }

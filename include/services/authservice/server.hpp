@@ -1,5 +1,4 @@
-#ifndef SERVER_HPP_
-#define SERVER_HPP_
+#pragma once
 
 #include <grpcpp/grpcpp.h>
 #include "services/authservice/authservice.grpc.pb.h"
@@ -16,6 +15,7 @@ struct auth_service final : public authservice::AuthService::Service {
         const authservice::SigninRequest *request,
         authservice::SigninResponse *response
     ) override;
+    grpc::Status password_is_valid(const std::string &password);
+    grpc::Status username_is_valid(const std::string &username);
+    grpc::Status email_is_valid(const std::string &email);
 };
-
-#endif

@@ -5,16 +5,6 @@ client::client(const std::shared_ptr<grpc::Channel> &new_channel)
       authorization_stub(authservice::AuthService::NewStub(new_channel)) {
 }
 
-template <typename Response>
-grpc::Status client::error_processing(Response *response) {
-    if (response->has_error()) {
-        std::cout << "Error: " << response->error().error_message()
-                  << std::endl;
-        return grpc::Status::CANCELLED;
-    }
-    return grpc::Status::OK;
-}
-
 grpc::Status
 client::login(const std::string &client_login, const std::string &password) {
     grpc::ClientContext context;
@@ -24,7 +14,7 @@ client::login(const std::string &client_login, const std::string &password) {
     request.set_password(password);
 
     authorization_stub->Login(&context, request, response);
-    return error_processing(response);
+    return grpc::Status::OK;
 }
 
 grpc::Status client::registration(
@@ -42,5 +32,5 @@ grpc::Status client::registration(
     request.set_password_confirmation(password_confirmation);
 
     authorization_stub->Signin(&context, request, response);
-    return error_processing(response);
+    return grpc::Status::OK;
 }
