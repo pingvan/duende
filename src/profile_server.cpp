@@ -6,8 +6,8 @@
 
 #include <grpcpp/grpcpp.h>
 
-#include "proto/profile.grpc.pb.h"
-#include "proto/profile.pb.h"
+#include "services/profile_service/profile.grpc.pb.h"
+#include "services/profile_service/profile.pb.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
