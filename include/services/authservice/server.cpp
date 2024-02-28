@@ -55,6 +55,7 @@ grpc::Status auth_service::Signin(
         );
     }
 
+    users[username] = {email, password};
     std::cout << request->username() << " signed in" << std::endl;
 
     return grpc::Status::OK;
