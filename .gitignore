@@ -6,6 +6,8 @@ cmake-build-debug
 cmake-build
 build
 cmake/build
+compile_commands.json
+main
 *.sln
 *.vcxproj
 *.vcxproj.filters
