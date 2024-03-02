@@ -940,15 +940,69 @@ class ProfileRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kMoviesFieldNumber = 6,
+    kActorsFieldNumber = 7,
+    kGenresFieldNumber = 8,
     kIdFieldNumber = 1,
     kNicknameFieldNumber = 2,
     kPhotoFieldNumber = 3,
     kQuoteFieldNumber = 4,
     kBioFieldNumber = 5,
-    kMoviesFieldNumber = 6,
-    kActorsFieldNumber = 7,
-    kGenresFieldNumber = 8,
   };
+  // repeated .profile.Movie movies = 6;
+  int movies_size() const;
+  private:
+  int _internal_movies_size() const;
+
+  public:
+  void clear_movies() ;
+  ::profile::Movie* mutable_movies(int index);
+  ::google::protobuf::RepeatedPtrField< ::profile::Movie >*
+      mutable_movies();
+  private:
+  const ::google::protobuf::RepeatedPtrField<::profile::Movie>& _internal_movies() const;
+  ::google::protobuf::RepeatedPtrField<::profile::Movie>* _internal_mutable_movies();
+  public:
+  const ::profile::Movie& movies(int index) const;
+  ::profile::Movie* add_movies();
+  const ::google::protobuf::RepeatedPtrField< ::profile::Movie >&
+      movies() const;
+  // repeated .profile.Actor actors = 7;
+  int actors_size() const;
+  private:
+  int _internal_actors_size() const;
+
+  public:
+  void clear_actors() ;
+  ::profile::Actor* mutable_actors(int index);
+  ::google::protobuf::RepeatedPtrField< ::profile::Actor >*
+      mutable_actors();
+  private:
+  const ::google::protobuf::RepeatedPtrField<::profile::Actor>& _internal_actors() const;
+  ::google::protobuf::RepeatedPtrField<::profile::Actor>* _internal_mutable_actors();
+  public:
+  const ::profile::Actor& actors(int index) const;
+  ::profile::Actor* add_actors();
+  const ::google::protobuf::RepeatedPtrField< ::profile::Actor >&
+      actors() const;
+  // repeated .profile.Genre genres = 8;
+  int genres_size() const;
+  private:
+  int _internal_genres_size() const;
+
+  public:
+  void clear_genres() ;
+  ::profile::Genre* mutable_genres(int index);
+  ::google::protobuf::RepeatedPtrField< ::profile::Genre >*
+      mutable_genres();
+  private:
+  const ::google::protobuf::RepeatedPtrField<::profile::Genre>& _internal_genres() const;
+  ::google::protobuf::RepeatedPtrField<::profile::Genre>* _internal_mutable_genres();
+  public:
+  const ::profile::Genre& genres(int index) const;
+  ::profile::Genre* add_genres();
+  const ::google::protobuf::RepeatedPtrField< ::profile::Genre >&
+      genres() const;
   // string id = 1;
   void clear_id() ;
   const std::string& id() const;
@@ -1029,51 +1083,6 @@ class ProfileRequest final :
   std::string* _internal_mutable_bio();
 
   public:
-  // .profile.Movie movies = 6;
-  bool has_movies() const;
-  void clear_movies() ;
-  const ::profile::Movie& movies() const;
-  PROTOBUF_NODISCARD ::profile::Movie* release_movies();
-  ::profile::Movie* mutable_movies();
-  void set_allocated_movies(::profile::Movie* value);
-  void unsafe_arena_set_allocated_movies(::profile::Movie* value);
-  ::profile::Movie* unsafe_arena_release_movies();
-
-  private:
-  const ::profile::Movie& _internal_movies() const;
-  ::profile::Movie* _internal_mutable_movies();
-
-  public:
-  // .profile.Actor actors = 7;
-  bool has_actors() const;
-  void clear_actors() ;
-  const ::profile::Actor& actors() const;
-  PROTOBUF_NODISCARD ::profile::Actor* release_actors();
-  ::profile::Actor* mutable_actors();
-  void set_allocated_actors(::profile::Actor* value);
-  void unsafe_arena_set_allocated_actors(::profile::Actor* value);
-  ::profile::Actor* unsafe_arena_release_actors();
-
-  private:
-  const ::profile::Actor& _internal_actors() const;
-  ::profile::Actor* _internal_mutable_actors();
-
-  public:
-  // .profile.Genre genres = 8;
-  bool has_genres() const;
-  void clear_genres() ;
-  const ::profile::Genre& genres() const;
-  PROTOBUF_NODISCARD ::profile::Genre* release_genres();
-  ::profile::Genre* mutable_genres();
-  void set_allocated_genres(::profile::Genre* value);
-  void unsafe_arena_set_allocated_genres(::profile::Genre* value);
-  ::profile::Genre* unsafe_arena_release_genres();
-
-  private:
-  const ::profile::Genre& _internal_genres() const;
-  ::profile::Genre* _internal_mutable_genres();
-
-  public:
   // @@protoc_insertion_point(class_scope:profile.ProfileRequest)
  private:
   class _Internal;
@@ -1097,16 +1106,15 @@ class ProfileRequest final :
                               ::google::protobuf::Arena* arena);
         inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                               ::google::protobuf::Arena* arena, const Impl_& from);
-    ::google::protobuf::internal::HasBits<1> _has_bits_;
-    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::RepeatedPtrField< ::profile::Movie > movies_;
+    ::google::protobuf::RepeatedPtrField< ::profile::Actor > actors_;
+    ::google::protobuf::RepeatedPtrField< ::profile::Genre > genres_;
     ::google::protobuf::internal::ArenaStringPtr id_;
     ::google::protobuf::internal::ArenaStringPtr nickname_;
     ::google::protobuf::internal::ArenaStringPtr photo_;
     ::google::protobuf::internal::ArenaStringPtr quote_;
     ::google::protobuf::internal::ArenaStringPtr bio_;
-    ::profile::Movie* movies_;
-    ::profile::Actor* actors_;
-    ::profile::Genre* genres_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1565,292 +1573,151 @@ inline void ProfileRequest::set_allocated_bio(std::string* value) {
   // @@protoc_insertion_point(field_set_allocated:profile.ProfileRequest.bio)
 }
 
-// .profile.Movie movies = 6;
-inline bool ProfileRequest::has_movies() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
-  PROTOBUF_ASSUME(!value || _impl_.movies_ != nullptr);
-  return value;
+// repeated .profile.Movie movies = 6;
+inline int ProfileRequest::_internal_movies_size() const {
+  return _internal_movies().size();
+}
+inline int ProfileRequest::movies_size() const {
+  return _internal_movies_size();
 }
 inline void ProfileRequest::clear_movies() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  if (_impl_.movies_ != nullptr) _impl_.movies_->Clear();
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_.movies_.Clear();
 }
-inline const ::profile::Movie& ProfileRequest::_internal_movies() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  const ::profile::Movie* p = _impl_.movies_;
-  return p != nullptr ? *p : reinterpret_cast<const ::profile::Movie&>(::profile::_Movie_default_instance_);
+inline ::profile::Movie* ProfileRequest::mutable_movies(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:profile.ProfileRequest.movies)
+  return _internal_mutable_movies()->Mutable(index);
 }
-inline const ::profile::Movie& ProfileRequest::movies() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::google::protobuf::RepeatedPtrField<::profile::Movie>* ProfileRequest::mutable_movies()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:profile.ProfileRequest.movies)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  return _internal_mutable_movies();
+}
+inline const ::profile::Movie& ProfileRequest::movies(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_get:profile.ProfileRequest.movies)
+  return _internal_movies().Get(index);
+}
+inline ::profile::Movie* ProfileRequest::add_movies() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::profile::Movie* _add = _internal_mutable_movies()->Add();
+  // @@protoc_insertion_point(field_add:profile.ProfileRequest.movies)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::profile::Movie>& ProfileRequest::movies() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:profile.ProfileRequest.movies)
   return _internal_movies();
 }
-inline void ProfileRequest::unsafe_arena_set_allocated_movies(::profile::Movie* value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  if (GetArena() == nullptr) {
-    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.movies_);
-  }
-  _impl_.movies_ = reinterpret_cast<::profile::Movie*>(value);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:profile.ProfileRequest.movies)
-}
-inline ::profile::Movie* ProfileRequest::release_movies() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  ::profile::Movie* released = _impl_.movies_;
-  _impl_.movies_ = nullptr;
-#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
-  auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
-  released = ::google::protobuf::internal::DuplicateIfNonNull(released);
-  if (GetArena() == nullptr) {
-    delete old;
-  }
-#else   // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArena() != nullptr) {
-    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
-  }
-#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
-  return released;
-}
-inline ::profile::Movie* ProfileRequest::unsafe_arena_release_movies() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  // @@protoc_insertion_point(field_release:profile.ProfileRequest.movies)
-
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  ::profile::Movie* temp = _impl_.movies_;
-  _impl_.movies_ = nullptr;
-  return temp;
-}
-inline ::profile::Movie* ProfileRequest::_internal_mutable_movies() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  if (_impl_.movies_ == nullptr) {
-    auto* p = CreateMaybeMessage<::profile::Movie>(GetArena());
-    _impl_.movies_ = reinterpret_cast<::profile::Movie*>(p);
-  }
+inline const ::google::protobuf::RepeatedPtrField<::profile::Movie>&
+ProfileRequest::_internal_movies() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return _impl_.movies_;
 }
-inline ::profile::Movie* ProfileRequest::mutable_movies() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::profile::Movie* _msg = _internal_mutable_movies();
-  // @@protoc_insertion_point(field_mutable:profile.ProfileRequest.movies)
-  return _msg;
-}
-inline void ProfileRequest::set_allocated_movies(::profile::Movie* value) {
-  ::google::protobuf::Arena* message_arena = GetArena();
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  if (message_arena == nullptr) {
-    delete reinterpret_cast<::profile::Movie*>(_impl_.movies_);
-  }
-
-  if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::profile::Movie*>(value)->GetArena();
-    if (message_arena != submessage_arena) {
-      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
-    }
-    _impl_._has_bits_[0] |= 0x00000001u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
-  }
-
-  _impl_.movies_ = reinterpret_cast<::profile::Movie*>(value);
-  // @@protoc_insertion_point(field_set_allocated:profile.ProfileRequest.movies)
+inline ::google::protobuf::RepeatedPtrField<::profile::Movie>*
+ProfileRequest::_internal_mutable_movies() {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return &_impl_.movies_;
 }
 
-// .profile.Actor actors = 7;
-inline bool ProfileRequest::has_actors() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
-  PROTOBUF_ASSUME(!value || _impl_.actors_ != nullptr);
-  return value;
+// repeated .profile.Actor actors = 7;
+inline int ProfileRequest::_internal_actors_size() const {
+  return _internal_actors().size();
+}
+inline int ProfileRequest::actors_size() const {
+  return _internal_actors_size();
 }
 inline void ProfileRequest::clear_actors() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  if (_impl_.actors_ != nullptr) _impl_.actors_->Clear();
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_.actors_.Clear();
 }
-inline const ::profile::Actor& ProfileRequest::_internal_actors() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  const ::profile::Actor* p = _impl_.actors_;
-  return p != nullptr ? *p : reinterpret_cast<const ::profile::Actor&>(::profile::_Actor_default_instance_);
+inline ::profile::Actor* ProfileRequest::mutable_actors(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:profile.ProfileRequest.actors)
+  return _internal_mutable_actors()->Mutable(index);
 }
-inline const ::profile::Actor& ProfileRequest::actors() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::google::protobuf::RepeatedPtrField<::profile::Actor>* ProfileRequest::mutable_actors()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:profile.ProfileRequest.actors)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  return _internal_mutable_actors();
+}
+inline const ::profile::Actor& ProfileRequest::actors(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_get:profile.ProfileRequest.actors)
+  return _internal_actors().Get(index);
+}
+inline ::profile::Actor* ProfileRequest::add_actors() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::profile::Actor* _add = _internal_mutable_actors()->Add();
+  // @@protoc_insertion_point(field_add:profile.ProfileRequest.actors)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::profile::Actor>& ProfileRequest::actors() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:profile.ProfileRequest.actors)
   return _internal_actors();
 }
-inline void ProfileRequest::unsafe_arena_set_allocated_actors(::profile::Actor* value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  if (GetArena() == nullptr) {
-    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.actors_);
-  }
-  _impl_.actors_ = reinterpret_cast<::profile::Actor*>(value);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000002u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000002u;
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:profile.ProfileRequest.actors)
-}
-inline ::profile::Actor* ProfileRequest::release_actors() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-
-  _impl_._has_bits_[0] &= ~0x00000002u;
-  ::profile::Actor* released = _impl_.actors_;
-  _impl_.actors_ = nullptr;
-#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
-  auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
-  released = ::google::protobuf::internal::DuplicateIfNonNull(released);
-  if (GetArena() == nullptr) {
-    delete old;
-  }
-#else   // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArena() != nullptr) {
-    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
-  }
-#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
-  return released;
-}
-inline ::profile::Actor* ProfileRequest::unsafe_arena_release_actors() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  // @@protoc_insertion_point(field_release:profile.ProfileRequest.actors)
-
-  _impl_._has_bits_[0] &= ~0x00000002u;
-  ::profile::Actor* temp = _impl_.actors_;
-  _impl_.actors_ = nullptr;
-  return temp;
-}
-inline ::profile::Actor* ProfileRequest::_internal_mutable_actors() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  if (_impl_.actors_ == nullptr) {
-    auto* p = CreateMaybeMessage<::profile::Actor>(GetArena());
-    _impl_.actors_ = reinterpret_cast<::profile::Actor*>(p);
-  }
+inline const ::google::protobuf::RepeatedPtrField<::profile::Actor>&
+ProfileRequest::_internal_actors() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return _impl_.actors_;
 }
-inline ::profile::Actor* ProfileRequest::mutable_actors() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::profile::Actor* _msg = _internal_mutable_actors();
-  // @@protoc_insertion_point(field_mutable:profile.ProfileRequest.actors)
-  return _msg;
-}
-inline void ProfileRequest::set_allocated_actors(::profile::Actor* value) {
-  ::google::protobuf::Arena* message_arena = GetArena();
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  if (message_arena == nullptr) {
-    delete reinterpret_cast<::profile::Actor*>(_impl_.actors_);
-  }
-
-  if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::profile::Actor*>(value)->GetArena();
-    if (message_arena != submessage_arena) {
-      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
-    }
-    _impl_._has_bits_[0] |= 0x00000002u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000002u;
-  }
-
-  _impl_.actors_ = reinterpret_cast<::profile::Actor*>(value);
-  // @@protoc_insertion_point(field_set_allocated:profile.ProfileRequest.actors)
+inline ::google::protobuf::RepeatedPtrField<::profile::Actor>*
+ProfileRequest::_internal_mutable_actors() {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return &_impl_.actors_;
 }
 
-// .profile.Genre genres = 8;
-inline bool ProfileRequest::has_genres() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
-  PROTOBUF_ASSUME(!value || _impl_.genres_ != nullptr);
-  return value;
+// repeated .profile.Genre genres = 8;
+inline int ProfileRequest::_internal_genres_size() const {
+  return _internal_genres().size();
+}
+inline int ProfileRequest::genres_size() const {
+  return _internal_genres_size();
 }
 inline void ProfileRequest::clear_genres() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  if (_impl_.genres_ != nullptr) _impl_.genres_->Clear();
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_.genres_.Clear();
 }
-inline const ::profile::Genre& ProfileRequest::_internal_genres() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  const ::profile::Genre* p = _impl_.genres_;
-  return p != nullptr ? *p : reinterpret_cast<const ::profile::Genre&>(::profile::_Genre_default_instance_);
+inline ::profile::Genre* ProfileRequest::mutable_genres(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:profile.ProfileRequest.genres)
+  return _internal_mutable_genres()->Mutable(index);
 }
-inline const ::profile::Genre& ProfileRequest::genres() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::google::protobuf::RepeatedPtrField<::profile::Genre>* ProfileRequest::mutable_genres()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:profile.ProfileRequest.genres)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  return _internal_mutable_genres();
+}
+inline const ::profile::Genre& ProfileRequest::genres(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_get:profile.ProfileRequest.genres)
+  return _internal_genres().Get(index);
+}
+inline ::profile::Genre* ProfileRequest::add_genres() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::profile::Genre* _add = _internal_mutable_genres()->Add();
+  // @@protoc_insertion_point(field_add:profile.ProfileRequest.genres)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::profile::Genre>& ProfileRequest::genres() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:profile.ProfileRequest.genres)
   return _internal_genres();
 }
-inline void ProfileRequest::unsafe_arena_set_allocated_genres(::profile::Genre* value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  if (GetArena() == nullptr) {
-    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.genres_);
-  }
-  _impl_.genres_ = reinterpret_cast<::profile::Genre*>(value);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000004u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000004u;
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:profile.ProfileRequest.genres)
-}
-inline ::profile::Genre* ProfileRequest::release_genres() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-
-  _impl_._has_bits_[0] &= ~0x00000004u;
-  ::profile::Genre* released = _impl_.genres_;
-  _impl_.genres_ = nullptr;
-#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
-  auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
-  released = ::google::protobuf::internal::DuplicateIfNonNull(released);
-  if (GetArena() == nullptr) {
-    delete old;
-  }
-#else   // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArena() != nullptr) {
-    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
-  }
-#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
-  return released;
-}
-inline ::profile::Genre* ProfileRequest::unsafe_arena_release_genres() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  // @@protoc_insertion_point(field_release:profile.ProfileRequest.genres)
-
-  _impl_._has_bits_[0] &= ~0x00000004u;
-  ::profile::Genre* temp = _impl_.genres_;
-  _impl_.genres_ = nullptr;
-  return temp;
-}
-inline ::profile::Genre* ProfileRequest::_internal_mutable_genres() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000004u;
-  if (_impl_.genres_ == nullptr) {
-    auto* p = CreateMaybeMessage<::profile::Genre>(GetArena());
-    _impl_.genres_ = reinterpret_cast<::profile::Genre*>(p);
-  }
+inline const ::google::protobuf::RepeatedPtrField<::profile::Genre>&
+ProfileRequest::_internal_genres() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return _impl_.genres_;
 }
-inline ::profile::Genre* ProfileRequest::mutable_genres() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::profile::Genre* _msg = _internal_mutable_genres();
-  // @@protoc_insertion_point(field_mutable:profile.ProfileRequest.genres)
-  return _msg;
-}
-inline void ProfileRequest::set_allocated_genres(::profile::Genre* value) {
-  ::google::protobuf::Arena* message_arena = GetArena();
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  if (message_arena == nullptr) {
-    delete reinterpret_cast<::profile::Genre*>(_impl_.genres_);
-  }
-
-  if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::profile::Genre*>(value)->GetArena();
-    if (message_arena != submessage_arena) {
-      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
-    }
-    _impl_._has_bits_[0] |= 0x00000004u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000004u;
-  }
-
-  _impl_.genres_ = reinterpret_cast<::profile::Genre*>(value);
-  // @@protoc_insertion_point(field_set_allocated:profile.ProfileRequest.genres)
+inline ::google::protobuf::RepeatedPtrField<::profile::Genre>*
+ProfileRequest::_internal_mutable_genres() {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return &_impl_.genres_;
 }
 
 // -------------------------------------------------------------------

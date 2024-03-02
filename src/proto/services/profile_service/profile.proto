@@ -33,9 +33,9 @@ message ProfileRequest {
   string photo = 3;
   string quote = 4;
   string bio = 5;
-  Movie movies = 6;
-  Actor actors = 7;
-  Genre genres = 8;
+  repeated Movie movies = 6;
+  repeated Actor actors = 7;
+  repeated Genre genres = 8;
 }
 
 message ProfileReply {
