@@ -2,5 +2,5 @@
 
 #include <string>
 
-std::string hash(const std::string &password);
-std::string salt(int size);
+std::string generate_hash(const std::string &password);
+std::string generate_salt(int size);

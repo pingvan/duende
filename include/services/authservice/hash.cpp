@@ -6,7 +6,7 @@
 #include <random>
 #include <sstream>
 
-std::string hash(const std::string &password) {
+std::string generate_hash(const std::string &password) {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256(
         reinterpret_cast<const unsigned char *>(password.data()),
@@ -20,7 +20,7 @@ std::string hash(const std::string &password) {
     return ss.str();
 }
 
-std::string salt(int size) {
+std::string generate_salt(int size) {
     static const std::string symbols = {
         "0123456789!@#$%^&*"
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"};
