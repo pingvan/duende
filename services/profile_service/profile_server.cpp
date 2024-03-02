@@ -22,7 +22,7 @@ class ProfileServiceImpl final : public ProfileService::Service {
   std::unordered_map<std::string, ProfileRequest> profiles;
 
   Status ChangeNickname(ServerContext *context, const ProfileRequest *request,
-                        ProfileReply *reply){
+                        ProfileReply *reply) override {
     ProfileRequest current_profile = *request;
     bool nickname_exists = false;
     for (auto &p : profiles) {
@@ -76,18 +76,18 @@ class ProfileServiceImpl final : public ProfileService::Service {
 };
 
 
-void RunServer() {
-  std::string server_address("0.0.0.0:50051");
-  ProfileServiceImpl service;
+// void RunServer() {
+//   std::string server_address("0.0.0.0:50051");
+//   ProfileServiceImpl service;
 
-  ServerBuilder builder;
-  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-  builder.RegisterService(&service);
-  std::unique_ptr<Server> server(builder.BuildAndStart());
-  server->Wait();
-}
+//   ServerBuilder builder;
+//   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+//   builder.RegisterService(&service);
+//   std::unique_ptr<Server> server(builder.BuildAndStart());
+//   server->Wait();
+// }
 
-int main(int argc, char** argv) {
-  RunServer();
-  return 0;
-}
+// int main(int argc, char** argv) {
+//   RunServer();
+//   return 0;
+// }
