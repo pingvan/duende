@@ -37,9 +37,12 @@ message UserDTO {
 };
 
 service AuthService {
-    rpc Login(LoginRequest) returns (LoginResponse) {}
-    rpc Signin(SigninRequest) returns (SigninResponse) {}
-    rpc Logout(LogoutRequest) returns (LogoutResponse) {}
+    rpc Login(LoginRequest) returns (LoginResponse) {
+    }
+    rpc Signin(SigninRequest) returns (SigninResponse) {
+    }
+    rpc Logout(LogoutRequest) returns (LogoutResponse) {
+    }
 }
 
 message LoginRequest {

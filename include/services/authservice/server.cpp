@@ -1,11 +1,11 @@
 #include "server.hpp"
 #include <iostream>
 #include "data.hpp"
-#include "token.hpp"
 #include "hash.hpp"
+#include "token.hpp"
 
-
-grpc::Status auth_service::save_user(authservice::User &user, std::string password) {
+grpc::Status
+auth_service::save_user(authservice::User &user, std::string password) {
     std::unordered_map<std::string, std::string> user_data;
     std::string salt = generate_salt(5);
     user.set_hashed_password(generate_hash(password + salt));
@@ -29,7 +29,7 @@ grpc::Status auth_service::Login(
     authservice::User user;
     if (request->has_username()) {
         user.set_username(request->username());
-        for (auto const &[key, val] : users) {
+        for (const auto &[key, val] : users) {
             if (key == user.username()) {
                 user.set_email(val.at("email"));
                 user.set_id(std::stoi(val.at("id")));
@@ -40,7 +40,7 @@ grpc::Status auth_service::Login(
     }
     if (request->has_email()) {
         user.set_email(request->email());
-        for (auto const &[key, val] : users) {
+        for (const auto &[key, val] : users) {
             if (val.at("email") == user.email()) {
                 user.set_username(key);
                 user.set_id(std::stoi(val.at("id")));
@@ -54,7 +54,9 @@ grpc::Status auth_service::Login(
     if (users.find(user.username()) == users.end()) {
         return grpc::Status(grpc::StatusCode::NOT_FOUND, "User not found");
     }
-    user.set_hashed_password(generate_hash(password + users[user.username()]["salt"]));
+    user.set_hashed_password(
+        generate_hash(password + users[user.username()]["salt"])
+    );
     if (users[user.username()]["hashed_password"] != user.hashed_password()) {
         return grpc::Status(
             grpc::StatusCode::INVALID_ARGUMENT, "Incorrect password"
@@ -85,7 +87,6 @@ grpc::Status auth_service::Signin(
     user.set_username(username);
     user.set_email(email);
     user.set_id(123);
-
 
     if (!username_is_valid(username).ok()) {
         return username_is_valid(username);

@@ -16,13 +16,15 @@ grpc::Status auth_service::password_is_valid(const std::string &password) {
         }
         if (std::isspace(symbol)) {
             return grpc::Status(
-                grpc::StatusCode::INVALID_ARGUMENT, "Password must not contain spaces"
+                grpc::StatusCode::INVALID_ARGUMENT,
+                "Password must not contain spaces"
             );
         }
     }
     if (password.size() < 8) {
         return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT, "Password is too short. It must be at least 8 characters long"
+            grpc::StatusCode::INVALID_ARGUMENT,
+            "Password is too short. It must be at least 8 characters long"
         );
     }
     if (digit_count == 0) {
@@ -32,12 +34,14 @@ grpc::Status auth_service::password_is_valid(const std::string &password) {
     }
     if (upper_count == 0) {
         return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT, "Password must contain an uppercase letter"
+            grpc::StatusCode::INVALID_ARGUMENT,
+            "Password must contain an uppercase letter"
         );
     }
     if (lower_count == 0) {
         return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT, "Password must contain a lowercase letter"
+            grpc::StatusCode::INVALID_ARGUMENT,
+            "Password must contain a lowercase letter"
         );
     }
     return grpc::Status::OK;
@@ -55,28 +59,33 @@ grpc::Status auth_service::username_is_valid(const std::string &username) {
         }
         if (std::isspace(symbol)) {
             return grpc::Status(
-                grpc::StatusCode::INVALID_ARGUMENT, "Username must not contain spaces"
+                grpc::StatusCode::INVALID_ARGUMENT,
+                "Username must not contain spaces"
             );
         }
     }
     if (username.size() < 4) {
         return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT, "Username is too short. It must be at least 4 characters long"
+            grpc::StatusCode::INVALID_ARGUMENT,
+            "Username is too short. It must be at least 4 characters long"
         );
     }
     if (username.size() > 20) {
         return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT, "Username is too long. It must be at most 20 characters long"
+            grpc::StatusCode::INVALID_ARGUMENT,
+            "Username is too long. It must be at most 20 characters long"
         );
     }
     if (upper_count > 0) {
         return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT, "Username must not contain uppercase letters"
+            grpc::StatusCode::INVALID_ARGUMENT,
+            "Username must not contain uppercase letters"
         );
     }
     if (lower_count == 0) {
         return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT, "Username must contain a lowercase letter"
+            grpc::StatusCode::INVALID_ARGUMENT,
+            "Username must contain a lowercase letter"
         );
     }
     return grpc::Status::OK;
@@ -86,7 +95,8 @@ grpc::Status auth_service::email_is_valid(const std::string &email) {
     for (char symbol : email) {
         if (std::isspace(symbol)) {
             return grpc::Status(
-                grpc::StatusCode::INVALID_ARGUMENT, "Email must not contain spaces"
+                grpc::StatusCode::INVALID_ARGUMENT,
+                "Email must not contain spaces"
             );
         }
     }
@@ -102,22 +112,26 @@ grpc::Status auth_service::email_is_valid(const std::string &email) {
     }
     if (email.find('@') > email.find('.')) {
         return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT, "Email must contain a dot after the @ symbol"
+            grpc::StatusCode::INVALID_ARGUMENT,
+            "Email must contain a dot after the @ symbol"
         );
     }
     if (email.find('@') == 0) {
         return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT, "Email must contain a username before the @ symbol"
+            grpc::StatusCode::INVALID_ARGUMENT,
+            "Email must contain a username before the @ symbol"
         );
     }
     if (email.find('.') == email.size() - 1) {
         return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT, "Email must contain a domain after the dot"
+            grpc::StatusCode::INVALID_ARGUMENT,
+            "Email must contain a domain after the dot"
         );
     }
     if (email.find('@') == email.size() - 1) {
         return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT, "Email must contain a domain after the @ symbol"
+            grpc::StatusCode::INVALID_ARGUMENT,
+            "Email must contain a domain after the @ symbol"
         );
     }
     return grpc::Status::OK;
