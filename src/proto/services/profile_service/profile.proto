@@ -7,6 +7,24 @@ service ProfileService {
   rpc ChangePhoto (ProfileRequest) returns (ProfileReply) {}
   rpc ChangeQuote (ProfileRequest) returns (ProfileReply) {}
   rpc ChangeBio (ProfileRequest) returns (ProfileReply) {}
+  rpc AddToWatchlist (ProfileRequest) returns (ProfileReply) {}
+  rpc RemoveFromWatchlist (ProfileRequest) returns (ProfileReply) {}
+  rpc AddToListOfActors (ProfileRequest) returns (ProfileReply) {}
+  rpc RemoveFromListOfActors (ProfileRequest) returns (ProfileReply) {}
+  rpc AddToListOfGenres (ProfileRequest) returns (ProfileReply) {}
+  rpc RemoveFromListOfGenres (ProfileRequest) returns (ProfileReply) {}
+}
+
+message Movie{
+  string id = 1;
+}
+
+message Actor{
+  string id = 1;
+}
+
+message Genre{
+  string id = 1;
 }
 
 message ProfileRequest {
@@ -15,6 +33,9 @@ message ProfileRequest {
   string photo = 3;
   string quote = 4;
   string bio = 5;
+  Movie movies = 6;
+  Actor actors = 7;
+  Genre genres = 8;
 }
 
 message ProfileReply {

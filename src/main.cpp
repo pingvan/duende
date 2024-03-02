@@ -4,7 +4,7 @@
 std::string server_address("0.0.0.0:50051");
 
 void run_server() {
-    auth_service service;
+    ProfileServiceImpl service;
 
     grpc::ServerBuilder builder;
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());

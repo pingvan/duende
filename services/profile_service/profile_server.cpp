@@ -3,7 +3,6 @@
 #include <string>
 #include <unordered_map>
 
-
 #include <grpcpp/grpcpp.h>
 
 #include "services/profile_service/profile.grpc.pb.h"
@@ -17,21 +16,25 @@ using profile::ProfileReply;
 using profile::ProfileRequest;
 using profile::ProfileService;
 
-
-class ProfileServiceImpl final : public ProfileService::Service {
+class ProfileServiceImpl final : public ProfileService::Service
+{
   std::unordered_map<std::string, ProfileRequest> profiles;
 
   Status ChangeNickname(ServerContext *context, const ProfileRequest *request,
-                        ProfileReply *reply) override {
+                        ProfileReply *reply) override
+  {
     ProfileRequest current_profile = *request;
     bool nickname_exists = false;
-    for (auto &p : profiles) {
-      if (p.second.nickname() == current_profile.nickname()) {
+    for (auto &p : profiles)
+    {
+      if (p.second.nickname() == current_profile.nickname())
+      {
         nickname_exists = true;
         break;
       }
     }
-    if (nickname_exists) {
+    if (nickname_exists)
+    {
       reply->set_message("Nickname already exists");
       return Status::OK;
     }
@@ -41,7 +44,8 @@ class ProfileServiceImpl final : public ProfileService::Service {
   }
 
   Status ChangePhoto(ServerContext *context, const ProfileRequest *request,
-                     ProfileReply *reply) override {
+                     ProfileReply *reply) override
+  {
     ProfileRequest current_profile = *request;
     profiles[current_profile.id()].set_photo(current_profile.photo());
     reply->set_message("Photo changed");
@@ -49,9 +53,11 @@ class ProfileServiceImpl final : public ProfileService::Service {
   }
 
   Status ChangeQuote(ServerContext *context, const ProfileRequest *request,
-                     ProfileReply *reply) override {
+                     ProfileReply *reply) override
+  {
     ProfileRequest current_profile = *request;
-    if (current_profile.quote().length() > 100) {
+    if (current_profile.quote().length() > 100)
+    {
       reply->set_message("Quote is too long");
       return Status::OK;
     }
@@ -61,9 +67,11 @@ class ProfileServiceImpl final : public ProfileService::Service {
   }
 
   Status ChangeBio(ServerContext *context, const ProfileRequest *request,
-                   ProfileReply *reply) override {
+                   ProfileReply *reply) override
+  {
     ProfileRequest current_profile = *request;
-    if (current_profile.bio().length() > 1000) {
+    if (current_profile.bio().length() > 1000)
+    {
       reply->set_message("Bio is too long");
       return Status::OK;
     }
@@ -72,9 +80,37 @@ class ProfileServiceImpl final : public ProfileService::Service {
     return Status::OK;
   }
 
-  // TODO: ChangeWatchlist, ChangeFavouriteActors, ChangeFavouriteJenres (выбор из списка, хз как пока что)
-};
+  Status AddToWatchlist(ServerContext *context, const ProfileRequest *request,
+                        ProfileReply *reply) override
+  {
+    ProfileRequest current_profile = *request;
+    for (const auto &movie : current_profile.movies())
+    {
+      profiles[current_profile.id()].add_movie()->CopyFrom(movie);
+    }
+    reply->set_message("Watchlist changed");
+    return Status::OK;
+  }
 
+Status RemoveFromWatchlist(ServerContext *context, const ProfileRequest *request,
+                           ProfileReply *reply) override {
+  ProfileRequest current_profile = *request;
+  for (const auto &movie : current_profile.movies()) {
+    auto* watchlist = profiles[current_profile.id()].mutable_movie();
+    auto current_movie = std::find_if(watchlist->begin(), watchlist->end(),
+                           [&movie](const Movie& m) {
+                             return m.id() == movie.id();
+                           });
+    if (current_movie != watchlist->end()) {
+      watchlist->erase(current_movie);
+    }
+  }
+  reply->set_message("Watchlist changed");
+  return Status::OK;
+}
+
+  // TODO: ChangeWatchlist, ChangeActors, ChangeJenres
+};
 
 // void RunServer() {
 //   std::string server_address("0.0.0.0:50051");
