@@ -8,8 +8,6 @@ jwtokens::create_access_token(authservice::Payload info, minutes time) {
 
     authservice::AccessToken *token = new authservice::AccessToken();
     token->set_token(jwt::create()
-                         .set_type("JWS")
-                         .set_issuer("auth0")
                          .set_payload_claim("payload", jwt::claim(payload))
                          .sign(jwt::algorithm::hs256{secret_access_key}));
 
