@@ -14,7 +14,7 @@ message Payload {
     int32 user_id = 1;
     string email = 2;
     string username = 3;
-};
+}
 
 message AccessToken {
     string token = 1;
@@ -39,7 +39,7 @@ message UserDTO {
 service AuthService {
     rpc Login(LoginRequest) returns (LoginResponse) {
     }
-    rpc Signin(SigninRequest) returns (SigninResponse) {
+    rpc Signup(SignupRequest) returns (SignupResponse) {
     }
     rpc Logout(LogoutRequest) returns (LogoutResponse) {
     }
@@ -56,14 +56,14 @@ message LoginRequest {
 message LoginResponse {
 };
 
-message SigninRequest {
+message SignupRequest {
     string username = 1;
     string email = 2;
     string password = 3;
     string password_confirmation = 4;
 };
 
-message SigninResponse {
+message SignupResponse {
     Tokens tokens = 1;
     UserDTO user_dto = 2;
 };

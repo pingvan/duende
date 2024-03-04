@@ -10,10 +10,10 @@ struct auth_service final : public authservice::AuthService::Service {
         const authservice::LoginRequest *request,
         authservice::LoginResponse *response
     ) override;
-    grpc::Status Signin(
+    grpc::Status Signup(
         grpc::ServerContext *context,
-        const authservice::SigninRequest *request,
-        authservice::SigninResponse *response
+        const authservice::SignupRequest *request,
+        authservice::SignupResponse *response
     ) override;
     grpc::Status Logout(
         grpc::ServerContext *context,

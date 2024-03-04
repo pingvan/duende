@@ -1,9 +1,9 @@
 #include <grpcpp/grpcpp.h>
-#include "services/authservice/server.hpp"
+#include "services/authservice/service.hpp"
 
 std::string server_address("0.0.0.0:50051");
 
-void run_server() {
+int main() {
     auth_service service;
 
     grpc::ServerBuilder builder;
@@ -13,8 +13,4 @@ void run_server() {
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << '\n';
     server->Wait();
-}
-
-int main() {
-    run_server();
 }

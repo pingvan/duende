@@ -1,4 +1,4 @@
-#include "server.hpp"
+#include "service.hpp"
 
 grpc::Status auth_service::password_is_valid(const std::string &password) {
     int digit_count = 0;

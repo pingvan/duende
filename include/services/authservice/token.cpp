@@ -1,25 +1,32 @@
 #include "token.hpp"
 #include "components/jwt/jwt.hpp"
-#include "components/jwt/secret_key.hpp"
 #include "data.hpp"
 
-namespace token_service {
-authservice::Tokens *generate_tokens(authservice::UserDTO *user_dto) {
+authservice::Tokens *token_service::generate_tokens(
+    authservice::UserDTO *user_dto
+) {
     authservice::Payload payload;
     payload.set_user_id(user_dto->id());
     payload.set_email(user_dto->email());
     payload.set_username(user_dto->username());
+
+    jwt_tokens jwt_tokens;
     authservice::AccessToken *access_token =
-        jwtokens::create_access_token(payload, 30min);
-    authservice::RefreshToken *refresh_token =
-        jwtokens::create_refresh_token(payload, 43200min);
+        jwt_tokens.create_access_token(payload, std::chrono::seconds{30 * 60});
+    authservice::RefreshToken *refresh_token = jwt_tokens.create_refresh_token(
+        payload, std::chrono::seconds{30 * 24 * 60 * 60}
+    );
     authservice::Tokens *tokens = new authservice::Tokens();
     tokens->set_allocated_access(access_token);
     tokens->set_allocated_refresh(refresh_token);
+
     return tokens;
 }
 
-grpc::Status save_token(int user_id, authservice::RefreshToken token) {
+grpc::Status token_service::save_refresh_token(
+    int user_id,
+    authservice::RefreshToken token
+) {
     if (refresh_tokens.find(user_id) != refresh_tokens.end()) {
         refresh_tokens[user_id] = token;
     } else {
@@ -28,7 +35,7 @@ grpc::Status save_token(int user_id, authservice::RefreshToken token) {
     return grpc::Status::OK;
 }
 
-authservice::UserDTO *get_user_dto(authservice::User user) {
+authservice::UserDTO *token_service::get_user_dto(authservice::User user) {
     authservice::UserDTO *user_dto = new authservice::UserDTO();
     user_dto->set_email(user.email());
     user_dto->set_username(user.username());
@@ -36,7 +43,20 @@ authservice::UserDTO *get_user_dto(authservice::User user) {
     return user_dto;
 }
 
-grpc::Status delete_refresh_token(const authservice::RefreshToken token) {
+grpc::Status token_service::find_refresh_token(
+    const authservice::RefreshToken token
+) {
+    for (const auto &[key, val] : refresh_tokens) {
+        if (val.token() == token.token()) {
+            return grpc::Status::OK;
+        }
+    }
+    return grpc::Status(grpc::StatusCode::NOT_FOUND, "Token not found");
+}
+
+grpc::Status token_service::delete_refresh_token(
+    const authservice::RefreshToken token
+) {
     for (const auto &[key, val] : refresh_tokens) {
         if (val.token() == token.token()) {
             refresh_tokens.erase(key);
@@ -46,69 +66,15 @@ grpc::Status delete_refresh_token(const authservice::RefreshToken token) {
     return grpc::Status(grpc::StatusCode::NOT_FOUND, "Token not found");
 }
 
-grpc::Status find_refresh_token(const authservice::RefreshToken token) {
-    for (const auto &[key, val] : refresh_tokens) {
-        if (val.token() == token.token()) {
-            return grpc::Status::OK;
-        }
-    }
-    return grpc::Status(grpc::StatusCode::NOT_FOUND, "Token not found");
-}
-
-authservice::Payload parse_payload(std::string payload) {
-    if (payload.empty()) {
-        throw std::runtime_error("Payload is empty");
-    }
-    std::stringstream ss(payload);
-    std::vector<std::string> parsed_payload;
-    while (ss >> payload) {
-        parsed_payload.push_back(payload);
-    }
-    if (parsed_payload.size() < 3) {
-        throw std::runtime_error("Payload is invalid");
+authservice::Tokens *token_service::refresh(authservice::RefreshToken token) {
+    if (!validate_token(token.token()).ok() ||
+        !find_refresh_token(token).ok()) {
+        throw invalid_refresh_token();
     }
 
-    authservice::Payload user;
-    try {
-        user.set_user_id(std::stoi(parsed_payload[0]));
-    } catch (...) {
-        throw std::runtime_error("User id is invalid");
-    }
-    user.set_email(parsed_payload[1]);
-    user.set_username(parsed_payload[2]);
-    return user;
-}
-
-authservice::Payload validate_refresh_token(authservice::RefreshToken token) {
-    try {
-        authservice::Payload payload = jwtokens::decode_refresh_token(token);
-        return payload;
-    } catch (...) {
-        authservice::Payload payload;
-        payload.set_user_id(-1);
-        return payload;
-    }
-}
-
-authservice::Payload validate_access_token(authservice::AccessToken token) {
-    try {
-        authservice::Payload payload = jwtokens::decode_access_token(token);
-        return payload;
-    } catch (...) {
-        authservice::Payload payload;
-        payload.set_user_id(-1);
-        return payload;
-    }
-}
-
-authservice::Tokens *refresh(authservice::RefreshToken token) {
-    authservice::Payload user_data = validate_refresh_token(token);
-    grpc::Status find_token = find_refresh_token(token);
-    if (user_data.user_id() == -1 || !find_token.ok()) {
-        throw std::runtime_error("Authorization error");
-    }
     authservice::User user;
-    int id = user_data.user_id();
+    jwt_tokens jwt_tokens;
+    int id = jwt_tokens.decode_token(token.token()).user_id();
     for (const auto &[key, val] : users) {
         if (val.at("id") == std::to_string(id)) {
             user.set_email(val.at("email"));
@@ -118,17 +84,57 @@ authservice::Tokens *refresh(authservice::RefreshToken token) {
             break;
         }
     }
+
     authservice::Payload payload;
     payload.set_user_id(user.id());
     payload.set_email(user.email());
     payload.set_username(user.username());
+
     authservice::AccessToken *access_token =
-        jwtokens::create_access_token(payload, 30min);
-    authservice::RefreshToken *refresh_token =
-        jwtokens::create_refresh_token(payload, 43200min);
+        jwt_tokens.create_access_token(payload, std::chrono::seconds{30 * 60});
+    authservice::RefreshToken *refresh_token = jwt_tokens.create_refresh_token(
+        payload, std::chrono::seconds{30 * 24 * 60 * 60}
+    );
     authservice::Tokens *tokens = new authservice::Tokens();
     tokens->set_allocated_access(access_token);
     tokens->set_allocated_refresh(refresh_token);
     return tokens;
 }
-};  // namespace token_service
+
+grpc::Status token_service::activate_access_token(
+    authservice::AccessToken token,
+    authservice::Payload payload
+) {
+    try {
+        jwt::verify()
+            .allow_algorithm(jwt::algorithm::hs256{SECRET_ACCESS})
+            .with_issuer("auth0")
+            .verify(jwt::decode(token.token()));
+    } catch (...) {
+        if (activate_refresh_token(refresh_tokens[payload.user_id()]).ok()) {
+            jwt_tokens jwt_tokens;
+            jwt_tokens.create_access_token(
+                payload, std::chrono::seconds{30 * 60}
+            );
+        } else {
+            refresh(refresh_tokens[payload.user_id()]);
+        }
+    }
+    return grpc::Status::OK;
+}
+
+grpc::Status token_service::activate_refresh_token(
+    authservice::RefreshToken token
+) {
+    try {
+        jwt::verify()
+            .allow_algorithm(jwt::algorithm::hs256{SECRET_REFRESH})
+            .with_issuer("auth0")
+            .verify(jwt::decode(token.token()));
+        return grpc::Status::OK;
+    } catch (...) {
+        return grpc::Status(
+            grpc::StatusCode::UNAUTHENTICATED, "Token is invalid"
+        );
+    }
+}

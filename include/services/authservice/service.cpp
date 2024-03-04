@@ -1,5 +1,4 @@
-#include "server.hpp"
-#include <iostream>
+#include "service.hpp"
 #include "data.hpp"
 #include "hash.hpp"
 #include "token.hpp"
@@ -27,6 +26,7 @@ grpc::Status auth_service::Login(
     authservice::LoginResponse *response
 ) {
     authservice::User user;
+    token_service token_service;
     if (request->has_username()) {
         user.set_username(request->username());
         for (const auto &[key, val] : users) {
@@ -65,25 +65,24 @@ grpc::Status auth_service::Login(
 
     authservice::UserDTO *user_dto = new authservice::UserDTO();
     authservice::Tokens *tokens = new authservice::Tokens();
-    user_dto = token_service::get_user_dto(user);
-    tokens = token_service::generate_tokens(user_dto);
-    token_service::save_token(user.id(), tokens->refresh());
-
-    std::cout << user.username() << " logged in" << std::endl;
+    user_dto = token_service.get_user_dto(user);
+    tokens = token_service.generate_tokens(user_dto);
+    token_service.save_refresh_token(user.id(), tokens->refresh());
 
     return grpc::Status::OK;
 }
 
-grpc::Status auth_service::Signin(
+grpc::Status auth_service::Signup(
     grpc::ServerContext *context,
-    const authservice::SigninRequest *request,
-    authservice::SigninResponse *response
+    const authservice::SignupRequest *request,
+    authservice::SignupResponse *response
 ) {
     std::string username = request->username();
     std::string email = request->email();
     std::string password = request->password();
     std::string password_confirmation = request->password_confirmation();
     authservice::User user;
+    token_service token_service;
     user.set_username(username);
     user.set_email(email);
     user.set_id(123);
@@ -111,16 +110,14 @@ grpc::Status auth_service::Signin(
 
     authservice::UserDTO *user_dto = new authservice::UserDTO();
     authservice::Tokens *tokens = new authservice::Tokens();
-    user_dto = token_service::get_user_dto(user);
-    tokens = token_service::generate_tokens(user_dto);
-    token_service::save_token(user.id(), tokens->refresh());
+    user_dto = token_service.get_user_dto(user);
+    tokens = token_service.generate_tokens(user_dto);
+    token_service.save_refresh_token(user.id(), tokens->refresh());
 
     response->set_allocated_user_dto(user_dto);
     response->set_allocated_tokens(tokens);
 
     save_user(user, password);
-
-    std::cout << user.username() << " signed in" << std::endl;
 
     return grpc::Status::OK;
 }
@@ -131,5 +128,6 @@ grpc::Status auth_service::Logout(
     authservice::LogoutResponse *response
 ) {
     const authservice::RefreshToken token = request->token();
-    return token_service::delete_refresh_token(token);
+    token_service token_service;
+    return token_service.delete_refresh_token(token);
 }
