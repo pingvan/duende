@@ -6,13 +6,10 @@ cmake-build-debug
 cmake-build
 build
 cmake/build
-compile_commands.json
-main
+venv
 *.sln
 *.vcxproj
 *.vcxproj.filters
-.vscode/
-.DS_Store
 
 # IDE files
 .DS_Store
