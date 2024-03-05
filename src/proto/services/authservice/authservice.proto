@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package authservice;
+
+message User {
+    string username = 1;
+    string email = 2;
+    int32 id = 3;
+    string hashed_password = 4;
+    string salt = 5;
+};
+
+message Payload {
+    int32 user_id = 1;
+    string email = 2;
+    string username = 3;
+}
+
+message AccessToken {
+    string token = 1;
+};
+
+message RefreshToken {
+    string token = 1;
+};
+
+message Tokens {
+    AccessToken access = 1;
+    RefreshToken refresh = 2;
+};
+
+message UserDTO {
+    string email = 1;
+    string username = 2;
+    int32 id = 3;
+    bool is_active = 4;
+};
+
+service AuthService {
+    rpc Login(LoginRequest) returns (LoginResponse) {
+    }
+    rpc Signup(SignupRequest) returns (SignupResponse) {
+    }
+    rpc Logout(LogoutRequest) returns (LogoutResponse) {
+    }
+}
+
+message LoginRequest {
+    oneof login {
+        string username = 1;
+        string email = 2;
+    }
+    string password = 3;
+};
+
+message LoginResponse {
+};
+
+message SignupRequest {
+    string username = 1;
+    string email = 2;
+    string password = 3;
+    string password_confirmation = 4;
+};
+
+message SignupResponse {
+    Tokens tokens = 1;
+    UserDTO user_dto = 2;
+};
+
+message LogoutRequest {
+    RefreshToken token = 1;
+};
+
+message LogoutResponse {
+};
