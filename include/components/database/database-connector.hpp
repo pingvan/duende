@@ -17,6 +17,11 @@ struct connector {
     [[nodiscard]] static bool is_email_used(const std::string &user_email);
     [[nodiscard]] static bool is_nickname_used(const std::string &user_nickname);
 
+    //TODO::auth=accsess
+    //return's user id
+
+    //TODO::get_user_id
+
     [[nodiscard]] static int add_user(const std::string &user_email, const std::string &user_nickname,
         const std::string &auth_token, const std::string &refresh_token,
         const std::string &password_hash, const std::string &password_salt);
@@ -44,6 +49,8 @@ struct connector {
     static void remove_favourite_actor(const int &client_id, const int &actor_id);
 
     static void add_watched(const int &client_id, const int &film_id, const int &user_ratio);
+
+    //TODO::remove watched
 	//profiile service end
 
 
