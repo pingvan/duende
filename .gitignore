@@ -6,6 +6,7 @@ cmake-build-debug
 cmake-build
 build
 cmake/build
+venv
 *.sln
 *.vcxproj
 *.vcxproj.filters
@@ -16,8 +17,6 @@ cmake/build
 
 # Prerequisites
 *.d
-
-.sql
 
 # Compiled Object files
 *.slo

@@ -19,6 +19,7 @@ CREATE TABLE passwords (
 );
 
 CREATE TABLE forms (
+                        id SERIAL PRIMARY KEY,
                        photo BYTEA,
                        quote VARCHAR(50),
                        about VARCHAR(250),
@@ -40,6 +41,12 @@ CREATE TABLE producers (
     last_name VARCHAR(25)
 );
 
+CREATE TABLE actors (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(25),
+    last_name VARCHAR(25)
+)
+
 CREATE TABLE views (
     id SERIAL PRIMARY KEY,
     ratio INT NOT NULL,
@@ -52,13 +59,28 @@ CREATE TABLE views (
 CREATE TABLE films (
     id SERIAL PRIMARY KEY,
     title VARCHAR(25) NOT NULL,
+--     cover BYTEA,
     description VARCHAR(250) NOT NULL,
     genres genre[]
 );
 
 CREATE TABLE producers_by_film (
-    producer_id INT not null,
+    producer_id INT NOT NULL,
     film_id INT NOT NULL,
     FOREIGN KEY (producer_id) REFERENCES producers(id),
     FOREIGN KEY (film_id) REFERENCES films(id)
+)
+
+CREATE TABLE actors_to_view (
+    form_id INT NOT NULL,
+    actor_id INT NOT NULL,
+    FOREIGN KEY (form_id) REFERENCES forms(id),
+    FOREIGN KEY (actor_id) REFERENCES actors(id)
+)
+
+CREATE TABLE actors_to_film (
+                                film_id INT NOT NULL,
+                                actor_id INT NOT NULL,
+                                FOREIGN KEY (film_id) REFERENCES films(id),
+                                FOREIGN KEY (actor_id) REFERENCES actors(id)
 )
