@@ -17,7 +17,10 @@ find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
-#find_package(libpqxx CONFIG REQUIRED)
+
+pkg_check_modules(LIBPQXX REQUIRED libpqxx)
+
+#if error occurs visit https://cmake.org/cmake/help/latest/module/FindPkgConfig.html
 
 add_executable(main
         src/main.cpp
@@ -28,21 +31,22 @@ add_executable(main
         ${generated_proto_models_srcs}
 )
 
-target_link_options(main PRIVATE -L/opt/homebrew/Cellar/libpqxx/7.9.0/lib -lpqxx)
-
 add_dependencies(main generate_proto_models)
 
 target_link_libraries(main
         absl::flags_parse
         gRPC::grpc++
         protobuf::libprotobuf
-
         Threads::Threads
-        pqxx
 )
 
 target_include_directories(main PUBLIC
         ./include
         ./libs
         ${CMAKE_CURRENT_BINARY_DIR}
+        ${LIBPQXX_INCLUDE_DIRS}
 )
+
+target_link_options(main PUBLIC
+        ${LIBPQXX_LDFLAGS})
+

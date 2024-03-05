@@ -71,7 +71,7 @@ CREATE TABLE producers_by_film (
     FOREIGN KEY (film_id) REFERENCES films(id)
 )
 
-CREATE TABLE actors_to_view (
+CREATE TABLE actors_to_form (
     form_id INT NOT NULL,
     actor_id INT NOT NULL,
     FOREIGN KEY (form_id) REFERENCES forms(id),
