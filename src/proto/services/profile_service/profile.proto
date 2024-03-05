@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package profile;
+
+service ProfileService {
+  rpc ChangeNickname (ProfileRequest) returns (ProfileReply) {}
+  rpc ChangePhoto (ProfileRequest) returns (ProfileReply) {}
+  rpc ChangeQuote (ProfileRequest) returns (ProfileReply) {}
+  rpc ChangeBio (ProfileRequest) returns (ProfileReply) {}
+  rpc AddToWatchlist (ProfileRequest) returns (ProfileReply) {}
+  rpc RemoveFromWatchlist (ProfileRequest) returns (ProfileReply) {}
+  rpc AddToListOfActors (ProfileRequest) returns (ProfileReply) {}
+  rpc RemoveFromListOfActors (ProfileRequest) returns (ProfileReply) {}
+  rpc AddToListOfGenres (ProfileRequest) returns (ProfileReply) {}
+  rpc RemoveFromListOfGenres (ProfileRequest) returns (ProfileReply) {}
+}
+
+message Movie{
+  string id = 1;
+}
+
+message Actor{
+  string id = 1;
+}
+
+message Genre{
+  string id = 1;
+}
+
+message ProfileRequest {
+  string id = 1;
+  string nickname = 2;
+  string photo = 3;
+  string quote = 4;
+  string bio = 5;
+  repeated Movie movies = 6;
+  repeated Actor actors = 7;
+  repeated Genre genres = 8;
+}
+
+message ProfileReply {
+  string message = 1;
+}
+

@@ -17,7 +17,7 @@ find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
 add_executable(main
-    src/server_main.cpp
+    src/main.cpp
 
     ${COMPONENTS_SRCS}
     ${SERVICES_SRCS}
