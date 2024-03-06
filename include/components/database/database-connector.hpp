@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+
 #include <pqxx/pqxx>
 #include <memory>
 
@@ -19,7 +20,7 @@ struct connector {
     [[nodiscard]] static bool is_email_used(const std::string &user_email);
     [[nodiscard]] static bool is_nickname_used(const std::string &user_nickname);
 
-    //TODO::auth=access
+    //TODO::auth=accsess
     //return's user id
 
     //TODO::get_user_id

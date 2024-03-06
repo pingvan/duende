@@ -65,7 +65,7 @@ int connector::add_user(const std::string &user_email, const std::string &user_n
     }
     txn->exec_params("INSERT INTO tokens VALUES ($1, $2, $3)", client_id, auth_token, refresh_token);
     txn->exec_params("INSERT INTO passwords VALUES ($1, $2, $3)", client_id, password_hash, password_salt);
-    txn->exec_params("INSERT INTO forms (client_id) VALUE $1", client_id);
+    txn->exec_params("INSERT INTO forms (client_id) VALUES ($1)", client_id);
     commit_and_close_connection(std::move(working_pair));
     return client_id;
 }
@@ -127,7 +127,7 @@ void connector::update_tokens(const int &user_id,
 
 int connector::get_form_id(const int &client_id) {
     openCon
-    const auto get_form_id = txn->exec_params("SELECT id FROM forms WHERE clietn_id = $1", client_id);
+    const auto get_form_id = txn->exec_params("SELECT id FROM forms WHERE client_id = $1", client_id);
     int form_id = 0;
     for (auto row : get_form_id) {
         form_id = row[0].as<int>();
@@ -140,7 +140,7 @@ void connector::change_photo(const int &client_id,
                              const std::vector<unsigned char> &bytes) {
     auto working_pair = open_connection();
     const auto &txn = working_pair.second;
-    const auto result = txn->exec_params("UPDATE form SET photo = $1 WHERE client_id = $2", pqxx::binarystring(bytes.data(), bytes.size()), client_id);
+    const auto result = txn->exec_params("UPDATE forms SET photo = $1 WHERE client_id = $2", pqxx::binarystring(bytes.data(), bytes.size()), client_id);
     commit_and_close_connection(std::move(working_pair));
 }
 
@@ -199,4 +199,3 @@ void connector::add_watched(const int &client_id, const int &film_id,
 
 
 }
-
