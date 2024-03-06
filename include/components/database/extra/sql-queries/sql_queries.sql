@@ -1,7 +1,7 @@
 CREATE TABLE clients (
     id SERIAL PRIMARY KEY,
-    email VARCHAR(25) NOT NULL,
-    login VARCHAR(10) NOT NULL
+    email VARCHAR(256) NOT NULL,
+    login VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE tokens (
