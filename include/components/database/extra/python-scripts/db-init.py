@@ -10,19 +10,22 @@ cursor = connection.cursor()
 
 # Define SQL statements to create tables
 
-create_genre_type = """
-CREATE TYPE genre AS ENUM ('action', 'adventure', 'comedy',
-    'drama', 'horror', 'sci-fi', 'fantasy', 'thriller',
+create_genre_type = """DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'genre') THEN
+        CREATE TYPE genre AS ENUM ('action', 'adventure', 'comedy', 'drama', 'horror', 'sci-fi', 'fantasy', 'thriller',
     'mystery', 'romance', 'animation', 'documentary',
     'crime', 'western', 'musical', 'historical', 'war',
-    'biographical', 'sports', 'family')
+    'biographical', 'sports', 'family');
+    END IF;
+END $$
 """
 
 create_clients_table = """
 CREATE TABLE IF NOT EXISTS clients (
     id SERIAL PRIMARY KEY,
-    email VARCHAR(25) NOT NULL,
-    login VARCHAR(10) NOT NULL
+    email VARCHAR(256) NOT NULL,
+    login VARCHAR(50) NOT NULL
 )
 """
 
@@ -38,7 +41,7 @@ CREATE TABLE IF NOT EXISTS tokens (
 create_passwords_table = """
 CREATE TABLE IF NOT EXISTS passwords (
     client_id INT NOT NULL,
-    password_hash VARCHAR(50) NOT NULL,
+    password_hash VARCHAR(64) NOT NULL,
     password_salt VARCHAR(10) NOT NULL,
     FOREIGN KEY (client_id) REFERENCES clients(id)
 )
