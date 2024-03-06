@@ -13,7 +13,7 @@ CREATE TABLE tokens (
 
 CREATE TABLE passwords (
     client_id INT NOT NULL,
-    password_hash VARCHAR(50) NOT NULL,
+    password_hash VARCHAR(64) NOT NULL,
     password_salt VARCHAR(10) NOT NULL,
     FOREIGN KEY (client_id) REFERENCES clients(id)
 );
