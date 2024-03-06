@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <pqxx/pqxx>
+#include <memory>
 
 namespace database {
 
@@ -17,7 +19,7 @@ struct connector {
     [[nodiscard]] static bool is_email_used(const std::string &user_email);
     [[nodiscard]] static bool is_nickname_used(const std::string &user_nickname);
 
-    //TODO::auth=accsess
+    //TODO::auth=access
     //return's user id
 
     //TODO::get_user_id
@@ -59,7 +61,7 @@ struct connector {
 
 private:
 	[[nodiscard]] static std::pair<std::unique_ptr<pqxx::connection>, std::unique_ptr<pqxx::work>> open_connection();
-	static void commit_and_close_connection(std::pair<std::unique_ptr<pqxx::connection>, std::unique_ptr<pqxx::work>>);
+	static void commit_and_close_connection(std::pair<std::unique_ptr<pqxx::connection>, std::unique_ptr<pqxx::work>> p);
 
 };
 

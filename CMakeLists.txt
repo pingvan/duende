@@ -22,6 +22,9 @@ pkg_check_modules(LIBPQXX REQUIRED libpqxx)
 
 #if error occurs visit https://cmake.org/cmake/help/latest/module/FindPkgConfig.html
 
+message(NOTICE "LIBPQXX_LDFLAGS: " ${LIBPQXX_LDFLAGS})
+message(NOTICE "LIBPQXX_INCLUDE_DIRS: " ${LIBPQXX_INCLUDE_DIRS})
+
 add_executable(main
     src/main.cpp
 
@@ -31,6 +34,9 @@ add_executable(main
     ${generated_proto_models_srcs}
 )
 
+target_link_options(main PUBLIC
+        -lpqxx -lpq)
+
 add_dependencies(main generate_proto_models)
 
 target_link_libraries(main
@@ -38,6 +44,7 @@ target_link_libraries(main
         gRPC::grpc++
         protobuf::libprotobuf
         Threads::Threads
+        pqxx
 )
 
 target_include_directories(main PUBLIC
@@ -46,7 +53,4 @@ target_include_directories(main PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
         ${LIBPQXX_INCLUDE_DIRS}
 )
-
-target_link_options(main PUBLIC
-        ${LIBPQXX_LDFLAGS})
 
