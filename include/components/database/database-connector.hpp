@@ -4,6 +4,9 @@
 #include <vector>
 #include <iostream>
 
+#include <pqxx/pqxx>
+#include <memory>
+
 namespace database {
 
 //ask about split database worker on services - form, user, authservice (yes, it's too) and etc
