@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS passwords (
 
 create_forms_table = """
 CREATE TABLE IF NOT EXISTS forms (
+    id SERIAL PRIMARY KEY,
     photo BYTEA,
     quote VARCHAR(50),
     about VARCHAR(250),

@@ -38,7 +38,7 @@ bool connector::is_email_used(const std::string &user_email) {
 
 bool connector::is_nickname_used(const std::string &user_nickname) {
     openCon
-    auto result = txn->exec_params("SELECT EXISTS(SELECT 1 FROM clients WHERE nickname = $1)", user_nickname);
+    auto result = txn->exec_params("SELECT EXISTS(SELECT 1 FROM clients WHERE login = $1)", user_nickname);
     txn->commit();
     bool exists = false;
     for (auto row : result) {

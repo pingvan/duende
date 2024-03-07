@@ -58,11 +58,11 @@ message SignupRequest {
 
 message SignupResponse {
     Tokens tokens = 1;
-    UserDTO user_dto = 2;
 };
 
 message LogoutRequest {
-    RefreshToken token = 1;
+    int32 id = 1;
+    RefreshToken token = 2;
 };
 
 message LogoutResponse {
