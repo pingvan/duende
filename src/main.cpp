@@ -1,5 +1,4 @@
 #include <grpcpp/grpcpp.h>
-#include <components/database/database-connector.hpp>
 #include "services/authservice/service.hpp"
 #include "services/profile_service/profile_server.cpp"
 

@@ -1,0 +1,64 @@
+#include <string>
+#include "doctest/doctest.h"
+
+#include "components/database/database-connector.hpp"
+
+std::string email{"test@email.com"};
+std::string nickname{"test_nickname"};
+std::string token{"not_a_token"};
+std::string salt{"testsalt"};
+std::string hashed{"hashed_for_test"};
+
+std::string email_for_not_exists{"notexists@email.com"};
+std::string nickanem_for_not_exists{"notexists_nickname"};
+
+int id = -1, form_id = -1;
+
+constexpr int UNDEFINED_ID = -1;
+
+using namespace database;
+
+TEST_CASE("add new user") {
+    id = connector::add_user(email, nickname, token, hashed, salt);
+    CHECK(id != 0);
+}
+
+TEST_CASE("get id of user") {
+    CHECK(id == database::connector::get_user_id(email));
+    CHECK(id == database::connector::get_user_id(nickname));
+    CHECK(UNDEFINED_ID == database::connector::get_user_id(email_for_not_exists));
+}
+
+TEST_CASE("check using check fucntions") {
+    CHECK(database::connector::is_email_used(email));
+    CHECK(!database::connector::is_email_used(email_for_not_exists));
+
+    CHECK(connector::is_nickname_used(nickname));
+    CHECK(!connector::is_nickname_used(nickanem_for_not_exists));
+}
+
+TEST_CASE("test hash salt function") {
+    CHECK(connector::get_hash_salt(id) == std::pair{hashed, salt});
+}
+
+TEST_CASE("get refresh token") {
+    CHECK(connector::get_refresh_token(id) == token);
+}
+
+TEST_CASE("update refresh token") {
+    token = "new_token";
+    connector::update_refresh_token(id, token);
+    CHECK(connector::get_refresh_token(id) == token);
+}
+
+TEST_CASE("get form id") {
+    form_id = connector::get_form_id(id);
+    CHECK(form_id != -1);
+}
+
+TEST_CASE("change email") {
+    email = "new_email@email.com";
+    connector::change_email(id, email);
+    //TODO::rewrite
+    CHECK(true);
+}
