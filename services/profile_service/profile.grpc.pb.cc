@@ -31,7 +31,6 @@ static const char* ProfileService_method_names[] = {
   "/profile.ProfileService/RemoveFromListOfActors",
   "/profile.ProfileService/AddToListOfGenres",
   "/profile.ProfileService/RemoveFromListOfGenres",
-  "/profile.ProfileService/UpdateMovieRating",
 };
 
 std::unique_ptr< ProfileService::Stub> ProfileService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -50,235 +49,211 @@ ProfileService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& cha
   , rpcmethod_RemoveFromListOfActors_(ProfileService_method_names[6], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_AddToListOfGenres_(ProfileService_method_names[7], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_RemoveFromListOfGenres_(ProfileService_method_names[8], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_UpdateMovieRating_(ProfileService_method_names[9], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
-::grpc::Status ProfileService::Stub::ChangeNickname(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_ChangeNickname_, context, request, response);
+::grpc::Status ProfileService::Stub::ChangeNickname(::grpc::ClientContext* context, const ::profile::NicknameRequest& request, ::profile::ProfileReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::profile::NicknameRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_ChangeNickname_, context, request, response);
 }
 
-void ProfileService::Stub::async::ChangeNickname(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ChangeNickname_, context, request, response, std::move(f));
+void ProfileService::Stub::async::ChangeNickname(::grpc::ClientContext* context, const ::profile::NicknameRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::profile::NicknameRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ChangeNickname_, context, request, response, std::move(f));
 }
 
-void ProfileService::Stub::async::ChangeNickname(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
+void ProfileService::Stub::async::ChangeNickname(::grpc::ClientContext* context, const ::profile::NicknameRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ChangeNickname_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncChangeNicknameRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::ProfileRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_ChangeNickname_, context, request);
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncChangeNicknameRaw(::grpc::ClientContext* context, const ::profile::NicknameRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::NicknameRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_ChangeNickname_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncChangeNicknameRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncChangeNicknameRaw(::grpc::ClientContext* context, const ::profile::NicknameRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncChangeNicknameRaw(context, request, cq);
   result->StartCall();
   return result;
 }
 
-::grpc::Status ProfileService::Stub::ChangeQuote(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_ChangeQuote_, context, request, response);
+::grpc::Status ProfileService::Stub::ChangeQuote(::grpc::ClientContext* context, const ::profile::QuoteRequest& request, ::profile::ProfileReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::profile::QuoteRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_ChangeQuote_, context, request, response);
 }
 
-void ProfileService::Stub::async::ChangeQuote(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ChangeQuote_, context, request, response, std::move(f));
+void ProfileService::Stub::async::ChangeQuote(::grpc::ClientContext* context, const ::profile::QuoteRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::profile::QuoteRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ChangeQuote_, context, request, response, std::move(f));
 }
 
-void ProfileService::Stub::async::ChangeQuote(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
+void ProfileService::Stub::async::ChangeQuote(::grpc::ClientContext* context, const ::profile::QuoteRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ChangeQuote_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncChangeQuoteRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::ProfileRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_ChangeQuote_, context, request);
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncChangeQuoteRaw(::grpc::ClientContext* context, const ::profile::QuoteRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::QuoteRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_ChangeQuote_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncChangeQuoteRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncChangeQuoteRaw(::grpc::ClientContext* context, const ::profile::QuoteRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncChangeQuoteRaw(context, request, cq);
   result->StartCall();
   return result;
 }
 
-::grpc::Status ProfileService::Stub::ChangeBio(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_ChangeBio_, context, request, response);
+::grpc::Status ProfileService::Stub::ChangeBio(::grpc::ClientContext* context, const ::profile::BioRequest& request, ::profile::ProfileReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::profile::BioRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_ChangeBio_, context, request, response);
 }
 
-void ProfileService::Stub::async::ChangeBio(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ChangeBio_, context, request, response, std::move(f));
+void ProfileService::Stub::async::ChangeBio(::grpc::ClientContext* context, const ::profile::BioRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::profile::BioRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ChangeBio_, context, request, response, std::move(f));
 }
 
-void ProfileService::Stub::async::ChangeBio(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
+void ProfileService::Stub::async::ChangeBio(::grpc::ClientContext* context, const ::profile::BioRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ChangeBio_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncChangeBioRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::ProfileRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_ChangeBio_, context, request);
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncChangeBioRaw(::grpc::ClientContext* context, const ::profile::BioRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::BioRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_ChangeBio_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncChangeBioRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncChangeBioRaw(::grpc::ClientContext* context, const ::profile::BioRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncChangeBioRaw(context, request, cq);
   result->StartCall();
   return result;
 }
 
-::grpc::Status ProfileService::Stub::AddToWatchlist(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_AddToWatchlist_, context, request, response);
+::grpc::Status ProfileService::Stub::AddToWatchlist(::grpc::ClientContext* context, const ::profile::MovieRequest& request, ::profile::ProfileReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::profile::MovieRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_AddToWatchlist_, context, request, response);
 }
 
-void ProfileService::Stub::async::AddToWatchlist(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_AddToWatchlist_, context, request, response, std::move(f));
+void ProfileService::Stub::async::AddToWatchlist(::grpc::ClientContext* context, const ::profile::MovieRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::profile::MovieRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_AddToWatchlist_, context, request, response, std::move(f));
 }
 
-void ProfileService::Stub::async::AddToWatchlist(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
+void ProfileService::Stub::async::AddToWatchlist(::grpc::ClientContext* context, const ::profile::MovieRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_AddToWatchlist_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncAddToWatchlistRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::ProfileRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_AddToWatchlist_, context, request);
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncAddToWatchlistRaw(::grpc::ClientContext* context, const ::profile::MovieRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::MovieRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_AddToWatchlist_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncAddToWatchlistRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncAddToWatchlistRaw(::grpc::ClientContext* context, const ::profile::MovieRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncAddToWatchlistRaw(context, request, cq);
   result->StartCall();
   return result;
 }
 
-::grpc::Status ProfileService::Stub::RemoveFromWatchlist(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_RemoveFromWatchlist_, context, request, response);
+::grpc::Status ProfileService::Stub::RemoveFromWatchlist(::grpc::ClientContext* context, const ::profile::MovieRequest& request, ::profile::ProfileReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::profile::MovieRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_RemoveFromWatchlist_, context, request, response);
 }
 
-void ProfileService::Stub::async::RemoveFromWatchlist(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_RemoveFromWatchlist_, context, request, response, std::move(f));
+void ProfileService::Stub::async::RemoveFromWatchlist(::grpc::ClientContext* context, const ::profile::MovieRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::profile::MovieRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_RemoveFromWatchlist_, context, request, response, std::move(f));
 }
 
-void ProfileService::Stub::async::RemoveFromWatchlist(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
+void ProfileService::Stub::async::RemoveFromWatchlist(::grpc::ClientContext* context, const ::profile::MovieRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_RemoveFromWatchlist_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncRemoveFromWatchlistRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::ProfileRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_RemoveFromWatchlist_, context, request);
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncRemoveFromWatchlistRaw(::grpc::ClientContext* context, const ::profile::MovieRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::MovieRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_RemoveFromWatchlist_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncRemoveFromWatchlistRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncRemoveFromWatchlistRaw(::grpc::ClientContext* context, const ::profile::MovieRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncRemoveFromWatchlistRaw(context, request, cq);
   result->StartCall();
   return result;
 }
 
-::grpc::Status ProfileService::Stub::AddToListOfActors(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_AddToListOfActors_, context, request, response);
+::grpc::Status ProfileService::Stub::AddToListOfActors(::grpc::ClientContext* context, const ::profile::ActorRequest& request, ::profile::ProfileReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::profile::ActorRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_AddToListOfActors_, context, request, response);
 }
 
-void ProfileService::Stub::async::AddToListOfActors(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_AddToListOfActors_, context, request, response, std::move(f));
+void ProfileService::Stub::async::AddToListOfActors(::grpc::ClientContext* context, const ::profile::ActorRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::profile::ActorRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_AddToListOfActors_, context, request, response, std::move(f));
 }
 
-void ProfileService::Stub::async::AddToListOfActors(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
+void ProfileService::Stub::async::AddToListOfActors(::grpc::ClientContext* context, const ::profile::ActorRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_AddToListOfActors_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncAddToListOfActorsRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::ProfileRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_AddToListOfActors_, context, request);
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncAddToListOfActorsRaw(::grpc::ClientContext* context, const ::profile::ActorRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::ActorRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_AddToListOfActors_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncAddToListOfActorsRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncAddToListOfActorsRaw(::grpc::ClientContext* context, const ::profile::ActorRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncAddToListOfActorsRaw(context, request, cq);
   result->StartCall();
   return result;
 }
 
-::grpc::Status ProfileService::Stub::RemoveFromListOfActors(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_RemoveFromListOfActors_, context, request, response);
+::grpc::Status ProfileService::Stub::RemoveFromListOfActors(::grpc::ClientContext* context, const ::profile::ActorRequest& request, ::profile::ProfileReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::profile::ActorRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_RemoveFromListOfActors_, context, request, response);
 }
 
-void ProfileService::Stub::async::RemoveFromListOfActors(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_RemoveFromListOfActors_, context, request, response, std::move(f));
+void ProfileService::Stub::async::RemoveFromListOfActors(::grpc::ClientContext* context, const ::profile::ActorRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::profile::ActorRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_RemoveFromListOfActors_, context, request, response, std::move(f));
 }
 
-void ProfileService::Stub::async::RemoveFromListOfActors(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
+void ProfileService::Stub::async::RemoveFromListOfActors(::grpc::ClientContext* context, const ::profile::ActorRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_RemoveFromListOfActors_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncRemoveFromListOfActorsRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::ProfileRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_RemoveFromListOfActors_, context, request);
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncRemoveFromListOfActorsRaw(::grpc::ClientContext* context, const ::profile::ActorRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::ActorRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_RemoveFromListOfActors_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncRemoveFromListOfActorsRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncRemoveFromListOfActorsRaw(::grpc::ClientContext* context, const ::profile::ActorRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncRemoveFromListOfActorsRaw(context, request, cq);
   result->StartCall();
   return result;
 }
 
-::grpc::Status ProfileService::Stub::AddToListOfGenres(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_AddToListOfGenres_, context, request, response);
+::grpc::Status ProfileService::Stub::AddToListOfGenres(::grpc::ClientContext* context, const ::profile::GenreRequest& request, ::profile::ProfileReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::profile::GenreRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_AddToListOfGenres_, context, request, response);
 }
 
-void ProfileService::Stub::async::AddToListOfGenres(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_AddToListOfGenres_, context, request, response, std::move(f));
+void ProfileService::Stub::async::AddToListOfGenres(::grpc::ClientContext* context, const ::profile::GenreRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::profile::GenreRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_AddToListOfGenres_, context, request, response, std::move(f));
 }
 
-void ProfileService::Stub::async::AddToListOfGenres(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
+void ProfileService::Stub::async::AddToListOfGenres(::grpc::ClientContext* context, const ::profile::GenreRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_AddToListOfGenres_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncAddToListOfGenresRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::ProfileRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_AddToListOfGenres_, context, request);
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncAddToListOfGenresRaw(::grpc::ClientContext* context, const ::profile::GenreRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::GenreRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_AddToListOfGenres_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncAddToListOfGenresRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncAddToListOfGenresRaw(::grpc::ClientContext* context, const ::profile::GenreRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncAddToListOfGenresRaw(context, request, cq);
   result->StartCall();
   return result;
 }
 
-::grpc::Status ProfileService::Stub::RemoveFromListOfGenres(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_RemoveFromListOfGenres_, context, request, response);
+::grpc::Status ProfileService::Stub::RemoveFromListOfGenres(::grpc::ClientContext* context, const ::profile::GenreRequest& request, ::profile::ProfileReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::profile::GenreRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_RemoveFromListOfGenres_, context, request, response);
 }
 
-void ProfileService::Stub::async::RemoveFromListOfGenres(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_RemoveFromListOfGenres_, context, request, response, std::move(f));
+void ProfileService::Stub::async::RemoveFromListOfGenres(::grpc::ClientContext* context, const ::profile::GenreRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::profile::GenreRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_RemoveFromListOfGenres_, context, request, response, std::move(f));
 }
 
-void ProfileService::Stub::async::RemoveFromListOfGenres(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
+void ProfileService::Stub::async::RemoveFromListOfGenres(::grpc::ClientContext* context, const ::profile::GenreRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_RemoveFromListOfGenres_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncRemoveFromListOfGenresRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::ProfileRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_RemoveFromListOfGenres_, context, request);
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncRemoveFromListOfGenresRaw(::grpc::ClientContext* context, const ::profile::GenreRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::GenreRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_RemoveFromListOfGenres_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncRemoveFromListOfGenresRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncRemoveFromListOfGenresRaw(::grpc::ClientContext* context, const ::profile::GenreRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncRemoveFromListOfGenresRaw(context, request, cq);
-  result->StartCall();
-  return result;
-}
-
-::grpc::Status ProfileService::Stub::UpdateMovieRating(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_UpdateMovieRating_, context, request, response);
-}
-
-void ProfileService::Stub::async::UpdateMovieRating(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_UpdateMovieRating_, context, request, response, std::move(f));
-}
-
-void ProfileService::Stub::async::UpdateMovieRating(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
-  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_UpdateMovieRating_, context, request, response, reactor);
-}
-
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncUpdateMovieRatingRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::ProfileRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_UpdateMovieRating_, context, request);
-}
-
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncUpdateMovieRatingRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-  auto* result =
-    this->PrepareAsyncUpdateMovieRatingRaw(context, request, cq);
   result->StartCall();
   return result;
 }
@@ -287,172 +262,155 @@ ProfileService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[0],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::NicknameRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](ProfileService::Service* service,
              ::grpc::ServerContext* ctx,
-             const ::profile::ProfileRequest* req,
+             const ::profile::NicknameRequest* req,
              ::profile::ProfileReply* resp) {
                return service->ChangeNickname(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[1],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::QuoteRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](ProfileService::Service* service,
              ::grpc::ServerContext* ctx,
-             const ::profile::ProfileRequest* req,
+             const ::profile::QuoteRequest* req,
              ::profile::ProfileReply* resp) {
                return service->ChangeQuote(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[2],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::BioRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](ProfileService::Service* service,
              ::grpc::ServerContext* ctx,
-             const ::profile::ProfileRequest* req,
+             const ::profile::BioRequest* req,
              ::profile::ProfileReply* resp) {
                return service->ChangeBio(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[3],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::MovieRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](ProfileService::Service* service,
              ::grpc::ServerContext* ctx,
-             const ::profile::ProfileRequest* req,
+             const ::profile::MovieRequest* req,
              ::profile::ProfileReply* resp) {
                return service->AddToWatchlist(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[4],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::MovieRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](ProfileService::Service* service,
              ::grpc::ServerContext* ctx,
-             const ::profile::ProfileRequest* req,
+             const ::profile::MovieRequest* req,
              ::profile::ProfileReply* resp) {
                return service->RemoveFromWatchlist(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[5],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::ActorRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](ProfileService::Service* service,
              ::grpc::ServerContext* ctx,
-             const ::profile::ProfileRequest* req,
+             const ::profile::ActorRequest* req,
              ::profile::ProfileReply* resp) {
                return service->AddToListOfActors(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[6],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::ActorRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](ProfileService::Service* service,
              ::grpc::ServerContext* ctx,
-             const ::profile::ProfileRequest* req,
+             const ::profile::ActorRequest* req,
              ::profile::ProfileReply* resp) {
                return service->RemoveFromListOfActors(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[7],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::GenreRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](ProfileService::Service* service,
              ::grpc::ServerContext* ctx,
-             const ::profile::ProfileRequest* req,
+             const ::profile::GenreRequest* req,
              ::profile::ProfileReply* resp) {
                return service->AddToListOfGenres(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[8],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::GenreRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](ProfileService::Service* service,
              ::grpc::ServerContext* ctx,
-             const ::profile::ProfileRequest* req,
+             const ::profile::GenreRequest* req,
              ::profile::ProfileReply* resp) {
                return service->RemoveFromListOfGenres(ctx, req, resp);
-             }, this)));
-  AddMethod(new ::grpc::internal::RpcServiceMethod(
-      ProfileService_method_names[9],
-      ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
-          [](ProfileService::Service* service,
-             ::grpc::ServerContext* ctx,
-             const ::profile::ProfileRequest* req,
-             ::profile::ProfileReply* resp) {
-               return service->UpdateMovieRating(ctx, req, resp);
              }, this)));
 }
 
 ProfileService::Service::~Service() {
 }
 
-::grpc::Status ProfileService::Service::ChangeNickname(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) {
+::grpc::Status ProfileService::Service::ChangeNickname(::grpc::ServerContext* context, const ::profile::NicknameRequest* request, ::profile::ProfileReply* response) {
   (void) context;
   (void) request;
   (void) response;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status ProfileService::Service::ChangeQuote(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) {
+::grpc::Status ProfileService::Service::ChangeQuote(::grpc::ServerContext* context, const ::profile::QuoteRequest* request, ::profile::ProfileReply* response) {
   (void) context;
   (void) request;
   (void) response;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status ProfileService::Service::ChangeBio(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) {
+::grpc::Status ProfileService::Service::ChangeBio(::grpc::ServerContext* context, const ::profile::BioRequest* request, ::profile::ProfileReply* response) {
   (void) context;
   (void) request;
   (void) response;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status ProfileService::Service::AddToWatchlist(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) {
+::grpc::Status ProfileService::Service::AddToWatchlist(::grpc::ServerContext* context, const ::profile::MovieRequest* request, ::profile::ProfileReply* response) {
   (void) context;
   (void) request;
   (void) response;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status ProfileService::Service::RemoveFromWatchlist(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) {
+::grpc::Status ProfileService::Service::RemoveFromWatchlist(::grpc::ServerContext* context, const ::profile::MovieRequest* request, ::profile::ProfileReply* response) {
   (void) context;
   (void) request;
   (void) response;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status ProfileService::Service::AddToListOfActors(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) {
+::grpc::Status ProfileService::Service::AddToListOfActors(::grpc::ServerContext* context, const ::profile::ActorRequest* request, ::profile::ProfileReply* response) {
   (void) context;
   (void) request;
   (void) response;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status ProfileService::Service::RemoveFromListOfActors(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) {
+::grpc::Status ProfileService::Service::RemoveFromListOfActors(::grpc::ServerContext* context, const ::profile::ActorRequest* request, ::profile::ProfileReply* response) {
   (void) context;
   (void) request;
   (void) response;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status ProfileService::Service::AddToListOfGenres(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) {
+::grpc::Status ProfileService::Service::AddToListOfGenres(::grpc::ServerContext* context, const ::profile::GenreRequest* request, ::profile::ProfileReply* response) {
   (void) context;
   (void) request;
   (void) response;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status ProfileService::Service::RemoveFromListOfGenres(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) {
-  (void) context;
-  (void) request;
-  (void) response;
-  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-}
-
-::grpc::Status ProfileService::Service::UpdateMovieRating(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) {
+::grpc::Status ProfileService::Service::RemoveFromListOfGenres(::grpc::ServerContext* context, const ::profile::GenreRequest* request, ::profile::ProfileReply* response) {
   (void) context;
   (void) request;
   (void) response;

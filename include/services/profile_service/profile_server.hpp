@@ -18,40 +18,45 @@ using profile::Actor;
 using profile::Genre;
 using profile::Movie;
 using profile::ProfileReply;
-using profile::ProfileRequest;
+using profile::NicknameRequest;
+using profile::MovieRequest;
+using profile::ActorRequest;
+using profile::GenreRequest;
+using profile::BioRequest;
+using profile::QuoteRequest;
 using profile::ProfileService;
 
 class ProfileServiceImpl final : public ProfileService::Service
 {
   // std::unordered_map<std::string, ProfileRequest> profiles;
 
-  Status ChangeNickname(ServerContext *context, const ProfileRequest *request,
+  Status ChangeNickname(ServerContext *context, const NicknameRequest *request,
                          ProfileReply *reply) override;
 
   // Status ChangePhoto(ServerContext *context, const ProfileRequest *request,
   //                    ProfileReply *reply) override;
 
-  Status ChangeQuote(ServerContext *context, const ProfileRequest *request,
+  Status ChangeQuote(ServerContext *context, const QuoteRequest *request,
                      ProfileReply *reply) override;
 
-  Status ChangeBio(ServerContext *context, const ProfileRequest *request,
+  Status ChangeBio(ServerContext *context, const BioRequest *request,
                     ProfileReply *reply) override;
 
-  Status AddToWatchlist(ServerContext *context, const ProfileRequest *request,
+  Status AddToWatchlist(ServerContext *context, const MovieRequest *request,
                        ProfileReply *reply) override;
 
-  Status RemoveFromWatchlist(ServerContext *context, const ProfileRequest *request,
+  Status RemoveFromWatchlist(ServerContext *context, const MovieRequest *request,
                              ProfileReply *reply) override;
 
-  Status AddToListOfActors(ServerContext *context, const ProfileRequest *request,
+  Status AddToListOfActors(ServerContext *context, const ActorRequest *request,
                            ProfileReply *reply) override;
 
-  Status RemoveFromListOfActors(ServerContext *context, const ProfileRequest *request,
+  Status RemoveFromListOfActors(ServerContext *context, const ActorRequest *request,
                                 ProfileReply *reply) override;
 
-  Status AddToListOfGenres(ServerContext *context, const ProfileRequest *request,
+  Status AddToListOfGenres(ServerContext *context, const GenreRequest *request,
                            ProfileReply *reply) override;
 
-  Status RemoveFromListOfGenres(ServerContext *context, const ProfileRequest *request,
+  Status RemoveFromListOfGenres(ServerContext *context, const GenreRequest *request,
                                 ProfileReply *reply) override;
 };

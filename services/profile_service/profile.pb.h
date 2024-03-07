@@ -59,18 +59,33 @@ namespace profile {
 class Actor;
 struct ActorDefaultTypeInternal;
 extern ActorDefaultTypeInternal _Actor_default_instance_;
+class ActorRequest;
+struct ActorRequestDefaultTypeInternal;
+extern ActorRequestDefaultTypeInternal _ActorRequest_default_instance_;
+class BioRequest;
+struct BioRequestDefaultTypeInternal;
+extern BioRequestDefaultTypeInternal _BioRequest_default_instance_;
 class Genre;
 struct GenreDefaultTypeInternal;
 extern GenreDefaultTypeInternal _Genre_default_instance_;
+class GenreRequest;
+struct GenreRequestDefaultTypeInternal;
+extern GenreRequestDefaultTypeInternal _GenreRequest_default_instance_;
 class Movie;
 struct MovieDefaultTypeInternal;
 extern MovieDefaultTypeInternal _Movie_default_instance_;
+class MovieRequest;
+struct MovieRequestDefaultTypeInternal;
+extern MovieRequestDefaultTypeInternal _MovieRequest_default_instance_;
+class NicknameRequest;
+struct NicknameRequestDefaultTypeInternal;
+extern NicknameRequestDefaultTypeInternal _NicknameRequest_default_instance_;
 class ProfileReply;
 struct ProfileReplyDefaultTypeInternal;
 extern ProfileReplyDefaultTypeInternal _ProfileReply_default_instance_;
-class ProfileRequest;
-struct ProfileRequestDefaultTypeInternal;
-extern ProfileRequestDefaultTypeInternal _ProfileRequest_default_instance_;
+class QuoteRequest;
+struct QuoteRequestDefaultTypeInternal;
+extern QuoteRequestDefaultTypeInternal _QuoteRequest_default_instance_;
 }  // namespace profile
 namespace google {
 namespace protobuf {
@@ -83,6 +98,199 @@ namespace profile {
 
 
 // -------------------------------------------------------------------
+
+class QuoteRequest final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:profile.QuoteRequest) */ {
+ public:
+  inline QuoteRequest() : QuoteRequest(nullptr) {}
+  ~QuoteRequest() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR QuoteRequest(::google::protobuf::internal::ConstantInitialized);
+
+  inline QuoteRequest(const QuoteRequest& from)
+      : QuoteRequest(nullptr, from) {}
+  QuoteRequest(QuoteRequest&& from) noexcept
+    : QuoteRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline QuoteRequest& operator=(const QuoteRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline QuoteRequest& operator=(QuoteRequest&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const QuoteRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const QuoteRequest* internal_default_instance() {
+    return reinterpret_cast<const QuoteRequest*>(
+               &_QuoteRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    4;
+
+  friend void swap(QuoteRequest& a, QuoteRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(QuoteRequest* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(QuoteRequest* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  QuoteRequest* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<QuoteRequest>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const QuoteRequest& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const QuoteRequest& from) {
+    QuoteRequest::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(QuoteRequest* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "profile.QuoteRequest";
+  }
+  protected:
+  explicit QuoteRequest(::google::protobuf::Arena* arena);
+  QuoteRequest(::google::protobuf::Arena* arena, const QuoteRequest& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kQuoteFieldNumber = 2,
+    kIdFieldNumber = 1,
+  };
+  // string quote = 2;
+  void clear_quote() ;
+  const std::string& quote() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_quote(Arg_&& arg, Args_... args);
+  std::string* mutable_quote();
+  PROTOBUF_NODISCARD std::string* release_quote();
+  void set_allocated_quote(std::string* value);
+
+  private:
+  const std::string& _internal_quote() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_quote(
+      const std::string& value);
+  std::string* _internal_mutable_quote();
+
+  public:
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:profile.QuoteRequest)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 2, 0,
+      34, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::ArenaStringPtr quote_;
+    ::int32_t id_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_services_2fprofile_5fservice_2fprofile_2eproto;
+};// -------------------------------------------------------------------
 
 class ProfileReply final :
     public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:profile.ProfileReply) */ {
@@ -143,7 +351,7 @@ class ProfileReply final :
                &_ProfileReply_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    9;
 
   friend void swap(ProfileReply& a, ProfileReply& b) {
     a.Swap(&b);
@@ -258,6 +466,199 @@ class ProfileReply final :
         inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                               ::google::protobuf::Arena* arena, const Impl_& from);
     ::google::protobuf::internal::ArenaStringPtr message_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_services_2fprofile_5fservice_2fprofile_2eproto;
+};// -------------------------------------------------------------------
+
+class NicknameRequest final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:profile.NicknameRequest) */ {
+ public:
+  inline NicknameRequest() : NicknameRequest(nullptr) {}
+  ~NicknameRequest() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR NicknameRequest(::google::protobuf::internal::ConstantInitialized);
+
+  inline NicknameRequest(const NicknameRequest& from)
+      : NicknameRequest(nullptr, from) {}
+  NicknameRequest(NicknameRequest&& from) noexcept
+    : NicknameRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline NicknameRequest& operator=(const NicknameRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline NicknameRequest& operator=(NicknameRequest&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const NicknameRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const NicknameRequest* internal_default_instance() {
+    return reinterpret_cast<const NicknameRequest*>(
+               &_NicknameRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  friend void swap(NicknameRequest& a, NicknameRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(NicknameRequest* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(NicknameRequest* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  NicknameRequest* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<NicknameRequest>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const NicknameRequest& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const NicknameRequest& from) {
+    NicknameRequest::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(NicknameRequest* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "profile.NicknameRequest";
+  }
+  protected:
+  explicit NicknameRequest(::google::protobuf::Arena* arena);
+  NicknameRequest(::google::protobuf::Arena* arena, const NicknameRequest& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kNicknameFieldNumber = 2,
+    kIdFieldNumber = 1,
+  };
+  // string nickname = 2;
+  void clear_nickname() ;
+  const std::string& nickname() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_nickname(Arg_&& arg, Args_... args);
+  std::string* mutable_nickname();
+  PROTOBUF_NODISCARD std::string* release_nickname();
+  void set_allocated_nickname(std::string* value);
+
+  private:
+  const std::string& _internal_nickname() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_nickname(
+      const std::string& value);
+  std::string* _internal_mutable_nickname();
+
+  public:
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:profile.NicknameRequest)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 2, 0,
+      40, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::ArenaStringPtr nickname_;
+    ::int32_t id_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -633,6 +1034,199 @@ class Genre final :
   friend struct ::TableStruct_services_2fprofile_5fservice_2fprofile_2eproto;
 };// -------------------------------------------------------------------
 
+class BioRequest final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:profile.BioRequest) */ {
+ public:
+  inline BioRequest() : BioRequest(nullptr) {}
+  ~BioRequest() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR BioRequest(::google::protobuf::internal::ConstantInitialized);
+
+  inline BioRequest(const BioRequest& from)
+      : BioRequest(nullptr, from) {}
+  BioRequest(BioRequest&& from) noexcept
+    : BioRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline BioRequest& operator=(const BioRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline BioRequest& operator=(BioRequest&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const BioRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const BioRequest* internal_default_instance() {
+    return reinterpret_cast<const BioRequest*>(
+               &_BioRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    5;
+
+  friend void swap(BioRequest& a, BioRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(BioRequest* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(BioRequest* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  BioRequest* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<BioRequest>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const BioRequest& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const BioRequest& from) {
+    BioRequest::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(BioRequest* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "profile.BioRequest";
+  }
+  protected:
+  explicit BioRequest(::google::protobuf::Arena* arena);
+  BioRequest(::google::protobuf::Arena* arena, const BioRequest& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kBioFieldNumber = 2,
+    kIdFieldNumber = 1,
+  };
+  // string bio = 2;
+  void clear_bio() ;
+  const std::string& bio() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_bio(Arg_&& arg, Args_... args);
+  std::string* mutable_bio();
+  PROTOBUF_NODISCARD std::string* release_bio();
+  void set_allocated_bio(std::string* value);
+
+  private:
+  const std::string& _internal_bio() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_bio(
+      const std::string& value);
+  std::string* _internal_mutable_bio();
+
+  public:
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:profile.BioRequest)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 2, 0,
+      30, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::ArenaStringPtr bio_;
+    ::int32_t id_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_services_2fprofile_5fservice_2fprofile_2eproto;
+};// -------------------------------------------------------------------
+
 class Actor final :
     public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:profile.Actor) */ {
  public:
@@ -808,26 +1402,26 @@ class Actor final :
   friend struct ::TableStruct_services_2fprofile_5fservice_2fprofile_2eproto;
 };// -------------------------------------------------------------------
 
-class ProfileRequest final :
-    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:profile.ProfileRequest) */ {
+class MovieRequest final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:profile.MovieRequest) */ {
  public:
-  inline ProfileRequest() : ProfileRequest(nullptr) {}
-  ~ProfileRequest() override;
+  inline MovieRequest() : MovieRequest(nullptr) {}
+  ~MovieRequest() override;
   template<typename = void>
-  explicit PROTOBUF_CONSTEXPR ProfileRequest(::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR MovieRequest(::google::protobuf::internal::ConstantInitialized);
 
-  inline ProfileRequest(const ProfileRequest& from)
-      : ProfileRequest(nullptr, from) {}
-  ProfileRequest(ProfileRequest&& from) noexcept
-    : ProfileRequest() {
+  inline MovieRequest(const MovieRequest& from)
+      : MovieRequest(nullptr, from) {}
+  MovieRequest(MovieRequest&& from) noexcept
+    : MovieRequest() {
     *this = ::std::move(from);
   }
 
-  inline ProfileRequest& operator=(const ProfileRequest& from) {
+  inline MovieRequest& operator=(const MovieRequest& from) {
     CopyFrom(from);
     return *this;
   }
-  inline ProfileRequest& operator=(ProfileRequest&& from) noexcept {
+  inline MovieRequest& operator=(MovieRequest&& from) noexcept {
     if (this == &from) return *this;
     if (GetArena() == from.GetArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -859,20 +1453,20 @@ class ProfileRequest final :
   static const ::google::protobuf::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const ProfileRequest& default_instance() {
+  static const MovieRequest& default_instance() {
     return *internal_default_instance();
   }
-  static inline const ProfileRequest* internal_default_instance() {
-    return reinterpret_cast<const ProfileRequest*>(
-               &_ProfileRequest_default_instance_);
+  static inline const MovieRequest* internal_default_instance() {
+    return reinterpret_cast<const MovieRequest*>(
+               &_MovieRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    6;
 
-  friend void swap(ProfileRequest& a, ProfileRequest& b) {
+  friend void swap(MovieRequest& a, MovieRequest& b) {
     a.Swap(&b);
   }
-  inline void Swap(ProfileRequest* other) {
+  inline void Swap(MovieRequest* other) {
     if (other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
     if (GetArena() != nullptr &&
@@ -885,7 +1479,7 @@ class ProfileRequest final :
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(ProfileRequest* other) {
+  void UnsafeArenaSwap(MovieRequest* other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -893,14 +1487,14 @@ class ProfileRequest final :
 
   // implements Message ----------------------------------------------
 
-  ProfileRequest* New(::google::protobuf::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<ProfileRequest>(arena);
+  MovieRequest* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<MovieRequest>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const ProfileRequest& from);
+  void CopyFrom(const MovieRequest& from);
   using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom( const ProfileRequest& from) {
-    ProfileRequest::MergeImpl(*this, from);
+  void MergeFrom( const MovieRequest& from) {
+    MovieRequest::MergeImpl(*this, from);
   }
   private:
   static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
@@ -918,16 +1512,16 @@ class ProfileRequest final :
   ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
   void SharedCtor(::google::protobuf::Arena* arena);
   void SharedDtor();
-  void InternalSwap(ProfileRequest* other);
+  void InternalSwap(MovieRequest* other);
 
   private:
   friend class ::google::protobuf::internal::AnyMetadata;
   static ::absl::string_view FullMessageName() {
-    return "profile.ProfileRequest";
+    return "profile.MovieRequest";
   }
   protected:
-  explicit ProfileRequest(::google::protobuf::Arena* arena);
-  ProfileRequest(::google::protobuf::Arena* arena, const ProfileRequest& from);
+  explicit MovieRequest(::google::protobuf::Arena* arena);
+  MovieRequest(::google::protobuf::Arena* arena, const MovieRequest& from);
   public:
 
   static const ClassData _class_data_;
@@ -940,15 +1534,10 @@ class ProfileRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMoviesFieldNumber = 6,
-    kActorsFieldNumber = 7,
-    kGenresFieldNumber = 8,
-    kNicknameFieldNumber = 2,
-    kQuoteFieldNumber = 4,
-    kBioFieldNumber = 5,
+    kMoviesFieldNumber = 2,
     kIdFieldNumber = 1,
   };
-  // repeated .profile.Movie movies = 6;
+  // repeated .profile.Movie movies = 2;
   int movies_size() const;
   private:
   int _internal_movies_size() const;
@@ -966,25 +1555,184 @@ class ProfileRequest final :
   ::profile::Movie* add_movies();
   const ::google::protobuf::RepeatedPtrField< ::profile::Movie >&
       movies() const;
-  // repeated .profile.Actor actors = 7;
-  int actors_size() const;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
   private:
-  int _internal_actors_size() const;
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
 
   public:
-  void clear_actors() ;
-  ::profile::Actor* mutable_actors(int index);
-  ::google::protobuf::RepeatedPtrField< ::profile::Actor >*
-      mutable_actors();
+  // @@protoc_insertion_point(class_scope:profile.MovieRequest)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 2, 1,
+      0, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::RepeatedPtrField< ::profile::Movie > movies_;
+    ::int32_t id_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_services_2fprofile_5fservice_2fprofile_2eproto;
+};// -------------------------------------------------------------------
+
+class GenreRequest final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:profile.GenreRequest) */ {
+ public:
+  inline GenreRequest() : GenreRequest(nullptr) {}
+  ~GenreRequest() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR GenreRequest(::google::protobuf::internal::ConstantInitialized);
+
+  inline GenreRequest(const GenreRequest& from)
+      : GenreRequest(nullptr, from) {}
+  GenreRequest(GenreRequest&& from) noexcept
+    : GenreRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline GenreRequest& operator=(const GenreRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GenreRequest& operator=(GenreRequest&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const GenreRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const GenreRequest* internal_default_instance() {
+    return reinterpret_cast<const GenreRequest*>(
+               &_GenreRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    8;
+
+  friend void swap(GenreRequest& a, GenreRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(GenreRequest* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GenreRequest* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  GenreRequest* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<GenreRequest>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const GenreRequest& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const GenreRequest& from) {
+    GenreRequest::MergeImpl(*this, from);
+  }
   private:
-  const ::google::protobuf::RepeatedPtrField<::profile::Actor>& _internal_actors() const;
-  ::google::protobuf::RepeatedPtrField<::profile::Actor>* _internal_mutable_actors();
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
   public:
-  const ::profile::Actor& actors(int index) const;
-  ::profile::Actor* add_actors();
-  const ::google::protobuf::RepeatedPtrField< ::profile::Actor >&
-      actors() const;
-  // repeated .profile.Genre genres = 8;
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(GenreRequest* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "profile.GenreRequest";
+  }
+  protected:
+  explicit GenreRequest(::google::protobuf::Arena* arena);
+  GenreRequest(::google::protobuf::Arena* arena, const GenreRequest& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kGenresFieldNumber = 2,
+    kIdFieldNumber = 1,
+  };
+  // repeated .profile.Genre genres = 2;
   int genres_size() const;
   private:
   int _internal_genres_size() const;
@@ -1002,54 +1750,6 @@ class ProfileRequest final :
   ::profile::Genre* add_genres();
   const ::google::protobuf::RepeatedPtrField< ::profile::Genre >&
       genres() const;
-  // string nickname = 2;
-  void clear_nickname() ;
-  const std::string& nickname() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_nickname(Arg_&& arg, Args_... args);
-  std::string* mutable_nickname();
-  PROTOBUF_NODISCARD std::string* release_nickname();
-  void set_allocated_nickname(std::string* value);
-
-  private:
-  const std::string& _internal_nickname() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_nickname(
-      const std::string& value);
-  std::string* _internal_mutable_nickname();
-
-  public:
-  // string quote = 4;
-  void clear_quote() ;
-  const std::string& quote() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_quote(Arg_&& arg, Args_... args);
-  std::string* mutable_quote();
-  PROTOBUF_NODISCARD std::string* release_quote();
-  void set_allocated_quote(std::string* value);
-
-  private:
-  const std::string& _internal_quote() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_quote(
-      const std::string& value);
-  std::string* _internal_mutable_quote();
-
-  public:
-  // string bio = 5;
-  void clear_bio() ;
-  const std::string& bio() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_bio(Arg_&& arg, Args_... args);
-  std::string* mutable_bio();
-  PROTOBUF_NODISCARD std::string* release_bio();
-  void set_allocated_bio(std::string* value);
-
-  private:
-  const std::string& _internal_bio() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_bio(
-      const std::string& value);
-  std::string* _internal_mutable_bio();
-
-  public:
   // int32 id = 1;
   void clear_id() ;
   ::int32_t id() const;
@@ -1060,14 +1760,14 @@ class ProfileRequest final :
   void _internal_set_id(::int32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:profile.ProfileRequest)
+  // @@protoc_insertion_point(class_scope:profile.GenreRequest)
  private:
   class _Internal;
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      3, 7, 3,
-      47, 2>
+      1, 2, 1,
+      0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
   friend class ::google::protobuf::Arena;
@@ -1083,12 +1783,202 @@ class ProfileRequest final :
                               ::google::protobuf::Arena* arena);
         inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                               ::google::protobuf::Arena* arena, const Impl_& from);
-    ::google::protobuf::RepeatedPtrField< ::profile::Movie > movies_;
-    ::google::protobuf::RepeatedPtrField< ::profile::Actor > actors_;
     ::google::protobuf::RepeatedPtrField< ::profile::Genre > genres_;
-    ::google::protobuf::internal::ArenaStringPtr nickname_;
-    ::google::protobuf::internal::ArenaStringPtr quote_;
-    ::google::protobuf::internal::ArenaStringPtr bio_;
+    ::int32_t id_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_services_2fprofile_5fservice_2fprofile_2eproto;
+};// -------------------------------------------------------------------
+
+class ActorRequest final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:profile.ActorRequest) */ {
+ public:
+  inline ActorRequest() : ActorRequest(nullptr) {}
+  ~ActorRequest() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR ActorRequest(::google::protobuf::internal::ConstantInitialized);
+
+  inline ActorRequest(const ActorRequest& from)
+      : ActorRequest(nullptr, from) {}
+  ActorRequest(ActorRequest&& from) noexcept
+    : ActorRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline ActorRequest& operator=(const ActorRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ActorRequest& operator=(ActorRequest&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ActorRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ActorRequest* internal_default_instance() {
+    return reinterpret_cast<const ActorRequest*>(
+               &_ActorRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    7;
+
+  friend void swap(ActorRequest& a, ActorRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ActorRequest* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ActorRequest* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ActorRequest* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ActorRequest>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const ActorRequest& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const ActorRequest& from) {
+    ActorRequest::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(ActorRequest* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "profile.ActorRequest";
+  }
+  protected:
+  explicit ActorRequest(::google::protobuf::Arena* arena);
+  ActorRequest(::google::protobuf::Arena* arena, const ActorRequest& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kActorsFieldNumber = 2,
+    kIdFieldNumber = 1,
+  };
+  // repeated .profile.Actor actors = 2;
+  int actors_size() const;
+  private:
+  int _internal_actors_size() const;
+
+  public:
+  void clear_actors() ;
+  ::profile::Actor* mutable_actors(int index);
+  ::google::protobuf::RepeatedPtrField< ::profile::Actor >*
+      mutable_actors();
+  private:
+  const ::google::protobuf::RepeatedPtrField<::profile::Actor>& _internal_actors() const;
+  ::google::protobuf::RepeatedPtrField<::profile::Actor>* _internal_mutable_actors();
+  public:
+  const ::profile::Actor& actors(int index) const;
+  ::profile::Actor* add_actors();
+  const ::google::protobuf::RepeatedPtrField< ::profile::Actor >&
+      actors() const;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:profile.ActorRequest)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 2, 1,
+      0, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::RepeatedPtrField< ::profile::Actor > actors_;
     ::int32_t id_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -1245,74 +2135,74 @@ inline void Genre::set_allocated_name(std::string* value) {
 
 // -------------------------------------------------------------------
 
-// ProfileRequest
+// NicknameRequest
 
 // int32 id = 1;
-inline void ProfileRequest::clear_id() {
+inline void NicknameRequest::clear_id() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.id_ = 0;
 }
-inline ::int32_t ProfileRequest::id() const {
-  // @@protoc_insertion_point(field_get:profile.ProfileRequest.id)
+inline ::int32_t NicknameRequest::id() const {
+  // @@protoc_insertion_point(field_get:profile.NicknameRequest.id)
   return _internal_id();
 }
-inline void ProfileRequest::set_id(::int32_t value) {
+inline void NicknameRequest::set_id(::int32_t value) {
   _internal_set_id(value);
-  // @@protoc_insertion_point(field_set:profile.ProfileRequest.id)
+  // @@protoc_insertion_point(field_set:profile.NicknameRequest.id)
 }
-inline ::int32_t ProfileRequest::_internal_id() const {
+inline ::int32_t NicknameRequest::_internal_id() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return _impl_.id_;
 }
-inline void ProfileRequest::_internal_set_id(::int32_t value) {
+inline void NicknameRequest::_internal_set_id(::int32_t value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
   _impl_.id_ = value;
 }
 
 // string nickname = 2;
-inline void ProfileRequest::clear_nickname() {
+inline void NicknameRequest::clear_nickname() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.nickname_.ClearToEmpty();
 }
-inline const std::string& ProfileRequest::nickname() const
+inline const std::string& NicknameRequest::nickname() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:profile.ProfileRequest.nickname)
+  // @@protoc_insertion_point(field_get:profile.NicknameRequest.nickname)
   return _internal_nickname();
 }
 template <typename Arg_, typename... Args_>
-inline PROTOBUF_ALWAYS_INLINE void ProfileRequest::set_nickname(Arg_&& arg,
+inline PROTOBUF_ALWAYS_INLINE void NicknameRequest::set_nickname(Arg_&& arg,
                                                      Args_... args) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
   _impl_.nickname_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:profile.ProfileRequest.nickname)
+  // @@protoc_insertion_point(field_set:profile.NicknameRequest.nickname)
 }
-inline std::string* ProfileRequest::mutable_nickname() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* NicknameRequest::mutable_nickname() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_nickname();
-  // @@protoc_insertion_point(field_mutable:profile.ProfileRequest.nickname)
+  // @@protoc_insertion_point(field_mutable:profile.NicknameRequest.nickname)
   return _s;
 }
-inline const std::string& ProfileRequest::_internal_nickname() const {
+inline const std::string& NicknameRequest::_internal_nickname() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return _impl_.nickname_.Get();
 }
-inline void ProfileRequest::_internal_set_nickname(const std::string& value) {
+inline void NicknameRequest::_internal_set_nickname(const std::string& value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
   _impl_.nickname_.Set(value, GetArena());
 }
-inline std::string* ProfileRequest::_internal_mutable_nickname() {
+inline std::string* NicknameRequest::_internal_mutable_nickname() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
   return _impl_.nickname_.Mutable( GetArena());
 }
-inline std::string* ProfileRequest::release_nickname() {
+inline std::string* NicknameRequest::release_nickname() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  // @@protoc_insertion_point(field_release:profile.ProfileRequest.nickname)
+  // @@protoc_insertion_point(field_release:profile.NicknameRequest.nickname)
   return _impl_.nickname_.Release();
 }
-inline void ProfileRequest::set_allocated_nickname(std::string* value) {
+inline void NicknameRequest::set_allocated_nickname(std::string* value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.nickname_.SetAllocated(value, GetArena());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1320,52 +2210,79 @@ inline void ProfileRequest::set_allocated_nickname(std::string* value) {
           _impl_.nickname_.Set("", GetArena());
         }
   #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:profile.ProfileRequest.nickname)
+  // @@protoc_insertion_point(field_set_allocated:profile.NicknameRequest.nickname)
 }
 
-// string quote = 4;
-inline void ProfileRequest::clear_quote() {
+// -------------------------------------------------------------------
+
+// QuoteRequest
+
+// int32 id = 1;
+inline void QuoteRequest::clear_id() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.id_ = 0;
+}
+inline ::int32_t QuoteRequest::id() const {
+  // @@protoc_insertion_point(field_get:profile.QuoteRequest.id)
+  return _internal_id();
+}
+inline void QuoteRequest::set_id(::int32_t value) {
+  _internal_set_id(value);
+  // @@protoc_insertion_point(field_set:profile.QuoteRequest.id)
+}
+inline ::int32_t QuoteRequest::_internal_id() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.id_;
+}
+inline void QuoteRequest::_internal_set_id(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.id_ = value;
+}
+
+// string quote = 2;
+inline void QuoteRequest::clear_quote() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.quote_.ClearToEmpty();
 }
-inline const std::string& ProfileRequest::quote() const
+inline const std::string& QuoteRequest::quote() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:profile.ProfileRequest.quote)
+  // @@protoc_insertion_point(field_get:profile.QuoteRequest.quote)
   return _internal_quote();
 }
 template <typename Arg_, typename... Args_>
-inline PROTOBUF_ALWAYS_INLINE void ProfileRequest::set_quote(Arg_&& arg,
+inline PROTOBUF_ALWAYS_INLINE void QuoteRequest::set_quote(Arg_&& arg,
                                                      Args_... args) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
   _impl_.quote_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:profile.ProfileRequest.quote)
+  // @@protoc_insertion_point(field_set:profile.QuoteRequest.quote)
 }
-inline std::string* ProfileRequest::mutable_quote() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* QuoteRequest::mutable_quote() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_quote();
-  // @@protoc_insertion_point(field_mutable:profile.ProfileRequest.quote)
+  // @@protoc_insertion_point(field_mutable:profile.QuoteRequest.quote)
   return _s;
 }
-inline const std::string& ProfileRequest::_internal_quote() const {
+inline const std::string& QuoteRequest::_internal_quote() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return _impl_.quote_.Get();
 }
-inline void ProfileRequest::_internal_set_quote(const std::string& value) {
+inline void QuoteRequest::_internal_set_quote(const std::string& value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
   _impl_.quote_.Set(value, GetArena());
 }
-inline std::string* ProfileRequest::_internal_mutable_quote() {
+inline std::string* QuoteRequest::_internal_mutable_quote() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
   return _impl_.quote_.Mutable( GetArena());
 }
-inline std::string* ProfileRequest::release_quote() {
+inline std::string* QuoteRequest::release_quote() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  // @@protoc_insertion_point(field_release:profile.ProfileRequest.quote)
+  // @@protoc_insertion_point(field_release:profile.QuoteRequest.quote)
   return _impl_.quote_.Release();
 }
-inline void ProfileRequest::set_allocated_quote(std::string* value) {
+inline void QuoteRequest::set_allocated_quote(std::string* value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.quote_.SetAllocated(value, GetArena());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1373,52 +2290,79 @@ inline void ProfileRequest::set_allocated_quote(std::string* value) {
           _impl_.quote_.Set("", GetArena());
         }
   #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:profile.ProfileRequest.quote)
+  // @@protoc_insertion_point(field_set_allocated:profile.QuoteRequest.quote)
 }
 
-// string bio = 5;
-inline void ProfileRequest::clear_bio() {
+// -------------------------------------------------------------------
+
+// BioRequest
+
+// int32 id = 1;
+inline void BioRequest::clear_id() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.id_ = 0;
+}
+inline ::int32_t BioRequest::id() const {
+  // @@protoc_insertion_point(field_get:profile.BioRequest.id)
+  return _internal_id();
+}
+inline void BioRequest::set_id(::int32_t value) {
+  _internal_set_id(value);
+  // @@protoc_insertion_point(field_set:profile.BioRequest.id)
+}
+inline ::int32_t BioRequest::_internal_id() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.id_;
+}
+inline void BioRequest::_internal_set_id(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.id_ = value;
+}
+
+// string bio = 2;
+inline void BioRequest::clear_bio() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.bio_.ClearToEmpty();
 }
-inline const std::string& ProfileRequest::bio() const
+inline const std::string& BioRequest::bio() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:profile.ProfileRequest.bio)
+  // @@protoc_insertion_point(field_get:profile.BioRequest.bio)
   return _internal_bio();
 }
 template <typename Arg_, typename... Args_>
-inline PROTOBUF_ALWAYS_INLINE void ProfileRequest::set_bio(Arg_&& arg,
+inline PROTOBUF_ALWAYS_INLINE void BioRequest::set_bio(Arg_&& arg,
                                                      Args_... args) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
   _impl_.bio_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:profile.ProfileRequest.bio)
+  // @@protoc_insertion_point(field_set:profile.BioRequest.bio)
 }
-inline std::string* ProfileRequest::mutable_bio() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* BioRequest::mutable_bio() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_bio();
-  // @@protoc_insertion_point(field_mutable:profile.ProfileRequest.bio)
+  // @@protoc_insertion_point(field_mutable:profile.BioRequest.bio)
   return _s;
 }
-inline const std::string& ProfileRequest::_internal_bio() const {
+inline const std::string& BioRequest::_internal_bio() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return _impl_.bio_.Get();
 }
-inline void ProfileRequest::_internal_set_bio(const std::string& value) {
+inline void BioRequest::_internal_set_bio(const std::string& value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
   _impl_.bio_.Set(value, GetArena());
 }
-inline std::string* ProfileRequest::_internal_mutable_bio() {
+inline std::string* BioRequest::_internal_mutable_bio() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
   return _impl_.bio_.Mutable( GetArena());
 }
-inline std::string* ProfileRequest::release_bio() {
+inline std::string* BioRequest::release_bio() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  // @@protoc_insertion_point(field_release:profile.ProfileRequest.bio)
+  // @@protoc_insertion_point(field_release:profile.BioRequest.bio)
   return _impl_.bio_.Release();
 }
-inline void ProfileRequest::set_allocated_bio(std::string* value) {
+inline void BioRequest::set_allocated_bio(std::string* value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.bio_.SetAllocated(value, GetArena());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1426,152 +2370,233 @@ inline void ProfileRequest::set_allocated_bio(std::string* value) {
           _impl_.bio_.Set("", GetArena());
         }
   #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:profile.ProfileRequest.bio)
+  // @@protoc_insertion_point(field_set_allocated:profile.BioRequest.bio)
 }
 
-// repeated .profile.Movie movies = 6;
-inline int ProfileRequest::_internal_movies_size() const {
+// -------------------------------------------------------------------
+
+// MovieRequest
+
+// int32 id = 1;
+inline void MovieRequest::clear_id() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.id_ = 0;
+}
+inline ::int32_t MovieRequest::id() const {
+  // @@protoc_insertion_point(field_get:profile.MovieRequest.id)
+  return _internal_id();
+}
+inline void MovieRequest::set_id(::int32_t value) {
+  _internal_set_id(value);
+  // @@protoc_insertion_point(field_set:profile.MovieRequest.id)
+}
+inline ::int32_t MovieRequest::_internal_id() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.id_;
+}
+inline void MovieRequest::_internal_set_id(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.id_ = value;
+}
+
+// repeated .profile.Movie movies = 2;
+inline int MovieRequest::_internal_movies_size() const {
   return _internal_movies().size();
 }
-inline int ProfileRequest::movies_size() const {
+inline int MovieRequest::movies_size() const {
   return _internal_movies_size();
 }
-inline void ProfileRequest::clear_movies() {
+inline void MovieRequest::clear_movies() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.movies_.Clear();
 }
-inline ::profile::Movie* ProfileRequest::mutable_movies(int index)
+inline ::profile::Movie* MovieRequest::mutable_movies(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:profile.ProfileRequest.movies)
+  // @@protoc_insertion_point(field_mutable:profile.MovieRequest.movies)
   return _internal_mutable_movies()->Mutable(index);
 }
-inline ::google::protobuf::RepeatedPtrField<::profile::Movie>* ProfileRequest::mutable_movies()
+inline ::google::protobuf::RepeatedPtrField<::profile::Movie>* MovieRequest::mutable_movies()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:profile.ProfileRequest.movies)
+  // @@protoc_insertion_point(field_mutable_list:profile.MovieRequest.movies)
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   return _internal_mutable_movies();
 }
-inline const ::profile::Movie& ProfileRequest::movies(int index) const
+inline const ::profile::Movie& MovieRequest::movies(int index) const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:profile.ProfileRequest.movies)
+  // @@protoc_insertion_point(field_get:profile.MovieRequest.movies)
   return _internal_movies().Get(index);
 }
-inline ::profile::Movie* ProfileRequest::add_movies() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::profile::Movie* MovieRequest::add_movies() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ::profile::Movie* _add = _internal_mutable_movies()->Add();
-  // @@protoc_insertion_point(field_add:profile.ProfileRequest.movies)
+  // @@protoc_insertion_point(field_add:profile.MovieRequest.movies)
   return _add;
 }
-inline const ::google::protobuf::RepeatedPtrField<::profile::Movie>& ProfileRequest::movies() const
+inline const ::google::protobuf::RepeatedPtrField<::profile::Movie>& MovieRequest::movies() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:profile.ProfileRequest.movies)
+  // @@protoc_insertion_point(field_list:profile.MovieRequest.movies)
   return _internal_movies();
 }
 inline const ::google::protobuf::RepeatedPtrField<::profile::Movie>&
-ProfileRequest::_internal_movies() const {
+MovieRequest::_internal_movies() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return _impl_.movies_;
 }
 inline ::google::protobuf::RepeatedPtrField<::profile::Movie>*
-ProfileRequest::_internal_mutable_movies() {
+MovieRequest::_internal_mutable_movies() {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return &_impl_.movies_;
 }
 
-// repeated .profile.Actor actors = 7;
-inline int ProfileRequest::_internal_actors_size() const {
+// -------------------------------------------------------------------
+
+// ActorRequest
+
+// int32 id = 1;
+inline void ActorRequest::clear_id() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.id_ = 0;
+}
+inline ::int32_t ActorRequest::id() const {
+  // @@protoc_insertion_point(field_get:profile.ActorRequest.id)
+  return _internal_id();
+}
+inline void ActorRequest::set_id(::int32_t value) {
+  _internal_set_id(value);
+  // @@protoc_insertion_point(field_set:profile.ActorRequest.id)
+}
+inline ::int32_t ActorRequest::_internal_id() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.id_;
+}
+inline void ActorRequest::_internal_set_id(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.id_ = value;
+}
+
+// repeated .profile.Actor actors = 2;
+inline int ActorRequest::_internal_actors_size() const {
   return _internal_actors().size();
 }
-inline int ProfileRequest::actors_size() const {
+inline int ActorRequest::actors_size() const {
   return _internal_actors_size();
 }
-inline void ProfileRequest::clear_actors() {
+inline void ActorRequest::clear_actors() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.actors_.Clear();
 }
-inline ::profile::Actor* ProfileRequest::mutable_actors(int index)
+inline ::profile::Actor* ActorRequest::mutable_actors(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:profile.ProfileRequest.actors)
+  // @@protoc_insertion_point(field_mutable:profile.ActorRequest.actors)
   return _internal_mutable_actors()->Mutable(index);
 }
-inline ::google::protobuf::RepeatedPtrField<::profile::Actor>* ProfileRequest::mutable_actors()
+inline ::google::protobuf::RepeatedPtrField<::profile::Actor>* ActorRequest::mutable_actors()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:profile.ProfileRequest.actors)
+  // @@protoc_insertion_point(field_mutable_list:profile.ActorRequest.actors)
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   return _internal_mutable_actors();
 }
-inline const ::profile::Actor& ProfileRequest::actors(int index) const
+inline const ::profile::Actor& ActorRequest::actors(int index) const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:profile.ProfileRequest.actors)
+  // @@protoc_insertion_point(field_get:profile.ActorRequest.actors)
   return _internal_actors().Get(index);
 }
-inline ::profile::Actor* ProfileRequest::add_actors() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::profile::Actor* ActorRequest::add_actors() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ::profile::Actor* _add = _internal_mutable_actors()->Add();
-  // @@protoc_insertion_point(field_add:profile.ProfileRequest.actors)
+  // @@protoc_insertion_point(field_add:profile.ActorRequest.actors)
   return _add;
 }
-inline const ::google::protobuf::RepeatedPtrField<::profile::Actor>& ProfileRequest::actors() const
+inline const ::google::protobuf::RepeatedPtrField<::profile::Actor>& ActorRequest::actors() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:profile.ProfileRequest.actors)
+  // @@protoc_insertion_point(field_list:profile.ActorRequest.actors)
   return _internal_actors();
 }
 inline const ::google::protobuf::RepeatedPtrField<::profile::Actor>&
-ProfileRequest::_internal_actors() const {
+ActorRequest::_internal_actors() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return _impl_.actors_;
 }
 inline ::google::protobuf::RepeatedPtrField<::profile::Actor>*
-ProfileRequest::_internal_mutable_actors() {
+ActorRequest::_internal_mutable_actors() {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return &_impl_.actors_;
 }
 
-// repeated .profile.Genre genres = 8;
-inline int ProfileRequest::_internal_genres_size() const {
+// -------------------------------------------------------------------
+
+// GenreRequest
+
+// int32 id = 1;
+inline void GenreRequest::clear_id() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.id_ = 0;
+}
+inline ::int32_t GenreRequest::id() const {
+  // @@protoc_insertion_point(field_get:profile.GenreRequest.id)
+  return _internal_id();
+}
+inline void GenreRequest::set_id(::int32_t value) {
+  _internal_set_id(value);
+  // @@protoc_insertion_point(field_set:profile.GenreRequest.id)
+}
+inline ::int32_t GenreRequest::_internal_id() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.id_;
+}
+inline void GenreRequest::_internal_set_id(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.id_ = value;
+}
+
+// repeated .profile.Genre genres = 2;
+inline int GenreRequest::_internal_genres_size() const {
   return _internal_genres().size();
 }
-inline int ProfileRequest::genres_size() const {
+inline int GenreRequest::genres_size() const {
   return _internal_genres_size();
 }
-inline void ProfileRequest::clear_genres() {
+inline void GenreRequest::clear_genres() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.genres_.Clear();
 }
-inline ::profile::Genre* ProfileRequest::mutable_genres(int index)
+inline ::profile::Genre* GenreRequest::mutable_genres(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:profile.ProfileRequest.genres)
+  // @@protoc_insertion_point(field_mutable:profile.GenreRequest.genres)
   return _internal_mutable_genres()->Mutable(index);
 }
-inline ::google::protobuf::RepeatedPtrField<::profile::Genre>* ProfileRequest::mutable_genres()
+inline ::google::protobuf::RepeatedPtrField<::profile::Genre>* GenreRequest::mutable_genres()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:profile.ProfileRequest.genres)
+  // @@protoc_insertion_point(field_mutable_list:profile.GenreRequest.genres)
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   return _internal_mutable_genres();
 }
-inline const ::profile::Genre& ProfileRequest::genres(int index) const
+inline const ::profile::Genre& GenreRequest::genres(int index) const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:profile.ProfileRequest.genres)
+  // @@protoc_insertion_point(field_get:profile.GenreRequest.genres)
   return _internal_genres().Get(index);
 }
-inline ::profile::Genre* ProfileRequest::add_genres() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::profile::Genre* GenreRequest::add_genres() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ::profile::Genre* _add = _internal_mutable_genres()->Add();
-  // @@protoc_insertion_point(field_add:profile.ProfileRequest.genres)
+  // @@protoc_insertion_point(field_add:profile.GenreRequest.genres)
   return _add;
 }
-inline const ::google::protobuf::RepeatedPtrField<::profile::Genre>& ProfileRequest::genres() const
+inline const ::google::protobuf::RepeatedPtrField<::profile::Genre>& GenreRequest::genres() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:profile.ProfileRequest.genres)
+  // @@protoc_insertion_point(field_list:profile.GenreRequest.genres)
   return _internal_genres();
 }
 inline const ::google::protobuf::RepeatedPtrField<::profile::Genre>&
-ProfileRequest::_internal_genres() const {
+GenreRequest::_internal_genres() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return _impl_.genres_;
 }
 inline ::google::protobuf::RepeatedPtrField<::profile::Genre>*
-ProfileRequest::_internal_mutable_genres() {
+GenreRequest::_internal_mutable_genres() {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return &_impl_.genres_;
 }

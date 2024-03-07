@@ -3,10 +3,10 @@
 
 Status ProfileServiceImpl::ChangeNickname(
     ServerContext *context,
-    const ProfileRequest *request,
+    const NicknameRequest *request,
     ProfileReply *reply
 ) {
-    ProfileRequest current_profile = *request;
+    NicknameRequest current_profile = *request;
     database::connector db_connector;
     if (db_connector.is_nickname_used(current_profile.nickname())) {
         reply->set_message("Nickname already exists");
@@ -30,10 +30,10 @@ Status ProfileServiceImpl::ChangeNickname(
 
 Status ProfileServiceImpl::ChangeQuote(
     ServerContext *context,
-    const ProfileRequest *request,
+    const QuoteRequest *request,
     ProfileReply *reply
 ) {
-    ProfileRequest current_profile = *request;
+    QuoteRequest current_profile = *request;
     if (current_profile.quote().length() > 100) {
         reply->set_message("Quote is too long");
         return Status::OK;
@@ -46,10 +46,10 @@ Status ProfileServiceImpl::ChangeQuote(
 
 Status ProfileServiceImpl::ChangeBio(
     ServerContext *context,
-    const ProfileRequest *request,
+    const BioRequest *request,
     ProfileReply *reply
 ) {
-    ProfileRequest current_profile = *request;
+    BioRequest current_profile = *request;
     database::connector db_connector;
     if (current_profile.bio().length() > 1000) {
         reply->set_message("Bio is too long");
@@ -62,10 +62,10 @@ Status ProfileServiceImpl::ChangeBio(
 
 Status ProfileServiceImpl::AddToWatchlist(
     ServerContext *context,
-    const ProfileRequest *request,
+    const MovieRequest *request,
     ProfileReply *reply
 ) {
-    ProfileRequest current_profile = *request;
+    MovieRequest current_profile = *request;
     database::connector db_connector;
     for (const auto &movie : current_profile.movies()) {
         db_connector.add_watched(current_profile.id(), movie.id(), movie.rating());
@@ -76,10 +76,10 @@ Status ProfileServiceImpl::AddToWatchlist(
 
 Status ProfileServiceImpl::RemoveFromWatchlist(
     ServerContext *context,
-    const ProfileRequest *request,
+    const MovieRequest *request,
     ProfileReply *reply
 ) {
-    ProfileRequest current_profile = *request;
+    MovieRequest current_profile = *request;
     database::connector db_connector;
     for (const auto &movie : current_profile.movies()) {
         db_connector.remove_watched(current_profile.id(), movie.id());
@@ -88,28 +88,12 @@ Status ProfileServiceImpl::RemoveFromWatchlist(
     return Status::OK;
 }
 
-// Status ProfileServiceImpl::UpdateMovieRating(
-//     ServerContext *context,
-//     const ProfileRequest *request,
-//     ProfileReply *reply
-// ) {
-//     ProfileRequest current_request = *request;
-//     database::connector db_connector;
-//     std::string sql = "UPDATE watchlist SET rating = " 
-//                     + std::to_string(current_request.new_rating()) 
-//                     + " WHERE profile_id = " + current_request.profile_id() 
-//                     + " AND movie_id = " + current_request.movie_id();
-//     db_connector.execute_query(sql);
-//     reply->set_message("Rating updated");
-//     return Status::OK;
-// }
-
 Status ProfileServiceImpl::AddToListOfActors(
     ServerContext *context,
-    const ProfileRequest *request,
+    const ActorRequest *request,
     ProfileReply *reply
 ) {
-    ProfileRequest current_profile = *request;
+    ActorRequest current_profile = *request;
     database::connector db_connector;
     for (const auto &actor : current_profile.actors()) {
         db_connector.add_favourite_actor(current_profile.id(), actor.id());
@@ -120,10 +104,10 @@ Status ProfileServiceImpl::AddToListOfActors(
 
 Status ProfileServiceImpl::RemoveFromListOfActors(
     ServerContext *context,
-    const ProfileRequest *request,
+    const ActorRequest *request,
     ProfileReply *reply
 ) {
-    ProfileRequest current_profile = *request;
+    ActorRequest current_profile = *request;
     database::connector db_connector;
     for (const auto &actor : current_profile.actors()) {
         db_connector.remove_favourite_actor(current_profile.id(), actor.id());
@@ -134,10 +118,10 @@ Status ProfileServiceImpl::RemoveFromListOfActors(
 
 Status ProfileServiceImpl::AddToListOfGenres(
     ServerContext *context,
-    const ProfileRequest *request,
+    const GenreRequest *request,
     ProfileReply *reply
 ) {
-    ProfileRequest current_profile = *request;
+    GenreRequest current_profile = *request;
     database::connector db_connector;
     for (const auto &genre : current_profile.genres()) {
         db_connector.add_favourite_genre(current_profile.id(), genre.name());
@@ -148,10 +132,10 @@ Status ProfileServiceImpl::AddToListOfGenres(
 
 Status ProfileServiceImpl::RemoveFromListOfGenres(
     ServerContext *context,
-    const ProfileRequest *request,
+    const GenreRequest *request,
     ProfileReply *reply
 ) {
-    ProfileRequest current_profile = *request;
+    GenreRequest current_profile = *request;
     database::connector db_connector;
     for (const auto &genre : current_profile.genres()) {
         db_connector.remove_favourite_genre(current_profile.id(), genre.name());
