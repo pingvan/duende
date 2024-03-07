@@ -38,7 +38,8 @@ TEST_CASE("check using check fucntions") {
 }
 
 TEST_CASE("test hash salt function") {
-    CHECK(connector::get_hash_salt(id) == std::pair{hashed, salt});
+    auto a = connector::get_hash_salt(id);
+    CHECK(a == std::pair{hashed, salt});
 }
 
 TEST_CASE("get refresh token") {
@@ -59,6 +60,40 @@ TEST_CASE("get form id") {
 TEST_CASE("change email") {
     email = "new_email@email.com";
     connector::change_email(id, email);
-    //TODO::rewrite
-    CHECK(true);
+    CHECK(connector::get_user_email(id) == email);
+}
+
+TEST_CASE("change nickname") {
+    nickname = "new_test_nick";
+    connector::change_nickname(id, nickname);
+    CHECK(connector::get_user_nickname(id) == nickname);
+}
+
+TEST_CASE("check quote") {
+    auto quote = "test_quote";
+    connector::change_quote(id, quote);
+}
+
+TEST_CASE("check about") {
+    auto about = "test about";
+    connector::change_about(id, about);
+}
+
+TEST_CASE("check add genre") {
+    auto nee_genre = "comedy";
+    connector::add_favourite_genre(id, nee_genre);
+}
+
+TEST_CASE("check remove genre") {
+    auto to_delete = "comedy";
+    connector::remove_favourite_genre(id, to_delete);
+}
+
+TEST_CASE("check actor") {
+    auto actor_id = 10;
+    connector::add_favourite_actor(id, actor_id);
+}
+
+TEST_CASE("remove fauvorite actor") {
+
 }
