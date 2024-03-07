@@ -102,20 +102,15 @@ int connector::add_user(const std::string &user_email, const std::string &user_n
 std::pair<std::string, std::string> connector::get_hash_salt(const int &user_id) {
     openCon
     const auto result = txn->exec_params("SELECT password_hash, password_salt FROM passwords WHERE client_id = $1", user_id);
-    int counter = 0;
     std::pair<std::string, std::string> hash_salt_pair{};
     for (auto row : result) {
-        if (counter == 0) {
-            hash_salt_pair.first = row[0].as<std::string>();
-            ++counter;
-        } else {
-            assert(counter == 1);
-            hash_salt_pair.first = row[0].as<std::string>();
-        }
+        hash_salt_pair.first = row[0].as<std::string>();
+        hash_salt_pair.second = row[1].as<std::string>();
     }
     txn->commit();
     return hash_salt_pair;
 }
+
 
 std::string connector::get_refresh_token(const int &user_id) {
     openCon
