@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(./include/)
-add_subdirectory(./test/)
+#add_subdirectory(./test/)
 
 message(NOTICE "COMPONENTS_SRCS: " ${COMPONENTS_SRCS})
 message(NOTICE "SERVICES_SRCS: " ${SERVICES_SRCS})

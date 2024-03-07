@@ -1,5 +1,4 @@
 #include <grpcpp/grpcpp.h>
-#include <components/database/database-connector.hpp>
 #include "services/authservice/service.hpp"
 #include "services/profile_service/profile_server.cpp"
 
@@ -20,12 +19,5 @@ void run_server() {
 }
 
 int main() {
-    // run_server();
-    int id  = 0;
-    try {
-        id = database::connector::add_user("ba", "bb", "cc", "ss", "dd", "ee");
-    } catch (std::exception &e) {
-        std::cerr << e.what() << '\n';
-    }
-    std::cout << id << '\n';
+    run_server();
 }
