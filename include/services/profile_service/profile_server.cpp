@@ -44,36 +44,37 @@ Status ProfileServiceImpl::ChangeQuote(
     return Status::OK;
 }
 
-// Status ProfileServiceImpl::ChangeBio(
-//     ServerContext *context,
-//     const ProfileRequest *request,
-//     ProfileReply *reply
-// ) {
-//     ProfileRequest current_profile = *request;
-//     if (current_profile.bio().length() > 1000) {
-//         reply->set_message("Bio is too long");
-//         return Status::OK;
-//     }
-//     profiles[current_profile.id()].set_bio(current_profile.bio());
-//     reply->set_message("Bio changed");
-//     return Status::OK;
-// }
+Status ProfileServiceImpl::ChangeBio(
+    ServerContext *context,
+    const ProfileRequest *request,
+    ProfileReply *reply
+) {
+    ProfileRequest current_profile = *request;
+    database::connector db_connector;
+    if (current_profile.bio().length() > 1000) {
+        reply->set_message("Bio is too long");
+        return Status::OK;
+    }
+    db_connector.change_about(current_profile.id(), current_profile.bio());
+    reply->set_message("Bio changed");
+    return Status::OK;
+}
 
-// Status ProfileServiceImpl::AddToWatchlist(
-//     ServerContext *context,
-//     const ProfileRequest *request,
-//     ProfileReply *reply
-// ) {
-//     ProfileRequest current_profile = *request;
-//     database::connector db_connector;
-//     for (const auto &movie : current_profile.movies()) {
-//         auto *new_movie = profiles[current_profile.id()].add_movies();
-//         new_movie->CopyFrom(movie);
-//         new_movie->set_rating(movie.rating());
-//     }
-//     reply->set_message("Watchlist changed");
-//     return Status::OK;
-// }
+Status ProfileServiceImpl::AddToWatchlist(
+    ServerContext *context,
+    const ProfileRequest *request,
+    ProfileReply *reply
+) {
+    ProfileRequest current_profile = *request;
+    database::connector db_connector;
+    for (const auto &movie : current_profile.movies()) {
+        auto *new_movie = profiles[current_profile.id()].add_movies();
+        new_movie->CopyFrom(movie);
+        new_movie->set_rating(movie.rating());
+    }
+    reply->set_message("Watchlist changed");
+    return Status::OK;
+}
 
 // Status ProfileServiceImpl::RemoveFromWatchlist(
 //     ServerContext *context,

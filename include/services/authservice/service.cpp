@@ -2,22 +2,13 @@
 #include "data.hpp"
 #include "hash.hpp"
 #include "token.hpp"
+#include "components/database/database-connector.hpp"
 
-grpc::Status
-auth_service::save_user(authservice::User &user, std::string password) {
-    std::unordered_map<std::string, std::string> user_data;
-    std::string salt = generate_salt(5);
-    user.set_hashed_password(generate_hash(password + salt));
-    user.set_salt(salt);
-
-    user_data["email"] = user.email();
-    user_data["id"] = std::to_string(user.id());
-    user_data["hashed_password"] = user.hashed_password();
-    user_data["salt"] = user.salt();
-
-    users[user.username()] = user_data;
-
-    return grpc::Status::OK;
+int auth_service::save_user(authservice::User &user, std::string password, authservice::Tokens *tokens) {
+    database::connector connector;
+    user.set_salt(generate_salt(10));
+    std::string hashed_password = generate_hash(password + user.salt());
+    return connector.add_user(user.email(), user.username(), tokens->access().token(), tokens->refresh().token(), hashed_password, user.salt());
 }
 
 grpc::Status auth_service::Login(
@@ -117,7 +108,7 @@ grpc::Status auth_service::Signup(
     response->set_allocated_user_dto(user_dto);
     response->set_allocated_tokens(tokens);
 
-    save_user(user, password);
+    save_user(user, password, tokens);
 
     return grpc::Status::OK;
 }

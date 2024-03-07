@@ -28,30 +28,30 @@ class ProfileServiceImpl final : public ProfileService::Service
   Status ChangeNickname(ServerContext *context, const ProfileRequest *request,
                         ProfileReply *reply) override;
 
-  Status ChangePhoto(ServerContext *context, const ProfileRequest *request,
-                     ProfileReply *reply) override;
+  // Status ChangePhoto(ServerContext *context, const ProfileRequest *request,
+  //                    ProfileReply *reply) override;
 
   Status ChangeQuote(ServerContext *context, const ProfileRequest *request,
                      ProfileReply *reply) override;
 
   Status ChangeBio(ServerContext *context, const ProfileRequest *request,
-                   ProfileReply *reply) override;
+                    ProfileReply *reply) override;
 
-  Status AddToWatchlist(ServerContext *context, const ProfileRequest *request,
-                        ProfileReply *reply) override;
+  // Status AddToWatchlist(ServerContext *context, const ProfileRequest *request,
+  //                       ProfileReply *reply) override;
 
-  Status RemoveFromWatchlist(ServerContext *context, const ProfileRequest *request,
-                             ProfileReply *reply) override;
+  // Status RemoveFromWatchlist(ServerContext *context, const ProfileRequest *request,
+  //                            ProfileReply *reply) override;
 
-  Status AddToListOfActors(ServerContext *context, const ProfileRequest *request,
-                           ProfileReply *reply) override;
+  // Status AddToListOfActors(ServerContext *context, const ProfileRequest *request,
+  //                          ProfileReply *reply) override;
 
-  Status RemoveFromListOfActors(ServerContext *context, const ProfileRequest *request,
-                                ProfileReply *reply) override;
+  // Status RemoveFromListOfActors(ServerContext *context, const ProfileRequest *request,
+  //                               ProfileReply *reply) override;
 
-  Status AddToListOfGenres(ServerContext *context, const ProfileRequest *request,
-                           ProfileReply *reply) override;
+  // Status AddToListOfGenres(ServerContext *context, const ProfileRequest *request,
+  //                          ProfileReply *reply) override;
 
-  Status RemoveFromListOfGenres(ServerContext *context, const ProfileRequest *request,
-                                ProfileReply *reply) override;
+  // Status RemoveFromListOfGenres(ServerContext *context, const ProfileRequest *request,
+  //                               ProfileReply *reply) override;
 };
