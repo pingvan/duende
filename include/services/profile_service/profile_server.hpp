@@ -23,7 +23,7 @@ using profile::ProfileService;
 
 class ProfileServiceImpl final : public ProfileService::Service
 {
-  std::unordered_map<std::string, ProfileRequest> profiles;
+  // std::unordered_map<std::string, ProfileRequest> profiles;
 
   Status ChangeNickname(ServerContext *context, const ProfileRequest *request,
                         ProfileReply *reply) override;

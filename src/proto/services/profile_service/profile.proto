@@ -13,22 +13,24 @@ service ProfileService {
   rpc RemoveFromListOfActors (ProfileRequest) returns (ProfileReply) {}
   rpc AddToListOfGenres (ProfileRequest) returns (ProfileReply) {}
   rpc RemoveFromListOfGenres (ProfileRequest) returns (ProfileReply) {}
+  rpc UpdateMovieRating (ProfileRequest) returns (ProfileReply) {}
 }
 
 message Movie{
-  string id = 1;
+  int32 id = 1;
+  int32 rating = 2;
 }
 
 message Actor{
-  string id = 1;
+  int32 id = 1;
 }
 
 message Genre{
-  string id = 1;
+  int32 id = 1;
 }
 
 message ProfileRequest {
-  string id = 1;
+  int32 id = 1;
   string nickname = 2;
   string photo = 3;
   string quote = 4;
