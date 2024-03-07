@@ -17,10 +17,12 @@ struct connector {
     // authservice begin
 
     [[nodiscard]] static bool is_email_used(const std::string &user_email);
-    [[nodiscard]] static bool is_nickname_used(const std::string &user_nickname
-    );
+    [[nodiscard]] static bool is_nickname_used(const std::string &user_nickname);
 
     [[nodiscard]] static int get_user_id(const std::string &login);
+    [[nodiscard]] static std::string get_user_email(const int &client_id);
+    [[nodiscard]] static std::string get_user_nickname(const int &client_id);
+
 
     [[nodiscard]] static int add_user(
         const std::string &user_email,

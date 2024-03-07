@@ -57,6 +57,30 @@ int connector::get_user_id(const std::string &login) {
 }
 
 
+std::string connector::get_user_email(const int &client_id) {
+    openCon
+    auto result = txn->exec_params("SELECT email FROM clients WHERE id = $1", client_id);
+    std::string email{};
+    for (auto row : result) {
+        email = row[0].as<std::string>();
+    }
+    txn->commit();
+    return email;
+}
+
+std::string connector::get_user_nickname(const int &client_id) {
+    openCon
+    auto result = txn->exec_params("SELECT login FROM clients WHERE id = $1", client_id);
+    std::string nickname{};
+    for (auto row : result) {
+        nickname = row[0].as<std::string>();
+    }
+    txn->commit();
+    return nickname;
+}
+
+
+
 int connector::add_user(const std::string &user_email, const std::string &user_nickname,
     const std::string &refresh_token,
     const std::string &password_hash, const std::string &password_salt) {

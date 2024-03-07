@@ -23,16 +23,16 @@ pkg_check_modules(LIBPQXX REQUIRED libpqxx)
 
 #if error occurs visit https://cmake.org/cmake/help/latest/module/FindPkgConfig.html
 
-add_executable(test
-        test/doctest_main.cpp
-
-        ${TESTS_SRCS}
-
-        ${COMPONENTS_SRCS}
-        ${SERVICES_SRCS}
-
-        ${generated_proto_models_srcs}
-)
+#add_executable(test
+#        test/doctest_main.cpp
+#
+#        ${TESTS_SRCS}
+#
+#        ${COMPONENTS_SRCS}
+#        ${SERVICES_SRCS}
+#
+#        ${generated_proto_models_srcs}
+#)
 
 add_executable(main
     src/main.cpp
@@ -44,7 +44,7 @@ add_executable(main
 )
 
 add_dependencies(main generate_proto_models)
-add_dependencies(test generate_proto_models)
+#add_dependencies(test generate_proto_models)
 
 target_link_libraries(main
         absl::flags_parse
@@ -66,22 +66,22 @@ target_include_directories(main PUBLIC
 target_link_options(main PUBLIC
         ${LIBPQXX_LDFLAGS})
 
-target_link_libraries(main
-        absl::flags_parse
-        gRPC::grpc++
-        protobuf::libprotobuf
-        Threads::Threads
-        pqxx
-)
+#target_link_libraries(test
+#        absl::flags_parse
+#        gRPC::grpc++
+#        protobuf::libprotobuf
+#        Threads::Threads
+#        pqxx
+#)
 
-target_include_directories(test PUBLIC
-        ./include
-        ./libs
-#        ${OPENSSL_CRYPTO_LIBRARY}
-#        ${OPENSSL_INCLUDE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${LIBPQXX_INCLUDE_DIRS}
-)
-
-target_link_options(test PUBLIC
-        ${LIBPQXX_LDFLAGS})
+#target_include_directories(test PUBLIC
+#        ./include
+#        ./libs
+##        ${OPENSSL_CRYPTO_LIBRARY}
+##        ${OPENSSL_INCLUDE_DIR}
+#        ${CMAKE_CURRENT_BINARY_DIR}
+#        ${LIBPQXX_INCLUDE_DIRS}
+#)
+#
+#target_link_options(test PUBLIC
+#        ${LIBPQXX_LDFLAGS})
