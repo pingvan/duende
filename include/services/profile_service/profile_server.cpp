@@ -28,20 +28,21 @@ Status ProfileServiceImpl::ChangeNickname(
 //     return Status::OK;
 // }
 
-// Status ProfileServiceImpl::ChangeQuote(
-//     ServerContext *context,
-//     const ProfileRequest *request,
-//     ProfileReply *reply
-// ) {
-//     ProfileRequest current_profile = *request;
-//     if (current_profile.quote().length() > 100) {
-//         reply->set_message("Quote is too long");
-//         return Status::OK;
-//     }
-//     profiles[current_profile.id()].set_quote(current_profile.quote());
-//     reply->set_message("Quote changed");
-//     return Status::OK;
-// }
+Status ProfileServiceImpl::ChangeQuote(
+    ServerContext *context,
+    const ProfileRequest *request,
+    ProfileReply *reply
+) {
+    ProfileRequest current_profile = *request;
+    if (current_profile.quote().length() > 100) {
+        reply->set_message("Quote is too long");
+        return Status::OK;
+    }
+    database::connector db_connector;
+    db_connector.change_quote(current_profile.id(), current_profile.quote());
+    reply->set_message("Quote changed");
+    return Status::OK;
+}
 
 // Status ProfileServiceImpl::ChangeBio(
 //     ServerContext *context,
