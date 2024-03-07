@@ -8,7 +8,7 @@ int auth_service::save_user(authservice::User &user, std::string password, auths
     database::connector connector;
     user.set_salt(generate_salt(10));
     std::string hashed_password = generate_hash(password + user.salt());
-    return connector.add_user(user.email(), user.username(), tokens->access().token(), tokens->refresh().token(), hashed_password, user.salt());
+    return connector.add_user(user.email(), user.username(), tokens->refresh().token(), hashed_password, user.salt());
 }
 
 grpc::Status auth_service::Login(

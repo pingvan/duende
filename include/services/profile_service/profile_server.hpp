@@ -26,7 +26,7 @@ class ProfileServiceImpl final : public ProfileService::Service
   // std::unordered_map<std::string, ProfileRequest> profiles;
 
   Status ChangeNickname(ServerContext *context, const ProfileRequest *request,
-                        ProfileReply *reply) override;
+                         ProfileReply *reply) override;
 
   // Status ChangePhoto(ServerContext *context, const ProfileRequest *request,
   //                    ProfileReply *reply) override;
@@ -37,21 +37,21 @@ class ProfileServiceImpl final : public ProfileService::Service
   Status ChangeBio(ServerContext *context, const ProfileRequest *request,
                     ProfileReply *reply) override;
 
-  // Status AddToWatchlist(ServerContext *context, const ProfileRequest *request,
-  //                       ProfileReply *reply) override;
+  Status AddToWatchlist(ServerContext *context, const ProfileRequest *request,
+                       ProfileReply *reply) override;
 
-  // Status RemoveFromWatchlist(ServerContext *context, const ProfileRequest *request,
-  //                            ProfileReply *reply) override;
+  Status RemoveFromWatchlist(ServerContext *context, const ProfileRequest *request,
+                             ProfileReply *reply) override;
 
-  // Status AddToListOfActors(ServerContext *context, const ProfileRequest *request,
-  //                          ProfileReply *reply) override;
+  Status AddToListOfActors(ServerContext *context, const ProfileRequest *request,
+                           ProfileReply *reply) override;
 
-  // Status RemoveFromListOfActors(ServerContext *context, const ProfileRequest *request,
-  //                               ProfileReply *reply) override;
+  Status RemoveFromListOfActors(ServerContext *context, const ProfileRequest *request,
+                                ProfileReply *reply) override;
 
-  // Status AddToListOfGenres(ServerContext *context, const ProfileRequest *request,
-  //                          ProfileReply *reply) override;
+  Status AddToListOfGenres(ServerContext *context, const ProfileRequest *request,
+                           ProfileReply *reply) override;
 
-  // Status RemoveFromListOfGenres(ServerContext *context, const ProfileRequest *request,
-  //                               ProfileReply *reply) override;
+  Status RemoveFromListOfGenres(ServerContext *context, const ProfileRequest *request,
+                                ProfileReply *reply) override;
 };

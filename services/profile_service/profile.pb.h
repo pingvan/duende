@@ -584,16 +584,22 @@ class Genre final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kIdFieldNumber = 1,
+    kNameFieldNumber = 1,
   };
-  // int32 id = 1;
-  void clear_id() ;
-  ::int32_t id() const;
-  void set_id(::int32_t value);
+  // string name = 1;
+  void clear_name() ;
+  const std::string& name() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_name(Arg_&& arg, Args_... args);
+  std::string* mutable_name();
+  PROTOBUF_NODISCARD std::string* release_name();
+  void set_allocated_name(std::string* value);
 
   private:
-  ::int32_t _internal_id() const;
-  void _internal_set_id(::int32_t value);
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(
+      const std::string& value);
+  std::string* _internal_mutable_name();
 
   public:
   // @@protoc_insertion_point(class_scope:profile.Genre)
@@ -603,7 +609,7 @@ class Genre final :
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
       0, 1, 0,
-      0, 2>
+      26, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
   friend class ::google::protobuf::Arena;
@@ -619,7 +625,7 @@ class Genre final :
                               ::google::protobuf::Arena* arena);
         inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                               ::google::protobuf::Arena* arena, const Impl_& from);
-    ::int32_t id_;
+    ::google::protobuf::internal::ArenaStringPtr name_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -938,7 +944,6 @@ class ProfileRequest final :
     kActorsFieldNumber = 7,
     kGenresFieldNumber = 8,
     kNicknameFieldNumber = 2,
-    kPhotoFieldNumber = 3,
     kQuoteFieldNumber = 4,
     kBioFieldNumber = 5,
     kIdFieldNumber = 1,
@@ -1013,22 +1018,6 @@ class ProfileRequest final :
   std::string* _internal_mutable_nickname();
 
   public:
-  // string photo = 3;
-  void clear_photo() ;
-  const std::string& photo() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_photo(Arg_&& arg, Args_... args);
-  std::string* mutable_photo();
-  PROTOBUF_NODISCARD std::string* release_photo();
-  void set_allocated_photo(std::string* value);
-
-  private:
-  const std::string& _internal_photo() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_photo(
-      const std::string& value);
-  std::string* _internal_mutable_photo();
-
-  public:
   // string quote = 4;
   void clear_quote() ;
   const std::string& quote() const;
@@ -1077,8 +1066,8 @@ class ProfileRequest final :
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      3, 8, 3,
-      60, 2>
+      3, 7, 3,
+      47, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
   friend class ::google::protobuf::Arena;
@@ -1098,7 +1087,6 @@ class ProfileRequest final :
     ::google::protobuf::RepeatedPtrField< ::profile::Actor > actors_;
     ::google::protobuf::RepeatedPtrField< ::profile::Genre > genres_;
     ::google::protobuf::internal::ArenaStringPtr nickname_;
-    ::google::protobuf::internal::ArenaStringPtr photo_;
     ::google::protobuf::internal::ArenaStringPtr quote_;
     ::google::protobuf::internal::ArenaStringPtr bio_;
     ::int32_t id_;
@@ -1202,27 +1190,57 @@ inline void Actor::_internal_set_id(::int32_t value) {
 
 // Genre
 
-// int32 id = 1;
-inline void Genre::clear_id() {
+// string name = 1;
+inline void Genre::clear_name() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.id_ = 0;
+  _impl_.name_.ClearToEmpty();
 }
-inline ::int32_t Genre::id() const {
-  // @@protoc_insertion_point(field_get:profile.Genre.id)
-  return _internal_id();
+inline const std::string& Genre::name() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:profile.Genre.name)
+  return _internal_name();
 }
-inline void Genre::set_id(::int32_t value) {
-  _internal_set_id(value);
-  // @@protoc_insertion_point(field_set:profile.Genre.id)
-}
-inline ::int32_t Genre::_internal_id() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.id_;
-}
-inline void Genre::_internal_set_id(::int32_t value) {
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void Genre::set_name(Arg_&& arg,
+                                                     Args_... args) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
-  _impl_.id_ = value;
+  _impl_.name_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:profile.Genre.name)
+}
+inline std::string* Genre::mutable_name() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_name();
+  // @@protoc_insertion_point(field_mutable:profile.Genre.name)
+  return _s;
+}
+inline const std::string& Genre::_internal_name() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.name_.Get();
+}
+inline void Genre::_internal_set_name(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.name_.Set(value, GetArena());
+}
+inline std::string* Genre::_internal_mutable_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  return _impl_.name_.Mutable( GetArena());
+}
+inline std::string* Genre::release_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:profile.Genre.name)
+  return _impl_.name_.Release();
+}
+inline void Genre::set_allocated_name(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.name_.SetAllocated(value, GetArena());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+        if (_impl_.name_.IsDefault()) {
+          _impl_.name_.Set("", GetArena());
+        }
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:profile.Genre.name)
 }
 
 // -------------------------------------------------------------------
@@ -1303,59 +1321,6 @@ inline void ProfileRequest::set_allocated_nickname(std::string* value) {
         }
   #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   // @@protoc_insertion_point(field_set_allocated:profile.ProfileRequest.nickname)
-}
-
-// string photo = 3;
-inline void ProfileRequest::clear_photo() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.photo_.ClearToEmpty();
-}
-inline const std::string& ProfileRequest::photo() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:profile.ProfileRequest.photo)
-  return _internal_photo();
-}
-template <typename Arg_, typename... Args_>
-inline PROTOBUF_ALWAYS_INLINE void ProfileRequest::set_photo(Arg_&& arg,
-                                                     Args_... args) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  ;
-  _impl_.photo_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:profile.ProfileRequest.photo)
-}
-inline std::string* ProfileRequest::mutable_photo() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_photo();
-  // @@protoc_insertion_point(field_mutable:profile.ProfileRequest.photo)
-  return _s;
-}
-inline const std::string& ProfileRequest::_internal_photo() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.photo_.Get();
-}
-inline void ProfileRequest::_internal_set_photo(const std::string& value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  ;
-  _impl_.photo_.Set(value, GetArena());
-}
-inline std::string* ProfileRequest::_internal_mutable_photo() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  ;
-  return _impl_.photo_.Mutable( GetArena());
-}
-inline std::string* ProfileRequest::release_photo() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  // @@protoc_insertion_point(field_release:profile.ProfileRequest.photo)
-  return _impl_.photo_.Release();
-}
-inline void ProfileRequest::set_allocated_photo(std::string* value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.photo_.SetAllocated(value, GetArena());
-  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-        if (_impl_.photo_.IsDefault()) {
-          _impl_.photo_.Set("", GetArena());
-        }
-  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:profile.ProfileRequest.photo)
 }
 
 // string quote = 4;

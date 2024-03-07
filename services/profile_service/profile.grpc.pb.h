@@ -42,13 +42,6 @@ class ProfileService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::profile::ProfileReply>> PrepareAsyncChangeNickname(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::profile::ProfileReply>>(PrepareAsyncChangeNicknameRaw(context, request, cq));
     }
-    virtual ::grpc::Status ChangePhoto(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::profile::ProfileReply>> AsyncChangePhoto(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::profile::ProfileReply>>(AsyncChangePhotoRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::profile::ProfileReply>> PrepareAsyncChangePhoto(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::profile::ProfileReply>>(PrepareAsyncChangePhotoRaw(context, request, cq));
-    }
     virtual ::grpc::Status ChangeQuote(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::profile::ProfileReply>> AsyncChangeQuote(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::profile::ProfileReply>>(AsyncChangeQuoteRaw(context, request, cq));
@@ -117,8 +110,6 @@ class ProfileService final {
       virtual ~async_interface() {}
       virtual void ChangeNickname(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)>) = 0;
       virtual void ChangeNickname(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
-      virtual void ChangePhoto(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)>) = 0;
-      virtual void ChangePhoto(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void ChangeQuote(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)>) = 0;
       virtual void ChangeQuote(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void ChangeBio(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)>) = 0;
@@ -144,8 +135,6 @@ class ProfileService final {
    private:
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::profile::ProfileReply>* AsyncChangeNicknameRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::profile::ProfileReply>* PrepareAsyncChangeNicknameRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::profile::ProfileReply>* AsyncChangePhotoRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::profile::ProfileReply>* PrepareAsyncChangePhotoRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::profile::ProfileReply>* AsyncChangeQuoteRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::profile::ProfileReply>* PrepareAsyncChangeQuoteRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::profile::ProfileReply>* AsyncChangeBioRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) = 0;
@@ -174,13 +163,6 @@ class ProfileService final {
     }
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>> PrepareAsyncChangeNickname(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>>(PrepareAsyncChangeNicknameRaw(context, request, cq));
-    }
-    ::grpc::Status ChangePhoto(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>> AsyncChangePhoto(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>>(AsyncChangePhotoRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>> PrepareAsyncChangePhoto(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>>(PrepareAsyncChangePhotoRaw(context, request, cq));
     }
     ::grpc::Status ChangeQuote(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) override;
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>> AsyncChangeQuote(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
@@ -250,8 +232,6 @@ class ProfileService final {
      public:
       void ChangeNickname(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)>) override;
       void ChangeNickname(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) override;
-      void ChangePhoto(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)>) override;
-      void ChangePhoto(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) override;
       void ChangeQuote(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)>) override;
       void ChangeQuote(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) override;
       void ChangeBio(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)>) override;
@@ -283,8 +263,6 @@ class ProfileService final {
     class async async_stub_{this};
     ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* AsyncChangeNicknameRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* PrepareAsyncChangeNicknameRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* AsyncChangePhotoRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* PrepareAsyncChangePhotoRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* AsyncChangeQuoteRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* PrepareAsyncChangeQuoteRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* AsyncChangeBioRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) override;
@@ -304,7 +282,6 @@ class ProfileService final {
     ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* AsyncUpdateMovieRatingRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* PrepareAsyncUpdateMovieRatingRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_ChangeNickname_;
-    const ::grpc::internal::RpcMethod rpcmethod_ChangePhoto_;
     const ::grpc::internal::RpcMethod rpcmethod_ChangeQuote_;
     const ::grpc::internal::RpcMethod rpcmethod_ChangeBio_;
     const ::grpc::internal::RpcMethod rpcmethod_AddToWatchlist_;
@@ -322,7 +299,6 @@ class ProfileService final {
     Service();
     virtual ~Service();
     virtual ::grpc::Status ChangeNickname(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response);
-    virtual ::grpc::Status ChangePhoto(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response);
     virtual ::grpc::Status ChangeQuote(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response);
     virtual ::grpc::Status ChangeBio(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response);
     virtual ::grpc::Status AddToWatchlist(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response);
@@ -354,32 +330,12 @@ class ProfileService final {
     }
   };
   template <class BaseClass>
-  class WithAsyncMethod_ChangePhoto : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithAsyncMethod_ChangePhoto() {
-      ::grpc::Service::MarkMethodAsync(1);
-    }
-    ~WithAsyncMethod_ChangePhoto() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status ChangePhoto(::grpc::ServerContext* /*context*/, const ::profile::ProfileRequest* /*request*/, ::profile::ProfileReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestChangePhoto(::grpc::ServerContext* context, ::profile::ProfileRequest* request, ::grpc::ServerAsyncResponseWriter< ::profile::ProfileReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(1, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  template <class BaseClass>
   class WithAsyncMethod_ChangeQuote : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_ChangeQuote() {
-      ::grpc::Service::MarkMethodAsync(2);
+      ::grpc::Service::MarkMethodAsync(1);
     }
     ~WithAsyncMethod_ChangeQuote() override {
       BaseClassMustBeDerivedFromService(this);
@@ -390,7 +346,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestChangeQuote(::grpc::ServerContext* context, ::profile::ProfileRequest* request, ::grpc::ServerAsyncResponseWriter< ::profile::ProfileReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(2, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(1, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -399,7 +355,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_ChangeBio() {
-      ::grpc::Service::MarkMethodAsync(3);
+      ::grpc::Service::MarkMethodAsync(2);
     }
     ~WithAsyncMethod_ChangeBio() override {
       BaseClassMustBeDerivedFromService(this);
@@ -410,7 +366,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestChangeBio(::grpc::ServerContext* context, ::profile::ProfileRequest* request, ::grpc::ServerAsyncResponseWriter< ::profile::ProfileReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(2, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -419,7 +375,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_AddToWatchlist() {
-      ::grpc::Service::MarkMethodAsync(4);
+      ::grpc::Service::MarkMethodAsync(3);
     }
     ~WithAsyncMethod_AddToWatchlist() override {
       BaseClassMustBeDerivedFromService(this);
@@ -430,7 +386,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestAddToWatchlist(::grpc::ServerContext* context, ::profile::ProfileRequest* request, ::grpc::ServerAsyncResponseWriter< ::profile::ProfileReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -439,7 +395,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_RemoveFromWatchlist() {
-      ::grpc::Service::MarkMethodAsync(5);
+      ::grpc::Service::MarkMethodAsync(4);
     }
     ~WithAsyncMethod_RemoveFromWatchlist() override {
       BaseClassMustBeDerivedFromService(this);
@@ -450,7 +406,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestRemoveFromWatchlist(::grpc::ServerContext* context, ::profile::ProfileRequest* request, ::grpc::ServerAsyncResponseWriter< ::profile::ProfileReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(5, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -459,7 +415,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_AddToListOfActors() {
-      ::grpc::Service::MarkMethodAsync(6);
+      ::grpc::Service::MarkMethodAsync(5);
     }
     ~WithAsyncMethod_AddToListOfActors() override {
       BaseClassMustBeDerivedFromService(this);
@@ -470,7 +426,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestAddToListOfActors(::grpc::ServerContext* context, ::profile::ProfileRequest* request, ::grpc::ServerAsyncResponseWriter< ::profile::ProfileReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(5, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -479,7 +435,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_RemoveFromListOfActors() {
-      ::grpc::Service::MarkMethodAsync(7);
+      ::grpc::Service::MarkMethodAsync(6);
     }
     ~WithAsyncMethod_RemoveFromListOfActors() override {
       BaseClassMustBeDerivedFromService(this);
@@ -490,7 +446,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestRemoveFromListOfActors(::grpc::ServerContext* context, ::profile::ProfileRequest* request, ::grpc::ServerAsyncResponseWriter< ::profile::ProfileReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -499,7 +455,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_AddToListOfGenres() {
-      ::grpc::Service::MarkMethodAsync(8);
+      ::grpc::Service::MarkMethodAsync(7);
     }
     ~WithAsyncMethod_AddToListOfGenres() override {
       BaseClassMustBeDerivedFromService(this);
@@ -510,7 +466,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestAddToListOfGenres(::grpc::ServerContext* context, ::profile::ProfileRequest* request, ::grpc::ServerAsyncResponseWriter< ::profile::ProfileReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(8, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -519,7 +475,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_RemoveFromListOfGenres() {
-      ::grpc::Service::MarkMethodAsync(9);
+      ::grpc::Service::MarkMethodAsync(8);
     }
     ~WithAsyncMethod_RemoveFromListOfGenres() override {
       BaseClassMustBeDerivedFromService(this);
@@ -530,7 +486,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestRemoveFromListOfGenres(::grpc::ServerContext* context, ::profile::ProfileRequest* request, ::grpc::ServerAsyncResponseWriter< ::profile::ProfileReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(9, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(8, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -539,7 +495,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_UpdateMovieRating() {
-      ::grpc::Service::MarkMethodAsync(10);
+      ::grpc::Service::MarkMethodAsync(9);
     }
     ~WithAsyncMethod_UpdateMovieRating() override {
       BaseClassMustBeDerivedFromService(this);
@@ -550,10 +506,10 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestUpdateMovieRating(::grpc::ServerContext* context, ::profile::ProfileRequest* request, ::grpc::ServerAsyncResponseWriter< ::profile::ProfileReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(10, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(9, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_ChangeNickname<WithAsyncMethod_ChangePhoto<WithAsyncMethod_ChangeQuote<WithAsyncMethod_ChangeBio<WithAsyncMethod_AddToWatchlist<WithAsyncMethod_RemoveFromWatchlist<WithAsyncMethod_AddToListOfActors<WithAsyncMethod_RemoveFromListOfActors<WithAsyncMethod_AddToListOfGenres<WithAsyncMethod_RemoveFromListOfGenres<WithAsyncMethod_UpdateMovieRating<Service > > > > > > > > > > > AsyncService;
+  typedef WithAsyncMethod_ChangeNickname<WithAsyncMethod_ChangeQuote<WithAsyncMethod_ChangeBio<WithAsyncMethod_AddToWatchlist<WithAsyncMethod_RemoveFromWatchlist<WithAsyncMethod_AddToListOfActors<WithAsyncMethod_RemoveFromListOfActors<WithAsyncMethod_AddToListOfGenres<WithAsyncMethod_RemoveFromListOfGenres<WithAsyncMethod_UpdateMovieRating<Service > > > > > > > > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_ChangeNickname : public BaseClass {
    private:
@@ -582,45 +538,18 @@ class ProfileService final {
       ::grpc::CallbackServerContext* /*context*/, const ::profile::ProfileRequest* /*request*/, ::profile::ProfileReply* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
-  class WithCallbackMethod_ChangePhoto : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithCallbackMethod_ChangePhoto() {
-      ::grpc::Service::MarkMethodCallback(1,
-          new ::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) { return this->ChangePhoto(context, request, response); }));}
-    void SetMessageAllocatorFor_ChangePhoto(
-        ::grpc::MessageAllocator< ::profile::ProfileRequest, ::profile::ProfileReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(1);
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>*>(handler)
-              ->SetMessageAllocator(allocator);
-    }
-    ~WithCallbackMethod_ChangePhoto() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status ChangePhoto(::grpc::ServerContext* /*context*/, const ::profile::ProfileRequest* /*request*/, ::profile::ProfileReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* ChangePhoto(
-      ::grpc::CallbackServerContext* /*context*/, const ::profile::ProfileRequest* /*request*/, ::profile::ProfileReply* /*response*/)  { return nullptr; }
-  };
-  template <class BaseClass>
   class WithCallbackMethod_ChangeQuote : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_ChangeQuote() {
-      ::grpc::Service::MarkMethodCallback(2,
+      ::grpc::Service::MarkMethodCallback(1,
           new ::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) { return this->ChangeQuote(context, request, response); }));}
     void SetMessageAllocatorFor_ChangeQuote(
         ::grpc::MessageAllocator< ::profile::ProfileRequest, ::profile::ProfileReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(2);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(1);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -641,13 +570,13 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_ChangeBio() {
-      ::grpc::Service::MarkMethodCallback(3,
+      ::grpc::Service::MarkMethodCallback(2,
           new ::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) { return this->ChangeBio(context, request, response); }));}
     void SetMessageAllocatorFor_ChangeBio(
         ::grpc::MessageAllocator< ::profile::ProfileRequest, ::profile::ProfileReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(3);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(2);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -668,13 +597,13 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_AddToWatchlist() {
-      ::grpc::Service::MarkMethodCallback(4,
+      ::grpc::Service::MarkMethodCallback(3,
           new ::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) { return this->AddToWatchlist(context, request, response); }));}
     void SetMessageAllocatorFor_AddToWatchlist(
         ::grpc::MessageAllocator< ::profile::ProfileRequest, ::profile::ProfileReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(4);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(3);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -695,13 +624,13 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_RemoveFromWatchlist() {
-      ::grpc::Service::MarkMethodCallback(5,
+      ::grpc::Service::MarkMethodCallback(4,
           new ::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) { return this->RemoveFromWatchlist(context, request, response); }));}
     void SetMessageAllocatorFor_RemoveFromWatchlist(
         ::grpc::MessageAllocator< ::profile::ProfileRequest, ::profile::ProfileReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(5);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(4);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -722,13 +651,13 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_AddToListOfActors() {
-      ::grpc::Service::MarkMethodCallback(6,
+      ::grpc::Service::MarkMethodCallback(5,
           new ::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) { return this->AddToListOfActors(context, request, response); }));}
     void SetMessageAllocatorFor_AddToListOfActors(
         ::grpc::MessageAllocator< ::profile::ProfileRequest, ::profile::ProfileReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(6);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(5);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -749,13 +678,13 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_RemoveFromListOfActors() {
-      ::grpc::Service::MarkMethodCallback(7,
+      ::grpc::Service::MarkMethodCallback(6,
           new ::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) { return this->RemoveFromListOfActors(context, request, response); }));}
     void SetMessageAllocatorFor_RemoveFromListOfActors(
         ::grpc::MessageAllocator< ::profile::ProfileRequest, ::profile::ProfileReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(7);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(6);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -776,13 +705,13 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_AddToListOfGenres() {
-      ::grpc::Service::MarkMethodCallback(8,
+      ::grpc::Service::MarkMethodCallback(7,
           new ::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) { return this->AddToListOfGenres(context, request, response); }));}
     void SetMessageAllocatorFor_AddToListOfGenres(
         ::grpc::MessageAllocator< ::profile::ProfileRequest, ::profile::ProfileReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(8);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(7);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -803,13 +732,13 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_RemoveFromListOfGenres() {
-      ::grpc::Service::MarkMethodCallback(9,
+      ::grpc::Service::MarkMethodCallback(8,
           new ::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) { return this->RemoveFromListOfGenres(context, request, response); }));}
     void SetMessageAllocatorFor_RemoveFromListOfGenres(
         ::grpc::MessageAllocator< ::profile::ProfileRequest, ::profile::ProfileReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(9);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(8);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -830,13 +759,13 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_UpdateMovieRating() {
-      ::grpc::Service::MarkMethodCallback(10,
+      ::grpc::Service::MarkMethodCallback(9,
           new ::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) { return this->UpdateMovieRating(context, request, response); }));}
     void SetMessageAllocatorFor_UpdateMovieRating(
         ::grpc::MessageAllocator< ::profile::ProfileRequest, ::profile::ProfileReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(10);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(9);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::profile::ProfileRequest, ::profile::ProfileReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -851,7 +780,7 @@ class ProfileService final {
     virtual ::grpc::ServerUnaryReactor* UpdateMovieRating(
       ::grpc::CallbackServerContext* /*context*/, const ::profile::ProfileRequest* /*request*/, ::profile::ProfileReply* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_ChangeNickname<WithCallbackMethod_ChangePhoto<WithCallbackMethod_ChangeQuote<WithCallbackMethod_ChangeBio<WithCallbackMethod_AddToWatchlist<WithCallbackMethod_RemoveFromWatchlist<WithCallbackMethod_AddToListOfActors<WithCallbackMethod_RemoveFromListOfActors<WithCallbackMethod_AddToListOfGenres<WithCallbackMethod_RemoveFromListOfGenres<WithCallbackMethod_UpdateMovieRating<Service > > > > > > > > > > > CallbackService;
+  typedef WithCallbackMethod_ChangeNickname<WithCallbackMethod_ChangeQuote<WithCallbackMethod_ChangeBio<WithCallbackMethod_AddToWatchlist<WithCallbackMethod_RemoveFromWatchlist<WithCallbackMethod_AddToListOfActors<WithCallbackMethod_RemoveFromListOfActors<WithCallbackMethod_AddToListOfGenres<WithCallbackMethod_RemoveFromListOfGenres<WithCallbackMethod_UpdateMovieRating<Service > > > > > > > > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_ChangeNickname : public BaseClass {
@@ -871,29 +800,12 @@ class ProfileService final {
     }
   };
   template <class BaseClass>
-  class WithGenericMethod_ChangePhoto : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithGenericMethod_ChangePhoto() {
-      ::grpc::Service::MarkMethodGeneric(1);
-    }
-    ~WithGenericMethod_ChangePhoto() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status ChangePhoto(::grpc::ServerContext* /*context*/, const ::profile::ProfileRequest* /*request*/, ::profile::ProfileReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-  };
-  template <class BaseClass>
   class WithGenericMethod_ChangeQuote : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_ChangeQuote() {
-      ::grpc::Service::MarkMethodGeneric(2);
+      ::grpc::Service::MarkMethodGeneric(1);
     }
     ~WithGenericMethod_ChangeQuote() override {
       BaseClassMustBeDerivedFromService(this);
@@ -910,7 +822,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_ChangeBio() {
-      ::grpc::Service::MarkMethodGeneric(3);
+      ::grpc::Service::MarkMethodGeneric(2);
     }
     ~WithGenericMethod_ChangeBio() override {
       BaseClassMustBeDerivedFromService(this);
@@ -927,7 +839,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_AddToWatchlist() {
-      ::grpc::Service::MarkMethodGeneric(4);
+      ::grpc::Service::MarkMethodGeneric(3);
     }
     ~WithGenericMethod_AddToWatchlist() override {
       BaseClassMustBeDerivedFromService(this);
@@ -944,7 +856,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_RemoveFromWatchlist() {
-      ::grpc::Service::MarkMethodGeneric(5);
+      ::grpc::Service::MarkMethodGeneric(4);
     }
     ~WithGenericMethod_RemoveFromWatchlist() override {
       BaseClassMustBeDerivedFromService(this);
@@ -961,7 +873,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_AddToListOfActors() {
-      ::grpc::Service::MarkMethodGeneric(6);
+      ::grpc::Service::MarkMethodGeneric(5);
     }
     ~WithGenericMethod_AddToListOfActors() override {
       BaseClassMustBeDerivedFromService(this);
@@ -978,7 +890,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_RemoveFromListOfActors() {
-      ::grpc::Service::MarkMethodGeneric(7);
+      ::grpc::Service::MarkMethodGeneric(6);
     }
     ~WithGenericMethod_RemoveFromListOfActors() override {
       BaseClassMustBeDerivedFromService(this);
@@ -995,7 +907,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_AddToListOfGenres() {
-      ::grpc::Service::MarkMethodGeneric(8);
+      ::grpc::Service::MarkMethodGeneric(7);
     }
     ~WithGenericMethod_AddToListOfGenres() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1012,7 +924,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_RemoveFromListOfGenres() {
-      ::grpc::Service::MarkMethodGeneric(9);
+      ::grpc::Service::MarkMethodGeneric(8);
     }
     ~WithGenericMethod_RemoveFromListOfGenres() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1029,7 +941,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_UpdateMovieRating() {
-      ::grpc::Service::MarkMethodGeneric(10);
+      ::grpc::Service::MarkMethodGeneric(9);
     }
     ~WithGenericMethod_UpdateMovieRating() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1061,32 +973,12 @@ class ProfileService final {
     }
   };
   template <class BaseClass>
-  class WithRawMethod_ChangePhoto : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawMethod_ChangePhoto() {
-      ::grpc::Service::MarkMethodRaw(1);
-    }
-    ~WithRawMethod_ChangePhoto() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status ChangePhoto(::grpc::ServerContext* /*context*/, const ::profile::ProfileRequest* /*request*/, ::profile::ProfileReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestChangePhoto(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(1, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  template <class BaseClass>
   class WithRawMethod_ChangeQuote : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_ChangeQuote() {
-      ::grpc::Service::MarkMethodRaw(2);
+      ::grpc::Service::MarkMethodRaw(1);
     }
     ~WithRawMethod_ChangeQuote() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1097,7 +989,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestChangeQuote(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(2, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(1, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1106,7 +998,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_ChangeBio() {
-      ::grpc::Service::MarkMethodRaw(3);
+      ::grpc::Service::MarkMethodRaw(2);
     }
     ~WithRawMethod_ChangeBio() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1117,7 +1009,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestChangeBio(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(2, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1126,7 +1018,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_AddToWatchlist() {
-      ::grpc::Service::MarkMethodRaw(4);
+      ::grpc::Service::MarkMethodRaw(3);
     }
     ~WithRawMethod_AddToWatchlist() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1137,7 +1029,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestAddToWatchlist(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1146,7 +1038,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_RemoveFromWatchlist() {
-      ::grpc::Service::MarkMethodRaw(5);
+      ::grpc::Service::MarkMethodRaw(4);
     }
     ~WithRawMethod_RemoveFromWatchlist() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1157,7 +1049,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestRemoveFromWatchlist(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(5, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1166,7 +1058,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_AddToListOfActors() {
-      ::grpc::Service::MarkMethodRaw(6);
+      ::grpc::Service::MarkMethodRaw(5);
     }
     ~WithRawMethod_AddToListOfActors() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1177,7 +1069,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestAddToListOfActors(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(5, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1186,7 +1078,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_RemoveFromListOfActors() {
-      ::grpc::Service::MarkMethodRaw(7);
+      ::grpc::Service::MarkMethodRaw(6);
     }
     ~WithRawMethod_RemoveFromListOfActors() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1197,7 +1089,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestRemoveFromListOfActors(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1206,7 +1098,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_AddToListOfGenres() {
-      ::grpc::Service::MarkMethodRaw(8);
+      ::grpc::Service::MarkMethodRaw(7);
     }
     ~WithRawMethod_AddToListOfGenres() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1217,7 +1109,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestAddToListOfGenres(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(8, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1226,7 +1118,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_RemoveFromListOfGenres() {
-      ::grpc::Service::MarkMethodRaw(9);
+      ::grpc::Service::MarkMethodRaw(8);
     }
     ~WithRawMethod_RemoveFromListOfGenres() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1237,7 +1129,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestRemoveFromListOfGenres(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(9, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(8, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1246,7 +1138,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_UpdateMovieRating() {
-      ::grpc::Service::MarkMethodRaw(10);
+      ::grpc::Service::MarkMethodRaw(9);
     }
     ~WithRawMethod_UpdateMovieRating() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1257,7 +1149,7 @@ class ProfileService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestUpdateMovieRating(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(10, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(9, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1283,34 +1175,12 @@ class ProfileService final {
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
-  class WithRawCallbackMethod_ChangePhoto : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawCallbackMethod_ChangePhoto() {
-      ::grpc::Service::MarkMethodRawCallback(1,
-          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->ChangePhoto(context, request, response); }));
-    }
-    ~WithRawCallbackMethod_ChangePhoto() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status ChangePhoto(::grpc::ServerContext* /*context*/, const ::profile::ProfileRequest* /*request*/, ::profile::ProfileReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* ChangePhoto(
-      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
-  };
-  template <class BaseClass>
   class WithRawCallbackMethod_ChangeQuote : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_ChangeQuote() {
-      ::grpc::Service::MarkMethodRawCallback(2,
+      ::grpc::Service::MarkMethodRawCallback(1,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->ChangeQuote(context, request, response); }));
@@ -1332,7 +1202,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_ChangeBio() {
-      ::grpc::Service::MarkMethodRawCallback(3,
+      ::grpc::Service::MarkMethodRawCallback(2,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->ChangeBio(context, request, response); }));
@@ -1354,7 +1224,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_AddToWatchlist() {
-      ::grpc::Service::MarkMethodRawCallback(4,
+      ::grpc::Service::MarkMethodRawCallback(3,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->AddToWatchlist(context, request, response); }));
@@ -1376,7 +1246,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_RemoveFromWatchlist() {
-      ::grpc::Service::MarkMethodRawCallback(5,
+      ::grpc::Service::MarkMethodRawCallback(4,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->RemoveFromWatchlist(context, request, response); }));
@@ -1398,7 +1268,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_AddToListOfActors() {
-      ::grpc::Service::MarkMethodRawCallback(6,
+      ::grpc::Service::MarkMethodRawCallback(5,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->AddToListOfActors(context, request, response); }));
@@ -1420,7 +1290,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_RemoveFromListOfActors() {
-      ::grpc::Service::MarkMethodRawCallback(7,
+      ::grpc::Service::MarkMethodRawCallback(6,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->RemoveFromListOfActors(context, request, response); }));
@@ -1442,7 +1312,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_AddToListOfGenres() {
-      ::grpc::Service::MarkMethodRawCallback(8,
+      ::grpc::Service::MarkMethodRawCallback(7,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->AddToListOfGenres(context, request, response); }));
@@ -1464,7 +1334,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_RemoveFromListOfGenres() {
-      ::grpc::Service::MarkMethodRawCallback(9,
+      ::grpc::Service::MarkMethodRawCallback(8,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->RemoveFromListOfGenres(context, request, response); }));
@@ -1486,7 +1356,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_UpdateMovieRating() {
-      ::grpc::Service::MarkMethodRawCallback(10,
+      ::grpc::Service::MarkMethodRawCallback(9,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->UpdateMovieRating(context, request, response); }));
@@ -1530,39 +1400,12 @@ class ProfileService final {
     virtual ::grpc::Status StreamedChangeNickname(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::profile::ProfileRequest,::profile::ProfileReply>* server_unary_streamer) = 0;
   };
   template <class BaseClass>
-  class WithStreamedUnaryMethod_ChangePhoto : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithStreamedUnaryMethod_ChangePhoto() {
-      ::grpc::Service::MarkMethodStreamed(1,
-        new ::grpc::internal::StreamedUnaryHandler<
-          ::profile::ProfileRequest, ::profile::ProfileReply>(
-            [this](::grpc::ServerContext* context,
-                   ::grpc::ServerUnaryStreamer<
-                     ::profile::ProfileRequest, ::profile::ProfileReply>* streamer) {
-                       return this->StreamedChangePhoto(context,
-                         streamer);
-                  }));
-    }
-    ~WithStreamedUnaryMethod_ChangePhoto() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable regular version of this method
-    ::grpc::Status ChangePhoto(::grpc::ServerContext* /*context*/, const ::profile::ProfileRequest* /*request*/, ::profile::ProfileReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedChangePhoto(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::profile::ProfileRequest,::profile::ProfileReply>* server_unary_streamer) = 0;
-  };
-  template <class BaseClass>
   class WithStreamedUnaryMethod_ChangeQuote : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_ChangeQuote() {
-      ::grpc::Service::MarkMethodStreamed(2,
+      ::grpc::Service::MarkMethodStreamed(1,
         new ::grpc::internal::StreamedUnaryHandler<
           ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](::grpc::ServerContext* context,
@@ -1589,7 +1432,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_ChangeBio() {
-      ::grpc::Service::MarkMethodStreamed(3,
+      ::grpc::Service::MarkMethodStreamed(2,
         new ::grpc::internal::StreamedUnaryHandler<
           ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](::grpc::ServerContext* context,
@@ -1616,7 +1459,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_AddToWatchlist() {
-      ::grpc::Service::MarkMethodStreamed(4,
+      ::grpc::Service::MarkMethodStreamed(3,
         new ::grpc::internal::StreamedUnaryHandler<
           ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](::grpc::ServerContext* context,
@@ -1643,7 +1486,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_RemoveFromWatchlist() {
-      ::grpc::Service::MarkMethodStreamed(5,
+      ::grpc::Service::MarkMethodStreamed(4,
         new ::grpc::internal::StreamedUnaryHandler<
           ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](::grpc::ServerContext* context,
@@ -1670,7 +1513,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_AddToListOfActors() {
-      ::grpc::Service::MarkMethodStreamed(6,
+      ::grpc::Service::MarkMethodStreamed(5,
         new ::grpc::internal::StreamedUnaryHandler<
           ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](::grpc::ServerContext* context,
@@ -1697,7 +1540,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_RemoveFromListOfActors() {
-      ::grpc::Service::MarkMethodStreamed(7,
+      ::grpc::Service::MarkMethodStreamed(6,
         new ::grpc::internal::StreamedUnaryHandler<
           ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](::grpc::ServerContext* context,
@@ -1724,7 +1567,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_AddToListOfGenres() {
-      ::grpc::Service::MarkMethodStreamed(8,
+      ::grpc::Service::MarkMethodStreamed(7,
         new ::grpc::internal::StreamedUnaryHandler<
           ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](::grpc::ServerContext* context,
@@ -1751,7 +1594,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_RemoveFromListOfGenres() {
-      ::grpc::Service::MarkMethodStreamed(9,
+      ::grpc::Service::MarkMethodStreamed(8,
         new ::grpc::internal::StreamedUnaryHandler<
           ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](::grpc::ServerContext* context,
@@ -1778,7 +1621,7 @@ class ProfileService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_UpdateMovieRating() {
-      ::grpc::Service::MarkMethodStreamed(10,
+      ::grpc::Service::MarkMethodStreamed(9,
         new ::grpc::internal::StreamedUnaryHandler<
           ::profile::ProfileRequest, ::profile::ProfileReply>(
             [this](::grpc::ServerContext* context,
@@ -1799,9 +1642,9 @@ class ProfileService final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreamedUpdateMovieRating(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::profile::ProfileRequest,::profile::ProfileReply>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_ChangeNickname<WithStreamedUnaryMethod_ChangePhoto<WithStreamedUnaryMethod_ChangeQuote<WithStreamedUnaryMethod_ChangeBio<WithStreamedUnaryMethod_AddToWatchlist<WithStreamedUnaryMethod_RemoveFromWatchlist<WithStreamedUnaryMethod_AddToListOfActors<WithStreamedUnaryMethod_RemoveFromListOfActors<WithStreamedUnaryMethod_AddToListOfGenres<WithStreamedUnaryMethod_RemoveFromListOfGenres<WithStreamedUnaryMethod_UpdateMovieRating<Service > > > > > > > > > > > StreamedUnaryService;
+  typedef WithStreamedUnaryMethod_ChangeNickname<WithStreamedUnaryMethod_ChangeQuote<WithStreamedUnaryMethod_ChangeBio<WithStreamedUnaryMethod_AddToWatchlist<WithStreamedUnaryMethod_RemoveFromWatchlist<WithStreamedUnaryMethod_AddToListOfActors<WithStreamedUnaryMethod_RemoveFromListOfActors<WithStreamedUnaryMethod_AddToListOfGenres<WithStreamedUnaryMethod_RemoveFromListOfGenres<WithStreamedUnaryMethod_UpdateMovieRating<Service > > > > > > > > > > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_ChangeNickname<WithStreamedUnaryMethod_ChangePhoto<WithStreamedUnaryMethod_ChangeQuote<WithStreamedUnaryMethod_ChangeBio<WithStreamedUnaryMethod_AddToWatchlist<WithStreamedUnaryMethod_RemoveFromWatchlist<WithStreamedUnaryMethod_AddToListOfActors<WithStreamedUnaryMethod_RemoveFromListOfActors<WithStreamedUnaryMethod_AddToListOfGenres<WithStreamedUnaryMethod_RemoveFromListOfGenres<WithStreamedUnaryMethod_UpdateMovieRating<Service > > > > > > > > > > > StreamedService;
+  typedef WithStreamedUnaryMethod_ChangeNickname<WithStreamedUnaryMethod_ChangeQuote<WithStreamedUnaryMethod_ChangeBio<WithStreamedUnaryMethod_AddToWatchlist<WithStreamedUnaryMethod_RemoveFromWatchlist<WithStreamedUnaryMethod_AddToListOfActors<WithStreamedUnaryMethod_RemoveFromListOfActors<WithStreamedUnaryMethod_AddToListOfGenres<WithStreamedUnaryMethod_RemoveFromListOfGenres<WithStreamedUnaryMethod_UpdateMovieRating<Service > > > > > > > > > > StreamedService;
 };
 
 }  // namespace profile

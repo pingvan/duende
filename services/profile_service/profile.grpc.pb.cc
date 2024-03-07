@@ -23,7 +23,6 @@ namespace profile {
 
 static const char* ProfileService_method_names[] = {
   "/profile.ProfileService/ChangeNickname",
-  "/profile.ProfileService/ChangePhoto",
   "/profile.ProfileService/ChangeQuote",
   "/profile.ProfileService/ChangeBio",
   "/profile.ProfileService/AddToWatchlist",
@@ -43,16 +42,15 @@ std::unique_ptr< ProfileService::Stub> ProfileService::NewStub(const std::shared
 
 ProfileService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options)
   : channel_(channel), rpcmethod_ChangeNickname_(ProfileService_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_ChangePhoto_(ProfileService_method_names[1], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_ChangeQuote_(ProfileService_method_names[2], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_ChangeBio_(ProfileService_method_names[3], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_AddToWatchlist_(ProfileService_method_names[4], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_RemoveFromWatchlist_(ProfileService_method_names[5], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_AddToListOfActors_(ProfileService_method_names[6], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_RemoveFromListOfActors_(ProfileService_method_names[7], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_AddToListOfGenres_(ProfileService_method_names[8], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_RemoveFromListOfGenres_(ProfileService_method_names[9], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_UpdateMovieRating_(ProfileService_method_names[10], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_ChangeQuote_(ProfileService_method_names[1], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_ChangeBio_(ProfileService_method_names[2], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_AddToWatchlist_(ProfileService_method_names[3], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_RemoveFromWatchlist_(ProfileService_method_names[4], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_AddToListOfActors_(ProfileService_method_names[5], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_RemoveFromListOfActors_(ProfileService_method_names[6], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_AddToListOfGenres_(ProfileService_method_names[7], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_RemoveFromListOfGenres_(ProfileService_method_names[8], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_UpdateMovieRating_(ProfileService_method_names[9], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status ProfileService::Stub::ChangeNickname(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) {
@@ -74,29 +72,6 @@ void ProfileService::Stub::async::ChangeNickname(::grpc::ClientContext* context,
 ::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncChangeNicknameRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncChangeNicknameRaw(context, request, cq);
-  result->StartCall();
-  return result;
-}
-
-::grpc::Status ProfileService::Stub::ChangePhoto(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::profile::ProfileReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_ChangePhoto_, context, request, response);
-}
-
-void ProfileService::Stub::async::ChangePhoto(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ChangePhoto_, context, request, response, std::move(f));
-}
-
-void ProfileService::Stub::async::ChangePhoto(::grpc::ClientContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response, ::grpc::ClientUnaryReactor* reactor) {
-  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ChangePhoto_, context, request, response, reactor);
-}
-
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::PrepareAsyncChangePhotoRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::profile::ProfileReply, ::profile::ProfileRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_ChangePhoto_, context, request);
-}
-
-::grpc::ClientAsyncResponseReader< ::profile::ProfileReply>* ProfileService::Stub::AsyncChangePhotoRaw(::grpc::ClientContext* context, const ::profile::ProfileRequest& request, ::grpc::CompletionQueue* cq) {
-  auto* result =
-    this->PrepareAsyncChangePhotoRaw(context, request, cq);
   result->StartCall();
   return result;
 }
@@ -327,7 +302,7 @@ ProfileService::Service::Service() {
              ::grpc::ServerContext* ctx,
              const ::profile::ProfileRequest* req,
              ::profile::ProfileReply* resp) {
-               return service->ChangePhoto(ctx, req, resp);
+               return service->ChangeQuote(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[2],
@@ -337,7 +312,7 @@ ProfileService::Service::Service() {
              ::grpc::ServerContext* ctx,
              const ::profile::ProfileRequest* req,
              ::profile::ProfileReply* resp) {
-               return service->ChangeQuote(ctx, req, resp);
+               return service->ChangeBio(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[3],
@@ -347,7 +322,7 @@ ProfileService::Service::Service() {
              ::grpc::ServerContext* ctx,
              const ::profile::ProfileRequest* req,
              ::profile::ProfileReply* resp) {
-               return service->ChangeBio(ctx, req, resp);
+               return service->AddToWatchlist(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[4],
@@ -357,7 +332,7 @@ ProfileService::Service::Service() {
              ::grpc::ServerContext* ctx,
              const ::profile::ProfileRequest* req,
              ::profile::ProfileReply* resp) {
-               return service->AddToWatchlist(ctx, req, resp);
+               return service->RemoveFromWatchlist(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[5],
@@ -367,7 +342,7 @@ ProfileService::Service::Service() {
              ::grpc::ServerContext* ctx,
              const ::profile::ProfileRequest* req,
              ::profile::ProfileReply* resp) {
-               return service->RemoveFromWatchlist(ctx, req, resp);
+               return service->AddToListOfActors(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[6],
@@ -377,7 +352,7 @@ ProfileService::Service::Service() {
              ::grpc::ServerContext* ctx,
              const ::profile::ProfileRequest* req,
              ::profile::ProfileReply* resp) {
-               return service->AddToListOfActors(ctx, req, resp);
+               return service->RemoveFromListOfActors(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[7],
@@ -387,7 +362,7 @@ ProfileService::Service::Service() {
              ::grpc::ServerContext* ctx,
              const ::profile::ProfileRequest* req,
              ::profile::ProfileReply* resp) {
-               return service->RemoveFromListOfActors(ctx, req, resp);
+               return service->AddToListOfGenres(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ProfileService_method_names[8],
@@ -397,20 +372,10 @@ ProfileService::Service::Service() {
              ::grpc::ServerContext* ctx,
              const ::profile::ProfileRequest* req,
              ::profile::ProfileReply* resp) {
-               return service->AddToListOfGenres(ctx, req, resp);
-             }, this)));
-  AddMethod(new ::grpc::internal::RpcServiceMethod(
-      ProfileService_method_names[9],
-      ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
-          [](ProfileService::Service* service,
-             ::grpc::ServerContext* ctx,
-             const ::profile::ProfileRequest* req,
-             ::profile::ProfileReply* resp) {
                return service->RemoveFromListOfGenres(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      ProfileService_method_names[10],
+      ProfileService_method_names[9],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< ProfileService::Service, ::profile::ProfileRequest, ::profile::ProfileReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](ProfileService::Service* service,
@@ -425,13 +390,6 @@ ProfileService::Service::~Service() {
 }
 
 ::grpc::Status ProfileService::Service::ChangeNickname(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) {
-  (void) context;
-  (void) request;
-  (void) response;
-  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-}
-
-::grpc::Status ProfileService::Service::ChangePhoto(::grpc::ServerContext* context, const ::profile::ProfileRequest* request, ::profile::ProfileReply* response) {
   (void) context;
   (void) request;
   (void) response;

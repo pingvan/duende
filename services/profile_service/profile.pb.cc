@@ -65,7 +65,9 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 
 inline constexpr Genre::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
-      : id_{0},
+      : name_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
         _cached_size_{0} {}
 
 template <typename>
@@ -107,9 +109,6 @@ inline constexpr ProfileRequest::Impl_::Impl_(
         actors_{},
         genres_{},
         nickname_(
-            &::google::protobuf::internal::fixed_address_empty_string,
-            ::_pbi::ConstantInitialized()),
-        photo_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
         quote_(
@@ -169,7 +168,7 @@ const ::uint32_t TableStruct_services_2fprofile_5fservice_2fprofile_2eproto::off
     ~0u,  // no _inlined_string_donated_
     ~0u,  // no _split_
     ~0u,  // no sizeof(Split)
-    PROTOBUF_FIELD_OFFSET(::profile::Genre, _impl_.id_),
+    PROTOBUF_FIELD_OFFSET(::profile::Genre, _impl_.name_),
     ~0u,  // no _has_bits_
     PROTOBUF_FIELD_OFFSET(::profile::ProfileRequest, _internal_metadata_),
     ~0u,  // no _extensions_
@@ -180,7 +179,6 @@ const ::uint32_t TableStruct_services_2fprofile_5fservice_2fprofile_2eproto::off
     ~0u,  // no sizeof(Split)
     PROTOBUF_FIELD_OFFSET(::profile::ProfileRequest, _impl_.id_),
     PROTOBUF_FIELD_OFFSET(::profile::ProfileRequest, _impl_.nickname_),
-    PROTOBUF_FIELD_OFFSET(::profile::ProfileRequest, _impl_.photo_),
     PROTOBUF_FIELD_OFFSET(::profile::ProfileRequest, _impl_.quote_),
     PROTOBUF_FIELD_OFFSET(::profile::ProfileRequest, _impl_.bio_),
     PROTOBUF_FIELD_OFFSET(::profile::ProfileRequest, _impl_.movies_),
@@ -203,7 +201,7 @@ static const ::_pbi::MigrationSchema
         {10, -1, -1, sizeof(::profile::Actor)},
         {19, -1, -1, sizeof(::profile::Genre)},
         {28, -1, -1, sizeof(::profile::ProfileRequest)},
-        {44, -1, -1, sizeof(::profile::ProfileReply)},
+        {43, -1, -1, sizeof(::profile::ProfileReply)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -216,39 +214,37 @@ static const ::_pb::Message* const file_default_instances[] = {
 const char descriptor_table_protodef_services_2fprofile_5fservice_2fprofile_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
     "\n&services/profile_service/profile.proto"
     "\022\007profile\"#\n\005Movie\022\n\n\002id\030\001 \001(\005\022\016\n\006rating"
-    "\030\002 \001(\005\"\023\n\005Actor\022\n\n\002id\030\001 \001(\005\"\023\n\005Genre\022\n\n\002"
-    "id\030\001 \001(\005\"\271\001\n\016ProfileRequest\022\n\n\002id\030\001 \001(\005\022"
-    "\020\n\010nickname\030\002 \001(\t\022\r\n\005photo\030\003 \001(\t\022\r\n\005quot"
-    "e\030\004 \001(\t\022\013\n\003bio\030\005 \001(\t\022\036\n\006movies\030\006 \003(\0132\016.p"
-    "rofile.Movie\022\036\n\006actors\030\007 \003(\0132\016.profile.A"
-    "ctor\022\036\n\006genres\030\010 \003(\0132\016.profile.Genre\"\037\n\014"
-    "ProfileReply\022\017\n\007message\030\001 \001(\t2\217\006\n\016Profil"
-    "eService\022B\n\016ChangeNickname\022\027.profile.Pro"
-    "fileRequest\032\025.profile.ProfileReply\"\000\022\?\n\013"
-    "ChangePhoto\022\027.profile.ProfileRequest\032\025.p"
-    "rofile.ProfileReply\"\000\022\?\n\013ChangeQuote\022\027.p"
-    "rofile.ProfileRequest\032\025.profile.ProfileR"
-    "eply\"\000\022=\n\tChangeBio\022\027.profile.ProfileReq"
-    "uest\032\025.profile.ProfileReply\"\000\022B\n\016AddToWa"
-    "tchlist\022\027.profile.ProfileRequest\032\025.profi"
-    "le.ProfileReply\"\000\022G\n\023RemoveFromWatchlist"
-    "\022\027.profile.ProfileRequest\032\025.profile.Prof"
-    "ileReply\"\000\022E\n\021AddToListOfActors\022\027.profil"
-    "e.ProfileRequest\032\025.profile.ProfileReply\""
-    "\000\022J\n\026RemoveFromListOfActors\022\027.profile.Pr"
-    "ofileRequest\032\025.profile.ProfileReply\"\000\022E\n"
-    "\021AddToListOfGenres\022\027.profile.ProfileRequ"
-    "est\032\025.profile.ProfileReply\"\000\022J\n\026RemoveFr"
-    "omListOfGenres\022\027.profile.ProfileRequest\032"
-    "\025.profile.ProfileReply\"\000\022E\n\021UpdateMovieR"
-    "ating\022\027.profile.ProfileRequest\032\025.profile"
-    ".ProfileReply\"\000b\006proto3"
+    "\030\002 \001(\005\"\023\n\005Actor\022\n\n\002id\030\001 \001(\005\"\025\n\005Genre\022\014\n\004"
+    "name\030\001 \001(\t\"\252\001\n\016ProfileRequest\022\n\n\002id\030\001 \001("
+    "\005\022\020\n\010nickname\030\002 \001(\t\022\r\n\005quote\030\004 \001(\t\022\013\n\003bi"
+    "o\030\005 \001(\t\022\036\n\006movies\030\006 \003(\0132\016.profile.Movie\022"
+    "\036\n\006actors\030\007 \003(\0132\016.profile.Actor\022\036\n\006genre"
+    "s\030\010 \003(\0132\016.profile.Genre\"\037\n\014ProfileReply\022"
+    "\017\n\007message\030\001 \001(\t2\316\005\n\016ProfileService\022B\n\016C"
+    "hangeNickname\022\027.profile.ProfileRequest\032\025"
+    ".profile.ProfileReply\"\000\022\?\n\013ChangeQuote\022\027"
+    ".profile.ProfileRequest\032\025.profile.Profil"
+    "eReply\"\000\022=\n\tChangeBio\022\027.profile.ProfileR"
+    "equest\032\025.profile.ProfileReply\"\000\022B\n\016AddTo"
+    "Watchlist\022\027.profile.ProfileRequest\032\025.pro"
+    "file.ProfileReply\"\000\022G\n\023RemoveFromWatchli"
+    "st\022\027.profile.ProfileRequest\032\025.profile.Pr"
+    "ofileReply\"\000\022E\n\021AddToListOfActors\022\027.prof"
+    "ile.ProfileRequest\032\025.profile.ProfileRepl"
+    "y\"\000\022J\n\026RemoveFromListOfActors\022\027.profile."
+    "ProfileRequest\032\025.profile.ProfileReply\"\000\022"
+    "E\n\021AddToListOfGenres\022\027.profile.ProfileRe"
+    "quest\032\025.profile.ProfileReply\"\000\022J\n\026Remove"
+    "FromListOfGenres\022\027.profile.ProfileReques"
+    "t\032\025.profile.ProfileReply\"\000\022E\n\021UpdateMovi"
+    "eRating\022\027.profile.ProfileRequest\032\025.profi"
+    "le.ProfileReply\"\000b\006proto3"
 };
 static ::absl::once_flag descriptor_table_services_2fprofile_5fservice_2fprofile_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_services_2fprofile_5fservice_2fprofile_2eproto = {
     false,
     false,
-    1143,
+    1065,
     descriptor_table_protodef_services_2fprofile_5fservice_2fprofile_2eproto,
     "services/profile_service/profile.proto",
     &descriptor_table_services_2fprofile_5fservice_2fprofile_2eproto_once,
@@ -666,19 +662,32 @@ Genre::Genre(::google::protobuf::Arena* arena)
   SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:profile.Genre)
 }
+inline PROTOBUF_NDEBUG_INLINE Genre::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : name_(arena, from.name_),
+        _cached_size_{0} {}
+
 Genre::Genre(
-    ::google::protobuf::Arena* arena, const Genre& from)
-    : Genre(arena) {
-  MergeFrom(from);
+    ::google::protobuf::Arena* arena,
+    const Genre& from)
+    : ::google::protobuf::Message(arena) {
+  Genre* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+
+  // @@protoc_insertion_point(copy_constructor:profile.Genre)
 }
 inline PROTOBUF_NDEBUG_INLINE Genre::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
-      : _cached_size_{0} {}
+      : name_(arena),
+        _cached_size_{0} {}
 
 inline void Genre::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.id_ = {};
 }
 Genre::~Genre() {
   // @@protoc_insertion_point(destructor:profile.Genre)
@@ -687,6 +696,7 @@ Genre::~Genre() {
 }
 inline void Genre::SharedDtor() {
   ABSL_DCHECK(GetArena() == nullptr);
+  _impl_.name_.Destroy();
   _impl_.~Impl_();
 }
 
@@ -697,7 +707,7 @@ PROTOBUF_NOINLINE void Genre::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.id_ = 0;
+  _impl_.name_.ClearToEmpty();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -709,7 +719,7 @@ const char* Genre::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2> Genre::_table_ = {
+const ::_pbi::TcParseTable<0, 1, 0, 26, 2> Genre::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
@@ -723,18 +733,21 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> Genre::_table_ = {
     &_Genre_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
   }, {{
-    // int32 id = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Genre, _impl_.id_), 63>(),
-     {8, 63, 0, PROTOBUF_FIELD_OFFSET(Genre, _impl_.id_)}},
+    // string name = 1;
+    {::_pbi::TcParser::FastUS1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(Genre, _impl_.name_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // int32 id = 1;
-    {PROTOBUF_FIELD_OFFSET(Genre, _impl_.id_), 0, 0,
-    (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
+    // string name = 1;
+    {PROTOBUF_FIELD_OFFSET(Genre, _impl_.name_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
   }},
   // no aux_entries
   {{
+    "\15\4\0\0\0\0\0\0"
+    "profile.Genre"
+    "name"
   }},
 };
 
@@ -745,11 +758,12 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> Genre::_table_ = {
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // int32 id = 1;
-  if (this->_internal_id() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::
-        WriteInt32ToArrayWithField<1>(
-            stream, this->_internal_id(), target);
+  // string name = 1;
+  if (!this->_internal_name().empty()) {
+    const std::string& _s = this->_internal_name();
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "profile.Genre.name");
+    target = stream->WriteStringMaybeAliased(1, _s, target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -769,10 +783,10 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> Genre::_table_ = {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // int32 id = 1;
-  if (this->_internal_id() != 0) {
-    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-        this->_internal_id());
+  // string name = 1;
+  if (!this->_internal_name().empty()) {
+    total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                    this->_internal_name());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
@@ -794,8 +808,8 @@ void Genre::MergeImpl(::google::protobuf::Message& to_msg, const ::google::proto
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_id() != 0) {
-    _this->_internal_set_id(from._internal_id());
+  if (!from._internal_name().empty()) {
+    _this->_internal_set_name(from._internal_name());
   }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -816,8 +830,10 @@ PROTOBUF_NOINLINE bool Genre::IsInitialized() const {
 }
 void Genre::InternalSwap(Genre* PROTOBUF_RESTRICT other) {
   using std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-        swap(_impl_.id_, other->_impl_.id_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.name_, &other->_impl_.name_, arena);
 }
 
 ::google::protobuf::Metadata Genre::GetMetadata() const {
@@ -843,7 +859,6 @@ inline PROTOBUF_NDEBUG_INLINE ProfileRequest::Impl_::Impl_(
         actors_{visibility, arena, from.actors_},
         genres_{visibility, arena, from.genres_},
         nickname_(arena, from.nickname_),
-        photo_(arena, from.photo_),
         quote_(arena, from.quote_),
         bio_(arena, from.bio_),
         _cached_size_{0} {}
@@ -868,7 +883,6 @@ inline PROTOBUF_NDEBUG_INLINE ProfileRequest::Impl_::Impl_(
         actors_{visibility, arena},
         genres_{visibility, arena},
         nickname_(arena),
-        photo_(arena),
         quote_(arena),
         bio_(arena),
         _cached_size_{0} {}
@@ -885,7 +899,6 @@ ProfileRequest::~ProfileRequest() {
 inline void ProfileRequest::SharedDtor() {
   ABSL_DCHECK(GetArena() == nullptr);
   _impl_.nickname_.Destroy();
-  _impl_.photo_.Destroy();
   _impl_.quote_.Destroy();
   _impl_.bio_.Destroy();
   _impl_.~Impl_();
@@ -902,7 +915,6 @@ PROTOBUF_NOINLINE void ProfileRequest::Clear() {
   _impl_.actors_.Clear();
   _impl_.genres_.Clear();
   _impl_.nickname_.ClearToEmpty();
-  _impl_.photo_.ClearToEmpty();
   _impl_.quote_.ClearToEmpty();
   _impl_.bio_.ClearToEmpty();
   _impl_.id_ = 0;
@@ -917,15 +929,15 @@ const char* ProfileRequest::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 8, 3, 60, 2> ProfileRequest::_table_ = {
+const ::_pbi::TcParseTable<3, 7, 3, 47, 2> ProfileRequest::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
     8, 56,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967040,  // skipmap
+    4294967044,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    8,  // num_field_entries
+    7,  // num_field_entries
     3,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     &_ProfileRequest_default_instance_._instance,
@@ -940,9 +952,7 @@ const ::_pbi::TcParseTable<3, 8, 3, 60, 2> ProfileRequest::_table_ = {
     // string nickname = 2;
     {::_pbi::TcParser::FastUS1,
      {18, 63, 0, PROTOBUF_FIELD_OFFSET(ProfileRequest, _impl_.nickname_)}},
-    // string photo = 3;
-    {::_pbi::TcParser::FastUS1,
-     {26, 63, 0, PROTOBUF_FIELD_OFFSET(ProfileRequest, _impl_.photo_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // string quote = 4;
     {::_pbi::TcParser::FastUS1,
      {34, 63, 0, PROTOBUF_FIELD_OFFSET(ProfileRequest, _impl_.quote_)}},
@@ -964,9 +974,6 @@ const ::_pbi::TcParseTable<3, 8, 3, 60, 2> ProfileRequest::_table_ = {
     // string nickname = 2;
     {PROTOBUF_FIELD_OFFSET(ProfileRequest, _impl_.nickname_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
-    // string photo = 3;
-    {PROTOBUF_FIELD_OFFSET(ProfileRequest, _impl_.photo_), 0, 0,
-    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
     // string quote = 4;
     {PROTOBUF_FIELD_OFFSET(ProfileRequest, _impl_.quote_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
@@ -987,10 +994,9 @@ const ::_pbi::TcParseTable<3, 8, 3, 60, 2> ProfileRequest::_table_ = {
     {::_pbi::TcParser::GetTable<::profile::Actor>()},
     {::_pbi::TcParser::GetTable<::profile::Genre>()},
   }}, {{
-    "\26\0\10\5\5\3\0\0\0\0\0\0\0\0\0\0"
+    "\26\0\10\5\3\0\0\0"
     "profile.ProfileRequest"
     "nickname"
-    "photo"
     "quote"
     "bio"
   }},
@@ -1016,14 +1022,6 @@ const ::_pbi::TcParseTable<3, 8, 3, 60, 2> ProfileRequest::_table_ = {
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
         _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "profile.ProfileRequest.nickname");
     target = stream->WriteStringMaybeAliased(2, _s, target);
-  }
-
-  // string photo = 3;
-  if (!this->_internal_photo().empty()) {
-    const std::string& _s = this->_internal_photo();
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "profile.ProfileRequest.photo");
-    target = stream->WriteStringMaybeAliased(3, _s, target);
   }
 
   // string quote = 4;
@@ -1107,12 +1105,6 @@ const ::_pbi::TcParseTable<3, 8, 3, 60, 2> ProfileRequest::_table_ = {
                                     this->_internal_nickname());
   }
 
-  // string photo = 3;
-  if (!this->_internal_photo().empty()) {
-    total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                    this->_internal_photo());
-  }
-
   // string quote = 4;
   if (!this->_internal_quote().empty()) {
     total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -1159,9 +1151,6 @@ void ProfileRequest::MergeImpl(::google::protobuf::Message& to_msg, const ::goog
   if (!from._internal_nickname().empty()) {
     _this->_internal_set_nickname(from._internal_nickname());
   }
-  if (!from._internal_photo().empty()) {
-    _this->_internal_set_photo(from._internal_photo());
-  }
   if (!from._internal_quote().empty()) {
     _this->_internal_set_quote(from._internal_quote());
   }
@@ -1197,7 +1186,6 @@ void ProfileRequest::InternalSwap(ProfileRequest* PROTOBUF_RESTRICT other) {
   _impl_.actors_.InternalSwap(&other->_impl_.actors_);
   _impl_.genres_.InternalSwap(&other->_impl_.genres_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.nickname_, &other->_impl_.nickname_, arena);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.photo_, &other->_impl_.photo_, arena);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.quote_, &other->_impl_.quote_, arena);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.bio_, &other->_impl_.bio_, arena);
         swap(_impl_.id_, other->_impl_.id_);

@@ -68,33 +68,25 @@ Status ProfileServiceImpl::AddToWatchlist(
     ProfileRequest current_profile = *request;
     database::connector db_connector;
     for (const auto &movie : current_profile.movies()) {
-        auto *new_movie = profiles[current_profile.id()].add_movies();
-        new_movie->CopyFrom(movie);
-        new_movie->set_rating(movie.rating());
+        db_connector.add_watched(current_profile.id(), movie.id(), movie.rating());
     }
     reply->set_message("Watchlist changed");
     return Status::OK;
 }
 
-// Status ProfileServiceImpl::RemoveFromWatchlist(
-//     ServerContext *context,
-//     const ProfileRequest *request,
-//     ProfileReply *reply
-// ) {
-//     ProfileRequest current_profile = *request;
-//     for (const auto &movie : current_profile.movies()) {
-//         auto *watchlist = profiles[current_profile.id()].mutable_movies();
-//         auto current_movie = std::find_if(
-//             watchlist->begin(), watchlist->end(),
-//             [&movie](const Movie &m) { return m.id() == movie.id(); }
-//         );
-//         if (current_movie != watchlist->end()) {
-//             watchlist->erase(current_movie);
-//         }
-//     }
-//     reply->set_message("Watchlist changed");
-//     return Status::OK;
-// }
+Status ProfileServiceImpl::RemoveFromWatchlist(
+    ServerContext *context,
+    const ProfileRequest *request,
+    ProfileReply *reply
+) {
+    ProfileRequest current_profile = *request;
+    database::connector db_connector;
+    for (const auto &movie : current_profile.movies()) {
+        db_connector.remove_watched(current_profile.id(), movie.id());
+    }
+    reply->set_message("Watchlist changed");
+    return Status::OK;
+}
 
 // Status ProfileServiceImpl::UpdateMovieRating(
 //     ServerContext *context,
@@ -112,68 +104,58 @@ Status ProfileServiceImpl::AddToWatchlist(
 //     return Status::OK;
 // }
 
-// Status ProfileServiceImpl::AddToListOfActors(
-//     ServerContext *context,
-//     const ProfileRequest *request,
-//     ProfileReply *reply
-// ) {
-//     ProfileRequest current_profile = *request;
-//     for (const auto &actor : current_profile.actors()) {
-//         profiles[current_profile.id()].add_actors()->CopyFrom(actor);
-//     }
-//     reply->set_message("List of actors changed");
-//     return Status::OK;
-// }
+Status ProfileServiceImpl::AddToListOfActors(
+    ServerContext *context,
+    const ProfileRequest *request,
+    ProfileReply *reply
+) {
+    ProfileRequest current_profile = *request;
+    database::connector db_connector;
+    for (const auto &actor : current_profile.actors()) {
+        db_connector.add_favourite_actor(current_profile.id(), actor.id());
+    }
+    reply->set_message("List of actors changed");
+    return Status::OK;
+}
 
-// Status ProfileServiceImpl::RemoveFromListOfActors(
-//     ServerContext *context,
-//     const ProfileRequest *request,
-//     ProfileReply *reply
-// ) {
-//     ProfileRequest current_profile = *request;
-//     for (const auto &actor : current_profile.actors()) {
-//         auto *list_of_actors = profiles[current_profile.id()].mutable_actors();
-//         auto current_actor = std::find_if(
-//             list_of_actors->begin(), list_of_actors->end(),
-//             [&actor](const Actor &a) { return a.id() == actor.id(); }
-//         );
-//         if (current_actor != list_of_actors->end()) {
-//             list_of_actors->erase(current_actor);
-//         }
-//     }
-//     reply->set_message("List of actors changed");
-//     return Status::OK;
-// }
+Status ProfileServiceImpl::RemoveFromListOfActors(
+    ServerContext *context,
+    const ProfileRequest *request,
+    ProfileReply *reply
+) {
+    ProfileRequest current_profile = *request;
+    database::connector db_connector;
+    for (const auto &actor : current_profile.actors()) {
+        db_connector.remove_favourite_actor(current_profile.id(), actor.id());
+    }
+    reply->set_message("List of actors changed");
+    return Status::OK;
+}
 
-// Status ProfileServiceImpl::AddToListOfGenres(
-//     ServerContext *context,
-//     const ProfileRequest *request,
-//     ProfileReply *reply
-// ) {
-//     ProfileRequest current_profile = *request;
-//     for (const auto &genre : current_profile.genres()) {
-//         profiles[current_profile.id()].add_genres()->CopyFrom(genre);
-//     }
-//     reply->set_message("List of genres changed");
-//     return Status::OK;
-// }
+Status ProfileServiceImpl::AddToListOfGenres(
+    ServerContext *context,
+    const ProfileRequest *request,
+    ProfileReply *reply
+) {
+    ProfileRequest current_profile = *request;
+    database::connector db_connector;
+    for (const auto &genre : current_profile.genres()) {
+        db_connector.add_favourite_genre(current_profile.id(), genre.name());
+    }
+    reply->set_message("List of genres changed");
+    return Status::OK;
+}
 
-// Status ProfileServiceImpl::RemoveFromListOfGenres(
-//     ServerContext *context,
-//     const ProfileRequest *request,
-//     ProfileReply *reply
-// ) {
-//     ProfileRequest current_profile = *request;
-//     for (const auto &genre : current_profile.genres()) {
-//         auto *list_of_genres = profiles[current_profile.id()].mutable_genres();
-//         auto current_genre = std::find_if(
-//             list_of_genres->begin(), list_of_genres->end(),
-//             [&genre](const Genre &g) { return g.id() == genre.id(); }
-//         );
-//         if (current_genre != list_of_genres->end()) {
-//             list_of_genres->erase(current_genre);
-//         }
-//     }
-//     reply->set_message("List of genres changed");
-//     return Status::OK;
-// }
+Status ProfileServiceImpl::RemoveFromListOfGenres(
+    ServerContext *context,
+    const ProfileRequest *request,
+    ProfileReply *reply
+) {
+    ProfileRequest current_profile = *request;
+    database::connector db_connector;
+    for (const auto &genre : current_profile.genres()) {
+        db_connector.remove_favourite_genre(current_profile.id(), genre.name());
+    }
+    reply->set_message("List of genres changed");
+    return Status::OK;
+}

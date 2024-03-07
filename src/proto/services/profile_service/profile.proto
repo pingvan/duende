@@ -4,7 +4,6 @@ package profile;
 
 service ProfileService {
   rpc ChangeNickname (ProfileRequest) returns (ProfileReply) {}
-  rpc ChangePhoto (ProfileRequest) returns (ProfileReply) {}
   rpc ChangeQuote (ProfileRequest) returns (ProfileReply) {}
   rpc ChangeBio (ProfileRequest) returns (ProfileReply) {}
   rpc AddToWatchlist (ProfileRequest) returns (ProfileReply) {}
@@ -26,13 +25,12 @@ message Actor{
 }
 
 message Genre{
-  int32 id = 1;
+  string name = 1;
 }
 
 message ProfileRequest {
   int32 id = 1;
   string nickname = 2;
-  string photo = 3;
   string quote = 4;
   string bio = 5;
   repeated Movie movies = 6;
