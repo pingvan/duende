@@ -20,12 +20,5 @@ void run_server() {
 }
 
 int main() {
-    // run_server();
-    int id  = 0;
-    try {
-        id = database::connector::add_user("ba", "bb", "cc", "ss", "dd", "ee");
-    } catch (std::exception &e) {
-        std::cerr << e.what() << '\n';
-    }
-    std::cout << id << '\n';
+    run_server();
 }
