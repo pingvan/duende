@@ -7,13 +7,7 @@ int auth_service::save_user(authservice::User &user, std::string password, auths
     database::connector connector;
     user.set_salt(generate_salt(10));
     std::string hashed_password = generate_hash(password + user.salt());
-    try {
-        return connector.add_user(user.email(), user.username(), tokens->refresh().token(), hashed_password, user.salt());
-    }
-    catch (std::exception &e) {
-        std::cout << e.what() << std::endl;
-        return -1;
-    }
+    return connector.add_user(user.email(), user.username(), tokens->refresh().token(), hashed_password, user.salt());
 }
 
 grpc::Status auth_service::Login(
@@ -26,28 +20,35 @@ grpc::Status auth_service::Login(
     token_service token_service;
     database::connector connector;
     int id;
+    std::string password = request->password();
+
     if (request->has_username()) {
-        user.set_username(request->username());
-        payload.set_username(request->username());
-        id = connector.get_user_id(request->username());
+        std::string username = request->username();
+        user.set_username(username);
+        payload.set_username(username);
+
+        id = connector.get_user_id(username);
         std::string email = connector.get_user_email(id);
         user.set_email(email);
         payload.set_email(email);
     }
     if (request->has_email()) {
-        user.set_email(request->email());
-        payload.set_email(request->email());
-        id = connector.get_user_id(request->email());
+        std::string email = request->email();
+        user.set_email(email);
+        payload.set_email(email);
+
+        id = connector.get_user_id(email);
         std::string username = connector.get_user_nickname(id);
         user.set_username(username);
         payload.set_username(username);
     }
-    user.set_id(id);
-    payload.set_user_id(id);
-    std::string password = request->password();
+
     if (id == -1) {
         return grpc::Status(grpc::StatusCode::NOT_FOUND, "User not found");
     }
+    user.set_id(id);
+    payload.set_user_id(id);
+
     std::string hashed_password = connector.get_hash_salt(id).first;
     std::string salt = connector.get_hash_salt(id).second;
     user.set_hashed_password(
@@ -58,6 +59,7 @@ grpc::Status auth_service::Login(
             grpc::StatusCode::INVALID_ARGUMENT, "Incorrect password"
         );
     }
+
     authservice::Tokens *tokens = token_service.generate_tokens(payload);
     token_service.save_refresh_token(user.id(), tokens->refresh());
 
@@ -103,8 +105,8 @@ grpc::Status auth_service::Signup(
             grpc::StatusCode::INVALID_ARGUMENT, "Passwords do not match"
         );
     }
-    authservice::Tokens *tokens = new authservice::Tokens();
-    tokens = token_service.generate_tokens(payload);
+
+    authservice::Tokens *tokens = token_service.generate_tokens(payload);
     token_service.save_refresh_token(user.id(), tokens->refresh());
     response->set_allocated_tokens(tokens);
     save_user(user, password, tokens);
