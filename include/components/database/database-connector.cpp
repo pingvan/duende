@@ -165,13 +165,13 @@ void connector::change_photo(const int &client_id,
 
 void connector::change_quote(const int &client_id, const std::string &quote) {
     openCon
-    const auto result = txn->exec_params("UPDATE form SET quote = $1 WHERE client_id = $2", quote, client_id);
+    const auto result = txn->exec_params("UPDATE forms SET quote = $1 WHERE client_id = $2", quote, client_id);
     txn->commit();
 }
 
 void connector::change_about(const int &client_id, const std::string &about) {
     openCon
-    const auto result = txn->exec_params("UPDATE form SET about = $1 WHERE client_id = $2", about, client_id);
+    const auto result = txn->exec_params("UPDATE forms SET about = $1 WHERE client_id = $2", about, client_id);
     txn->commit();
 }
 

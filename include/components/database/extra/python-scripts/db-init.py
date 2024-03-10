@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS producers_by_film (
 """
 
 create_actors_table = """
-CREATE TABLE actors(
+CREATE TABLE IF NOT EXISTS actors(
     id SERIAL PRIMARY KEY,
     first_name VARCHAR(25),
      last_name VARCHAR(25)
@@ -112,7 +112,7 @@ CREATE TABLE actors(
 """
 
 create_actors_to_form_table = """
-CREATE TABLE actors_to_form(
+CREATE TABLE IF NOT EXISTS actors_to_form(
     form_id INT NOT NULL,
     actor_id INT NOT NULL,
     FOREIGN KEY(form_id) REFERENCES forms(id),
@@ -121,7 +121,7 @@ CREATE TABLE actors_to_form(
 """
 
 create_actors_to_film_table = """
-CREATE TABLE actors_to_film(
+CREATE TABLE IF NOT EXISTS actors_to_film(
     film_id INT NOT NULL,
     actor_id INT NOT NULL,
     FOREIGN KEY(film_id) REFERENCES films(id),
@@ -130,7 +130,7 @@ CREATE TABLE actors_to_film(
 """
 
 create_chats_table = """
-CREATE TABLE chats (
+CREATE TABLE IF NOT EXISTS chats (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMP NOT NULL,
     is_group_chat BOOLEAN NOT NULL,
@@ -144,7 +144,7 @@ CREATE TABLE chats (
 """
 
 create_messages_table = """
-CREATE TABLE message (
+CREATE TABLE IF NOT EXISTS message (
     id SERIAL PRIMARY KEY,
     sender_id INT NOT NULL,
     chat_id INT NOT NULL,
@@ -156,7 +156,7 @@ CREATE TABLE message (
 """
 
 create_chats_memberships_table = """
-CREATE TABLE chat_membership (
+CREATE TABLE IF NOT EXISTS chat_membership (
     id SERIAL PRIMARY KEY,
     client_id INT NOT NULL,
     chat_id INT NOT NULL,
@@ -166,7 +166,7 @@ CREATE TABLE chat_membership (
 """
 
 create_invites_table = """
-CREATE TABLE invites (
+CREATE TABLE IF NOT EXISTS invites (
     id SERIAL PRIMARY KEY,
     invite_text VARCHAR(300),
     invite_status invite_status,

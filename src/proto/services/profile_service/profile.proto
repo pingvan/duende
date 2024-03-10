@@ -3,39 +3,58 @@ syntax = "proto3";
 package profile;
 
 service ProfileService {
-  rpc ChangeNickname (ProfileRequest) returns (ProfileReply) {}
-  rpc ChangePhoto (ProfileRequest) returns (ProfileReply) {}
-  rpc ChangeQuote (ProfileRequest) returns (ProfileReply) {}
-  rpc ChangeBio (ProfileRequest) returns (ProfileReply) {}
-  rpc AddToWatchlist (ProfileRequest) returns (ProfileReply) {}
-  rpc RemoveFromWatchlist (ProfileRequest) returns (ProfileReply) {}
-  rpc AddToListOfActors (ProfileRequest) returns (ProfileReply) {}
-  rpc RemoveFromListOfActors (ProfileRequest) returns (ProfileReply) {}
-  rpc AddToListOfGenres (ProfileRequest) returns (ProfileReply) {}
-  rpc RemoveFromListOfGenres (ProfileRequest) returns (ProfileReply) {}
+  rpc ChangeNickname (NicknameRequest) returns (ProfileReply) {}
+  rpc ChangeQuote (QuoteRequest) returns (ProfileReply) {}
+  rpc ChangeBio (BioRequest) returns (ProfileReply) {}
+  rpc AddToWatchlist (MovieRequest) returns (ProfileReply) {}
+  rpc RemoveFromWatchlist (MovieRequest) returns (ProfileReply) {}
+  rpc AddToListOfActors (ActorRequest) returns (ProfileReply) {}
+  rpc RemoveFromListOfActors (ActorRequest) returns (ProfileReply) {}
+  rpc AddToListOfGenres (GenreRequest) returns (ProfileReply) {}
+  rpc RemoveFromListOfGenres (GenreRequest) returns (ProfileReply) {}
 }
 
 message Movie{
-  string id = 1;
+  int32 id = 1;
+  int32 rating = 2;
 }
 
 message Actor{
-  string id = 1;
+  int32 id = 1;
 }
 
 message Genre{
-  string id = 1;
+  string name = 1;
 }
 
-message ProfileRequest {
-  string id = 1;
+message NicknameRequest{
+  int32 id = 1;
   string nickname = 2;
-  string photo = 3;
-  string quote = 4;
-  string bio = 5;
-  repeated Movie movies = 6;
-  repeated Actor actors = 7;
-  repeated Genre genres = 8;
+}
+
+message QuoteRequest{
+  int32 id = 1;
+  string quote = 2;
+}
+
+message BioRequest{
+  int32 id = 1;
+  string bio = 2;
+}
+
+message MovieRequest{
+  int32 id = 1;
+  repeated Movie movies = 2;
+}
+
+message ActorRequest{
+  int32 id = 1;
+  repeated Actor actors = 2;
+}
+
+message GenreRequest{
+  int32 id = 1;
+  repeated Genre genres = 2;
 }
 
 message ProfileReply {
