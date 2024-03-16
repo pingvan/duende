@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package invitation;
+
+service InvitationService {
+  rpc SendInvitation (InvitationRequest) returns (InvitationReply) {}
+  rpc RespondToInvitation (InvitationResponse) returns (InvitationReply) {}
+  rpc CheckNewInvitations (CheckRequest) returns (CheckReply) {}
+}
+
+message InvitationRequest {
+  int32 sender_id = 1;
+  int32 receiver_id = 2;
+}
+
+message InvitationResponse {
+  int32 receiver_id = 1;
+  bool accept = 2;
+}
+
+message InvitationReply {
+  string message = 1;
+}
+
+message CheckRequest {
+  int32 receiver_id = 1;
+}
+
+message CheckReply {
+  repeated int32 new_invitations = 1;
+}
