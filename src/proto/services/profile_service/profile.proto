@@ -3,7 +3,7 @@ syntax = "proto3";
 package profile;
 
 service ProfileService {
-  rpc ChangeNickname (NicknameRequest) returns (ProfileReply) {}
+  rpc ChangeUsername (UsernameRequest) returns (ProfileReply) {}
   rpc ChangeQuote (QuoteRequest) returns (ProfileReply) {}
   rpc ChangeBio (BioRequest) returns (ProfileReply) {}
   rpc AddToWatchlist (MovieRequest) returns (ProfileReply) {}
@@ -27,9 +27,9 @@ message Genre{
   string name = 1;
 }
 
-message NicknameRequest{
+message UserameRequest{
   int32 id = 1;
-  string nickname = 2;
+  string username = 2;
 }
 
 message QuoteRequest{

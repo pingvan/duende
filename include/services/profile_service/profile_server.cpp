@@ -1,19 +1,19 @@
 #include "profile_server.hpp"
 #include "components/database/database-connector.hpp"
 
-Status ProfileServiceImpl::ChangeNickname(
+Status ProfileServiceImpl::ChangeUsername(
     ServerContext *context,
-    const NicknameRequest *request,
+    const UsernameRequest *request,
     ProfileReply *reply
 ) {
-    NicknameRequest current_profile = *request;
+    UsernameRequest current_profile = *request;
     database::connector db_connector;
-    if (db_connector.is_nickname_used(current_profile.nickname())) {
-        reply->set_message("Nickname already exists");
+    if (db_connector.is_username_used(current_profile.username())) {
+        reply->set_message("Username already exists");
         return Status::OK;
     }
-    db_connector.change_nickname(current_profile.id(), current_profile.nickname());
-    reply->set_message("Nickname changed");
+    db_connector.change_username(current_profile.id(), current_profile.username());
+    reply->set_message("Username changed");
     return Status::OK;
 }
 
