@@ -2,6 +2,7 @@
 
 #include <grpcpp/grpcpp.h>
 #include <random>
+#include <string>
 
 #include "services/profile_service/chat.grpc.pb.h"
 #include "services/profile_service/chat.pb.h"
