@@ -44,8 +44,7 @@ class ChatServiceImpl final : public ChatService::Service {
         return grpc::Status::OK;
     }
 
-    std::string generate_session_id()
-	{
+    std::string generate_session_id() {
 		std::string generated_id = "";
 		int i = 0;
 		while (++i <= 8) {
