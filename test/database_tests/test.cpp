@@ -1,7 +1,9 @@
 #include <string>
 #include "doctest/doctest.h"
 
-#include "components/database/database-connector.hpp"
+#include "components/database/authservice/authservice.hpp"
+#include "components/database/profile_service/profile_service.hpp"
+#include "components/database/chat_service/chat_service.hpp"
 
 std::string email{"test@email.com"};
 std::string nickname{"test_nickname"};

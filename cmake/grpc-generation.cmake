@@ -15,6 +15,7 @@ set(proto_models_dir "${CMAKE_CURRENT_SOURCE_DIR}/src/proto")
 set(proto_filepaths
         "src/proto/services/authservice/authservice.proto"
         "src/proto/services/profile_service/profile.proto"
+        "src/proto/services/chat_service/chat_service.proto"
 )
 
 # list of the generated sources of the proto models

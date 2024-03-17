@@ -1,20 +1,20 @@
-CREATE TABLE clients(
+CREATE TABLE users(
     id SERIAL PRIMARY KEY,
     email VARCHAR(256) NOT NULL,
     login VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE tokens(
-    client_id INT NOT NULL,
+    user_id INT NOT NULL,
     refresh_token text NOT NULL,
-    FOREIGN KEY(client_id) REFERENCES clients(id)
+    FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
 CREATE TABLE passwords(
-    client_id INT NOT NULL,
+    user_id INT NOT NULL,
     password_hash VARCHAR(64) NOT NULL,
     password_salt VARCHAR(10) NOT NULL,
-    FOREIGN KEY(client_id) REFERENCES clients(id)
+    FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
 CREATE TABLE forms(
@@ -22,9 +22,9 @@ CREATE TABLE forms(
     -- photo BYTEA,
     quote VARCHAR(50),
     about VARCHAR(250),
-    client_id INT NOT NULL,
+    user_id INT NOT NULL,
     favourite_genres genre[],
-    FOREIGN KEY(client_id) REFERENCES clients(id)
+    FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
 CREATE TYPE genre AS ENUM(
@@ -53,9 +53,9 @@ CREATE TYPE genre AS ENUM(
 CREATE TABLE views(
     id SERIAL PRIMARY KEY,
     ratio INT NOT NULL,
-    client_id INT NOT NULL,
+    user_id INT NOT NULL,
     film_id INT NOT NULL,
-    FOREIGN KEY(client_id) REFERENCES clients(id),
+    FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(film_id) REFERENCES films(id)
 );
 
@@ -107,21 +107,21 @@ CREATE TABLE chats (
     --admin_ids INT[] NOT NULL
 );
 
-CREATE TABLE message (
+CREATE TABLE messages (
     id SERIAL PRIMARY KEY,
     sender_id INT NOT NULL,
     chat_id INT NOT NULL,
     time TIMESTAMP NOT NULL,
     message_text text NOT NULL,
-    FOREIGN KEY(sender_id) REFERENCES clients(id),
+    FOREIGN KEY(sender_id) REFERENCES users(id),
     FOREIGN KEY(chat_id) REFERENCES chats(id)
 );
 
 CREATE TABLE chat_membership (
     id SERIAL PRIMARY KEY,
-    client_id INT NOT NULL,
+    user_id INT NOT NULL,
     chat_id INT NOT NULL,
-    FOREIGN KEY(client_id) REFERENCES clients(id),
+    FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(chat_id) REFERENCES chats(id)
 );
 
@@ -131,11 +131,24 @@ CREATE TABLE invites (
     id SERIAL PRIMARY KEY,
     invite_text VARCHAR(300),
     invite_status invite_status,
-    invite_from_client INT NOT NULL,
-    invite_to_client INT NOT NULL,
-    FOREIGN KEY(invite_from_client) REFERENCES clients(id),
-    FOREIGN KEY(invite_to_client) REFERENCES clients(id)
-)
+    invite_from_user INT NOT NULL,
+    invite_to_user INT NOT NULL,
+    FOREIGN KEY(invite_from_user) REFERENCES users(id),
+    FOREIGN KEY(invite_to_user) REFERENCES users(id)
+);
 
 --everything updated in scripts
 
+CREATE TABLE unhandled_messages (
+    user_id INT NOT NULL,
+    message_id INT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(message_id) REFERENCES messages(id)
+);
+
+CREATE TABLE unhandled_invites (
+    user_id INT NOT NULL,
+    invite_id INT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(invite_id) REFERENCES invites(id)
+);

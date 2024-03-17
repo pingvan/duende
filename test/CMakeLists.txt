@@ -4,5 +4,6 @@ project(duendeTests CXX)
 
 set(TESTS_SRCS
         ${CMAKE_CURRENT_SOURCE_DIR}/database_tests/test.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/function_tests/test.cpp
         PARENT_SCOPE
 )
