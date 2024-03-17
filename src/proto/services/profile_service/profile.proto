@@ -27,7 +27,7 @@ message Genre{
   string name = 1;
 }
 
-message UserameRequest{
+message UsernameRequest{
   int32 id = 1;
   string username = 2;
 }
