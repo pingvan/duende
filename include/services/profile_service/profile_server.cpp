@@ -8,11 +8,11 @@ Status ProfileServiceImpl::ChangeUsername(
 ) {
     UsernameRequest current_profile = *request;
     database::connector db_connector;
-    if (db_connector.is_username_used(current_profile.username())) {
+    if (db_connector.is_nickname_used(current_profile.username())) {
         reply->set_message("Username already exists");
         return Status::OK;
     }
-    db_connector.change_username(current_profile.id(), current_profile.username());
+    db_connector.change_nickname(current_profile.id(), current_profile.username());
     reply->set_message("Username changed");
     return Status::OK;
 }
