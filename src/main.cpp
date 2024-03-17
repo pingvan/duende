@@ -2,6 +2,8 @@
 #include <components/database/database-connector.hpp>
 #include "services/authservice/service.hpp"
 #include "services/profile_service/profile_server.cpp"
+#include "services/invitation_service/invitation_server.cpp"
+#include "services/chat_service/chat_server.cpp"
 
 std::string server_address("0.0.0.0:50051");
 
