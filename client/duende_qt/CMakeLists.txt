@@ -10,7 +10,25 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Threads REQUIRED)
+find_package(PkgConfig REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
+find_package(gRPC CONFIG REQUIRED)
 
-add_executable(duende main.cpp duende.cpp duendedesktop.cpp duende.h duende.ui)
+set(PROTOS ../../build/services/authservice/authservice.grpc.pb.cc ../../build/services/authservice/authservice.pb.cc)
 
-target_link_libraries(duende PRIVATE Qt${QT_VERSION}::Widgets)
+add_executable(duende ${PROTOS} main.cpp duende.cpp duendedesktop.cpp duende.h duende.ui)
+
+target_include_directories(duende PRIVATE
+    ${Qt6Widgets_INCLUDE_DIRS},
+    ../../build/
+)
+
+target_link_libraries(duende PRIVATE
+    Qt${QT_VERSION}::Widgets
+    absl::flags_parse
+    gRPC::grpc++
+    protobuf::libprotobuf
+    Threads::Threads
+    pqxx
+    )
