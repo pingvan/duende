@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package chat;
+
+service Chat {
+	rpc ChatStream(stream StreamRequest) returns (stream StreamResponse) {}
+}
+
+message StreamRequest {
+    oneof RequestEvent {
+        StartSession new_session_request = 1;
+        JoinSession join_session_request = 2;
+		Message  message_request  = 3;
+        QuitSession quit_session_request = 4;
+    }
+}
+
+message StreamResponse {
+     oneof ResponseEvent {
+        Login login_response = 1;
+        Logout logout_response = 2;
+        Message message_response = 3;
+		StartSessionResponse new_session_response = 4;
+		JoinSessionResponse join_session_response = 5;
+    }
+}
+
+message StartSession {
+    string username = 1;
+}
+
+message JoinSession {
+    string username = 1;
+    string session_id = 2;
+}
+	
+message Message {
+    string username = 1;
+	string session_id = 2;
+    string message = 3;
+}
+	
+message QuitSession {
+    string username = 1;
+	string session_id = 2;
+}
+	
+message Login {
+    string username = 1;
+}
+
+message Logout {
+    string username = 1;
+}
+
+message StartSessionResponse {
+    string session_id = 1;
+}
+
+message JoinSessionResponse {
+    string message = 1;
+}
