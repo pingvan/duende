@@ -8,13 +8,6 @@ int auth_service::save_user(authservice::User &user, std::string password, auths
     user.set_salt(generate_salt(10));
     std::string hashed_password = generate_hash(password + user.salt());
     return connector.add_user(user.email(), user.username(), tokens->refresh().token(), hashed_password, user.salt());
-#include "components/database/database-connector.hpp"
-
-int auth_service::save_user(authservice::User &user, std::string password, authservice::Tokens *tokens) {
-    database::connector connector;
-    user.set_salt(generate_salt(10));
-    std::string hashed_password = generate_hash(password + user.salt());
-    return connector.add_user(user.email(), user.username(), tokens->refresh().token(), hashed_password, user.salt());
 }
 
 grpc::Status auth_service::Login(

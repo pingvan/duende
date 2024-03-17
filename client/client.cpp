@@ -12,9 +12,8 @@ client::login(const std::string &client_login, const std::string &password) {
     auto *response = new authservice::LoginResponse;
     request.set_username(client_login);
     request.set_password(password);
-
-    authorization_stub->Login(&context, request, response);
-    return grpc::Status::OK;
+    
+    return authorization_stub->Login(&context, request, response);
 }
 
 grpc::Status client::registration(
@@ -24,13 +23,12 @@ grpc::Status client::registration(
     const std::string &password_confirmation
 ) {
     grpc::ClientContext context;
-    authservice::SigninRequest request;
-    auto *response = new authservice::SigninResponse;
+    authservice::SignupRequest request;
+    auto *response = new authservice::SignupResponse;
     request.set_username(client_login);
     request.set_email(email);
     request.set_password(password);
     request.set_password_confirmation(password_confirmation);
 
-    authorization_stub->Signin(&context, request, response);
-    return grpc::Status::OK;
+    return authorization_stub->Signup(&context, request, response);
 }
