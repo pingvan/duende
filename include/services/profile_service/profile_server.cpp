@@ -1,5 +1,7 @@
 #include "profile_server.hpp"
-#include "components/database/database-connector.hpp"
+#include <components/database/services/authservice/authservice.hpp>
+
+#include "components/database/services/profile_service/profile_service.hpp"
 
 Status ProfileServiceImpl::ChangeUsername(
     ServerContext *context,
@@ -7,12 +9,11 @@ Status ProfileServiceImpl::ChangeUsername(
     ProfileReply *reply
 ) {
     UsernameRequest current_profile = *request;
-    database::connector db_connector;
-    if (db_connector.is_nickname_used(current_profile.username())) {
+    if (database::authservice::is_nickname_used(current_profile.username())) {
         reply->set_message("Username already exists");
         return Status::OK;
     }
-    db_connector.change_nickname(current_profile.id(), current_profile.username());
+    database::profile_service::change_nickname(current_profile.id(), current_profile.username());
     reply->set_message("Username changed");
     return Status::OK;
 }
@@ -38,8 +39,7 @@ Status ProfileServiceImpl::ChangeQuote(
         reply->set_message("Quote is too long");
         return Status::OK;
     }
-    database::connector db_connector;
-    db_connector.change_quote(current_profile.id(), current_profile.quote());
+    database::profile_service::change_quote(current_profile.id(), current_profile.quote());
     reply->set_message("Quote changed");
     return Status::OK;
 }
@@ -50,12 +50,11 @@ Status ProfileServiceImpl::ChangeBio(
     ProfileReply *reply
 ) {
     BioRequest current_profile = *request;
-    database::connector db_connector;
     if (current_profile.bio().length() > 1000) {
         reply->set_message("Bio is too long");
         return Status::OK;
     }
-    db_connector.change_about(current_profile.id(), current_profile.bio());
+    database::profile_service::change_about(current_profile.id(), current_profile.bio());
     reply->set_message("Bio changed");
     return Status::OK;
 }
@@ -66,9 +65,8 @@ Status ProfileServiceImpl::AddToWatchlist(
     ProfileReply *reply
 ) {
     MovieRequest current_profile = *request;
-    database::connector db_connector;
     for (const auto &movie : current_profile.movies()) {
-        db_connector.add_watched(current_profile.id(), movie.id(), movie.rating());
+        database::profile_service::add_watched(current_profile.id(), movie.id(), movie.rating());
     }
     reply->set_message("Watchlist changed");
     return Status::OK;
@@ -80,9 +78,8 @@ Status ProfileServiceImpl::RemoveFromWatchlist(
     ProfileReply *reply
 ) {
     MovieRequest current_profile = *request;
-    database::connector db_connector;
     for (const auto &movie : current_profile.movies()) {
-        db_connector.remove_watched(current_profile.id(), movie.id());
+        database::profile_service::remove_watched(current_profile.id(), movie.id());
     }
     reply->set_message("Watchlist changed");
     return Status::OK;
@@ -94,9 +91,8 @@ Status ProfileServiceImpl::AddToListOfActors(
     ProfileReply *reply
 ) {
     ActorRequest current_profile = *request;
-    database::connector db_connector;
     for (const auto &actor : current_profile.actors()) {
-        db_connector.add_favourite_actor(current_profile.id(), actor.id());
+         database::profile_service::add_favourite_actor(current_profile.id(), actor.id());
     }
     reply->set_message("List of actors changed");
     return Status::OK;
@@ -108,9 +104,8 @@ Status ProfileServiceImpl::RemoveFromListOfActors(
     ProfileReply *reply
 ) {
     ActorRequest current_profile = *request;
-    database::connector db_connector;
     for (const auto &actor : current_profile.actors()) {
-        db_connector.remove_favourite_actor(current_profile.id(), actor.id());
+        database::profile_service::remove_favourite_actor(current_profile.id(), actor.id());
     }
     reply->set_message("List of actors changed");
     return Status::OK;
@@ -122,9 +117,8 @@ Status ProfileServiceImpl::AddToListOfGenres(
     ProfileReply *reply
 ) {
     GenreRequest current_profile = *request;
-    database::connector db_connector;
     for (const auto &genre : current_profile.genres()) {
-        db_connector.add_favourite_genre(current_profile.id(), genre.name());
+        database::profile_service::add_favourite_genre(current_profile.id(), genre.name());
     }
     reply->set_message("List of genres changed");
     return Status::OK;
@@ -136,9 +130,8 @@ Status ProfileServiceImpl::RemoveFromListOfGenres(
     ProfileReply *reply
 ) {
     GenreRequest current_profile = *request;
-    database::connector db_connector;
     for (const auto &genre : current_profile.genres()) {
-        db_connector.remove_favourite_genre(current_profile.id(), genre.name());
+        database::profile_service::remove_favourite_genre(current_profile.id(), genre.name());
     }
     reply->set_message("List of genres changed");
     return Status::OK;

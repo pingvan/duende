@@ -7,46 +7,25 @@ grpc::Status chat_service_::handle_chat(grpc::ServerContext *context, grpc::Serv
     chat_service::ChatRequests request;
     while (stream->Read(&request)) {
         if (request.has_init()) {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            // std::cout << "get init request from: " << request.init().user_id() << '\n';
             users_online.insert({request.init().user_id(), std::make_shared<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>(*stream)});
-            /*if (users_online.count(request.init().user_id())) {
-                std::cout << "saved user stream, cur_size: " << users_online.size() << '\n';
-            } else {
-                std::cout << "some error while saving, cur_size: " << users_online.size() << '\n';
-            }*/
-            // std::cout << "now in online: " << &(users_online.find(request.init().user_id())) << '\n';
             chat_service::ChatResponses response;
             const auto init_response= new chat_service::InitialResponse;
             init_response->set_status(chat_service::Status::SUCCESS);
             response.set_allocated_init(init_response);
             stream->Write(response);
-            // std::cout << "init responsed with: " << response.init().status() << '\n';
         } else if (request.has_send_message()) {
-            // std::cout << "get send message request: " << request.send_message().msg().sender_id() << '\n';
             send_to_chat(request.send_message().msg());
-            // std::cout << "send fucntion called\n";
         } else if (request.has_leave()) {
-            // std::unique_lock<std::mutex> lock(m_mutex);
-            // std::cout << "get leave request from: " << request.leave().user_id() << '\n';
             users_online.erase(request.leave().user_id());
-            /*if (!users_online.count(request.leave().user_id())) {
-                std::cout << "deleted user stream, cur_size: " << users_online.size() << '\n';
-            } else {
-                std::cout << "some error while deleting, cur_size: " << users_online.size() << '\n';
-            }*/
             chat_service::ChatResponses response;
             const auto disconnect_response= new chat_service::DisconnectResponse;
             disconnect_response->set_status(chat_service::Status::SUCCESS);
             response.set_allocated_leave(disconnect_response);
             stream->Write(response);
-            // std::cout << "leave responsed with: " << response.leave().status() << '\n';
         } else {
             //some unsupported message
         }
     }
-    // std::cout << "ended handeling\n";
-
     return grpc::Status::OK;
 }
 
@@ -86,7 +65,6 @@ void chat_service_::send_to_chat(const chat_service::Message& msg) {
                 cnt++;
             }
             if (!success) { //if not successfull - considering that stream is closed
-                // std::unique_lock<std::mutex> lock(m_mutex);
                 users_online.erase(ptr->first);
                 goto Unhandled;
             }

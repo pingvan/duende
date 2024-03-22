@@ -3,7 +3,6 @@
 #include <grpcpp/grpcpp.h>
 
 #include <memory>
-#include <mutex>
 #include <unordered_map>
 
 #include "components/database/services/chat_service/chat_service.hpp"
@@ -18,5 +17,4 @@ struct chat_service_ final : public chat_service::chat_handler::Service {
     void send_to_chat(const chat_service::Message& msg);
 private:
     std::unordered_map<int, std::shared_ptr<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>> users_online;
-    std::mutex m_mutex;
 };
