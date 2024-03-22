@@ -29,8 +29,8 @@ BEGIN
 END $$
 """
 
-create_clients_table = """
-CREATE TABLE IF NOT EXISTS clients (
+create_users_table = """
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(256) NOT NULL,
     login VARCHAR(50) NOT NULL
@@ -39,18 +39,18 @@ CREATE TABLE IF NOT EXISTS clients (
 
 create_tokens_table = """
 CREATE TABLE IF NOT EXISTS tokens (
-    client_id INT NOT NULL,
+    user_id INT NOT NULL,
     refresh_token text NOT NULL,
-    FOREIGN KEY (client_id) REFERENCES clients(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 )
 """
 
 create_passwords_table = """
 CREATE TABLE IF NOT EXISTS passwords (
-    client_id INT NOT NULL,
+    user_id INT NOT NULL,
     password_hash VARCHAR(64) NOT NULL,
     password_salt VARCHAR(10) NOT NULL,
-    FOREIGN KEY (client_id) REFERENCES clients(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 )
 """
 
@@ -60,9 +60,9 @@ CREATE TABLE IF NOT EXISTS forms (
     photo BYTEA,
     quote VARCHAR(50),
     about VARCHAR(250),
-    client_id INT NOT NULL,
+    user_id INT NOT NULL,
     favourite_genres genre[],
-    FOREIGN KEY (client_id) REFERENCES clients(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 )
 """
 
@@ -78,9 +78,9 @@ create_views_table = """
 CREATE TABLE IF NOT EXISTS views (
     id SERIAL PRIMARY KEY,
     ratio INT NOT NULL,
-    client_id INT NOT NULL,
+    user_id INT NOT NULL,
     film_id INT NOT NULL,
-    FOREIGN KEY (client_id) REFERENCES clients(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (film_id) REFERENCES films(id)
 )
 """
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS producers_by_film (
 """
 
 create_actors_table = """
-CREATE TABLE actors(
+CREATE TABLE IF NOT EXISTS actors(
     id SERIAL PRIMARY KEY,
     first_name VARCHAR(25),
      last_name VARCHAR(25)
@@ -112,7 +112,7 @@ CREATE TABLE actors(
 """
 
 create_actors_to_form_table = """
-CREATE TABLE actors_to_form(
+CREATE TABLE IF NOT EXISTS actors_to_form(
     form_id INT NOT NULL,
     actor_id INT NOT NULL,
     FOREIGN KEY(form_id) REFERENCES forms(id),
@@ -121,7 +121,7 @@ CREATE TABLE actors_to_form(
 """
 
 create_actors_to_film_table = """
-CREATE TABLE actors_to_film(
+CREATE TABLE IF NOT EXISTS actors_to_film(
     film_id INT NOT NULL,
     actor_id INT NOT NULL,
     FOREIGN KEY(film_id) REFERENCES films(id),
@@ -130,7 +130,7 @@ CREATE TABLE actors_to_film(
 """
 
 create_chats_table = """
-CREATE TABLE chats (
+CREATE TABLE IF NOT EXISTS chats (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMP NOT NULL,
     is_group_chat BOOLEAN NOT NULL,
@@ -144,43 +144,43 @@ CREATE TABLE chats (
 """
 
 create_messages_table = """
-CREATE TABLE message (
+CREATE TABLE IF NOT EXISTS message (
     id SERIAL PRIMARY KEY,
     sender_id INT NOT NULL,
     chat_id INT NOT NULL,
     time TIMESTAMP NOT NULL,
     message_text text NOT NULL,
-    FOREIGN KEY(sender_id) REFERENCES clients(id),
+    FOREIGN KEY(sender_id) REFERENCES users(id),
     FOREIGN KEY(chat_id) REFERENCES chats(id)
 );
 """
 
 create_chats_memberships_table = """
-CREATE TABLE chat_membership (
+CREATE TABLE IF NOT EXISTS chat_membership (
     id SERIAL PRIMARY KEY,
-    client_id INT NOT NULL,
+    user_id INT NOT NULL,
     chat_id INT NOT NULL,
-    FOREIGN KEY(client_id) REFERENCES clients(id),
+    FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(chat_id) REFERENCES chats(id)
 );
 """
 
 create_invites_table = """
-CREATE TABLE invites (
+CREATE TABLE IF NOT EXISTS invites (
     id SERIAL PRIMARY KEY,
     invite_text VARCHAR(300),
     invite_status invite_status,
-    invite_from_client INT NOT NULL,
-    invite_to_client INT NOT NULL,
-    FOREIGN KEY(invite_from_client) REFERENCES clients(id),
-    FOREIGN KEY(invite_to_client) REFERENCES clients(id)
+    invite_from_user INT NOT NULL,
+    invite_to_user INT NOT NULL,
+    FOREIGN KEY(invite_from_user) REFERENCES users(id),
+    FOREIGN KEY(invite_to_user) REFERENCES users(id)
 )
 """
 
 # Execute SQL statements to create tables
 cursor.execute(create_genre_type)
 cursor.execute(create_invite_status_type)
-cursor.execute(create_clients_table)
+cursor.execute(create_users_table)
 cursor.execute(create_tokens_table)
 cursor.execute(create_passwords_table)
 cursor.execute(create_forms_table)

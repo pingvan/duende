@@ -1,0 +1,138 @@
+syntax = "proto3";
+
+package front_service;
+
+service front_service {
+  rpc get_user_form(request) returns (user_full_page);
+  rpc get_user_chats(request) returns (user_chats);
+  rpc get_user_subs(request) returns (user_subscriptions); //TODO
+  rpc get_chat_messages(request) returns (last_messages);
+  rpc get_user_invites(request) returns (invites_received);
+  rpc get_user_sended_invites(request) returns (invites_sended);
+}
+
+enum genre {
+    action = 0;
+    adventure = 1;
+    comedy = 2;
+    drama = 3;
+    horror = 4;
+    sci_fi = 5;
+    fantasy = 6;
+    thriller = 7;
+    mystery = 8;
+    romance = 9;
+    animation = 10;
+    documentary = 11;
+    crime = 12;
+    western = 13;
+    musical = 14;
+    historical = 15;
+    war = 16;
+    biographical = 17;
+    sports = 18;
+    family = 19;
+}
+
+enum invite_status {
+  sent = 0;
+  accept = 1;
+  declined = 2;
+}
+
+enum request_type {
+  user_form = 0;
+  user_chats_ = 1;
+
+}
+
+enum sub_status {
+  mutual = 0;
+  oneside = 1;
+}
+
+message request {
+  int32 user_id = 1;
+}
+
+message actor_preview {
+    string first_name = 1;
+    string last_name = 2;
+}
+
+message actor_full_page {
+  actor_preview preview = 1;
+  int32 birth_date = 2;
+  repeated film_preview films = 3;
+}
+
+message film_preview {
+  string title = 1;
+  bytes cover = 2;
+}
+
+message film_full_page {
+  film_preview preview = 1; //idk
+  string description = 2;
+  repeated genre genres = 3;
+
+}
+
+message user_preview {
+  string login = 1;
+  bytes photo = 2;
+}
+
+message user_full_page {
+  user_preview preview = 1;
+  string quote = 2;
+  string about = 3;
+  repeated genre genres = 4;
+  repeated actor_preview favourite_actors = 5;
+  repeated film_preview favourite_films = 6;
+}
+
+message message_ {
+  string message_text = 1;
+  string timestamp = 2;
+  user_preview sender = 3;
+}
+
+message chat_preview {
+  string title = 1;
+  message_ last_message = 2;
+  bytes cover = 3;
+}
+
+message user_chats {
+  repeated chat_preview chats = 1;
+}
+
+message last_messages {
+  repeated message_ messages = 1;
+}
+
+message invite_received {
+  user_preview sender = 1;
+  string invite_text = 2;
+  invite_status status = 3;
+}
+
+message invite_sended {
+  user_preview invite_to = 1;
+  string invite_text = 2;
+  invite_status status = 3;
+}
+
+message invites_received {
+  repeated invite_received invites = 1;
+}
+
+message invites_sended {
+  repeated invite_sended invites = 1;
+}
+
+message user_subscriptions {
+  repeated user_preview subs = 1;
+  sub_status status = 2;
+}

@@ -10,5 +10,6 @@ set(SERVICES_SRCS
 		${CMAKE_CURRENT_SOURCE_DIR}/authservice/validity.cpp
 #		${CMAKE_CURRENT_SOURCE_DIR}/profile_service/profile_server.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/chat_service/chat_service.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/front_service/front_service.cpp
 	PARENT_SCOPE
 )

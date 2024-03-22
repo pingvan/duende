@@ -16,6 +16,7 @@ set(proto_filepaths
         "src/proto/services/authservice/authservice.proto"
         "src/proto/services/profile_service/profile.proto"
         "src/proto/services/chat_service/chat_service.proto"
+        "src/proto/services/front_service/front_service.proto"
 )
 
 # list of the generated sources of the proto models

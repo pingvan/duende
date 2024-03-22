@@ -10,6 +10,7 @@ namespace database {
 struct authservice;
 struct profile_service;
 struct chat_service;
+struct front_service;
 
 struct connector {
     connector() {
@@ -22,6 +23,7 @@ private:
     friend struct authservice;
     friend struct profile_service;
     friend struct chat_service;
+    friend struct front_service;
 
     std::unique_ptr<pqxx::connection> con;
     std::unique_ptr<pqxx::work> txn;

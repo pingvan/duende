@@ -19,7 +19,7 @@ CREATE TABLE passwords(
 
 CREATE TABLE forms(
     id SERIAL PRIMARY KEY,
-    -- photo BYTEA,
+    photo BYTEA,
     quote VARCHAR(50),
     about VARCHAR(250),
     user_id INT NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE views(
 CREATE TABLE films(
     id SERIAL PRIMARY KEY,
     title VARCHAR(25) NOT NULL,
-    --cover BYTEA,
+    cover BYTEA,
     description VARCHAR(250) NOT NULL,
     genres genre[]
 );
@@ -76,8 +76,12 @@ CREATE TABLE producers_by_film(
     FOREIGN KEY(film_id) REFERENCES films(id)
 );
 
-CREATE TABLE
-actors(id SERIAL PRIMARY KEY, first_name VARCHAR(25), last_name VARCHAR(25));
+CREATE TABLE actors(
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(25),
+    last_name VARCHAR(25),
+    photo BYTEA
+);
 
 CREATE TABLE actors_to_form(
     form_id INT NOT NULL,
@@ -100,7 +104,7 @@ CREATE TABLE chats (
     created_at TIMESTAMP NOT NULL,
     is_group_chat BOOLEAN NOT NULL,
     name VARCHAR(50) NOT NULL,
-    -- cover BYTEA,
+    cover BYTEA,
     description text NOT NULL,
     users_count INT NOT NULL
     --users_ids INT[] NOT NULL,
