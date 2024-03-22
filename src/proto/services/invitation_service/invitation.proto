@@ -3,9 +3,9 @@ syntax = "proto3";
 package invitation;
 
 service InvitationService {
-  rpc SendInvitation (InvitationRequest) returns (InvitationReply) {}
-  rpc RespondToInvitation (InvitationResponse) returns (InvitationReply) {}
-  rpc CheckNewInvitations (CheckRequest) returns (CheckReply) {}
+  rpc SendInvitation (InvitationRequest) returns (stream InvitationReply) {}
+  rpc RespondToInvitation (InvitationResponse) returns (stream InvitationReply) {}
+  rpc CheckNewInvitations (CheckRequest) returns (stream CheckReply) {}
 }
 
 message InvitationRequest {
