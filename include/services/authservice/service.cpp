@@ -1,4 +1,6 @@
 #include "service.hpp"
+#include <grpcpp/support/status.h>
+#include "components/database/services/authservice/authservice.hpp"
 #include "data.hpp"
 #include "hash.hpp"
 #include "token.hpp"
@@ -130,4 +132,16 @@ grpc::Status auth_service::Logout(
     const authservice::RefreshToken token = request->token();
     token_service token_service;
     return token_service.delete_refresh_token(token);
+}
+
+grpc::Status auth_service_data::GetUserPrewiew(grpc::ServerContext *context,
+ const authservice::RequstWithUserId *request,
+  authservice::UserPreview *response) {
+    database::authservice_database_api::get_user_preview(request->user_id()).convert_to_proto(response);
+    return grpc::Status::OK;
+}
+
+grpc::Status auth_service_data::GetUserFullPage(grpc::ServerContext *context, const authservice::RequstWithUserId *request, authservice::UserFullPage *response) {
+    database::authservice_database_api::get_user_full_page(request->user_id()).convert_to_proto(response);
+    return grpc::Status::OK;
 }

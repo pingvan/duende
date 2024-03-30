@@ -20,7 +20,7 @@ CREATE TABLE passwords(
 CREATE TABLE forms(
     id SERIAL PRIMARY KEY,
     photo BYTEA,
-    quote VARCHAR(50),
+    quotation VARCHAR(50),
     about VARCHAR(250),
     user_id INT NOT NULL,
     favourite_genres genre[],
@@ -34,6 +34,7 @@ CREATE TYPE genre AS ENUM(
     'drama',
     'horror',
     'sci-fi',
+    -- 'science fiction'
     'fantasy',
     'thriller',
     'mystery',
@@ -42,13 +43,17 @@ CREATE TYPE genre AS ENUM(
     'documentary',
     'crime',
     'western',
-    'musical',
-    'historical',
+    'music',
+    'history',
     'war',
     'biographical',
     'sports',
-    'family'
+    'family',
+    'foreign',
+    'tv movie'
 );
+
+--todo::change table name
 
 CREATE TABLE views(
     id SERIAL PRIMARY KEY,
@@ -61,9 +66,9 @@ CREATE TABLE views(
 
 CREATE TABLE films(
     id SERIAL PRIMARY KEY,
-    title VARCHAR(25) NOT NULL,
+    title text NOT NULL,
     cover BYTEA,
-    description VARCHAR(250) NOT NULL,
+    description text NOT NULL,
     genres genre[]
 );
 
@@ -78,8 +83,9 @@ CREATE TABLE producers_by_film(
 
 CREATE TABLE actors(
     id SERIAL PRIMARY KEY,
-    first_name VARCHAR(25),
-    last_name VARCHAR(25),
+    -- first_name text,
+    -- last_name text,
+    full_name text
     photo BYTEA
 );
 
@@ -103,7 +109,7 @@ CREATE TABLE chats (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMP NOT NULL,
     is_group_chat BOOLEAN NOT NULL,
-    name VARCHAR(50) NOT NULL,
+    chat_name VARCHAR(50) NOT NULL,
     cover BYTEA,
     description text NOT NULL,
     users_count INT NOT NULL
@@ -115,8 +121,8 @@ CREATE TABLE messages (
     id SERIAL PRIMARY KEY,
     sender_id INT NOT NULL,
     chat_id INT NOT NULL,
-    time TIMESTAMP NOT NULL,
-    message_text text NOT NULL,
+    sended_at TIMESTAMP NOT NULL,
+    message_text_data text NOT NULL,
     FOREIGN KEY(sender_id) REFERENCES users(id),
     FOREIGN KEY(chat_id) REFERENCES chats(id)
 );

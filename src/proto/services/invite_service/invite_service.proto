@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package invite_service;
+
+message UserPreview {
+  string login = 1;
+}
+
+enum InviteStatus {
+  SENT = 0;
+  ACCEPTED = 1;
+  DECLINED = 2;
+}
+
+message Invite {
+  uint32 invite_id = 1;
+  UserPreview sender = 2;
+  string invite_text = 3;
+  InviteStatus status = 4;
+}
+
+message InvitesReceive {
+  repeated Invite invites = 1;
+}
+
+message InvitesSent {
+  repeated Invite invites = 1;
+}

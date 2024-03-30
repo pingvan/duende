@@ -7,6 +7,7 @@ std::string server_address("0.0.0.0:50051");
 
 void run_server() {
     auth_service auth_service;
+    auth_service_data auth_service_data;
     // ProfileServiceImpl profile_service;
     chat_service_ chat_service;
 
@@ -15,6 +16,7 @@ void run_server() {
     builder.RegisterService(&auth_service);
     // builder.RegisterService(&profile_service);
     builder.RegisterService(&chat_service);
+    builder.RegisterService(&auth_service_data);
 
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << '\n';
