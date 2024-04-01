@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package chat_service;
+
+enum Status {
+    SUCCESS = 0;
+    ERROR = 1;
+}
+
+service chat_handler {
+    rpc handle_chat(stream ChatRequests) returns (stream ChatResponses);
+}
+
+message ChatRequests {
+    oneof request {
+        InitialRequest init = 1;
+        SendMessageRequest send_message = 2;
+        DisconnectRequest leave = 3;
+    }
+
+}
+
+message ChatResponses {
+    oneof response {
+        InitialResponse init = 1;
+        AcceptMessage accept_message = 2;
+        DisconnectResponse leave = 3;
+    }
+}
+
+message InitialRequest {
+    int32 user_id = 1;
+}
+
+message InitialResponse {
+    Status status = 1;
+}
+
+message DisconnectRequest {
+    int32 user_id = 1;
+}
+
+message DisconnectResponse {
+    Status status = 1;
+}
+
+message SendMessageRequest {
+    Message msg = 1;
+}
+
+message AcceptMessage {
+    Message msg = 1;
+}
+
+message Message {
+    int32 sender_id = 2;
+    int32  chat_id = 3;
+    string timestamp_ = 4;
+    string message_text = 5;
+};

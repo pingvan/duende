@@ -15,7 +15,7 @@ DROP TABLE IF EXISTS clients, passwords,
 tokens, forms, producers, views, films, 
 producers_by_film, actors, actors_to_form, 
 actors_to_film, chats, message, chat_membership, 
-invites    
+invites, unhandled_messages, unhandled_invites
 """
 
 drop_types = """

@@ -18,7 +18,7 @@ using profile::Actor;
 using profile::Genre;
 using profile::Movie;
 using profile::ProfileReply;
-using profile::NicknameRequest;
+using profile::UsernameRequest;
 using profile::MovieRequest;
 using profile::ActorRequest;
 using profile::GenreRequest;
@@ -28,9 +28,8 @@ using profile::ProfileService;
 
 class ProfileServiceImpl final : public ProfileService::Service
 {
-  // std::unordered_map<std::string, ProfileRequest> profiles;
 
-  Status ChangeNickname(ServerContext *context, const NicknameRequest *request,
+  Status ChangeUsername(ServerContext *context, const UsernameRequest *request,
                          ProfileReply *reply) override;
 
   // Status ChangePhoto(ServerContext *context, const ProfileRequest *request,
