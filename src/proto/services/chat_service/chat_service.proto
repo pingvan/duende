@@ -58,3 +58,27 @@ message Message {
     string timestamp_ = 4;
     string message_text = 5;
 };
+
+//not hehe...
+
+/*message Message {
+  string message_text = 1;
+  UserPreview sender = 2;
+  string time_stamp = 3;
+}*/
+
+message ChatPreview {
+  uint32 chat_id = 1;
+  string name = 2;
+  string description = 3;
+  string time_stamp = 4;
+  Message last_message = 5;
+}
+
+message UserChats {
+  repeated ChatPreview user_chats = 1;
+}
+
+message LastMessages {
+  repeated Message messages = 1;
+}

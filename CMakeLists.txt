@@ -8,6 +8,8 @@ include(./cmake/grpc-generation.cmake)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
+
 add_subdirectory(./include/)
 add_subdirectory(./test/)
 
@@ -54,7 +56,6 @@ target_link_libraries(main
         gRPC::grpc++
         protobuf::libprotobuf
         Threads::Threads
-        pqxx
 )
 
 target_include_directories(main PUBLIC

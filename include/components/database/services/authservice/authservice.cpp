@@ -1,8 +1,14 @@
 #include "authservice.hpp"
+// #include <sys/types.h>
 #include <components/database/connection/database-connector.hpp>
+#include <exception>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <unordered_map>
 
 namespace database {
-bool authservice::is_email_used(const std::string &user_email) {
+bool authservice_database_api::is_email_used(const std::string &user_email) {
     const connector connection;
     const auto result = connection.txn->exec_params("SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)", user_email);
     connection.txn->commit();
@@ -14,7 +20,7 @@ bool authservice::is_email_used(const std::string &user_email) {
 
 }
 
-bool authservice::is_nickname_used(const std::string &user_nickname) {
+bool authservice_database_api::is_nickname_used(const std::string &user_nickname) {
     const connector connection;
     auto result = connection.txn->exec_params("SELECT EXISTS(SELECT 1 FROM users WHERE login = $1)", user_nickname);
     connection.txn->commit();
@@ -25,7 +31,7 @@ bool authservice::is_nickname_used(const std::string &user_nickname) {
     return exists;
 }
 
-int authservice::get_user_id(const std::string &login) {
+int authservice_database_api::get_user_id(const std::string &login) {
     const connector connection;
     auto result = connection.txn->exec_params("SELECT id FROM users WHERE email = $1 OR login = $1", login);
     int id = -1;
@@ -37,7 +43,7 @@ int authservice::get_user_id(const std::string &login) {
 }
 
 
-std::string authservice::get_user_email(const int &user_id) {
+std::string authservice_database_api::get_user_email(const int &user_id) {
     const connector connection;
     auto result = connection.txn->exec_params("SELECT email FROM users WHERE id = $1", user_id);
     std::string email{};
@@ -48,7 +54,7 @@ std::string authservice::get_user_email(const int &user_id) {
     return email;
 }
 
-std::string authservice::get_user_nickname(const int &user_id) {
+std::string authservice_database_api::get_user_nickname(const int &user_id) {
     const connector connection;
     auto result = connection.txn->exec_params("SELECT login FROM users WHERE id = $1", user_id);
     std::string nickname{};
@@ -61,12 +67,12 @@ std::string authservice::get_user_nickname(const int &user_id) {
 
 
 
-int authservice::add_user(const std::string &user_email, const std::string &user_nickname,
+int authservice_database_api::add_user(const std::string &user_email, const std::string &user_nickname,
     const std::string &refresh_token,
     const std::string &password_hash, const std::string &password_salt) {
     const connector connection;
     const auto result = connection.txn->exec_params("INSERT INTO users (email, login) VALUES ($1, $2) RETURNING id", user_email, user_nickname);
-    int user_id = 0;
+    int user_id = -1;
     for (auto row : result) {
         user_id = row[0].as<int>();
     }
@@ -77,7 +83,7 @@ int authservice::add_user(const std::string &user_email, const std::string &user
     return user_id;
 }
 
-std::pair<std::string, std::string> authservice::get_hash_salt(const int &user_id) {
+std::pair<std::string, std::string> authservice_database_api::get_hash_salt(const int &user_id) {
     const connector connection;
     const auto result = connection.txn->exec_params("SELECT password_hash, password_salt FROM passwords WHERE user_id = $1", user_id);
     std::pair<std::string, std::string> hash_salt_pair{};
@@ -89,7 +95,7 @@ std::pair<std::string, std::string> authservice::get_hash_salt(const int &user_i
     return hash_salt_pair;
 }
 
-std::string authservice::get_refresh_token(const int &user_id) {
+std::string authservice_database_api::get_refresh_token(const int &user_id) {
     const connector connection;
     const auto result = connection.txn->exec_params("SELECT refresh_token FROM tokens WHERE user_id = $1", user_id);
     std::string refresh_token{};
@@ -100,15 +106,131 @@ std::string authservice::get_refresh_token(const int &user_id) {
     return refresh_token;
 }
 
-void authservice::update_refresh_token(const int &user_id,
+void authservice_database_api::update_refresh_token(const int &user_id,
                                const std::string &refresh_token) {
     const connector connection;
     const auto result = connection.txn->exec_params("UPDATE tokens SET refresh_token = $1 WHERE user_id = $2", refresh_token, user_id);
     connection.txn->commit();
 }
 
-void authservice::remove_refresh_token(const int &user_id) {
+void authservice_database_api::remove_refresh_token(const int &user_id) {
     const connector connection;
     const auto result = connection.txn->exec_params("DELETE FROM tokens WHERE user_id = $1", user_id);
+    connection.txn->commit();
 }
+
+user_preview authservice_database_api::get_user_preview(const int &user_id) {
+    const connector connection;
+    static std::string querr = "SELECT login FROM users WHERE id = $1";
+    const auto result = connection.txn->exec_params(querr, user_id);
+    user_preview prewiew;
+    for (const auto &row : result) {
+        prewiew.login = row[0].as<std::string>();
+    }
+    connection.txn->commit();
+    return prewiew;
+}
+
+
+//TO_ASK::very ambiguos, i think the other service would be more efficient and prettier...
+
+user_full_page authservice_database_api::get_user_full_page(const int &user_id) {
+    const connector connection;
+    user_preview prewiew = get_user_preview(user_id);
+    static std::string get_form = "SELECT id, quotation, about, favourite_genres FROM forms WHERE user_id = $1";
+    const auto result = connection.txn->exec_params(get_form, user_id);
+    user_full_page full_page;
+    full_page.prewiew = prewiew;
+    int form_id = -1;
+    for (const auto &row : result) {
+        form_id = row[0].as<int>();
+        full_page.quote = row[1].as<std::string>();
+        full_page.about = row[2].as<std::string>();
+        full_page.fauvorite_genres = array_parser(row[3].as<std::string>());
+    }
+    static std::string get_views = "SELECT ratio, title, description, genres "
+                        "FROM VIEWS "
+                        "INNER JOIN films ON views.film_id = films.id "
+                        "WHERE user_id = $1";
+    const auto result_second = connection.txn->exec_params(get_views, user_id);
+    full_page.watched_films.reserve(result_second.size());
+    for (const auto &row : result_second) {
+        film_on_user_page film;
+        film.ratio = row[0].as<int>();
+        film.full_page.preview.title = row[1].as<std::string>();
+        film.full_page.description = row[2].as<std::string>();
+        film.full_page.genres = array_parser(row[3].as<std::string>());
+        full_page.watched_films.push_back(film);
+    }
+    static std::string get_fauvorite_actors = "SELECT full_name "
+                        "FROM actors_to_form "
+                        "INNER JOIN actors ON actors_to_form.actor_id = actors.id "
+                        "WHERE form_id = $1";
+    const auto result_third = connection.txn->exec_params(get_fauvorite_actors, form_id);
+    full_page.fauvorite_actors.reserve(result_third.size());
+    for (const auto &row : result_third) {
+        actor_preview actor_prewiew;
+        actor_prewiew.full_name = row[0].as<std::string>();
+        full_page.fauvorite_actors.push_back(actor_prewiew);
+    }
+    connection.txn->commit();
+    return full_page;
+}
+
+genre authservice_database_api::enum_from_string(const std::string &ss) {
+    static const std::unordered_map<std::string, genre> genre_map = {
+        {"action", genre::action},
+        {"adventure", genre::adventure},
+        {"comedy", genre::comedy},
+        {"drama", genre::drama},
+        {"horror", genre::horror},
+        {"sci-fi", genre::sci_fi},
+        {"science fiction", genre::sci_fi},
+        {"fantasy", genre::fantasy},
+        {"thriller", genre::thriller},
+        {"mystery", genre::mystery},
+        {"romance", genre::romance},
+        {"animation", genre::animation},
+        {"documentary", genre::documentary},
+        {"crime", genre::crime},
+        {"western", genre::western},
+        {"music", genre::music},
+        {"history", genre::history},
+        {"war", genre::war},
+        {"biographical", genre::biographical},
+        {"sports", genre::sports},
+        {"family", genre::family},
+        {"foreign", genre::foreign},
+        {"tv movie", genre::tv_movie}
+    };
+
+    if (auto it = genre_map.find(ss); it != genre_map.end()) {
+        return it->second;
+    } else {
+        throw std::exception{};
+    }
+}
+
+std::vector<genre> authservice_database_api::array_parser(const std::string &json_string) {
+    constexpr uint max_size = 13;
+    constexpr uint max_genres_amount = 22;
+    static_assert(max_size == 13, "");
+    static_assert(max_genres_amount == 22, "");
+    
+    std::vector<genre> genres;
+    genres.reserve(max_genres_amount);
+    //can optimize working with strings???
+    std::string genre;
+    genre.reserve(max_size);
+    for (std::size_t i = 1; i < json_string.size(); i++) {
+        if (json_string[i] == ',' || json_string[i] == '}') {
+            genres.push_back(enum_from_string(genre));
+            genre.clear();
+            continue;
+        }
+        genre += json_string[i];
+    }
+    return genres;
+}
+
 }

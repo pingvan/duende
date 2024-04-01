@@ -7,10 +7,11 @@
 
 namespace database {
 
-struct authservice;
-struct profile_service;
-struct chat_service;
+struct authservice_database_api;
+struct profile_service_database_api;
+struct chat_service_database_api;
 struct front_service;
+struct invite_service_database_api;
 
 struct connector {
     connector() {
@@ -20,10 +21,11 @@ struct connector {
     }
 private:
 
-    friend struct authservice;
-    friend struct profile_service;
-    friend struct chat_service;
+    friend struct authservice_database_api;
+    friend struct profile_service_database_api;
+    friend struct chat_service_database_api;
     friend struct front_service;
+    friend struct invite_service_database_api;
 
     std::unique_ptr<pqxx::connection> con;
     std::unique_ptr<pqxx::work> txn;

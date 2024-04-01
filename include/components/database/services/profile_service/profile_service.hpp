@@ -4,7 +4,7 @@
 #include <string>
 
 namespace database {
-struct profile_service {
+struct profile_service_database_api {
     static int get_form_id(const int &user_id);
 
     static void change_email(const int &user_id, const std::string &new_user_email);
@@ -12,7 +12,7 @@ struct profile_service {
 
     static void
     change_photo(const int &user_id, const std::vector<unsigned char> &bytes);
-    static void change_quote(const int &user_id, const std::string &quote);
+    static void change_quotation(const int &user_id, const std::string &quotation);
     static void change_about(const int &user_id, const std::string &about);
 
     static void

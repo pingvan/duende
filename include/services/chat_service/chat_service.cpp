@@ -23,7 +23,6 @@ grpc::Status chat_service_::handle_chat(grpc::ServerContext *context, grpc::Serv
             response.set_allocated_leave(disconnect_response);
             stream->Write(response);
         } else {
-            //some unsupported message
         }
     }
     return grpc::Status::OK;
@@ -41,7 +40,6 @@ std::string chat_service_::make_timestamp() {
 
 
 void chat_service_::send_to_chat(const chat_service::Message& msg) {
-    std::cout << "inside sending\n";
     chat_service::ChatResponses response;
     auto *accept_message = new chat_service::AcceptMessage;
     auto *allocated_msg = new chat_service::Message(msg);
@@ -50,12 +48,12 @@ void chat_service_::send_to_chat(const chat_service::Message& msg) {
 
 
     auto timestamp = make_timestamp();
-    auto message_id = database::chat_service::add_message(msg.sender_id(), msg.chat_id(), msg.timestamp_(), msg.message_text());
-    auto members_ids = database::chat_service::get_members_ids(msg.chat_id());
+    auto message_id = database::chat_service_database_api::add_message(msg.sender_id(), msg.chat_id(), msg.timestamp_(), msg.message_text());
+    auto members_ids = database::chat_service_database_api::get_members_ids(msg.chat_id());
     for (auto member_id : members_ids) {
         if (auto ptr = users_online.find(member_id); ptr == users_online.end()) {
             Unhandled:
-            database::chat_service::add_unhandle_message(member_id, message_id);
+            database::chat_service_database_api::add_unhandle_message(member_id, message_id);
         } else {
             uint cnt = 0;
             std::cout << "writing\n";
@@ -64,7 +62,7 @@ void chat_service_::send_to_chat(const chat_service::Message& msg) {
                 success = ptr->second->Write(response);
                 cnt++;
             }
-            if (!success) { //if not successfull - considering that stream is closed
+            if (!success) { //if not successfull - considering that stream is closed;
                 users_online.erase(ptr->first);
                 goto Unhandled;
             }
