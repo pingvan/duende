@@ -9,10 +9,6 @@
 // #include "services/profile_service/profile_service.pb.h"
 #include "services/invite_service/invite_service.pb.h"
 
-    // struct placeholder {
-    //     virtual void convert_to_proto() = 0;
-    // };
-
     enum class genre {
     action,
     adventure,
@@ -98,7 +94,7 @@
         // std::vector<unsigned char> photo;
         std::string login;
 
-        void convert_to_proto(authservice::UserPreview *response)  {
+        void convert_to_proto(authservice::UserPreview *response) const  {
             response->set_login(login);
         }
     };
@@ -111,7 +107,7 @@
         std::vector<actor_preview> fauvorite_actors;
         std::vector<film_on_user_page> watched_films;
 
-        void convert_to_proto(authservice::UserFullPage *proto)  {
+        void convert_to_proto(authservice::UserFullPage *proto) const {
             auto *protobuf_prewiew = new authservice::UserPreview;
             protobuf_prewiew->set_login(prewiew.login);
             proto->set_allocated_preview(protobuf_prewiew);
@@ -136,7 +132,7 @@
         user_preview sender;
         std::string time_stamp;
 
-        void convert_to_proto(::chat_service::Message *proto)  {
+        void convert_to_proto(chat_service::Message *proto) const  {
 
         }
     };
@@ -149,7 +145,7 @@
         message last_message;
         // std::vector<unsigned char> cover;
 
-        void convert_to_proto(::chat_service::ChatPreview *proto)  {
+        void convert_to_proto(chat_service::ChatPreview *proto) const  {
 
         }
     };
@@ -157,7 +153,7 @@
     struct user_chats  {//create
         std::vector<chat_preview> user_chats;
 
-        void convert_to_proto(::chat_service::UserChats *proto)  {
+        void convert_to_proto(chat_service::UserChats *proto) const  {
 
         }
     };
@@ -165,8 +161,8 @@
     struct last_messages  {//create
         std::vector<message> messages;
 
-        void convert_to_proto(::chat_service::LastMessages *proto)  {
-
+        void convert_to_proto(chat_service::LastMessages *proto) const  {
+            
         }
     };
 
@@ -176,23 +172,35 @@
         std::string invite_text;
         invite_status status;
 
-        void convert_to_proto(::invite_service::Invite *proto)  {
-
+        void convert_to_proto(invite_service::Invite *proto) const {
+            proto->set_invite_id(invite_id);
+            proto->set_invite_text(invite_text);
+            auto *prewiew_proto = new authservice::UserPreview;
+            sender.convert_to_proto(prewiew_proto);
+            proto->set_allocated_sender(prewiew_proto);
+            proto->set_status(static_cast<invite_service::InviteStatus>(status));
         }
     };
 
     struct invites_recivie  {//create
         std::vector<invite> invites;
 
-        void convert_to_proto()  {
-
+        void convert_to_proto(invite_service::InvitesReceive *proto) const {
+            for (const auto &invite : invites) {
+                auto *proto_invite = proto->add_invites();
+                invite.convert_to_proto(proto_invite);
+            }
+            
         }
     };
 
     struct invites_sent  {//create
         std::vector<invite> invites;
 
-        void convert_to_proto()  {
-
+        void convert_to_proto(invite_service::InvitesSent *proto) const  {
+            for (const auto &invite : invites) {
+                auto *proto_invite = proto->add_invites();
+                invite.convert_to_proto(proto_invite);
+            }
         }
     };

@@ -2,9 +2,7 @@ syntax = "proto3";
 
 package invite_service;
 
-message UserPreview {
-  string login = 1;
-}
+import "services/authservice/authservice.proto";
 
 enum InviteStatus {
   SENT = 0;
@@ -14,7 +12,7 @@ enum InviteStatus {
 
 message Invite {
   uint32 invite_id = 1;
-  UserPreview sender = 2;
+  authservice.UserPreview sender = 2;
   string invite_text = 3;
   InviteStatus status = 4;
 }
