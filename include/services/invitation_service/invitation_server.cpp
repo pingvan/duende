@@ -1,52 +1,78 @@
 #include "invitation_server.hpp"
 #include "components/database/database-connector.hpp"
 
-Status InvitationServiceImpl::SendInvitation(ServerContext* context, const InvitationRequest* request, ServerWriter<InvitationReply>* writer) {
-    InvitationRequest current_invitation = *request;
+Status InvitationServiceImpl::SendInvitation(
+    ServerContext *context,
+    ServerReader<InvitationRequest> *reader,
+    ServerWriter<InvitationReply> *writer
+) {
+    InvitationRequest request;
     database::connector db_connector;
-    InvitationReply reply;
-    if (db_connector.is_invitation_sent(current_invitation.sender_id(), current_invitation.receiver_id())) {
-        reply.set_message("Invitation already sent");
+    while (reader->Read(&request)) {
+        InvitationReply reply;
+        if (db_connector.is_invitation_sent(
+                request.sender_id(), request.receiver_id()
+            )) {
+            reply.set_message("Invitation already sent");
+        } else {
+            db_connector.send_invitation(
+                request.sender_id(), request.receiver_id()
+            );
+            reply.set_message("Invitation sent");
+        }
         writer->Write(reply);
-        return Status::OK;
     }
-    db_connector.send_invitation(current_invitation.sender_id(), current_invitation.receiver_id());
-    reply.set_message("Invitation sent");
-    writer->Write(reply);
     return Status::OK;
 }
 
-Status InvitationServiceImpl::RespondToInvitation(ServerContext* context, const InvitationResponse* request, ServerWriter<InvitationReply>* writer) {
-    InvitationResponse current_invitation = *request;
+Status InvitationServiceImpl::RespondToInvitation(
+    ServerContext *context,
+    ServerReader<InvitationResponse> *reader,
+    ServerWriter<InvitationReply> *writer
+) {
+    InvitationResponse response;
     database::connector db_connector;
-    InvitationReply reply;
-    if (db_connector.is_invitation_accepted(current_invitation.sender_id(), current_invitation.receiver_id())) {
-        reply.set_message("Invitation already accepted");
+    while (reader->Read(&response)) {
+        InvitationReply reply;
+        if (db_connector.is_invitation_accepted(
+                response.sender_id(), response.receiver_id()
+            )) {
+            reply.set_message("Invitation already accepted");
+        } else {
+            db_connector.respond_to_invitation(
+                response.sender_id(), response.receiver_id(),
+                response.accepted()
+            );
+            if (response.accepted()) {
+                db_connector.create_chat(
+                    response.sender_id(), response.receiver_id()
+                );
+                reply.set_message("Invitation accepted and chat created");
+            } else {
+                reply.set_message("Invitation declined");
+            }
+        }
         writer->Write(reply);
-        return Status::OK;
     }
-    db_connector.respond_to_invitation(current_invitation.sender_id(), current_invitation.receiver_id(), current_invitation.accepted());
-    if (current_invitation.accepted()) {
-        db_connector.create_chat(current_invitation.sender_id(), current_invitation.receiver_id());
-        reply.set_message("Invitation accepted and chat created");
-    } else {
-        reply.set_message("Invitation declined");
-    }
-    writer->Write(reply);
     return Status::OK;
 }
 
-Status InvitationServiceImpl::CheckNewInvitations(ServerContext* context, const CheckRequest* request, ServerWriter<CheckReply>* writer) {
-    CheckRequest current_invitation = *request;
+Status InvitationServiceImpl::CheckNewInvitations(
+    ServerContext *context,
+    ServerReader<CheckRequest> *reader,
+    ServerWriter<CheckReply> *writer
+) {
+    CheckRequest request;
     database::connector db_connector;
-    CheckReply reply;
-    if (db_connector.is_invitation_checked(current_invitation.receiver_id())) {
-        reply.set_message("Invitations already checked");
+    while (reader->Read(&request)) {
+        CheckReply reply;
+        if (db_connector.is_invitation_checked(request.receiver_id())) {
+            reply.set_message("Invitations already checked");
+        } else {
+            db_connector.check_new_invitations(request.receiver_id());
+            reply.set_message("Invitations checked");
+        }
         writer->Write(reply);
-        return Status::OK;
     }
-    db_connector.check_new_invitations(current_invitation.receiver_id());
-    reply.set_message("Invitations checked");
-    writer->Write(reply);
     return Status::OK;
 }
