@@ -17,7 +17,9 @@ find_package(gRPC CONFIG REQUIRED)
 
 set(PROTOS ../../build/services/authservice/authservice.grpc.pb.cc ../../build/services/authservice/authservice.pb.cc)
 
-add_executable(duende ${PROTOS} ../client.cpp main.cpp mainwindow.cpp registrationpage.cpp recommendations.cpp chats.cpp follows.cpp profile.cpp questionnaire.cpp sidebar.cpp mainwindow.h mainwindow.ui registrationpage.h registrationpage.ui recommendations.h recommendations.ui chats.h chats.ui follows.h follows.ui profile.h profile.ui questionnaire.h questionnaire.ui sidebar.h sidebar.ui)
+qt5_add_resources(QRC_RESOURCES resources.qrc)
+
+add_executable(duende ${PROTOS} ../client.cpp main.cpp mainwindow.cpp registrationpage.cpp recommendations.cpp chats.cpp follows.cpp profile.cpp questionnaire.cpp sidebar.cpp mainwindow.h mainwindow.ui registrationpage.h registrationpage.ui recommendations.h recommendations.ui chats.h chats.ui follows.h follows.ui profile.h profile.ui questionnaire.h questionnaire.ui sidebar.h sidebar.ui  ${QRC_RESOURCES})
 
 target_include_directories(duende PRIVATE
     ${Qt6Widgets_INCLUDE_DIRS},

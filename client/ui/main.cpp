@@ -9,12 +9,21 @@
 #include <QMainWindow>
 #include <QStackedWidget>
 #include <QDockWidget>
+#include <QSplashScreen>
+#include <QTimer>
 
 std::string server_address("0.0.0.0:50051");
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    a.setStyleSheet("QWidget { background-color: #9370DB; }");
+
+    QSplashScreen *splash = new QSplashScreen;
+    splash->setPixmap(QPixmap(":/img/logo.jpg"));
+    splash->show();
+    QTimer::singleShot(2500, splash, SLOT(close()));
 
     Manager manager(grpc::CreateChannel(server_address, grpc::InsecureChannelCredentials()));
 
@@ -41,7 +50,9 @@ int main(int argc, char *argv[])
     });
 
     mainWindow.setCentralWidget(stackedWidget);
-    mainWindow.showFullScreen();
+    QTimer::singleShot(2500, [&]() {
+        mainWindow.showFullScreen();
+    });
 
     return a.exec();
 }
