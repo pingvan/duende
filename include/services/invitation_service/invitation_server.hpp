@@ -1,6 +1,7 @@
 #pragma once
 
 #include <grpcpp/grpcpp.h>
+#include <grpcpp/support/status.h>
 #include "services/invitation_service/invitation.grpc.pb.h"
 #include "services/invitation_service/invitation.pb.h"
 
@@ -22,4 +23,9 @@ class InvitationServiceImpl final : public InvitationService::Service {
         ServerContext *context,
         ServerReaderWriter<StreamResponse, StreamRequest> *stream
     ) override;
+};
+
+struct InvitationDataService final : public invitation::InvitionDataService::Service {
+    grpc::Status GetReceivedInvitations(grpc::ServerContext *context, const invitation::RequestWithId *request, invitation::InvitesReceived *response) override;
+    grpc::Status GetSentInvitations(grpc::ServerContext *context, const invitation::RequestWithId *request, invitation::InvitesSent *response) override;
 };
