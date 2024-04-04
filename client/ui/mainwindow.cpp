@@ -6,8 +6,10 @@
 #include "sidebar.h"
 #include <QDockWidget>
 #include <QToolButton>
+#include <QToolBar>
 #include <QHBoxLayout>
 #include <QPixmap>
+#include <QListWidget>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -15,46 +17,47 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    setWindowFlags(windowFlags() | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
+    auto *centralWidget = new QWidget(this);
+    auto *layout = new QHBoxLayout(centralWidget);
 
-    stackedWidget = new QStackedWidget(this);
-    sidebar = new SideBar(this);
-    Chats *chatsPage = new Chats;
-    Recommendations *recommendationsPage = new Recommendations;
-    Follows *followsPage = new Follows;
-    Profile *profile = new Profile;
+    auto *sidebar = new QListWidget();
+    sidebar->addItem("Чаты");
+    sidebar->addItem("Рекомендации");
+    sidebar->addItem("Подписки");
+    layout->addWidget(sidebar, 1);
 
-    stackedWidget->addWidget(chatsPage);
-    stackedWidget->addWidget(recommendationsPage);
-    stackedWidget->addWidget(followsPage);
-    stackedWidget->addWidget(profile);
+    pages = new QStackedWidget();
+    layout->addWidget(pages, 4);
 
-    connect(sidebar, &SideBar::showChatsPage, this, &MainWindow::showChatsPageSlot);
-    connect(sidebar, &SideBar::showRecommendationsPage, this, &MainWindow::showRecommendationsPageSlot);
-    connect(sidebar, &SideBar::showFollowsPage, this, &MainWindow::showFollowsPageSlot);
+    auto *chatsPage = new Chats();
+    auto *recomendationsPage = new Recommendations();
+    auto *followsPage = new Follows();
+    auto *profilePage = new Profile();
 
-    QDockWidget *dockWidget = new QDockWidget(this);
-    dockWidget->setTitleBarWidget(new QWidget());
-    dockWidget->setWidget(sidebar);
-    dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    dockWidget->setFixedWidth(100);
-    addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
+    pages->addWidget(chatsPage);
+    pages->addWidget(recomendationsPage);
+    pages->addWidget(followsPage);
+    pages->addWidget(profilePage);
 
-    QToolButton *profileButton = new QToolButton(this);
+    setCentralWidget(centralWidget);
+
+    connect(sidebar, &QListWidget::currentRowChanged, pages, &QStackedWidget::setCurrentIndex);
+
+    auto *profileButton = new QToolButton();
     profileButton->setIcon(QIcon("./img/tarantino.jpg"));
     connect(profileButton, &QToolButton::clicked, this, &MainWindow::openProfilePage);
 
-    QHBoxLayout *titleLayout = new QHBoxLayout;
-    titleLayout->addStretch();
-    titleLayout->addWidget(profileButton);
-    titleLayout->setContentsMargins(0, 0, 5, 0);
+    auto *toolbar = addToolBar("Profile toolbar");
+    toolbar->addWidget(profileButton);
+    toolbar->setMovable(false);
+    toolbar->setFloatable(false);
+    toolbar->setAllowedAreas(Qt::TopToolBarArea);
+    toolbar->setToolButtonStyle(Qt::ToolButtonIconOnly);
 
-    QWidget *titleWidget = new QWidget(this);
-    titleWidget->setLayout(titleLayout);
-
-    setMenuWidget(titleWidget);
-
-    setCentralWidget(stackedWidget);
+    QWidget* spacer = new QWidget();
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    toolbar->addWidget(spacer);
+    toolbar->addAction(QIcon("./img/tarantino.jpg"), "Profile", this, &MainWindow::openProfilePage);
 }
 
 
@@ -63,22 +66,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::showChatsPageSlot()
-{
-    stackedWidget->setCurrentIndex(0);
-}
-
-void MainWindow::showRecommendationsPageSlot()
-{
-    stackedWidget->setCurrentIndex(1);
-}
-
-void MainWindow::showFollowsPageSlot()
-{
-    stackedWidget->setCurrentIndex(2);
-}
-
 void MainWindow::openProfilePage() {
-    stackedWidget->setCurrentIndex(3);
+    pages->setCurrentIndex(3);
 }
 

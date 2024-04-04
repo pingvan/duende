@@ -1,13 +1,20 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QWidget>
-#include <QStackedWidget>
 #include "registrationpage.h"
 #include "profile.h"
 #include "chats.h"
 #include "sidebar.h"
+
+#include <QMainWindow>
+#include <QWidget>
+#include <QListWidget>
+#include <QStackedWidget>
+#include <QPushButton>
+#include <QTextEdit>
+#include <QLineEdit>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -24,14 +31,11 @@ public:
     ~MainWindow();
 
 private slots:
-    void showChatsPageSlot();
-    void showRecommendationsPageSlot();
-    void showFollowsPageSlot();
     void openProfilePage();
 
 private:
     Ui::MainWindow *ui;
-    QStackedWidget *stackedWidget;
+    QStackedWidget *pages;
     SideBar *sidebar;
     RegistrationPage *registrationPage;
     Profile *profile;
