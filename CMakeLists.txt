@@ -72,7 +72,6 @@ target_link_libraries(tests
         gRPC::grpc++
         protobuf::libprotobuf
         Threads::Threads
-        pqxx
 )
 
 target_include_directories(tests PUBLIC

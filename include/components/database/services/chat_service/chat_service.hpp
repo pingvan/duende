@@ -14,5 +14,7 @@ struct chat_service_database_api {
 
     static user_chats get_user_chats(const int &user_id);
     static last_messages get_chats_messages(const int &chat_id);
+
+    static bool check_user_in_chat(const int &user_id, const int &chat_id);
 };
 }

@@ -79,4 +79,15 @@ last_messages chat_service_database_api::get_chats_messages(const int &chat_id) 
     return messages;
 }
 
+bool chat_service_database_api::check_user_in_chat(const int &user_id, const int &chat_id) {
+    const connector connection;
+    static std::string quer = "SELECT EXISTS(SELECT 1 WHERE user_id = $1 AND chat_id = $2)";
+    const auto result = connection.txn->exec_params(quer, user_id, chat_id);
+    bool is_user_in_chat = false;
+    for (const auto &row : result) {
+        is_user_in_chat = row[0].as<bool>();
+    }
+    return is_user_in_chat;
+}
+
 }

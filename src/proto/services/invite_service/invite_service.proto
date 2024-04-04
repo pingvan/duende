@@ -4,6 +4,10 @@ package invite_service;
 
 import "services/authservice/authservice.proto";
 
+//service inviteServiceDataHandler {
+//  rpc get_invites_received(authservice.UserPreview) returns (InvitesReceive);
+//}
+
 enum InviteStatus {
   SENT = 0;
   ACCEPTED = 1;
