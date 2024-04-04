@@ -86,4 +86,4 @@ grpc::Status chat_data_service::GetLastMessages(grpc::ServerContext *context, co
         auto messages = database::chat_service_database_api::get_chats_messages(request->chat_id());
         messages.convert_to_proto(response);
         return grpc::Status::OK;
-    }
+}

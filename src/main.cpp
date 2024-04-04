@@ -1,7 +1,7 @@
 #include <grpcpp/grpcpp.h>
 #include "services/authservice/service.hpp"
-// #include "services/profile_service/profile_server.hpp"
-#include "services/chat_service/chat_service.hpp"
+#include "services/profile_service/profile_server.hpp"
+#include "services/invitation_service/invitation_server.hpp"
 
 std::string server_address("0.0.0.0:50051");
 
