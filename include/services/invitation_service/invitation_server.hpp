@@ -7,29 +7,19 @@
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
-using grpc::ServerWriter;
+using grpc::ServerReaderWriter;
 using grpc::Status;
-using invitation::CheckReply;
-using invitation::CheckRequest;
-using invitation::InvitationReply;
-using invitation::InvitationRequest;
-using invitation::InvitationResponse;
+using invitation::StreamRequest;
+using invitation::StreamResponse;
 using invitation::InvitationService;
+using invitation::SendInvitationRequest;
+using invitation::RespondToInvitationRequest;
+using invitation::CheckNewInvitationsRequest;
+using invitation::Notification;
 
 class InvitationServiceImpl final : public InvitationService::Service {
-    Status SendInvitation(
+    Status InvitationStream(
         ServerContext *context,
-        ServerReader<InvitationRequest> *reader,
-        ServerWriter<InvitationReply> *writer
-    ) override;
-    Status RespondToInvitation(
-        ServerContext *context,
-        ServerReader<InvitationResponse> *reader,
-        ServerWriter<InvitationReply> *writer
-    ) override;
-    Status CheckNewInvitations(
-        ServerContext *context,
-        ServerReader<CheckRequest> *reader,
-        ServerWriter<CheckReply> *writer
+        ServerReaderWriter<StreamResponse, StreamRequest> *stream
     ) override;
 };

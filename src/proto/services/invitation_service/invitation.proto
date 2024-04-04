@@ -3,29 +3,54 @@ syntax = "proto3";
 package invitation;
 
 service InvitationService {
-  rpc SendInvitation (stream InvitationRequest) returns (stream InvitationReply) {}
-  rpc RespondToInvitation (stream InvitationResponse) returns (stream InvitationReply) {}
-  rpc CheckNewInvitations (stream CheckRequest) returns (stream CheckReply) {}
+  rpc InvitationStream(stream StreamRequest) returns (stream StreamResponse) {}
 }
 
-message InvitationRequest {
+message Notification {
+    int32 sender_id = 1;
+    int32 receiver_id = 2;
+    string message = 3;
+}
+
+message StreamRequest {
+  oneof RequestEvent {
+    SendInvitationRequest send_invitation_request = 1;
+    RespondToInvitationRequest respond_to_invitation_request = 2;
+    CheckNewInvitationsRequest check_new_invitations_request = 3;
+  }
+}
+
+message StreamResponse {
+  oneof ResponseEvent {
+    SendInvitationResponse send_invitation_response = 1;
+    RespondToInvitationResponse respond_to_invitation_response = 2;
+    CheckNewInvitationsResponse check_new_invitations_response = 3;
+  }
+  Notification notification = 4;
+}
+
+message SendInvitationRequest {
   int32 sender_id = 1;
   int32 receiver_id = 2;
 }
 
-message InvitationResponse {
+message RespondToInvitationRequest {
   int32 receiver_id = 1;
   bool accept = 2;
 }
 
-message InvitationReply {
-  string message = 1;
-}
-
-message CheckRequest {
+message CheckNewInvitationsRequest {
   int32 receiver_id = 1;
 }
 
-message CheckReply {
-  repeated int32 new_invitations = 1;
+message SendInvitationResponse {
+  string message = 1;
+}
+
+message RespondToInvitationResponse {
+  string message = 1;
+}
+
+message CheckNewInvitationsResponse {
+  repeated int32 invitation_ids = 1;
 }
