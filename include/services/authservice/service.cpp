@@ -6,7 +6,7 @@
 int auth_service::save_user(authservice::User &user, std::string password, authservice::Tokens *tokens) {
     user.set_salt(generate_salt(10));
     std::string hashed_password = generate_hash(password + user.salt());
-    return database::authservice::add_user(user.email(), user.username(), tokens->refresh().token(), hashed_password, user.salt());
+    return database::authservice_database_api::add_user(user.email(), user.username(), tokens->refresh().token(), hashed_password, user.salt());
 }
 
 grpc::Status auth_service::Login(

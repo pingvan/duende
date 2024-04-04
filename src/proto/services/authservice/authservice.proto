@@ -69,11 +69,11 @@ message LogoutResponse {
 };
 
 service AuthServiceData {
-    rpc GetUserPrewiew(RequstWithUserId) returns (UserPreview);
-    rpc GetUserFullPage(RequstWithUserId) returns (UserFullPage);
+    rpc GetUserPrewiew(RequestWithUserId) returns (UserPreview);
+    rpc GetUserFullPage(RequestWithUserId) returns (UserFullPage);
 };
 
-message RequstWithUserId {
+message RequestWithUserId {
     int32 user_id = 1;
 }
 

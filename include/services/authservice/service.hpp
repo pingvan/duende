@@ -30,13 +30,13 @@ struct auth_service final : public authservice::AuthService::Service {
 struct auth_service_data final : public authservice::AuthServiceData::Service {
     grpc::Status GetUserPrewiew(
         grpc::ServerContext *context,
-        const authservice::RequstWithUserId *request,
+        const authservice::RequestWithUserId *request,
         authservice::UserPreview *response
     ) override;
 
     grpc::Status GetUserFullPage(
         grpc::ServerContext *context,
-        const authservice::RequstWithUserId *request,
+        const authservice::RequestWithUserId *request,
         authservice::UserFullPage *response
     ) override;
 };

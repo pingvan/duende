@@ -1,9 +1,11 @@
 #include "chat_service.hpp"
+#include <grpcpp/support/status.h>
 
 #include <chrono>
 #include <iostream>
+#include "components/database/services/chat_service/chat_service.hpp"
 
-grpc::Status chat_service_::handle_chat(grpc::ServerContext *context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests> *stream) {
+grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests> *stream) {
     chat_service::ChatRequests request;
     while (stream->Read(&request)) {
         if (request.has_init()) {
@@ -68,5 +70,20 @@ void chat_service_::send_to_chat(const chat_service::Message& msg) {
             }
         }
     }
+}
 
+grpc::Status chat_data_service::GetUserChats(grpc::ServerContext *context, const chat_service::GetChatsRequest *request, chat_service::UserChats *response) {
+        auto chats = database::chat_service_database_api::get_user_chats(request->user_id());
+        chats.convert_to_proto(response);
+        return grpc::Status::OK;
+}
+
+grpc::Status chat_data_service::GetLastMessages(grpc::ServerContext *context, const ::chat_service::GetChatMessagesRequest *request, ::chat_service::LastMessages *response) {
+        auto is_user_in_chat = database::chat_service_database_api::check_user_in_chat(request->user_id(), request->chat_id());
+        if (!is_user_in_chat) {
+            return grpc::Status(grpc::StatusCode::PERMISSION_DENIED, "User is not in chat");
+        }
+        auto messages = database::chat_service_database_api::get_chats_messages(request->chat_id());
+        messages.convert_to_proto(response);
+        return grpc::Status::OK;
 }

@@ -7,8 +7,22 @@ enum Status {
     ERROR = 1;
 }
 
-service chat_handler {
-    rpc handle_chat(stream ChatRequests) returns (stream ChatResponses);
+service ChatHandler {
+    rpc HandleChat(stream ChatRequests) returns (stream ChatResponses);
+}
+
+service ChatDataService {
+    rpc GetUserChats(GetChatsRequest) returns (UserChats);
+    rpc GetLastMessages(GetChatMessagesRequest) returns (LastMessages);
+}
+
+message GetChatsRequest {
+    int32 user_id = 1;
+}
+
+message GetChatMessagesRequest {
+    int32 user_id = 1;
+    int32 chat_id = 2;
 }
 
 message ChatRequests {
