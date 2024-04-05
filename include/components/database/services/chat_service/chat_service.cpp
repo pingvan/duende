@@ -55,6 +55,13 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
             prewiew.time_stamp = row[1].as<std::string>();
             prewiew.name = row[3].as<std::string>();
             prewiew.description = row[4].as<std::string>();
+            static std::string quer_third = "SELECT sender_id, sended_at, message_text_data FROM messages WHERE chat_id = $1 ORDER BY sended_at DESC LIMIT 1";
+            const auto last_message = connection.txn->exec_params(quer_third, chat_id);
+            for (const auto &row : last_message) {
+                prewiew.last_message.sender = authservice_database_api::get_user_preview(row[0].as<int>());
+                prewiew.last_message.time_stamp = row[1].as<std::string>();
+                prewiew.last_message.message_text = row[2].as<std::string>();
+            }
         }
         chats.user_chats.push_back(prewiew);
     }
@@ -81,7 +88,7 @@ last_messages chat_service_database_api::get_chats_messages(const int &chat_id) 
 
 bool chat_service_database_api::check_user_in_chat(const int &user_id, const int &chat_id) {
     const connector connection;
-    static std::string quer = "SELECT EXISTS(SELECT 1 WHERE user_id = $1 AND chat_id = $2)";
+    static std::string quer = "SELECT EXISTS(SELECT 1 FROM chat_membership WHERE user_id = $1 AND chat_id = $2)";
     const auto result = connection.txn->exec_params(quer, user_id, chat_id);
     bool is_user_in_chat = false;
     for (const auto &row : result) {

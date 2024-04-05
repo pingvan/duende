@@ -91,7 +91,7 @@
         }
     };
 
-    struct user_preview  {//create
+    struct user_preview  {
         // std::vector<unsigned char> photo;
         std::string login;
 
@@ -100,7 +100,7 @@
         }
     };
 
-    struct user_full_page  {//create
+    struct user_full_page  {
         user_preview prewiew;
         std::string quote;
         std::string about;
@@ -133,8 +133,12 @@
         user_preview sender;
         std::string time_stamp;
 
-        void convert_to_proto(chat_service::Message *proto) const  {
-
+        void convert_to_proto(chat_service::MessageData *proto) const {
+            proto->set_message_text(message_text);
+            proto->set_time_stamp(time_stamp);
+            auto *sender_proto = new authservice::UserPreview;
+            sender.convert_to_proto(sender_proto);
+            proto->set_allocated_sender(sender_proto);
         }
     };
 
@@ -147,23 +151,35 @@
         // std::vector<unsigned char> cover;
 
         void convert_to_proto(chat_service::ChatPreview *proto) const  {
-
+            proto->set_chat_id(chat_id);
+            proto->set_name(name);
+            proto->set_description(description);
+            proto->set_time_stamp(time_stamp);
+            auto *last_message_proto = new chat_service::MessageData;
+            last_message.convert_to_proto(last_message_proto);
+            proto->set_allocated_last_message(last_message_proto);
         }
     };
 
-    struct user_chats  {//create
+    struct user_chats  {
         std::vector<chat_preview> user_chats;
 
         void convert_to_proto(chat_service::UserChats *proto) const  {
-
+            for (const auto &chat : user_chats) {
+                auto *proto_chat = proto->add_user_chats();
+                chat.convert_to_proto(proto_chat);
+            }
         }
     };
 
-    struct last_messages  {//create
+    struct last_messages  {
         std::vector<message> messages;
 
         void convert_to_proto(chat_service::LastMessages *proto) const  {
-            
+            for (const auto &message : messages) {
+                auto *proto_message = proto->add_messages();
+                message.convert_to_proto(proto_message);
+            }
         }
     };
 
@@ -183,7 +199,7 @@
         }
     };
 
-    struct invites_recivie  {//create
+    struct invites_recivie  {
         std::vector<invite> invites;
 
         void convert_to_proto(invitation::InvitesReceived *proto) const {
@@ -195,7 +211,7 @@
         }
     };
 
-    struct invites_sent  {//create
+    struct invites_sent  {
         std::vector<invite> invites;
 
         void convert_to_proto(invitation::InvitesSent *proto) const  {
