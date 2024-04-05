@@ -1,6 +1,9 @@
 #ifndef PROFILE_H
 #define PROFILE_H
 
+#include "../client.hpp"
+#include "../manager.hpp"
+
 #include <QWidget>
 #include <QLineEdit>
 #include <QTextEdit>
@@ -18,7 +21,7 @@ class Profile : public QWidget
     Q_OBJECT
 
 public:
-    explicit Profile(QWidget *parent = nullptr);
+    explicit Profile(Manager* managerPtr, QWidget *parent = nullptr);
     ~Profile();
 
 private slots:
@@ -28,7 +31,8 @@ private slots:
 
 private:
     Ui::Profile *ui;
-
+    Manager *manager;
+    
     QLabel *label_status;
     QLabel *label_about;
     QLabel *label_username;

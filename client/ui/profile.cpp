@@ -9,12 +9,17 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QPushButton>
+#include <QDebug>
 
-Profile::Profile(QWidget *parent)
+Profile::Profile(Manager* managerPtr, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Profile)
+    , manager(managerPtr)
 {
     ui->setupUi(this);
+    qDebug() << "Profile page start\n";
+
+    authservice::UserFullPage *user = manager->new_client.get_user_full_page(manager->ID);
 
     QGridLayout *mainLayout = new QGridLayout(this);
     mainLayout->setColumnMinimumWidth(0, 500);
@@ -25,24 +30,24 @@ Profile::Profile(QWidget *parent)
     label_photo->setPixmap(pixmap.scaled(100, 100, Qt::KeepAspectRatio));
     mainLayout->addWidget(label_photo, 0, 0);
 
-    label_status = new QLabel("this is my status");
+    label_status = new QLabel(QString::fromStdString(user->quote()));
     mainLayout->addWidget(label_status, 1, 0);
 
-    label_about = new QLabel("there are some information about me");
+    label_about = new QLabel(QString::fromStdString(user->about()));
     mainLayout->addWidget(label_about, 2, 0);
 
-    label_username = new QLabel("quentin");
+    label_username = new QLabel(QString::fromStdString(user->preview().login()));
     mainLayout->addWidget(label_username, 0, 1);
 
     view_favActors = new QGraphicsView();
     QGraphicsScene *scene_favActors = new QGraphicsScene();
-    // Добавьте ваши фотографии актеров в scene_favActors
+
     view_favActors->setScene(scene_favActors);
     mainLayout->addWidget(view_favActors, 1, 1);
 
     view_watchlist = new QGraphicsView();
     QGraphicsScene *scene_watchlist = new QGraphicsScene();
-    // Добавьте ваши фотографии watchlist в scene_watchlist
+
     view_watchlist->setScene(scene_watchlist);
     mainLayout->addWidget(view_watchlist, 2, 1);
 
@@ -56,6 +61,7 @@ Profile::Profile(QWidget *parent)
     mainLayout->addWidget(button_save, 3, 0);
 
     this->setLayout(mainLayout);
+    qDebug() << "Profile page end\n";
 }
 
 Profile::~Profile()
@@ -65,7 +71,6 @@ Profile::~Profile()
 
 void Profile::on_button_edit_clicked()
 {
-    // Включить режим редактирования
     lineEdit_status = new QLineEdit(label_status->text());
     lineEdit_about = new QLineEdit(label_about->text());
     lineEdit_username = new QLineEdit(label_username->text());
@@ -81,19 +86,17 @@ void Profile::on_button_edit_clicked()
     view_favActors->setInteractive(true);
     view_watchlist->setInteractive(true);
 
-    // Показать кнопку "Save"
     button_save->setVisible(true);
 
-    // Скрыть кнопку "Edit"
     button_edit->setVisible(false);
 }
 
 void Profile::on_button_save_clicked()
-{
-    // Сохранить изменения
-    // ...
+{   
+    manager->new_client.change_username(manager->ID, lineEdit_username->text().toStdString());
+    manager->new_client.change_quote(manager->ID, lineEdit_status->text().toStdString());
+    manager->new_client.change_bio(manager->ID, lineEdit_about->text().toStdString());
 
-    // Выключить режим редактирования
     label_status->setText(lineEdit_status->text());
     label_about->setText(lineEdit_about->text());
     label_username->setText(lineEdit_username->text());
@@ -109,9 +112,7 @@ void Profile::on_button_save_clicked()
     view_favActors->setInteractive(false);
     view_watchlist->setInteractive(false);
 
-    // Скрыть кнопку "Save"
     button_save->setVisible(false);
 
-    // Показать кнопку "Edit"
     button_edit->setVisible(true);
 }

@@ -1,6 +1,6 @@
 #include "token.hpp"
 #include "components/jwt/jwt.hpp"
-#include "components/database/database-connector.hpp"
+#include "components/database/services/authservice/authservice.hpp"
 
 authservice::Tokens *token_service::generate_tokens(
     authservice::Payload payload
@@ -20,7 +20,7 @@ authservice::Tokens *token_service::generate_tokens(
 }
 
 grpc::Status token_service::save_refresh_token(int user_id, authservice::RefreshToken token) {
-    database::connector connector;
+    database::authservice_database_api connector;
     connector.update_refresh_token(user_id, token.token());
     return grpc::Status::OK;
 }
@@ -46,7 +46,7 @@ authservice::Tokens *token_service::refresh(authservice::RefreshToken token) {
     int id = jwt_tokens.decode_token(token.token()).user_id();
 
     authservice::Payload payload;
-    database::connector connector;
+    database::authservice_database_api connector;
     payload.set_user_id(id);
     payload.set_email(connector.get_user_email(id));
     payload.set_username(connector.get_user_nickname(id));
@@ -73,7 +73,7 @@ grpc::Status token_service::activate_access_token(
             .with_issuer("auth0")
             .verify(jwt::decode(token));
     } catch (...) {
-        database::connector connector;
+        database::authservice_database_api connector;
         if (is_refresh_token_active(connector.get_refresh_token(user_id)).ok()) {
             jwt_tokens jwt_tokens;
             jwt_tokens.create_access_token(

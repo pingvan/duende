@@ -6,6 +6,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QMessageBox>
+#include <QDebug>
 
 
 RegistrationPage::RegistrationPage(Manager* managerPtr, QWidget *parent)
@@ -14,6 +15,9 @@ RegistrationPage::RegistrationPage(Manager* managerPtr, QWidget *parent)
     manager(managerPtr)
 {
     ui->setupUi(this);
+
+    qDebug() << "Registration page start\n";
+    
     connect(this, &RegistrationPage::registrationSuccessful, this, &RegistrationPage::onRegistrationSuccess);
 
     ui->lineEdit_login_password->setEchoMode(QLineEdit::Password);
@@ -25,8 +29,10 @@ RegistrationPage::RegistrationPage(Manager* managerPtr, QWidget *parent)
     ui->lineEdit_signup_password->setPlaceholderText("Enter password");
     ui->lineEdit_signup_confirm->setPlaceholderText("Enter password confirmation");
 
-    ui->lineEdit_login_username->setPlaceholderText("Enter username");
+    ui->lineEdit_login_username->setPlaceholderText("Enter login");
     ui->lineEdit_login_password->setPlaceholderText("Enter password");
+
+    qDebug() << "Registration page end\n";
 }
 
 RegistrationPage::~RegistrationPage()
@@ -36,15 +42,16 @@ RegistrationPage::~RegistrationPage()
 
 void RegistrationPage::on_pushButton_login_clicked()
 {
-    QString username = ui->lineEdit_login_username->text();
+    QString login = ui->lineEdit_login_username->text();
     QString password = ui->lineEdit_login_password->text();
-    grpc::Status status = manager->new_client.login(username.toStdString(), password.toStdString());
+    authservice::LoginResponse *response = manager->new_client.login(login.toStdString(), password.toStdString());
+    manager->ID = response->id();
 
-    if (username == "admin" && password == "admin" || status.ok()) {
+    if (login == "admin" && password == "admin" || response->message() == "OK") {
         emit loginSuccessful();
     }
     else {
-        QMessageBox::warning(this, "Error", status.error_message().c_str());
+        QMessageBox::warning(this, "Error", response->message().c_str());
     }
 }
 
@@ -63,6 +70,7 @@ void RegistrationPage::on_pushButton_signup_clicked()
     grpc::Status status = manager->new_client.registration(username.toStdString(), email.toStdString(), password.toStdString(), password_confirmation.toStdString());
 
     if (status.ok()) {
+        manager->new_client.change_username(manager->ID, username.toStdString());
         emit registrationSuccessful();
     }
     else {

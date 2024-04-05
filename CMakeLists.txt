@@ -56,6 +56,7 @@ target_link_libraries(main
         gRPC::grpc++
         protobuf::libprotobuf
         Threads::Threads
+        pqxx
 )
 
 target_include_directories(main PUBLIC
@@ -75,6 +76,7 @@ target_link_libraries(tests
         gRPC::grpc++
         protobuf::libprotobuf
         Threads::Threads
+        pqxx
 )
 
 target_include_directories(tests PUBLIC

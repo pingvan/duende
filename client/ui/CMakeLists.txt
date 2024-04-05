@@ -15,7 +15,7 @@ find_package(PkgConfig REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
-set(PROTOS ../../build/services/authservice/authservice.grpc.pb.cc ../../build/services/authservice/authservice.pb.cc)
+set(PROTOS ../../build/services/authservice/authservice.grpc.pb.cc ../../build/services/authservice/authservice.pb.cc ../../build/services/chat_service/chat_service.grpc.pb.cc ../../build/services/chat_service/chat_service.pb.cc ../../build/services/profile_service/profile.grpc.pb.cc ../../build/services/profile_service/profile.pb.cc)
 
 qt5_add_resources(QRC_RESOURCES resources.qrc)
 

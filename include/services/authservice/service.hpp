@@ -25,7 +25,7 @@ struct auth_service final : public authservice::AuthService::Service {
     grpc::Status password_is_valid(const std::string &password);
     grpc::Status username_is_valid(const std::string &username);
     grpc::Status email_is_valid(const std::string &email);
-};
+};  
 
 struct auth_service_data final : public authservice::AuthServiceData::Service {
     grpc::Status GetUserPrewiew(

@@ -11,6 +11,7 @@
 #include <QDockWidget>
 #include <QSplashScreen>
 #include <QTimer>
+#include <QDebug>
 
 std::string server_address("0.0.0.0:50051");
 
@@ -18,7 +19,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    a.setStyleSheet("QWidget { background-color: #9370DB; }");
+    a.setStyleSheet("QWidget { background-color: #aa6fbf; }");
 
     QSplashScreen *splash = new QSplashScreen;
     splash->setPixmap(QPixmap(":/img/logo.jpg"));
@@ -33,26 +34,26 @@ int main(int argc, char *argv[])
     RegistrationPage *registrationPage = new RegistrationPage(&manager);
     stackedWidget->addWidget(registrationPage);
 
-    Questionnaire *questionnairePage = new Questionnaire();
+    Questionnaire *questionnairePage = new Questionnaire(&manager);
     stackedWidget->addWidget(questionnairePage);
 
-    MainWindow mainPage;
-    stackedWidget->addWidget(&mainPage);
+    MainWindow *mainPage = new MainWindow(&manager);
+    stackedWidget->addWidget(mainPage);
 
     QObject::connect(registrationPage, &RegistrationPage::registrationSuccessful, [&](){
         stackedWidget->setCurrentWidget(questionnairePage);
     });
     QObject::connect(registrationPage, &RegistrationPage::loginSuccessful, [&](){
-        stackedWidget->setCurrentWidget(&mainPage);
+        stackedWidget->setCurrentWidget(mainPage);
     });
     QObject::connect(questionnairePage, &Questionnaire::questionnaireFilled, [&](){
-        stackedWidget->setCurrentWidget(&mainPage);
+        stackedWidget->setCurrentWidget(mainPage);
     });
 
     mainWindow.setCentralWidget(stackedWidget);
     QTimer::singleShot(2500, [&]() {
         mainWindow.showFullScreen();
     });
-
+    
     return a.exec();
 }

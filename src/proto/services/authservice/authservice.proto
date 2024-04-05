@@ -47,6 +47,8 @@ message LoginRequest {
 };
 
 message LoginResponse {
+    int32 id = 1;
+    string message = 2;
 };
 
 message SignupRequest {

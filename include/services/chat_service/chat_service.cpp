@@ -4,6 +4,8 @@
 #include <chrono>
 #include <iostream>
 #include "components/database/services/chat_service/chat_service.hpp"
+#include <iostream>
+
 
 grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests> *stream) {
     chat_service::ChatRequests request;

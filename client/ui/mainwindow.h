@@ -27,7 +27,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(Manager* managerPtr, QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
@@ -35,6 +35,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    Manager *manager;
     QStackedWidget *pages;
     SideBar *sidebar;
     RegistrationPage *registrationPage;

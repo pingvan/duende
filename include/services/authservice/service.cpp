@@ -17,7 +17,7 @@ grpc::Status auth_service::Login(
     authservice::User user;
     authservice::Payload payload;
     token_service token_service;
-    database::connector connector;
+    database::authservice_database_api connector;
     int id;
     std::string password = request->password();
 
@@ -42,6 +42,8 @@ grpc::Status auth_service::Login(
         payload.set_username(username);
     }
 
+    response->set_id(id);
+
     if (id == -1) {
         return grpc::Status(grpc::StatusCode::NOT_FOUND, "User not found");
     }
@@ -62,6 +64,7 @@ grpc::Status auth_service::Login(
     authservice::Tokens *tokens = token_service.generate_tokens(payload);
     token_service.save_refresh_token(user.id(), tokens->refresh());
 
+
     return grpc::Status::OK;
 }
 
@@ -79,7 +82,7 @@ grpc::Status auth_service::Signup(
     user.set_email(email);
     user.set_id(123);
     token_service token_service;
-    database::connector connector;
+    database::authservice_database_api connector;
     authservice::Payload payload;
     payload.set_username(username);
     payload.set_email(email);
@@ -117,8 +120,20 @@ grpc::Status auth_service::Logout(
     const authservice::LogoutRequest *request,
     authservice::LogoutResponse *response
 ) {
-    database::connector connector;
+    database::authservice_database_api connector;
     std::string token = "";
     connector.update_refresh_token(request->id(), token);
+    return grpc::Status::OK;
+}
+
+grpc::Status auth_service_data::GetUserPrewiew(grpc::ServerContext *context,
+ const authservice::RequestWithUserId *request,
+  authservice::UserPreview *response) {
+    database::authservice_database_api::get_user_preview(request->user_id()).convert_to_proto(response);
+    return grpc::Status::OK;
+}
+
+grpc::Status auth_service_data::GetUserFullPage(grpc::ServerContext *context, const authservice::RequestWithUserId *request, authservice::UserFullPage *response) {
+    database::authservice_database_api::get_user_full_page(request->user_id()).convert_to_proto(response);
     return grpc::Status::OK;
 }

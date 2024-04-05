@@ -2,36 +2,75 @@
 #include "ui_chats.h"
 #include "sidebar.h"
 
-Chats::Chats(QWidget *parent)
+#include <grpcpp/grpcpp.h>
+#include <QDebug>
+
+Chats::Chats(Manager* managerPtr, QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::Chats)
+    , ui(new Ui::Chats),
+    manager(managerPtr)
 {
     ui->setupUi(this);
 
-    QHBoxLayout *mainLayout = new QHBoxLayout(this); // Измените QVBoxLayout на QHBoxLayout
+    qDebug() << "Chats page start\n";
 
-    auto *chatList = new QListWidget(); // Список для отображения чатов
+    QHBoxLayout *mainLayout = new QHBoxLayout(this);
+    
+    std::vector<chat_service::ChatPreview> chats = manager->new_client.get_user_chats(manager->ID);
+
+    auto *chatList = new QListWidget();
     chatList->setFixedWidth(350);
-    auto *chatMessages = new QTextEdit(); // Область для отображения сообщений
+    auto *chatMessages = new QTextEdit();
     chatMessages->setReadOnly(true);
 
-    QLineEdit *messageInput = new QLineEdit(); // Поле ввода сообщения
-    QPushButton *sendButton = new QPushButton("Отправить");
+    chatPages = new QStackedWidget();
 
-    // Слой для поля ввода и кнопки отправки
+    for (const auto &chat : chats) {
+        QWidget *chatWidget = new QWidget();
+        QHBoxLayout *chatLayout = new QHBoxLayout(chatWidget);
+
+        QVBoxLayout *textLayout = new QVBoxLayout();
+        QLabel *chatNameLabel = new QLabel(QString::fromStdString(chat.name()));
+        QLabel *lastMessageLabel = new QLabel(QString::fromStdString(chat.last_message().message_text()));
+        textLayout->addWidget(chatNameLabel);
+        textLayout->addWidget(lastMessageLabel);
+
+        QLabel *timeLabel = new QLabel(QString::fromStdString(chat.time_stamp()));
+        chatLayout->addLayout(textLayout);
+        chatLayout->addWidget(timeLabel);
+
+        QListWidgetItem *item = new QListWidgetItem();
+        item->setSizeHint(chatWidget->sizeHint());
+        item->setData(Qt::UserRole, chat.chat_id());
+        chatList->addItem(item);
+        chatList->setItemWidget(item, chatWidget);
+
+        auto *chatPage = new QTextEdit();
+        chatPage->setReadOnly(true);
+        int index = chatPages->addWidget(chatPage);
+        item->setData(Qt::UserRole + 1, index);
+    }
+
+    QLineEdit *messageInput = new QLineEdit();
+    QPushButton *sendButton = new QPushButton("Send");
+
     QHBoxLayout *inputLayout = new QHBoxLayout();
     inputLayout->addWidget(messageInput);
     inputLayout->addWidget(sendButton);
 
-    QVBoxLayout *rightLayout = new QVBoxLayout(); // Создайте новый QVBoxLayout для правой части
-    rightLayout->addWidget(chatMessages);
+    QVBoxLayout *rightLayout = new QVBoxLayout();
+    rightLayout->addWidget(chatPages);
     rightLayout->addLayout(inputLayout);
 
-    mainLayout->addWidget(chatList); // Это будет слева
-    mainLayout->addLayout(rightLayout); // Это будет справа
+    mainLayout->addWidget(chatList);
+    mainLayout->addLayout(rightLayout);
 
     connect(sendButton, &QPushButton::clicked, this, &Chats::sendMessage);
-    // Здесь может быть код для подключения сигналов выбора чата из списка и т.д.
+    connect(chatList, &QListWidget::itemClicked, this, &Chats::onChatClicked);
+
+    this->setLayout(mainLayout); 
+
+    qDebug() << "Chats page end\n";
 }
 
 Chats::~Chats()
@@ -41,11 +80,19 @@ Chats::~Chats()
 
 void Chats::sendMessage()
 {
-//    QString message = messageLineEdit->text().trimmed();
-//    if (!message.isEmpty())
-//    {
-//        chatTextEdit->append("Вы: " + message);
-//        messageLineEdit->clear();
-//        // Здесь можно добавить код для отправки сообщения на сервер или в модель данных
-//    }
+   QString message = messageInput->text().trimmed();
+   if (!message.isEmpty())
+   {
+    //    chatTextEdit->append("Вы: " + message);
+       messageInput->clear();
+       // Здесь можно добавить код для отправки сообщения на сервер или в модель данных
+   }
+}
+
+void Chats::onChatClicked(QListWidgetItem* item) {
+    int chatId = item->data(Qt::UserRole).toInt();
+    int pageIndex = item->data(Qt::UserRole + 1).toInt();
+    chatPages->setCurrentIndex(pageIndex);
+    // Затем вы можете использовать chatId для получения сообщений этого чата и отображения их в текущей странице
+    // ...
 }
