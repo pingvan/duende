@@ -4,6 +4,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QDebug>
+#include <QPushButton>
 
 Questionnaire::Questionnaire(Manager* managerPtr, QWidget *parent)
     : QWidget(parent)
@@ -21,6 +22,11 @@ Questionnaire::Questionnaire(Manager* managerPtr, QWidget *parent)
 
     formLayout->addRow(tr("Favorite Actors:"), lineEditActors);
     formLayout->addRow(tr("Favorite Movies:"), lineEditMovies);
+
+    QPushButton *saveButton = new QPushButton(tr("Save"));
+    formLayout->addWidget(saveButton);
+
+    connect(saveButton, &QPushButton::clicked, this, &Questionnaire::on_pushButton_save_questionnaire_clicked);
 
     this->setLayout(formLayout);
     this->setFixedSize(300, 200);

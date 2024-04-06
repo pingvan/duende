@@ -3,6 +3,9 @@
 #include "token.hpp"
 #include "components/database/services/authservice/authservice.hpp"
 
+#include <iostream>
+
+
 int auth_service::save_user(authservice::User &user, std::string password, authservice::Tokens *tokens) {
     user.set_salt(generate_salt(10));
     std::string hashed_password = generate_hash(password + user.salt());
@@ -134,6 +137,7 @@ grpc::Status auth_service_data::GetUserPrewiew(grpc::ServerContext *context,
 }
 
 grpc::Status auth_service_data::GetUserFullPage(grpc::ServerContext *context, const authservice::RequestWithUserId *request, authservice::UserFullPage *response) {
+    std::cout << "ID: " << request->user_id() << std::endl;
     database::authservice_database_api::get_user_full_page(request->user_id()).convert_to_proto(response);
     return grpc::Status::OK;
 }

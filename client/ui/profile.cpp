@@ -17,6 +17,7 @@ Profile::Profile(Manager* managerPtr, QWidget *parent)
     , manager(managerPtr)
 {
     ui->setupUi(this);
+
     qDebug() << "Profile page start\n";
 
     authservice::UserFullPage *user = manager->new_client.get_user_full_page(manager->ID);
@@ -30,13 +31,13 @@ Profile::Profile(Manager* managerPtr, QWidget *parent)
     label_photo->setPixmap(pixmap.scaled(100, 100, Qt::KeepAspectRatio));
     mainLayout->addWidget(label_photo, 0, 0);
 
-    label_status = new QLabel(QString::fromStdString(user->quote()));
+    label_status = new QLabel(QString::fromStdString(user->quote().c_str()));
     mainLayout->addWidget(label_status, 1, 0);
 
-    label_about = new QLabel(QString::fromStdString(user->about()));
+    label_about = new QLabel(QString::fromStdString(user->about().c_str()));
     mainLayout->addWidget(label_about, 2, 0);
 
-    label_username = new QLabel(QString::fromStdString(user->preview().login()));
+    label_username = new QLabel(QString::fromStdString(user->preview().login().c_str()));
     mainLayout->addWidget(label_username, 0, 1);
 
     view_favActors = new QGraphicsView();

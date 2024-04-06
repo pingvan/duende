@@ -34,19 +34,19 @@ int main(int argc, char *argv[])
     RegistrationPage *registrationPage = new RegistrationPage(&manager);
     stackedWidget->addWidget(registrationPage);
 
-    Questionnaire *questionnairePage = new Questionnaire(&manager);
-    stackedWidget->addWidget(questionnairePage);
-
-    MainWindow *mainPage = new MainWindow(&manager);
-    stackedWidget->addWidget(mainPage);
-
     QObject::connect(registrationPage, &RegistrationPage::registrationSuccessful, [&](){
+        Questionnaire *questionnairePage = new Questionnaire(&manager);
+        stackedWidget->addWidget(questionnairePage);
         stackedWidget->setCurrentWidget(questionnairePage);
+        QObject::connect(questionnairePage, &Questionnaire::questionnaireFilled, [&](){
+            MainWindow *mainPage = new MainWindow(&manager);
+            stackedWidget->addWidget(mainPage);
+            stackedWidget->setCurrentWidget(mainPage);
+        });
     });
     QObject::connect(registrationPage, &RegistrationPage::loginSuccessful, [&](){
-        stackedWidget->setCurrentWidget(mainPage);
-    });
-    QObject::connect(questionnairePage, &Questionnaire::questionnaireFilled, [&](){
+        MainWindow *mainPage = new MainWindow(&manager);
+        stackedWidget->addWidget(mainPage);
         stackedWidget->setCurrentWidget(mainPage);
     });
 

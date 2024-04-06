@@ -1,5 +1,8 @@
 #include "client.hpp"
 
+#include <iostream>
+
+
 client::client(const std::shared_ptr<grpc::Channel> &new_channel)
     : channel(new_channel),
       authorization_stub(authservice::AuthService::NewStub(new_channel)),
@@ -12,6 +15,9 @@ authservice::UserFullPage *client::get_user_full_page(int user_id) {
     grpc::ClientContext context;
     authservice::RequestWithUserId request;
     auto *response = new authservice::UserFullPage;
+    
+    std::cout << "User ID: " << user_id << std::endl;
+
     request.set_user_id(user_id);
     grpc::Status status = authorization_data_stub->GetUserFullPage(&context, request, response);
     if (!status.ok()) {
@@ -124,6 +130,24 @@ std::vector<chat_service::ChatPreview> client::get_user_chats(int user_id) {
         chats.push_back(response->user_chats(i));
     }
     return chats;
+}
+
+std::vector<chat_service::MessageData> client::get_last_messages(int user_id, int chat_id) {
+    grpc::ClientContext context;
+    chat_service::GetChatMessagesRequest request;
+    auto *response = new chat_service::LastMessages;
+    request.set_user_id(user_id);
+    request.set_chat_id(chat_id);
+    grpc::Status status = chat_data_stub->GetLastMessages(&context, request, response);
+    if (!status.ok()) {
+        return {};
+    }
+
+    std::vector<chat_service::MessageData> messages;
+    for (int i = 0; i < response->messages_size(); i++) {
+        messages.push_back(response->messages(i));
+    }
+    return messages;
 }
 
 authservice::LoginResponse *client::login(const std::string &client_login, const std::string &password) {

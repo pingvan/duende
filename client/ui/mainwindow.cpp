@@ -22,6 +22,8 @@ MainWindow::MainWindow(Manager* managerPtr, QWidget *parent)
 
     qDebug() << "Main window start\n";
 
+    qDebug() << "ID: " << manager->ID;
+
     auto *centralWidget = new QWidget(this);
     auto *layout = new QHBoxLayout(centralWidget);
 
@@ -75,5 +77,19 @@ MainWindow::~MainWindow()
 
 void MainWindow::openProfilePage() {
     pages->setCurrentIndex(3);
+
+    // // Remove the old profile page
+    // QWidget* oldProfilePage = pages->widget(3);
+    // pages->removeWidget(oldProfilePage);
+    // delete oldProfilePage;
+
+    // // Create a new profile page
+    // auto *profilePage = new Profile(managerPtr);
+
+    // // Add the new profile page to the QStackedWidget
+    // pages->insertWidget(3, profilePage);
+
+    // // Show the new profile page
+    // pages->setCurrentIndex(3);
 }
 

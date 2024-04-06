@@ -47,6 +47,8 @@ void RegistrationPage::on_pushButton_login_clicked()
     authservice::LoginResponse *response = manager->new_client.login(login.toStdString(), password.toStdString());
     manager->ID = response->id();
 
+    qDebug() << "ID: " << manager->ID;
+
     if (login == "admin" && password == "admin" || response->message() == "OK") {
         emit loginSuccessful();
     }
@@ -68,7 +70,7 @@ void RegistrationPage::on_pushButton_signup_clicked()
     QString password = ui->lineEdit_signup_password->text();
     QString password_confirmation = ui->lineEdit_signup_confirm->text();
     grpc::Status status = manager->new_client.registration(username.toStdString(), email.toStdString(), password.toStdString(), password_confirmation.toStdString());
-
+    
     if (status.ok()) {
         manager->new_client.change_username(manager->ID, username.toStdString());
         emit registrationSuccessful();

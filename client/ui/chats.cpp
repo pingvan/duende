@@ -7,16 +7,20 @@
 
 Chats::Chats(Manager* managerPtr, QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::Chats),
-    manager(managerPtr)
-{
+    , ui(new Ui::Chats)
+    , manager(managerPtr)
+{   
     ui->setupUi(this);
 
     qDebug() << "Chats page start\n";
 
+    qDebug() << "ID: " << manager->ID;
+
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
-    
-    std::vector<chat_service::ChatPreview> chats = manager->new_client.get_user_chats(manager->ID);
+
+    std::vector<chat_service::ChatPreview> chats = managerPtr->new_client.get_user_chats(manager->ID);
+
+    qDebug() << "Chats count: " << chats.size();
 
     auto *chatList = new QListWidget();
     chatList->setFixedWidth(350);
@@ -78,21 +82,36 @@ Chats::~Chats()
     delete ui;
 }
 
-void Chats::sendMessage()
-{
-   QString message = messageInput->text().trimmed();
-   if (!message.isEmpty())
-   {
-    //    chatTextEdit->append("Вы: " + message);
-       messageInput->clear();
-       // Здесь можно добавить код для отправки сообщения на сервер или в модель данных
-   }
+void Chats::appendMessageToChat(const QString& message) {
+    QTextEdit* chatPage = qobject_cast<QTextEdit*>(chatPages->currentWidget());
+    if (chatPage) {
+        chatPage->append(message);
+    }
 }
+
+void Chats::sendMessage() {
+    // QString messageText = messageInput->text().trimmed();
+}
+
 
 void Chats::onChatClicked(QListWidgetItem* item) {
     int chatId = item->data(Qt::UserRole).toInt();
     int pageIndex = item->data(Qt::UserRole + 1).toInt();
     chatPages->setCurrentIndex(pageIndex);
-    // Затем вы можете использовать chatId для получения сообщений этого чата и отображения их в текущей странице
-    // ...
+    std::vector<chat_service::MessageData> messages = manager->new_client.get_last_messages(manager->ID, chatId);
+    qDebug() << "Messages count: " << messages.size();
+
+    QTextEdit* chatPage = qobject_cast<QTextEdit*>(chatPages->currentWidget());
+    chatPage->clear();
+
+    authservice::UserFullPage *user = manager->new_client.get_user_full_page(manager->ID);
+
+    for (const auto& message : messages) {
+        bool isUserMessage = (message.sender().login().c_str() == user->preview().login().c_str());
+        if (isUserMessage) {
+            chatPage->insertHtml("<div style='text-align: right; color: blue;'>" + QString::fromStdString(message.message_text()) + "</div><br><br>");
+        } else {
+            chatPage->insertHtml("<div style='text-align: left; color: black;'>" + QString::fromStdString(message.message_text()) + "</div><br><br>");
+        }
+    }
 }

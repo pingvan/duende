@@ -13,6 +13,7 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QtConcurrent/QtConcurrent>
 
 namespace Ui {
 class Chats;
@@ -26,18 +27,23 @@ public:
     explicit Chats(Manager* managerPtr, QWidget *parent = nullptr);
     ~Chats();
 
+signals:
+    void messageReceived(const QString& message);
+
 private slots:
-    void sendMessage(); // Слот для отправки сообщения
+    void appendMessageToChat(const QString& message);
+    void sendMessage();
     void onChatClicked(QListWidgetItem* item);
 
 private:
     Ui::Chats *ui;
     Manager *manager;
-    QStackedWidget *chatPages; // Виджет для отображения страниц чатов
-    QListWidget *chatList; // Список для отображения доступных чатов
-    QTextEdit *chatMessages; // Область для отображения сообщений чата
-    QLineEdit *messageInput; // Поле ввода нового сообщения
-    QPushButton *sendButton; // Кнопка отправки сообщения
+    int currentChatId;
+    QStackedWidget *chatPages;
+    QListWidget *chatList;
+    QTextEdit *chatMessages;
+    QLineEdit *messageInput;
+    QPushButton *sendButton;
 };
 
 #endif // CHATS_H

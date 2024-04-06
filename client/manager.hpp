@@ -4,6 +4,7 @@
 struct Manager {
     client new_client;
     int ID = -1;
+    std::string login;
 
     explicit Manager(const std::shared_ptr<grpc::Channel> &new_channel)
         : new_client(new_channel) {
