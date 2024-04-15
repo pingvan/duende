@@ -9,7 +9,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Widgets REQUIRED)
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
@@ -17,7 +17,7 @@ find_package(gRPC CONFIG REQUIRED)
 
 set(PROTOS ../../build/services/authservice/authservice.grpc.pb.cc ../../build/services/authservice/authservice.pb.cc ../../build/services/chat_service/chat_service.grpc.pb.cc ../../build/services/chat_service/chat_service.pb.cc ../../build/services/profile_service/profile.grpc.pb.cc ../../build/services/profile_service/profile.pb.cc)
 
-qt5_add_resources(QRC_RESOURCES resources.qrc)
+qt6_add_resources(QRC_RESOURCES resources.qrc)
 
 add_executable(duende ${PROTOS} ../client.cpp main.cpp mainwindow.cpp registrationpage.cpp recommendations.cpp chats.cpp follows.cpp profile.cpp questionnaire.cpp sidebar.cpp mainwindow.h mainwindow.ui registrationpage.h registrationpage.ui recommendations.h recommendations.ui chats.h chats.ui follows.h follows.ui profile.h profile.ui questionnaire.h questionnaire.ui sidebar.h sidebar.ui  ${QRC_RESOURCES})
 
