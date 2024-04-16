@@ -1,11 +1,6 @@
 #include "questionnaire.h"
 #include "ui_questionnaire.h"
 
-#include <QGuiApplication>
-#include <QScreen>
-#include <QDebug>
-#include <QPushButton>
-#include <QCompleter>
 
 Questionnaire::Questionnaire(Manager* managerPtr, QWidget *parent)
     : QWidget(parent)

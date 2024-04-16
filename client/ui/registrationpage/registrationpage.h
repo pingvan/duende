@@ -1,10 +1,21 @@
 #ifndef REGISTRATIONPAGE_H
 #define REGISTRATIONPAGE_H
 
-#include <QWidget>
-#include <QLineEdit>
+#include "manager.hpp"
 
-#include "../manager.hpp"
+#include <grpcpp/grpcpp.h>
+#include <QWidget>
+#include <QGuiApplication>
+#include <QScreen>
+#include <QMessageBox>
+#include <QDebug>
+#include <QTabWidget>
+#include <QFormLayout>
+#include <QGridLayout>
+#include <QSpacerItem>
+#include <QSizePolicy>
+#include <QLineEdit>
+#include <QPushButton>
 
 namespace Ui {
 class RegistrationPage;
@@ -19,10 +30,10 @@ public:
     ~RegistrationPage();
 
 private slots:
-    void on_loginButton_clicked();
+    void loginButton_clicked();
     void onRegistrationSuccess();
     void onLoginSuccess();
-    void on_signupButton_clicked();
+    void signupButton_clicked();
 
 signals:
     void registrationSuccessful();

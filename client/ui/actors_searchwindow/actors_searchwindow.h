@@ -5,6 +5,9 @@
 #include <QLineEdit>
 #include <QStringListModel>
 #include <QCompleter>
+#include <QVBoxLayout>
+#include <QSpacerItem>
+#include <QAbstractItemView>
 
 namespace Ui {
 class Actors_SearchWindow;

@@ -1,12 +1,16 @@
 #ifndef QUESTIONNAIRE_H
 #define QUESTIONNAIRE_H
 
-#include "../client.hpp"
-#include "../manager.hpp"
+#include "manager.hpp"
 
 #include <QWidget>
 #include <QFormLayout>
 #include <QLineEdit>
+#include <QGuiApplication>
+#include <QScreen>
+#include <QDebug>
+#include <QPushButton>
+#include <QCompleter>
 
 namespace Ui {
 class Questionnaire;

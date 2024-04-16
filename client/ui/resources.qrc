@@ -3,8 +3,11 @@
         <file>img/logo.jpg</file>
         <file>img/tarantino.jpg</file>
         <file>img/titanik.jpeg</file>
-        <file>img/plus.jpg</file>
         <file>img/robertdeniro.jpg</file>
-        <file>img/small-plus-png-image.png</file>
+        <file>img/plus.png</file>
+        <file>img/people.png</file>
+        <file>img/search.png</file>
+        <file>img/person.png</file>
+        <file>img/chat.png</file>
     </qresource>
 </RCC>

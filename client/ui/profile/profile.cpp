@@ -1,22 +1,6 @@
 #include "profile.h"
 #include "ui_profile.h"
-#include "actors_searchwindow.h"
-#include "movies_searchwindow.h"
 
-#include <QGridLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QTextEdit>
-#include <QPixmap>
-#include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QPushButton>
-#include <QDebug>
-#include <QCompleter>
-#include <QStringListModel>
-#include <QGraphicsPixmapItem>
-#include <QApplication>
-#include <QScreen>
 
 Profile::Profile(Manager* managerPtr, QWidget *parent)
     : QWidget(parent)
@@ -36,7 +20,6 @@ Profile::Profile(Manager* managerPtr, QWidget *parent)
     mainLayout->addLayout(rightBox, 0, 1);
     mainLayout->setColumnMinimumWidth(0, 500);
     mainLayout->setColumnStretch(0, 0);
-
 
     QLabel *label_photo = new QLabel();
     QPixmap pixmap(":/img/robertdeniro.jpg");
@@ -75,6 +58,8 @@ Profile::Profile(Manager* managerPtr, QWidget *parent)
     }
 
     view_favActors->setScene(scene_favActors);
+    view_favActors->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view_favActors->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     view_watchlist = new QGraphicsView();
     scene_watchlist = new QGraphicsScene();
@@ -90,12 +75,16 @@ Profile::Profile(Manager* managerPtr, QWidget *parent)
     }
 
     view_watchlist->setScene(scene_watchlist);
+    view_watchlist->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view_watchlist->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     button_edit = new QPushButton("Edit");
-    connect(button_edit, &QPushButton::clicked, this, &Profile::on_button_edit_clicked);
+    button_edit->setCursor(Qt::PointingHandCursor);
+    connect(button_edit, &QPushButton::clicked, this, &Profile::button_edit_clicked);
 
     button_save = new QPushButton("Save");
-    connect(button_save, &QPushButton::clicked, this, &Profile::on_button_save_clicked);
+    button_save->setCursor(Qt::PointingHandCursor);
+    connect(button_save, &QPushButton::clicked, this, &Profile::button_save_clicked);
     button_save->setVisible(false);
 
     QSpacerItem* verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
@@ -120,7 +109,7 @@ Profile::~Profile()
     delete ui;
 }
 
-void Profile::on_button_edit_clicked()
+void Profile::button_edit_clicked()
 {
     leftBox->replaceWidget(label_status, lineEdit_status);
     leftBox->replaceWidget(label_about, textEdit_about);
@@ -137,13 +126,15 @@ void Profile::on_button_edit_clicked()
     label_username->hide();
 
 
-    QPixmap plusPixmap(":/img/small-plus-png-image.png");
+    QPixmap plusPixmap(":/img/plus.png");
     int x = 0;
     ClickablePixmapItem *plusItem_favActors = new ClickablePixmapItem(plusPixmap.scaledToHeight(view_favActors->height()));
+    connect(plusItem_favActors, &ClickablePixmapItem::clicked, this, &Profile::plusItem_favActors_clicked);
     plusItem_favActors->setPos(x, 0);
+    plusItem_favActors->setCursor(Qt::PointingHandCursor);
     scene_favActors->clear();
     scene_favActors->addItem(plusItem_favActors);
-    connect(plusItem_favActors, &ClickablePixmapItem::clicked, this, &Profile::on_plusItem_favActors_clicked);
+    connect(plusItem_favActors, &ClickablePixmapItem::clicked, this, &Profile::plusItem_favActors_clicked);
 
     x += plusItem_favActors->boundingRect().width() + 10;
     for (auto it = favActorsImages.rbegin(); it != favActorsImages.rend(); ++it) {
@@ -156,10 +147,12 @@ void Profile::on_button_edit_clicked()
 
     x = 0;
     ClickablePixmapItem *plusItem_watchlist = new ClickablePixmapItem(plusPixmap.scaledToHeight(view_watchlist->height()));
+    connect(plusItem_watchlist, &ClickablePixmapItem::clicked, this, &Profile::plusItem_watchlist_clicked);
     plusItem_watchlist->setPos(x, 0);
+    plusItem_watchlist->setCursor(Qt::PointingHandCursor);
     scene_watchlist->clear();
     scene_watchlist->addItem(plusItem_watchlist);
-    connect(plusItem_watchlist, &ClickablePixmapItem::clicked, this, &Profile::on_plusItem_watchlist_clicked);
+    connect(plusItem_watchlist, &ClickablePixmapItem::clicked, this, &Profile::plusItem_watchlist_clicked);
 
     x += plusItem_watchlist->boundingRect().width() + 10;
     for (auto it = watchlistImages.rbegin(); it != watchlistImages.rend(); ++it) {
@@ -174,7 +167,7 @@ void Profile::on_button_edit_clicked()
     button_edit->setVisible(false);
 }
 
-void Profile::on_button_save_clicked()
+void Profile::button_save_clicked()
 {   
     manager->new_client.change_username(manager->ID, lineEdit_username->text().toStdString());
     manager->new_client.change_quote(manager->ID, lineEdit_status->text().toStdString());
@@ -219,7 +212,7 @@ void Profile::on_button_save_clicked()
     button_edit->setVisible(true);
 }
 
-void Profile::on_plusItem_favActors_clicked()
+void Profile::plusItem_favActors_clicked()
 {
     Actors_SearchWindow *searchWindow = new Actors_SearchWindow(this);
     searchWindow->setWindowModality(Qt::ApplicationModal);
@@ -228,7 +221,7 @@ void Profile::on_plusItem_favActors_clicked()
     searchWindow->show();
 }
 
-void Profile::on_plusItem_watchlist_clicked()
+void Profile::plusItem_watchlist_clicked()
 {
     Movies_SearchWindow *searchWindow = new Movies_SearchWindow(this);
     searchWindow->setWindowModality(Qt::ApplicationModal);

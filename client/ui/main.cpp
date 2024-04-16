@@ -1,7 +1,6 @@
-#include "mainwindow.h"
-#include "sidebar.h"
-#include "registrationpage.h"
-#include "questionnaire.h"
+#include "mainwindow/mainwindow.h"
+#include "registrationpage/registrationpage.h"
+#include "questionnaire/questionnaire.h"
 #include "../client.hpp"
 #include "../manager.hpp"
 
@@ -19,12 +18,12 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    a.setStyleSheet("QWidget { background-color: #aa6fbf; }");
+    a.setStyleSheet("QWidget { background-color: #e9e9e9; }");
 
     QSplashScreen *splash = new QSplashScreen;
     splash->setPixmap(QPixmap(":/img/logo.jpg"));
     splash->show();
-    QTimer::singleShot(2500, splash, SLOT(close()));
+    QTimer::singleShot(3000, splash, SLOT(close()));
 
     Manager manager(grpc::CreateChannel(server_address, grpc::InsecureChannelCredentials()));
 

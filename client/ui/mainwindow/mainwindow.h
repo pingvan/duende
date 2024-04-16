@@ -1,10 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "registrationpage.h"
-#include "profile.h"
-#include "chats.h"
-#include "sidebar.h"
+#include "registrationpage/registrationpage.h"
+#include "recommendations/recommendations.h"
+#include "profile/profile.h"
+#include "chats/chats.h"
+#include "follows/follows.h"
 
 #include <QMainWindow>
 #include <QWidget>
@@ -15,6 +16,11 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QDockWidget>
+#include <QToolButton>
+#include <QToolBar>
+#include <QPixmap>
+#include <QDebug>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -37,7 +43,6 @@ private:
     Ui::MainWindow *ui;
     Manager *manager;
     QStackedWidget *pages;
-    SideBar *sidebar;
     RegistrationPage *registrationPage;
     Profile *profile;
     Chats *chats;

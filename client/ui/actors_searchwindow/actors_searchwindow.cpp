@@ -1,10 +1,6 @@
 #include "actors_searchwindow.h"
 #include "ui_actors_searchwindow.h"
 
-#include <QVBoxLayout>
-#include <QSpacerItem>
-#include <QAbstractItemView>
-
 
 Actors_SearchWindow::Actors_SearchWindow(QWidget *parent) :
     QWidget(parent),

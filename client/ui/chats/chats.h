@@ -1,9 +1,10 @@
 #ifndef CHATS_H
 #define CHATS_H
 
-#include "../client.hpp"
-#include "../manager.hpp"
+#include "manager.hpp"
 
+#include <grpcpp/grpcpp.h>
+#include <QDebug>
 #include <QWidget>
 #include <QMainWindow>
 #include <QListWidget>

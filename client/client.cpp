@@ -17,7 +17,7 @@ authservice::UserFullPage *client::get_user_full_page(int user_id) {
     authservice::RequestWithUserId request;
     auto *response = new authservice::UserFullPage;
     
-    std::cout << "User ID: " << user_id << std::endl;
+    std::cout << "ID: " << user_id << std::endl;
 
     request.set_user_id(user_id);
     grpc::Status status = authorization_data_stub->GetUserFullPage(&context, request, response);

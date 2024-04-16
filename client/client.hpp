@@ -29,7 +29,6 @@ public:
     explicit client(const std::shared_ptr<grpc::Channel> &new_channel); 
 
     void init_chat_stream(int user_id) {
-        std::cout << "1\n";
         stream = chat_stub->HandleChat(&context);
 
         chat_service::ChatRequests request;
@@ -42,7 +41,6 @@ public:
     }
 
     void start_reading_stream() {
-        std::cout << "2\n";
         QFuture<void> future = QtConcurrent::run([this] {
             chat_service::ChatResponses response;
             while (stream->Read(&response)) {
@@ -55,7 +53,6 @@ public:
     }
 
     void send_message(int user_id, int chatId, const std::string& messageText) {
-        std::cout << "3\n";
         chat_service::SendMessageRequest request;
         auto* message = new chat_service::Message();
         message->set_sender_id(user_id);
@@ -69,7 +66,7 @@ public:
         std::cout << chatRequest.DebugString() << std::endl;
         bool status = stream->Write(chatRequest);
         if (!status) {
-            std::cerr << "Error!!" << std::endl;
+            std::cerr << "Error" << std::endl;
         }
     }
 

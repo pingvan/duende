@@ -1,18 +1,25 @@
 #ifndef PROFILE_H
 #define PROFILE_H
 
-#include "../client.hpp"
-#include "../manager.hpp"
+#include "manager.hpp"
+#include "actors_searchwindow/actors_searchwindow.h"
+#include "movies_searchwindow/movies_searchwindow.h"
 
-#include <QWidget>
+#include <QGridLayout>
+#include <QVBoxLayout>
+#include <QLabel>
 #include <QLineEdit>
 #include <QTextEdit>
+#include <QPixmap>
 #include <QGraphicsView>
-#include <QPushButton>
-#include <QLabel>
 #include <QGraphicsScene>
+#include <QPushButton>
+#include <QDebug>
+#include <QCompleter>
+#include <QStringListModel>
 #include <QGraphicsPixmapItem>
-#include <QVBoxLayout>
+#include <QApplication>
+#include <QScreen>
 
 
 namespace Ui {
@@ -28,11 +35,10 @@ public:
     ~Profile();
 
 private slots:
-    void on_button_edit_clicked();
-
-    void on_button_save_clicked();
-    void on_plusItem_favActors_clicked();
-    void on_plusItem_watchlist_clicked();
+    void button_edit_clicked();
+    void button_save_clicked();
+    void plusItem_favActors_clicked();
+    void plusItem_watchlist_clicked();
 
 private:
     Ui::Profile *ui;

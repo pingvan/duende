@@ -1,11 +1,6 @@
 #include "movies_searchwindow.h"
 #include "ui_movies_searchwindow.h"
 
-#include <QVBoxLayout>
-#include <QSpacerItem>
-#include <QCompleter>
-#include <QStringListModel>
-#include <QAbstractItemView>
 
 Movies_SearchWindow::Movies_SearchWindow(QWidget *parent) :
     QWidget(parent),

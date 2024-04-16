@@ -3,8 +3,11 @@
 
 #include <QWidget>
 #include <QLineEdit>
-#include <QStringListModel>
 #include <QCompleter>
+#include <QVBoxLayout>
+#include <QSpacerItem>
+#include <QStringListModel>
+#include <QAbstractItemView>
 
 namespace Ui {
 class Movies_SearchWindow;

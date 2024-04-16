@@ -1,9 +1,6 @@
 #include "chats.h"
 #include "ui_chats.h"
-#include "sidebar.h"
 
-#include <grpcpp/grpcpp.h>
-#include <QDebug>
 
 Chats::Chats(Manager* managerPtr, QWidget *parent)
     : QWidget(parent)
@@ -53,10 +50,13 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
         chatPage->setReadOnly(true);
         int index = chatPages->addWidget(chatPage);
         item->setData(Qt::UserRole + 1, index);
+
+        chatWidget->setCursor(Qt::PointingHandCursor);
     }
 
     messageInput = new QLineEdit();
     sendButton = new QPushButton("Send");
+    sendButton->setCursor(Qt::PointingHandCursor);
 
     QHBoxLayout *inputLayout = new QHBoxLayout();
     inputLayout->addWidget(messageInput);

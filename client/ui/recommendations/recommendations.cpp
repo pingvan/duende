@@ -1,6 +1,5 @@
 #include "recommendations.h"
 #include "ui_recommendations.h"
-#include "sidebar.h"
 
 Recommendations::Recommendations(QWidget *parent)
     : QWidget(parent)
