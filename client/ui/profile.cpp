@@ -1,5 +1,7 @@
 #include "profile.h"
 #include "ui_profile.h"
+#include "actors_searchwindow.h"
+#include "movies_searchwindow.h"
 
 #include <QGridLayout>
 #include <QLabel>
@@ -10,6 +12,11 @@
 #include <QGraphicsScene>
 #include <QPushButton>
 #include <QDebug>
+#include <QCompleter>
+#include <QStringListModel>
+#include <QGraphicsPixmapItem>
+#include <QApplication>
+#include <QScreen>
 
 Profile::Profile(Manager* managerPtr, QWidget *parent)
     : QWidget(parent)
@@ -22,44 +29,87 @@ Profile::Profile(Manager* managerPtr, QWidget *parent)
 
     authservice::UserFullPage *user = manager->new_client.get_user_full_page(manager->ID);
 
+    leftBox = new QVBoxLayout;
+    rightBox = new QVBoxLayout;
     QGridLayout *mainLayout = new QGridLayout(this);
+    mainLayout->addLayout(leftBox, 0, 0);
+    mainLayout->addLayout(rightBox, 0, 1);
     mainLayout->setColumnMinimumWidth(0, 500);
     mainLayout->setColumnStretch(0, 0);
 
+
     QLabel *label_photo = new QLabel();
-    QPixmap pixmap("img/tarantino.jpg");
-    label_photo->setPixmap(pixmap.scaled(100, 100, Qt::KeepAspectRatio));
-    mainLayout->addWidget(label_photo, 0, 0);
+    QPixmap pixmap(":/img/robertdeniro.jpg");
+    pixmap = pixmap.scaledToWidth(mainLayout->columnMinimumWidth(0), Qt::SmoothTransformation);
+    label_photo->setPixmap(pixmap);
 
     label_status = new QLabel(QString::fromStdString(user->quote().c_str()));
-    mainLayout->addWidget(label_status, 1, 0);
+    label_status->setMaximumWidth(500);
+    lineEdit_status = new QLineEdit();
+    lineEdit_status->setMaximumWidth(500);
+    lineEdit_status->hide();
 
     label_about = new QLabel(QString::fromStdString(user->about().c_str()));
-    mainLayout->addWidget(label_about, 2, 0);
+    label_about->setMaximumWidth(500);
+    label_about->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    label_about->setWordWrap(true);
+    textEdit_about = new QTextEdit();
+    textEdit_about->setMaximumWidth(500);
+    textEdit_about->hide();
 
     label_username = new QLabel(QString::fromStdString(user->preview().login().c_str()));
-    mainLayout->addWidget(label_username, 0, 1);
+    lineEdit_username = new QLineEdit();
+    lineEdit_username->hide();
 
     view_favActors = new QGraphicsView();
-    QGraphicsScene *scene_favActors = new QGraphicsScene();
+    scene_favActors = new QGraphicsScene();
+
+    favActorsImages << ":/img/tarantino.jpg" << ":/img/tarantino.jpg" << ":/img/tarantino.jpg";
+    int x = 0;
+    for (auto it = favActorsImages.rbegin(); it != favActorsImages.rend(); ++it) {
+        QPixmap pixmap(*it);
+        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap.scaledToHeight(view_favActors->height()));
+        item->setPos(x, 0);
+        scene_favActors->addItem(item);
+        x += item->boundingRect().width() + 10;
+    }
 
     view_favActors->setScene(scene_favActors);
-    mainLayout->addWidget(view_favActors, 1, 1);
 
     view_watchlist = new QGraphicsView();
-    QGraphicsScene *scene_watchlist = new QGraphicsScene();
+    scene_watchlist = new QGraphicsScene();
+
+    watchlistImages << ":/img/titanik.jpeg" << ":/img/titanik.jpeg" << ":/img/titanik.jpeg";
+    x = 0;
+    for (auto it = watchlistImages.rbegin(); it != watchlistImages.rend(); ++it) {
+        QPixmap pixmap(*it);
+        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap.scaledToHeight(view_watchlist->height()));
+        item->setPos(x, 0);
+        scene_watchlist->addItem(item);
+        x += item->boundingRect().width() + 10;
+    }
 
     view_watchlist->setScene(scene_watchlist);
-    mainLayout->addWidget(view_watchlist, 2, 1);
 
     button_edit = new QPushButton("Edit");
     connect(button_edit, &QPushButton::clicked, this, &Profile::on_button_edit_clicked);
-    mainLayout->addWidget(button_edit, 3, 0);
 
     button_save = new QPushButton("Save");
     connect(button_save, &QPushButton::clicked, this, &Profile::on_button_save_clicked);
     button_save->setVisible(false);
-    mainLayout->addWidget(button_save, 3, 0);
+
+    QSpacerItem* verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    leftBox->addWidget(label_photo);
+    leftBox->addWidget(label_status);
+    leftBox->addWidget(label_about);
+    leftBox->addItem(verticalSpacer);
+    leftBox->addWidget(button_edit);
+    leftBox->addWidget(button_save);
+
+    rightBox->addWidget(label_username);
+    rightBox->addWidget(lineEdit_username);
+    rightBox->addWidget(view_favActors);
+    rightBox->addWidget(view_watchlist);
 
     this->setLayout(mainLayout);
     qDebug() << "Profile page end\n";
@@ -72,23 +122,55 @@ Profile::~Profile()
 
 void Profile::on_button_edit_clicked()
 {
-    lineEdit_status = new QLineEdit(label_status->text());
-    lineEdit_about = new QLineEdit(label_about->text());
-    lineEdit_username = new QLineEdit(label_username->text());
+    leftBox->replaceWidget(label_status, lineEdit_status);
+    leftBox->replaceWidget(label_about, textEdit_about);
+    lineEdit_status->setText(label_status->text());
+    lineEdit_status->show();
+    label_status->hide();
+    textEdit_about->setText(label_about->text());
+    textEdit_about->show();
+    label_about->hide();
 
-    lineEdit_status->setMaximumWidth(500);
-    lineEdit_about->setMaximumWidth(500);
-    lineEdit_username->setMaximumWidth(500);
+    rightBox->replaceWidget(label_username, lineEdit_username);
+    lineEdit_username->setText(label_username->text());
+    lineEdit_username->show();
+    label_username->hide();
 
-    layout()->replaceWidget(label_status, lineEdit_status);
-    layout()->replaceWidget(label_about, lineEdit_about);
-    layout()->replaceWidget(label_username, lineEdit_username);
 
-    view_favActors->setInteractive(true);
-    view_watchlist->setInteractive(true);
+    QPixmap plusPixmap(":/img/small-plus-png-image.png");
+    int x = 0;
+    ClickablePixmapItem *plusItem_favActors = new ClickablePixmapItem(plusPixmap.scaledToHeight(view_favActors->height()));
+    plusItem_favActors->setPos(x, 0);
+    scene_favActors->clear();
+    scene_favActors->addItem(plusItem_favActors);
+    connect(plusItem_favActors, &ClickablePixmapItem::clicked, this, &Profile::on_plusItem_favActors_clicked);
+
+    x += plusItem_favActors->boundingRect().width() + 10;
+    for (auto it = favActorsImages.rbegin(); it != favActorsImages.rend(); ++it) {
+        QPixmap pixmap(*it);
+        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap.scaledToHeight(view_favActors->height()));
+        item->setPos(x, 0);
+        scene_favActors->addItem(item);
+        x += item->boundingRect().width() + 10;
+    }
+
+    x = 0;
+    ClickablePixmapItem *plusItem_watchlist = new ClickablePixmapItem(plusPixmap.scaledToHeight(view_watchlist->height()));
+    plusItem_watchlist->setPos(x, 0);
+    scene_watchlist->clear();
+    scene_watchlist->addItem(plusItem_watchlist);
+    connect(plusItem_watchlist, &ClickablePixmapItem::clicked, this, &Profile::on_plusItem_watchlist_clicked);
+
+    x += plusItem_watchlist->boundingRect().width() + 10;
+    for (auto it = watchlistImages.rbegin(); it != watchlistImages.rend(); ++it) {
+        QPixmap pixmap(*it);
+        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap.scaledToHeight(view_watchlist->height()));
+        item->setPos(x, 0);
+        scene_watchlist->addItem(item);
+        x += item->boundingRect().width() + 10;
+    }
 
     button_save->setVisible(true);
-
     button_edit->setVisible(false);
 }
 
@@ -96,24 +178,61 @@ void Profile::on_button_save_clicked()
 {   
     manager->new_client.change_username(manager->ID, lineEdit_username->text().toStdString());
     manager->new_client.change_quote(manager->ID, lineEdit_status->text().toStdString());
-    manager->new_client.change_bio(manager->ID, lineEdit_about->text().toStdString());
-
+    manager->new_client.change_bio(manager->ID, textEdit_about->toPlainText().toStdString());
+    
+    leftBox->replaceWidget(lineEdit_status, label_status);
+    leftBox->replaceWidget(textEdit_about, label_about);
     label_status->setText(lineEdit_status->text());
-    label_about->setText(lineEdit_about->text());
-    label_username->setText(lineEdit_username->text());
-
-    layout()->replaceWidget(lineEdit_status, label_status);
-    layout()->replaceWidget(lineEdit_about, label_about);
-    layout()->replaceWidget(lineEdit_username, label_username);
-
+    label_status->show();
     lineEdit_status->hide();
-    lineEdit_about->hide();
+    label_about->setText(textEdit_about->toPlainText());
+    label_about->show();
+    textEdit_about->hide();
+
+    rightBox->replaceWidget(lineEdit_username, label_username);
+    label_username->setText(lineEdit_username->text());
+    label_username->show();
     lineEdit_username->hide();
 
-    view_favActors->setInteractive(false);
-    view_watchlist->setInteractive(false);
+    int x = 0;
+    scene_favActors->clear();
+    
+    for (auto it = favActorsImages.rbegin(); it != favActorsImages.rend(); ++it) {
+        QPixmap pixmap(*it);
+        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap.scaledToHeight(view_favActors->height()));
+        item->setPos(x, 0);
+        scene_favActors->addItem(item);
+        x += item->boundingRect().width() + 10;
+    }
+
+    x = 0;
+    scene_watchlist->clear();
+    for (auto it = watchlistImages.rbegin(); it != watchlistImages.rend(); ++it) {
+        QPixmap pixmap(*it);
+        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap.scaledToHeight(view_watchlist->height()));
+        item->setPos(x, 0);
+        scene_watchlist->addItem(item);
+        x += item->boundingRect().width() + 10;
+    }
 
     button_save->setVisible(false);
-
     button_edit->setVisible(true);
+}
+
+void Profile::on_plusItem_favActors_clicked()
+{
+    Actors_SearchWindow *searchWindow = new Actors_SearchWindow(this);
+    searchWindow->setWindowModality(Qt::ApplicationModal);
+    searchWindow->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+    searchWindow->move(QGuiApplication::screens().at(0)->geometry().center() - searchWindow->rect().center());
+    searchWindow->show();
+}
+
+void Profile::on_plusItem_watchlist_clicked()
+{
+    Movies_SearchWindow *searchWindow = new Movies_SearchWindow(this);
+    searchWindow->setWindowModality(Qt::ApplicationModal);
+    searchWindow->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+    searchWindow->move(QGuiApplication::screens().at(0)->geometry().center() - searchWindow->rect().center());
+    searchWindow->show();
 }

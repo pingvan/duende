@@ -8,6 +8,7 @@ client::client(const std::shared_ptr<grpc::Channel> &new_channel)
       authorization_stub(authservice::AuthService::NewStub(new_channel)),
       authorization_data_stub(authservice::AuthServiceData::NewStub(new_channel)),
       chat_data_stub(chat_service::ChatDataService::NewStub(new_channel)),
+      chat_stub(chat_service::ChatHandler::NewStub(new_channel)),
       profile_stub(profile::ProfileService::NewStub(new_channel)) {
 }
 
@@ -171,7 +172,7 @@ authservice::LoginResponse *client::login(const std::string &client_login, const
     return response;
 }
 
-grpc::Status client::registration(
+authservice::SignupResponse *client::registration(
     const std::string &client_login,
     const std::string &email,
     const std::string &password,
@@ -185,5 +186,12 @@ grpc::Status client::registration(
     request.set_password(password);
     request.set_password_confirmation(password_confirmation);
 
-    return authorization_stub->Signup(&context, request, response);
+    grpc::Status status = authorization_stub->Signup(&context, request, response);
+    if (!status.ok()) {
+        response->set_message(status.error_message());
+    }
+    else {
+        response->set_message("OK");
+    }
+    return response;
 }

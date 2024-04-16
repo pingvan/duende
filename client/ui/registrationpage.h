@@ -2,6 +2,8 @@
 #define REGISTRATIONPAGE_H
 
 #include <QWidget>
+#include <QLineEdit>
+
 #include "../manager.hpp"
 
 namespace Ui {
@@ -17,11 +19,10 @@ public:
     ~RegistrationPage();
 
 private slots:
-    void on_pushButton_login_clicked();
+    void on_loginButton_clicked();
     void onRegistrationSuccess();
     void onLoginSuccess();
-
-    void on_pushButton_signup_clicked();
+    void on_signupButton_clicked();
 
 signals:
     void registrationSuccessful();
@@ -30,6 +31,12 @@ signals:
 private:
     Ui::RegistrationPage *ui;
     Manager *manager;
+    QLineEdit *lineEdit_login_username;
+    QLineEdit *lineEdit_login_password;
+    QLineEdit *lineEdit_signup_username;
+    QLineEdit *lineEdit_signup_email;
+    QLineEdit *lineEdit_signup_password;
+    QLineEdit *lineEdit_signup_confirm;
 };
 
 #endif // REGISTRATIONPAGE_H

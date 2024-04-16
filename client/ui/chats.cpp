@@ -22,9 +22,9 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
 
     qDebug() << "Chats count: " << chats.size();
 
-    auto *chatList = new QListWidget();
+    chatList = new QListWidget();
     chatList->setFixedWidth(350);
-    auto *chatMessages = new QTextEdit();
+    chatMessages = new QTextEdit();
     chatMessages->setReadOnly(true);
 
     chatPages = new QStackedWidget();
@@ -55,8 +55,8 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
         item->setData(Qt::UserRole + 1, index);
     }
 
-    QLineEdit *messageInput = new QLineEdit();
-    QPushButton *sendButton = new QPushButton("Send");
+    messageInput = new QLineEdit();
+    sendButton = new QPushButton("Send");
 
     QHBoxLayout *inputLayout = new QHBoxLayout();
     inputLayout->addWidget(messageInput);
@@ -90,7 +90,19 @@ void Chats::appendMessageToChat(const QString& message) {
 }
 
 void Chats::sendMessage() {
-    // QString messageText = messageInput->text().trimmed();
+    QString messageText = messageInput->text().trimmed();
+
+    int pageIndex = chatPages->currentIndex();
+    QListWidgetItem* currentItem = chatList->item(pageIndex);
+    int chatId = currentItem->data(Qt::UserRole).toInt();
+
+    manager->new_client.send_message(manager->ID, chatId, messageText.toStdString());
+
+    messageInput->clear();
+
+    QTextEdit* chatPage = qobject_cast<QTextEdit*>(chatPages->currentWidget());
+    chatPage->insertHtml("<div style='text-align: right; color: blue;'>" + messageText + "</div><br><br>");
+    
 }
 
 

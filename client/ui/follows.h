@@ -2,6 +2,12 @@
 #define FOLLOWS_H
 
 #include <QWidget>
+#include <QVBoxLayout>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QStringListModel>
+#include <QCompleter>
+#include <QSpacerItem>
 
 namespace Ui {
 class Follows;
@@ -15,8 +21,13 @@ public:
     explicit Follows(QWidget *parent = nullptr);
     ~Follows();
 
+private slots:
+
 private:
     Ui::Follows *ui;
+    QLineEdit *search_line;
+    QStringListModel *model;
+    QCompleter *completer;
 };
 
 #endif // FOLLOWS_H

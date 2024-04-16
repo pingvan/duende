@@ -32,6 +32,7 @@ private:
     Manager *manager;
     QLineEdit *lineEditActors;
     QLineEdit *lineEditMovies;
+    QLineEdit *lineEditGenres;
 };
 
 #endif // QUESTIONNAIRE_H

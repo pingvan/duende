@@ -91,6 +91,8 @@ grpc::Status auth_service::Signup(
     payload.set_email(email);
     payload.set_user_id(user.id());
 
+    response->set_id(user.id());
+
     if (!username_is_valid(username).ok()) {
         return username_is_valid(username);
     }
@@ -101,11 +103,13 @@ grpc::Status auth_service::Signup(
         return password_is_valid(password);
     }
     if (connector.is_nickname_used(username) || connector.is_email_used(email)) {
+        response->set_message("User already exists");
         return grpc::Status(
             grpc::StatusCode::ALREADY_EXISTS, "User already exists"
         );
     }
     if (password != password_confirmation) {
+        response->set_message("Passwords do not match");
         return grpc::Status(
             grpc::StatusCode::INVALID_ARGUMENT, "Passwords do not match"
         );
@@ -115,6 +119,7 @@ grpc::Status auth_service::Signup(
     token_service.save_refresh_token(user.id(), tokens->refresh());
     response->set_allocated_tokens(tokens);
     save_user(user, password, tokens);
+    response->set_message("OK");
     return grpc::Status::OK;
 }
 
@@ -137,7 +142,6 @@ grpc::Status auth_service_data::GetUserPrewiew(grpc::ServerContext *context,
 }
 
 grpc::Status auth_service_data::GetUserFullPage(grpc::ServerContext *context, const authservice::RequestWithUserId *request, authservice::UserFullPage *response) {
-    std::cout << "ID: " << request->user_id() << std::endl;
     database::authservice_database_api::get_user_full_page(request->user_id()).convert_to_proto(response);
     return grpc::Status::OK;
 }

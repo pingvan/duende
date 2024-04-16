@@ -10,6 +10,9 @@
 #include <QGraphicsView>
 #include <QPushButton>
 #include <QLabel>
+#include <QGraphicsScene>
+#include <QGraphicsPixmapItem>
+#include <QVBoxLayout>
 
 
 namespace Ui {
@@ -28,24 +31,53 @@ private slots:
     void on_button_edit_clicked();
 
     void on_button_save_clicked();
+    void on_plusItem_favActors_clicked();
+    void on_plusItem_watchlist_clicked();
 
 private:
     Ui::Profile *ui;
     Manager *manager;
+
+    QVBoxLayout *leftBox;
+    QVBoxLayout *rightBox;
     
     QLabel *label_status;
     QLabel *label_about;
     QLabel *label_username;
 
     QLineEdit *lineEdit_status;
-    QLineEdit *lineEdit_about;
+    QTextEdit *textEdit_about;
     QLineEdit *lineEdit_username;
+    QLineEdit *lineEdit_favActors;
 
     QGraphicsView *view_favActors;
     QGraphicsView *view_watchlist;
 
     QPushButton *button_edit;
     QPushButton *button_save;
+
+    QGraphicsScene *scene_favActors;
+    QGraphicsScene *scene_watchlist;
+
+    QStringList favActorsImages;
+    QStringList watchlistImages;
+};
+
+class ClickablePixmapItem : public QObject, public QGraphicsPixmapItem
+{
+    Q_OBJECT
+public:
+    explicit ClickablePixmapItem(const QPixmap &pixmap) : QGraphicsPixmapItem(pixmap) {}
+
+signals:
+    void clicked();
+
+protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override
+    {
+        emit clicked();
+        QGraphicsPixmapItem::mousePressEvent(event);
+    }
 };
 
 #endif // PROFILE_H
