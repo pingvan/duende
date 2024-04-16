@@ -10,7 +10,7 @@ venv
 *.sln
 *.vcxproj
 *.vcxproj.filters
-*Zone.Identifier
+*.Identifier
 
 # IDE files
 .DS_Store
