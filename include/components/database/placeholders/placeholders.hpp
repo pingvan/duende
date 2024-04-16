@@ -9,6 +9,7 @@
 // #include "services/profile_service/profile_service.pb.h"
 // #include "services/invitation/invitation.pb.h"
 #include "services/invitation_service/invitation.pb.h"
+#include "services/search_service/search_service.pb.h"
 
     enum class genre {
     action,
@@ -40,9 +41,17 @@
     struct actor_preview  {
         // std::string first_name;
         // std::string last_name;
+        actor_preview() = default;
+        actor_preview(const int &id_, const std::string &full_name_) : id(id_), full_name(full_name_) {}
+        int id;
         std::string full_name;
 
         void convert_to_proto(authservice::ActorPreview *proto) const {
+            proto->set_full_name(full_name);
+        }
+
+        void convert_to_proto(search_service::Actor *proto) const {
+            proto->set_actor_id(id);
             proto->set_full_name(full_name);
         }
     };
@@ -55,10 +64,18 @@
 
     //for search mostly
     struct film_preview  {
+        film_preview() = default;
+        film_preview(const int &id_, const std::string &title_) : id(id_), title(title_) {}
+        int id;
         std::string title;
         // std::vector<unsigned char> cover;
 
         void convert_to_proto(authservice::FilmPreview *proto) const {
+            proto->set_title(title);
+        }
+
+        void convert_to_proto(search_service::Film *proto) const {
+            proto->set_film_id(id);
             proto->set_title(title);
         }
     };
@@ -93,9 +110,17 @@
 
     struct user_preview  {
         // std::vector<unsigned char> photo;
+        user_preview() = default;
+        user_preview(const int &id_, const std::string &login_) : id(id_), login(login_) {}
+        int id;
         std::string login;
 
         void convert_to_proto(authservice::UserPreview *response) const  {
+            response->set_login(login);
+        }
+
+        void convert_to_proto(search_service::User *response) const  {
+            response->set_user_id(id);
             response->set_login(login);
         }
     };

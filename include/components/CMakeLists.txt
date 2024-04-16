@@ -8,6 +8,7 @@ set(COMPONENTS_SRCS
 		${CMAKE_CURRENT_SOURCE_DIR}/database/services/chat_service/chat_service.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/database/services/front_service/front_service.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/database/services/invite_service/invite_service.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/database/services/search_service/search_service.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/jwt/jwt.cpp
 		PARENT_SCOPE
 )

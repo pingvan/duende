@@ -8,6 +8,7 @@
 
 
 grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests> *stream) {
+    try {
     chat_service::ChatRequests request;
     while (stream->Read(&request)) {
         if (request.has_init()) {
@@ -30,6 +31,10 @@ grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::Serve
         }
     }
     return grpc::Status::OK;
+    } catch(const std::exception& e) {
+        std::cerr << e.what() << '\n';
+        return grpc::Status::CANCELLED;
+    }
 }
 
 std::string chat_service_::make_timestamp() {
@@ -52,23 +57,26 @@ void chat_service_::send_to_chat(const chat_service::Message& msg) {
 
 
     auto timestamp = make_timestamp();
-    auto message_id = database::chat_service_database_api::add_message(msg.sender_id(), msg.chat_id(), msg.timestamp_(), msg.message_text());
+    auto message_id = database::chat_service_database_api::add_message(msg.sender_id(), msg.chat_id(), timestamp, msg.message_text());
     auto members_ids = database::chat_service_database_api::get_members_ids(msg.chat_id());
     for (auto member_id : members_ids) {
-        if (auto ptr = users_online.find(member_id); ptr == users_online.end()) {
-            Unhandled:
-            database::chat_service_database_api::add_unhandle_message(member_id, message_id);
-        } else {
-            uint cnt = 0;
-            std::cout << "writing\n";
-            bool success = ptr->second->Write(response);
-            while (!success || cnt != 10) {
-                success = ptr->second->Write(response);
-                cnt++;
-            }
-            if (!success) { //if not successfull - considering that stream is closed;
-                users_online.erase(ptr->first);
-                goto Unhandled;
+        if (member_id != msg.sender_id()) {
+            if (auto ptr = users_online.find(member_id); ptr == users_online.end()) {
+                Unhandled:
+                database::chat_service_database_api::add_unhandle_message(member_id, message_id);
+            } else {
+                uint cnt = 0;
+                std::cout << "writing\n";
+                bool success = ptr->second->Write(response);
+                std::cout << "status: " << success << '\n';
+                while (!success && cnt != 10) {
+                    success = ptr->second->Write(response);
+                    cnt++;
+                }
+                if (!success) { //if not successfull - considering that stream is closed;
+                    users_online.erase(ptr->first);
+                    goto Unhandled;
+                }
             }
         }
     }

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22.1)
+cmake_minimum_required(VERSION 3.26.1)
 
 project(duende)
 
@@ -45,25 +45,23 @@ add_executable(main
     ${generated_proto_models_srcs}
 )
 
-target_link_options(main PUBLIC
-        -lpqxx -lpq)
 
 add_dependencies(main generate_proto_models)
 add_dependencies(tests generate_proto_models)
+
+target_link_options(main PUBLIC
+        -lpqxx)
 
 target_link_libraries(main
         absl::flags_parse
         gRPC::grpc++
         protobuf::libprotobuf
         Threads::Threads
-        pqxx
 )
 
 target_include_directories(main PUBLIC
         ./include
         ./libs
-#        ${OPENSSL_CRYPTO_LIBRARY}
-#        ${OPENSSL_INCLUDE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
         ${LIBPQXX_INCLUDE_DIRS}
 )
@@ -71,19 +69,19 @@ target_include_directories(main PUBLIC
 target_link_options(main PUBLIC
         ${LIBPQXX_LDFLAGS})
 
+target_link_options(tests PUBLIC
+        -lpqxx)
+
 target_link_libraries(tests
         absl::flags_parse
         gRPC::grpc++
         protobuf::libprotobuf
         Threads::Threads
-        pqxx
 )
 
 target_include_directories(tests PUBLIC
         ./include
         ./libs
-#        ${OPENSSL_CRYPTO_LIBRARY}
-#        ${OPENSSL_INCLUDE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
         ${LIBPQXX_INCLUDE_DIRS}
 )
