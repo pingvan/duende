@@ -7,7 +7,7 @@
 namespace database {
 int chat_service_database_api::add_message(const int &sender_id, const int &chat_id, const std::string &time, const std::string &message_text) {
     const connector connection;
-    const auto result = connection.txn->exec_params("INSERT INTO messages (sender_id, chat_id, time, message_text) VALUES ($1, $2, $3, $4) RETURNING id", sender_id, chat_id, time, message_text);
+    const auto result = connection.txn->exec_params("INSERT INTO messages (sender_id, chat_id, sended_at, message_text_data) VALUES ($1, $2, $3, $4) RETURNING id", sender_id, chat_id, time, message_text);
     int message_id = 0;
     for (auto row : result) {
         message_id = row[0].as<int>();
