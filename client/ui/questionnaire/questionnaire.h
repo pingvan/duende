@@ -11,6 +11,8 @@
 #include <QDebug>
 #include <QPushButton>
 #include <QCompleter>
+#include <QStringListModel>
+#include <QMap>
 
 namespace Ui {
 class Questionnaire;
@@ -22,6 +24,9 @@ class Questionnaire : public QWidget
 
 public:
     explicit Questionnaire(Manager* managerPtr, QWidget *parent = nullptr);
+    QStringList searchActors(const QString &input);
+    QStringList searchMovies(const QString &input);
+    QStringList searchGenres(const QString &input);
     ~Questionnaire();
 
 signals:
@@ -30,6 +35,9 @@ signals:
 private slots:
     void on_pushButton_save_questionnaire_clicked();
     void onQuestionnaireFilled();
+    void updateActorsList(const QString &input);
+    void updateMoviesList(const QString &input);
+    void updateGenresList(const QString &input);
 
 private:
     Ui::Questionnaire *ui;
@@ -37,6 +45,12 @@ private:
     QLineEdit *lineEditActors;
     QLineEdit *lineEditMovies;
     QLineEdit *lineEditGenres;
+    QStringListModel *actors_model;
+    QStringListModel *movies_model;
+    QStringListModel *genres_model;
+    QMap<QString, int> actors_map;
+    QMap<QString, int> movies_map;
+    QMap<QString, int> genres_map;
 };
 
 #endif // QUESTIONNAIRE_H

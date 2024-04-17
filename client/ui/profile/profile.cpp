@@ -214,7 +214,7 @@ void Profile::button_save_clicked()
 
 void Profile::plusItem_favActors_clicked()
 {
-    Actors_SearchWindow *searchWindow = new Actors_SearchWindow(this);
+    Actors_SearchWindow *searchWindow = new Actors_SearchWindow(manager, this);
     searchWindow->setWindowModality(Qt::ApplicationModal);
     searchWindow->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     searchWindow->move(QGuiApplication::screens().at(0)->geometry().center() - searchWindow->rect().center());
@@ -223,7 +223,7 @@ void Profile::plusItem_favActors_clicked()
 
 void Profile::plusItem_watchlist_clicked()
 {
-    Movies_SearchWindow *searchWindow = new Movies_SearchWindow(this);
+    Movies_SearchWindow *searchWindow = new Movies_SearchWindow(manager, this);
     searchWindow->setWindowModality(Qt::ApplicationModal);
     searchWindow->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     searchWindow->move(QGuiApplication::screens().at(0)->geometry().center() - searchWindow->rect().center());

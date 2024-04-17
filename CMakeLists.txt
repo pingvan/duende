@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26.1)
+cmake_minimum_required(VERSION 3.22.1)
 
 project(duende)
 
@@ -57,6 +57,7 @@ target_link_libraries(main
         gRPC::grpc++
         protobuf::libprotobuf
         Threads::Threads
+        pqxx
 )
 
 target_include_directories(main PUBLIC
@@ -77,6 +78,7 @@ target_link_libraries(tests
         gRPC::grpc++
         protobuf::libprotobuf
         Threads::Threads
+        pqxx
 )
 
 target_include_directories(tests PUBLIC

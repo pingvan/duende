@@ -54,7 +54,7 @@ MainWindow::MainWindow(Manager* managerPtr, QWidget *parent)
     
     auto *chatsPage = new Chats(managerPtr);
     auto *recommendationsPage = new Recommendations();
-    auto *followsPage = new Follows();
+    auto *followsPage = new Follows(managerPtr);
     auto *profilePage = new Profile(managerPtr);
 
     pages->addWidget(chatsPage);

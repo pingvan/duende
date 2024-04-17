@@ -19,26 +19,17 @@ Questionnaire::Questionnaire(Manager* managerPtr, QWidget *parent)
     lineEditMovies = new QLineEdit;
     lineEditGenres = new QLineEdit;
 
-    QStringList actorsList;
-    actorsList << "Actor 1" << "Actor 2" << "Actor 3";
-
-    QStringList moviesList;
-    moviesList << "Movie 1" << "Movie 2" << "Movie 3";
-
-    QStringList genresList;
-    genresList << "Genre 1" << "Genre 2" << "Genre 3";
-
     lineEditActors->setPlaceholderText("Search actors...");
     lineEditMovies->setPlaceholderText("Search movies...");
     lineEditGenres->setPlaceholderText("Search genres...");
 
-    QStringListModel *actors_model = new QStringListModel(actorsList, lineEditActors);
-    QStringListModel *movies_model = new QStringListModel(moviesList, lineEditMovies);
-    QStringListModel *genres_model = new QStringListModel(genresList, lineEditGenres);
+    actors_model = new QStringListModel(searchActors(""), lineEditActors);
+    movies_model = new QStringListModel(searchMovies(""), lineEditMovies);
+    genres_model = new QStringListModel(searchGenres(""), lineEditGenres);
 
-    QCompleter *actorsCompleter = new QCompleter(actorsList, this);
-    QCompleter *moviesCompleter = new QCompleter(moviesList, this);
-    QCompleter *genresCompleter = new QCompleter(genresList, this);
+    QCompleter *actorsCompleter = new QCompleter(actors_model);
+    QCompleter *moviesCompleter = new QCompleter(movies_model);
+    QCompleter *genresCompleter = new QCompleter(genres_model);
 
     actorsCompleter->setCaseSensitivity(Qt::CaseInsensitive);
     moviesCompleter->setCaseSensitivity(Qt::CaseInsensitive);
@@ -65,6 +56,14 @@ Questionnaire::Questionnaire(Manager* managerPtr, QWidget *parent)
 
     this->setLayout(gridLayout);
 
+    connect(lineEditActors, &QLineEdit::textChanged, this, &Questionnaire::updateActorsList);
+    connect(lineEditMovies, &QLineEdit::textChanged, this, &Questionnaire::updateMoviesList);
+    connect(lineEditGenres, &QLineEdit::textChanged, this, &Questionnaire::updateGenresList);
+
+    connect(actorsCompleter, QOverload<const QString &>::of(&QCompleter::activated), this, &Questionnaire::onActorSelected);
+    connect(moviesCompleter, QOverload<const QString &>::of(&QCompleter::activated), this, &Questionnaire::onMovieSelected);
+    connect(genresCompleter, QOverload<const QString &>::of(&QCompleter::activated), this, &Questionnaire::onGenreSelected);
+
     qDebug() << "Questionnaire page end\n";
 }
 
@@ -76,14 +75,14 @@ Questionnaire::~Questionnaire()
 
 void Questionnaire::on_pushButton_save_questionnaire_clicked()
 {
-    QString favourite_actors = lineEditActors->text();
-    QString favourite_films = lineEditMovies->text();
-    QString favourite_genres = lineEditGenres->text();
+    QString favorite_actors = lineEditActors->text();
+    QString favorite_films = lineEditMovies->text();
+    QString favorite_genres = lineEditGenres->text();
 
     // TODO: actor and film id by name and rating
     manager->new_client.add_actor(manager->ID, 0);
     manager->new_client.add_movie(manager->ID, 0, 0);
-    manager->new_client.add_genre(manager->ID, favourite_genres.toStdString());
+    manager->new_client.add_genre(manager->ID, favorite_genres.toStdString());
 
     emit questionnaireFilled();
 }
@@ -91,4 +90,67 @@ void Questionnaire::on_pushButton_save_questionnaire_clicked()
 void Questionnaire::onQuestionnaireFilled() {
 }
 
+QStringList Questionnaire::searchActors(const QString &input)
+{
+    QStringList actors;
 
+    auto response = manager->new_client.search_actor_by_name(input.toStdString());
+
+    for (int i = 0; i < response->actors_size(); i++) {
+        actors.append(QString::fromStdString(response->actors(i).full_name()));
+    }
+    return actors;
+}
+
+QStringList Questionnaire::searchMovies(const QString &input)
+{
+    QStringList films;
+
+    auto response = manager->new_client.search_film_by_title(input.toStdString());
+
+    for (int i = 0; i < response->films_size(); i++) {
+        films.append(QString::fromStdString(response->films(i).title()));
+    }
+    return films;
+}
+
+QStringList Questionnaire::searchGenres(const QString &input)
+{
+    QStringList genres;
+    genres << "drama" << "comedy" << "thriller";
+
+    return genres;
+}
+
+void Questionnaire::updateActorsList(const QString &input)
+{
+    actors_model->setStringList(searchActors(input));
+}
+
+void Questionnaire::updateMoviesList(const QString &input)
+{
+    movies_model->setStringList(searchMovies(input));
+}
+
+void Questionnaire::updateGenresList(const QString &input)
+{
+    genres_model->setStringList(searchGenres(input));
+}
+
+void Questionnaire::onActorSelected(const QString &actor)
+{
+    qDebug() << "Actor selected: " << actor;
+    // Добавьте здесь код для обработки выбора актера
+}
+
+void Questionnaire::onMovieSelected(const QString &movie)
+{
+    qDebug() << "Movie selected: " << movie;
+    // Добавьте здесь код для обработки выбора фильма
+}
+
+void Questionnaire::onGenreSelected(const QString &genre)
+{
+    qDebug() << "Genre selected: " << genre;
+    // Добавьте здесь код для обработки выбора жанра
+}

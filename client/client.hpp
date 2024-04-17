@@ -11,6 +11,8 @@
 #include "services/chat_service/chat_service.pb.h"
 #include "services/profile_service/profile.grpc.pb.h"
 #include "services/profile_service/profile.pb.h"
+#include "services/search_service/search_service.grpc.pb.h"
+#include "services/search_service/search_service.pb.h"
 
 struct client {
 private:
@@ -20,6 +22,7 @@ private:
     std::unique_ptr<chat_service::ChatDataService::Stub> chat_data_stub;
     std::unique_ptr<chat_service::ChatHandler::Stub> chat_stub;
     std::unique_ptr<profile::ProfileService::Stub> profile_stub;
+    std::unique_ptr<search_service::SerachService::Stub> search_stub;
 
     std::unique_ptr<grpc::ClientReaderWriter<chat_service::ChatRequests, chat_service::ChatResponses>> stream;
 
@@ -70,6 +73,10 @@ public:
         }
     }
 
+
+    search_service::UserSearchResponse *search_user_by_credentials(const std::string &user_credentials);
+    search_service::ActorSearchResponse *search_actor_by_name(const std::string &actor_name);
+    search_service::FilmSearchResponse *search_film_by_title(const std::string &film_title);
     authservice::UserFullPage *get_user_full_page(int user_id);
     void change_username(int user_id, const std::string &new_username); 
     void change_quote(int user_id, const std::string &new_quote); 

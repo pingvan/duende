@@ -1,7 +1,5 @@
 #include "client.hpp"
 
-#include <iostream>
-
 
 client::client(const std::shared_ptr<grpc::Channel> &new_channel)
     : channel(new_channel),
@@ -9,7 +7,35 @@ client::client(const std::shared_ptr<grpc::Channel> &new_channel)
       authorization_data_stub(authservice::AuthServiceData::NewStub(new_channel)),
       chat_data_stub(chat_service::ChatDataService::NewStub(new_channel)),
       chat_stub(chat_service::ChatHandler::NewStub(new_channel)),
-      profile_stub(profile::ProfileService::NewStub(new_channel)) {
+      profile_stub(profile::ProfileService::NewStub(new_channel)),
+      search_stub(search_service::SerachService::NewStub(new_channel)) {
+}
+
+search_service::UserSearchResponse *client::search_user_by_credentials(const std::string &user_credentials) {
+    grpc::ClientContext context;
+    search_service::UserSearchRequest request;
+    auto *response = new search_service::UserSearchResponse;
+    request.set_user_credentials(user_credentials);
+    grpc::Status status = search_stub->SearchUserByCredentials(&context, request, response);
+    return response;
+}
+
+search_service::ActorSearchResponse *client::search_actor_by_name(const std::string &actor_name) {
+    grpc::ClientContext context;
+    search_service::ActorSearchRequest request;
+    auto *response = new search_service::ActorSearchResponse;
+    request.set_actor_name(actor_name);
+    grpc::Status status = search_stub->SearchActorByName(&context, request, response);
+    return response;
+}
+
+search_service::FilmSearchResponse *client::search_film_by_title(const std::string &film_title) {
+    grpc::ClientContext context;
+    search_service::FilmSearchRequest request;
+    auto *response = new search_service::FilmSearchResponse;
+    request.set_film_title(film_title);
+    grpc::Status status = search_stub->SearchFilmByTitle(&context, request, response);
+    return response;
 }
 
 authservice::UserFullPage *client::get_user_full_page(int user_id) {
