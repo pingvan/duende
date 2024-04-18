@@ -3,6 +3,10 @@
 #include "token.hpp"
 #include "components/database/services/authservice/authservice.hpp"
 
+#include <cassert>
+#include <iostream>
+
+
 int auth_service::save_user(authservice::User &user, std::string password, authservice::Tokens *tokens) {
     user.set_salt(generate_salt(10));
     std::string hashed_password = generate_hash(password + user.salt());
@@ -111,7 +115,12 @@ grpc::Status auth_service::Signup(
     authservice::Tokens *tokens = token_service.generate_tokens(payload);
     token_service.save_refresh_token(user.id(), tokens->refresh());
     response->set_allocated_tokens(tokens);
-    save_user(user, password, tokens);
+    try {
+        save_user(user, password, tokens); //here
+    } catch (std::exception &e) {
+        std::cout << e.what() << '\n';
+    }
+    response->set_message("OK");
     return grpc::Status::OK;
 }
 
@@ -134,6 +143,14 @@ grpc::Status auth_service_data::GetUserPrewiew(grpc::ServerContext *context,
 }
 
 grpc::Status auth_service_data::GetUserFullPage(grpc::ServerContext *context, const authservice::RequestWithUserId *request, authservice::UserFullPage *response) {
-    database::authservice_database_api::get_user_full_page(request->user_id()).convert_to_proto(response);
+    std::cout << "called getter\n";
+    // try {
+        database::authservice_database_api::get_user_full_page(request->user_id()).convert_to_proto(response);
+    // } catch(std::exception &e) {
+    //     std::cout << e.what() << '\n';
+    // }
+    assert(response != nullptr);
+    std::cout << "about: " << response->about() << '\n';
+    std::cout << "quote: "  << response->quote() << '\n';
     return grpc::Status::OK;
 }

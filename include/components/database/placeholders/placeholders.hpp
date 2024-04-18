@@ -134,21 +134,25 @@
         std::vector<film_on_user_page> watched_films;
 
         void convert_to_proto(authservice::UserFullPage *proto) const {
-            auto *protobuf_prewiew = new authservice::UserPreview;
-            protobuf_prewiew->set_login(prewiew.login);
-            proto->set_allocated_preview(protobuf_prewiew);
-            proto->set_quote(quote);
-            proto->set_about(about);
-            for (const auto& genre : fauvorite_genres) {
-                proto->add_favorite_genres(static_cast<authservice::Genre>(genre));
-            }
-            for (const auto& actor : fauvorite_actors) {
-                auto actor_proto = proto->add_favorite_actors();
-                actor.convert_to_proto(actor_proto);
-            }
-            for (const auto& film : this->watched_films) {
-                auto film_proto = proto->add_watched_films();
-                film.convert_to_proto(film_proto);
+            try {
+                auto *protobuf_prewiew = new authservice::UserPreview;
+                protobuf_prewiew->set_login(prewiew.login);
+                proto->set_allocated_preview(protobuf_prewiew);
+                proto->set_quote(quote);
+                proto->set_about(about);
+                for (const auto& genre : fauvorite_genres) {
+                    proto->add_favorite_genres(static_cast<authservice::Genre>(genre));
+                }
+                for (const auto& actor : fauvorite_actors) {
+                    auto actor_proto = proto->add_favorite_actors();
+                    actor.convert_to_proto(actor_proto);
+                }
+                for (const auto& film : this->watched_films) {
+                    auto film_proto = proto->add_watched_films();
+                    film.convert_to_proto(film_proto);
+                }
+            } catch (std::exception &e) {
+                std::cout << e.what() << '\n';
             }
         }
     };
