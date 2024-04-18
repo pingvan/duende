@@ -1,6 +1,7 @@
 #pragma once
 
 #include <grpcpp/grpcpp.h>
+#include "components/database/services/invitation_service/invitation_service.hpp"
 #include "services/invitation_service/invitation.grpc.pb.h"
 #include "services/invitation_service/invitation.pb.h"
 
