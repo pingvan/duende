@@ -4,6 +4,7 @@
 #include "components/database/services/subscription_service/subscription_service.hpp"
 #include "services/subscription_service/subscription.grpc.pb.h"
 #include "services/subscription_service/subscription.pb.h"
+#include <vector>
 
 using grpc::Server;
 using grpc::ServerBuilder;
