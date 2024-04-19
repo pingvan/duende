@@ -11,6 +11,13 @@ using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::ServerReaderWriter;
 using grpc::Status;
+using subscription::StreamRequest;
+using subscription::StreamResponse;
+using subscription::SubscribeRequest;
+using subscription::UnsubscribeRequest;
+using subscription::ShowAllSubscribersRequest;
+using subscription::ShowAllSubscriptionsRequest;
+using subscription::Notification;
 
 class SubscriptionServiceImpl final : public SubscriptionService::Service {
     Status SubscriptionStream(
