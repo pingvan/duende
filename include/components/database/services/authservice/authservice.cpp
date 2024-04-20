@@ -1,5 +1,6 @@
 #include "authservice.hpp"
 // #include <sys/types.h>
+#include <cassert>
 #include <components/database/connection/database-connector.hpp>
 #include <exception>
 #include <string>
@@ -144,10 +145,13 @@ user_full_page authservice_database_api::get_user_full_page(const int &user_id) 
     int form_id = -1;
     for (const auto &row : result) {
         form_id = row[0].as<int>();
+        //row[1].is_null()
         full_page.quote = row[1].as<std::string>();
+        //here
         full_page.about = row[2].as<std::string>();
         full_page.fauvorite_genres = array_parser(row[3].as<std::string>());
     }
+    // assert(false);
     static std::string get_views = "SELECT ratio, title, description, genres "
                         "FROM VIEWS "
                         "INNER JOIN films ON views.film_id = films.id "

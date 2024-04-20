@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package subscription;
+
+service SubscriptionService {
+  rpc SubscriptionStream(stream StreamRequest) returns (stream StreamResponse) {}
+}
+
+message Notification {
+    int32 subscriber_id = 1;
+    int32 subscribie_id = 2;
+    string message = 3;
+}
+
+message StreamRequest {
+  oneof RequestEvent {
+    SubscribeRequest subscribe_request = 1;
+    UnsubscribeRequest unsubscribe_request = 2;
+    ShowAllSubscriptionsRequest show_all_subscriptions_request = 3;
+    ShowAllSubscribersRequest show_all_subscribers_request = 4;
+  }
+}
+
+message StreamResponse {
+  oneof ResponseEvent {
+    SubscribeResponse subscribe_response = 1;
+    UnsubscribeResponse unsubscribe_response = 2;
+    ShowAllSubscriptionsResponse show_all_subscriptions_response = 3;
+    ShowAllSubscribersResponse show_all_subscribers_response = 4;
+  }
+  Notification notification = 5;
+}
+
+message SubscribeRequest {
+    int32 subscriber_id = 1;
+    int32 subscribie_id = 2;
+}
+
+message UnsubscribeRequest {
+    int32 subscriber_id = 1;
+    int32 subscribie_id = 2;
+}
+
+message ShowAllSubscriptionsRequest {
+    int32 subscriber_id = 1;
+}
+
+message ShowAllSubscribersRequest {
+    int32 subscribie_id = 1;
+}
+
+message SubscribeResponse {
+  string message = 1;
+}
+
+message UnsubscribeResponse {
+  string message = 1;
+}
+
+message ShowAllSubscriptionsResponse {
+    repeated int32 subscribie_id = 1;
+}
+
+message ShowAllSubscribersResponse {
+    repeated int32 subscriber_id = 1;
+}
