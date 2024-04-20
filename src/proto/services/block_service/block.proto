@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package block;
+
+service BlockService {
+  rpc BlockStream(stream StreamRequest) returns (stream StreamResponse) {}
+}
+
+message StreamRequest {
+  oneof RequestEvent {
+    BlockRequest block_request = 1;
+    UnblockRequest unblock_request = 2;
+    ShowAllBlockedRequest show_all_blocked_request = 3;
+  }
+}
+
+message StreamResponse {
+  oneof ResponseEvent {
+    BlockResponse block_response = 1;
+    UnblockResponse unblock_response = 2;
+    ShowAllBlockedResponse show_all_blocked_response = 3;
+  }
+  Notification notification = 4;
+}
+
+message BlockRequest {
+    int32 blocker_id = 1;
+    int32 blockie_id = 2;
+}
+
+message UnblockRequest {
+    int32 blocker_id = 1;
+    int32 blockie_id = 2;
+}
+
+message ShowAllBlockedRequest {
+    int32 blockie_id = 1;
+}
+
+message BlockResponse {
+  string message = 1;
+}
+
+message UnblockResponse {
+  string message = 1;
+}
+
+message ShowAllBlockedResponse {
+    repeated int32 blockie_id = 1;
+}

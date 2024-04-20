@@ -11,10 +11,15 @@
 #include "services/chat_service/chat_service.pb.h"
 
 
-struct chat_service_ final : public chat_service::chat_handler::Service {
+struct chat_service_ final : public chat_service::ChatHandler::Service {
     [[nodiscard]] static std::string make_timestamp();
-    grpc::Status handle_chat(grpc::ServerContext* context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>* stream) override;
+    grpc::Status HandleChat(grpc::ServerContext* context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>* stream) override;
     void send_to_chat(const chat_service::Message& msg);
 private:
     std::unordered_map<int, std::shared_ptr<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>> users_online;
+};
+
+struct chat_data_service final : public chat_service::ChatDataService::Service {
+    grpc::Status GetUserChats(grpc::ServerContext* context, const chat_service::GetChatsRequest* request, chat_service::UserChats* response) override;
+    grpc::Status GetLastMessages(grpc::ServerContext *context, const chat_service::GetChatMessagesRequest *request, chat_service::LastMessages *responst) override;
 };

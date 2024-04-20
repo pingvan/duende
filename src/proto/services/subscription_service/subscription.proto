@@ -28,7 +28,7 @@ message StreamResponse {
     ShowAllSubscriptionsResponse show_all_subscriptions_response = 3;
     ShowAllSubscribersResponse show_all_subscribers_response = 4;
   }
-  Notification notification = 3;
+  Notification notification = 5;
 }
 
 message SubscribeRequest {

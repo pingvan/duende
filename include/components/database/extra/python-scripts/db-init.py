@@ -1,22 +1,19 @@
 import psycopg2
 
-# Connect to the PostgreSQL database
 connection = psycopg2.connect(
     "postgres://root:strongpassword@localhost:5432/duende"
 )
 
-# Create a cursor object to execute SQL queries
 cursor = connection.cursor()
 
-# Define SQL statements to create tables
 
 create_genre_type = """DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'genre') THEN
         CREATE TYPE genre AS ENUM ('action', 'adventure', 'comedy', 'drama', 'horror', 'sci-fi', 'fantasy', 'thriller',
     'mystery', 'romance', 'animation', 'documentary',
-    'crime', 'western', 'musical', 'historical', 'war',
-    'biographical', 'sports', 'family');
+    'crime', 'western', 'musical', 'history', 'war', 'music',
+    'biographical', 'sports', 'family', 'foreign', 'tv movie');
     END IF;
 END $$
 """
@@ -53,12 +50,12 @@ CREATE TABLE IF NOT EXISTS passwords (
     FOREIGN KEY (user_id) REFERENCES users(id)
 )
 """
-
+#changed lines 58, 59
 create_forms_table = """
 CREATE TABLE IF NOT EXISTS forms (
     id SERIAL PRIMARY KEY,
     photo BYTEA,
-    quote VARCHAR(50),
+    quotation VARCHAR(50), 
     about VARCHAR(250),
     user_id INT NOT NULL,
     favourite_genres genre[],
@@ -88,8 +85,8 @@ CREATE TABLE IF NOT EXISTS views (
 create_films_table = """
 CREATE TABLE IF NOT EXISTS films (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(25) NOT NULL,
-    description VARCHAR(250) NOT NULL,
+    title text NOT NULL,
+    description text NOT NULL,
     genres genre[]
 )
 """
@@ -106,8 +103,7 @@ CREATE TABLE IF NOT EXISTS producers_by_film (
 create_actors_table = """
 CREATE TABLE IF NOT EXISTS actors(
     id SERIAL PRIMARY KEY,
-    first_name VARCHAR(25),
-     last_name VARCHAR(25)
+    full_name text
 )
 """
 
@@ -134,7 +130,7 @@ CREATE TABLE IF NOT EXISTS chats (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMP NOT NULL,
     is_group_chat BOOLEAN NOT NULL,
-    name VARCHAR(50) NOT NULL,
+    chat_name VARCHAR(50) NOT NULL,
     -- cover BYTEA,
     description text NOT NULL,
     users_count INT NOT NULL
@@ -144,12 +140,12 @@ CREATE TABLE IF NOT EXISTS chats (
 """
 
 create_messages_table = """
-CREATE TABLE IF NOT EXISTS message (
+CREATE TABLE IF NOT EXISTS messages (
     id SERIAL PRIMARY KEY,
     sender_id INT NOT NULL,
     chat_id INT NOT NULL,
-    time TIMESTAMP NOT NULL,
-    message_text text NOT NULL,
+    sended_at TIMESTAMP NOT NULL,
+    message_text_data text NOT NULL,
     FOREIGN KEY(sender_id) REFERENCES users(id),
     FOREIGN KEY(chat_id) REFERENCES chats(id)
 );

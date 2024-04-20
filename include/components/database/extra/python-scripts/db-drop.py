@@ -11,11 +11,11 @@ cursor = connection.cursor()
 # Define SQL statements to create tables
 
 drop_tables = """
-DROP TABLE IF EXISTS clients, passwords, 
+DROP TABLE IF EXISTS users, passwords, 
 tokens, forms, producers, views, films, 
 producers_by_film, actors, actors_to_form, 
-actors_to_film, chats, message, chat_membership, 
-invites, unhandled_messages, unhandled_invites
+actors_to_film, chats, messages, chat_membership, 
+invites, unhandled_messages, unhandled_invites CASCADE
 """
 
 drop_types = """

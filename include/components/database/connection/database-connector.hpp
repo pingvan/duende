@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <memory>
 #include <pqxx/pqxx>
 #include <string>
@@ -7,10 +8,14 @@
 
 namespace database {
 
-struct authservice;
-struct profile_service;
-struct chat_service;
+struct authservice_database_api;
+struct profile_service_database_api;
+struct chat_service_database_api;
 struct front_service;
+struct invite_service_database_api;
+struct search_service_database_api;
+
+struct databaseTesting;
 
 struct connector {
     connector() {
@@ -18,12 +23,20 @@ struct connector {
         con = std::make_unique<pqxx::connection>(connection_string);
         txn = std::make_unique<pqxx::work>(*con);
     }
-private:
 
-    friend struct authservice;
-    friend struct profile_service;
-    friend struct chat_service;
+    // ~connector() {
+    //     txn->commit();
+    // }
+public:
+
+    friend struct authservice_database_api;
+    friend struct profile_service_database_api;
+    friend struct chat_service_database_api;
     friend struct front_service;
+    friend struct invite_service_database_api;
+    friend struct search_service_database_api;
+
+    friend struct databaseTesting;
 
     std::unique_ptr<pqxx::connection> con;
     std::unique_ptr<pqxx::work> txn;

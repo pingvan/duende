@@ -3,8 +3,10 @@
 #include <pqxx/pqxx>
 #include <string>
 
+#include "components/database/placeholders/placeholders.hpp"
+
 namespace database {
-struct authservice {
+struct authservice_database_api {
     [[nodiscard]] static bool is_email_used(const std::string &user_email);
     [[nodiscard]] static bool is_nickname_used(const std::string &user_nickname);
 
@@ -31,5 +33,12 @@ struct authservice {
     update_refresh_token(const int &user_id, const std::string &refresh_token);
 
     static void remove_refresh_token(const int &user_id);
+
+    static user_preview get_user_preview(const int &user_id);
+    static user_full_page get_user_full_page(const int &user_id);
+private:
+    static std::vector<genre> array_parser(const std::string &json_string);
+    static genre enum_from_string(const std::string &ss);
+
 };
 }

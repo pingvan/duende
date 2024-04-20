@@ -1,10 +1,17 @@
 #include "chat_service.hpp"
+#include <grpcpp/support/status.h>
 
 #include <chrono>
 #include <iostream>
+#include "components/database/services/chat_service/chat_service.hpp"
+#include <iostream>
 
-grpc::Status chat_service_::handle_chat(grpc::ServerContext *context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests> *stream) {
+
+grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests> *stream) {
     chat_service::ChatRequests request;
+    grpc::ClientContext client_context;
+    auto deadline = client_context.deadline();
+    client_context.set_deadline(std::chrono::system_clock::now() + std::chrono::milliseconds(10));
     while (stream->Read(&request)) {
         if (request.has_init()) {
             users_online.insert({request.init().user_id(), std::make_shared<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>(*stream)});
@@ -23,7 +30,6 @@ grpc::Status chat_service_::handle_chat(grpc::ServerContext *context, grpc::Serv
             response.set_allocated_leave(disconnect_response);
             stream->Write(response);
         } else {
-            //some unsupported message
         }
     }
     return grpc::Status::OK;
@@ -41,7 +47,6 @@ std::string chat_service_::make_timestamp() {
 
 
 void chat_service_::send_to_chat(const chat_service::Message& msg) {
-    std::cout << "inside sending\n";
     chat_service::ChatResponses response;
     auto *accept_message = new chat_service::AcceptMessage;
     auto *allocated_msg = new chat_service::Message(msg);
@@ -50,25 +55,43 @@ void chat_service_::send_to_chat(const chat_service::Message& msg) {
 
 
     auto timestamp = make_timestamp();
-    auto message_id = database::chat_service::add_message(msg.sender_id(), msg.chat_id(), msg.timestamp_(), msg.message_text());
-    auto members_ids = database::chat_service::get_members_ids(msg.chat_id());
+    auto message_id = database::chat_service_database_api::add_message(msg.sender_id(), msg.chat_id(), timestamp, msg.message_text());
+    auto members_ids = database::chat_service_database_api::get_members_ids(msg.chat_id());
     for (auto member_id : members_ids) {
-        if (auto ptr = users_online.find(member_id); ptr == users_online.end()) {
-            Unhandled:
-            database::chat_service::add_unhandle_message(member_id, message_id);
-        } else {
-            uint cnt = 0;
-            std::cout << "writing\n";
-            bool success = ptr->second->Write(response);
-            while (!success || cnt != 10) {
-                success = ptr->second->Write(response);
-                cnt++;
-            }
-            if (!success) { //if not successfull - considering that stream is closed
-                users_online.erase(ptr->first);
-                goto Unhandled;
+        if (member_id != msg.sender_id()) {
+            if (auto ptr = users_online.find(member_id); ptr == users_online.end()) {
+                Unhandled:
+                database::chat_service_database_api::add_unhandle_message(member_id, message_id);
+            } else {
+                uint cnt = 0;
+                std::cout << "writing\n";
+                bool success = ptr->second->Write(response);
+                std::cout << "status: " << success << '\n';
+                while (!success && cnt != 10) {
+                    success = ptr->second->Write(response);
+                    cnt++;
+                }
+                if (!success) { //if not successfull - considering that stream is closed;
+                    users_online.erase(ptr->first);
+                    goto Unhandled;
+                }
             }
         }
     }
+}
 
+grpc::Status chat_data_service::GetUserChats(grpc::ServerContext *context, const chat_service::GetChatsRequest *request, chat_service::UserChats *response) {
+        auto chats = database::chat_service_database_api::get_user_chats(request->user_id());
+        chats.convert_to_proto(response);
+        return grpc::Status::OK;
+}
+
+grpc::Status chat_data_service::GetLastMessages(grpc::ServerContext *context, const ::chat_service::GetChatMessagesRequest *request, ::chat_service::LastMessages *response) {
+        auto is_user_in_chat = database::chat_service_database_api::check_user_in_chat(request->user_id(), request->chat_id());
+        if (!is_user_in_chat) {
+            return grpc::Status(grpc::StatusCode::PERMISSION_DENIED, "User is not in chat");
+        }
+        auto messages = database::chat_service_database_api::get_chats_messages(request->chat_id());
+        messages.convert_to_proto(response);
+        return grpc::Status::OK;
 }

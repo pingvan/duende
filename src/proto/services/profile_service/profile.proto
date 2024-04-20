@@ -15,6 +15,10 @@ service ProfileService {
   rpc GetProfile (GetProfileRequest) returns (GetProfileReply) {}
 }
 
+service ProfileServiceData {
+
+}
+
 message Movie{
   int32 id = 1;
   int32 rating = 2;
