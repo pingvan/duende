@@ -136,3 +136,35 @@ Status ProfileServiceImpl::RemoveFromListOfGenres(
     reply->set_message("List of genres changed");
     return Status::OK;
 }
+
+Status ProfileServiceImpl::GetProfile(
+    ServerContext *context,
+    const ProfileRequest *request,
+    GetProfileReply *reply
+) {
+    int id = request->id();
+    std::string username = database::profile_service_database_api::get_username(id);
+    std::string quote = database::profile_service_database_api::get_quote(id);
+    std::string bio = database::profile_service_database_api::get_bio(id);
+    std::vector<Movie> movies = database::profile_service_database_api::get_movies(id);
+    std::vector<Actor> actors = database::profile_service_database_api::get_actors(id);
+    std::vector<Genre> genres = database::profile_service_database_api::get_genres(id);
+
+    reply->set_username(username);
+    reply->set_quote(quote);
+    reply->set_bio(bio);
+
+    for (const auto &movie : movies) {
+        Movie *reply_movie = reply->add_movies();
+    }
+
+    for (const auto &actor : actors) {
+        Actor *reply_actor = reply->add_actors();
+    }
+
+    for (const auto &genre : genres) {
+        Genre *reply_genre = reply->add_genres();
+    }
+
+    return Status::OK;
+}
