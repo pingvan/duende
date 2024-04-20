@@ -139,7 +139,7 @@ Status ProfileServiceImpl::RemoveFromListOfGenres(
 
 Status ProfileServiceImpl::GetProfile(
     ServerContext *context,
-    const ProfileRequest *request,
+    const GetProfileRequest *request,
     GetProfileReply *reply
 ) {
     int id = request->id();
@@ -156,14 +156,18 @@ Status ProfileServiceImpl::GetProfile(
 
     for (const auto &movie : movies) {
         Movie *reply_movie = reply->add_movies();
+        reply_movie->set_id(movie.id());
+        reply_movie->set_rating(movie.rating());
     }
 
     for (const auto &actor : actors) {
         Actor *reply_actor = reply->add_actors();
+        reply_actor->set_id(actor.id());
     }
 
     for (const auto &genre : genres) {
         Genre *reply_genre = reply->add_genres();
+        reply_genre->set_name(genre.name());
     }
 
     return Status::OK;
