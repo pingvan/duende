@@ -7,7 +7,7 @@ Status BlockServiceImpl::Block(
 ) {
     database::connector db_connector;
     if (db_connector.is_blocked(request->blocker_id(), request->blockie_id())) {
-        response->set_message("User is already blocked");
+        return Status(grpc::ALREADY_EXISTS, "User is already blocked");
     } else {
         db_connector.block_user(request->blocker_id(), request->blockie_id());
         response->set_message("User blocked");
@@ -22,7 +22,7 @@ Status BlockServiceImpl::Unblock(
 ) {
     database::connector db_connector;
     if (!db_connector.is_blocked(request->blocker_id(), request->blockie_id())) {
-        response->set_message("User is not blocked");
+        return Status(grpc::NOT_FOUND, "User is not blocked");
     } else {
         db_connector.unblock_user(request->blocker_id(), request->blockie_id());
         response->set_message("User unblocked");
