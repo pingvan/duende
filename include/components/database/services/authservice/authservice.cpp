@@ -67,7 +67,6 @@ std::string authservice_database_api::get_user_nickname(const int &user_id) {
 }
 
 
-
 int authservice_database_api::add_user(const std::string &user_email, const std::string &user_nickname,
     const std::string &refresh_token,
     const std::string &password_hash, const std::string &password_salt) {
@@ -79,7 +78,7 @@ int authservice_database_api::add_user(const std::string &user_email, const std:
     }
     connection.txn->exec_params("INSERT INTO tokens VALUES ($1, $2)", user_id, refresh_token);
     connection.txn->exec_params("INSERT INTO passwords VALUES ($1, $2, $3)", user_id, password_hash, password_salt);
-    connection.txn->exec_params("INSERT INTO forms (user_id) VALUES ($1)", user_id);
+    connection.txn->exec_params("INSERT INTO forms (user_id, quotation, about) VALUES ($1, $2, $3)", user_id, "", "");
     connection.txn->commit();
     return user_id;
 }
