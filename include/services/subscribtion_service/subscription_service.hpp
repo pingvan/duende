@@ -9,19 +9,39 @@
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
-using grpc::ServerReaderWriter;
 using grpc::Status;
-using subscription::StreamRequest;
-using subscription::StreamResponse;
 using subscription::SubscribeRequest;
+using subscription::SubscribeResponse;
 using subscription::UnsubscribeRequest;
-using subscription::ShowAllSubscribersRequest;
+using subscription::UnsubscribeResponse;
 using subscription::ShowAllSubscriptionsRequest;
+using subscription::ShowAllSubscriptionsResponse;
+using subscription::ShowAllSubscribersRequest;
+using subscription::ShowAllSubscribersResponse;
 using subscription::Notification;
 
-class SubscriptionServiceImpl final : public SubscriptionService::Service {
-    Status SubscriptionStream(
+class SubscriptionServiceImpl final : public subscription::SubscriptionService::Service {
+    Status Subscribe(
         ServerContext *context,
-        ServerReaderWriter<StreamResponse, StreamRequest> *stream
+        const SubscribeRequest *request,
+        SubscribeResponse *response
+    ) override;
+
+    Status Unsubscribe(
+        ServerContext *context,
+        const UnsubscribeRequest *request,
+        UnsubscribeResponse *response
+    ) override;
+
+    Status ShowAllSubscriptions(
+        ServerContext *context,
+        const ShowAllSubscriptionsRequest *request,
+        ShowAllSubscriptionsResponse *response
+    ) override;
+
+    Status ShowAllSubscribers(
+        ServerContext *context,
+        const ShowAllSubscribersRequest *request,
+        ShowAllSubscribersResponse *response
     ) override;
 };
