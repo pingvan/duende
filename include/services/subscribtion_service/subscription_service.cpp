@@ -7,7 +7,7 @@ Status SubscriptionServiceImpl::Subscribe(
 ) {
     database::connector db_connector;
     if (db_connector.is_subscribed(request->subscriber_id(), request->subscribie_id())) {
-        response->set_message("Subscription already exists");
+        return Status(grpc::ALREADY_EXISTS, "Subscription already exists");
     } else {
         db_connector.subscribe(request->subscriber_id(), request->subscribie_id());
         response->set_message("Subscription made");
@@ -28,7 +28,7 @@ Status SubscriptionServiceImpl::Unsubscribe(
 ) {
     database::connector db_connector;
     if (db_connector.is_unsubscribed(request->subscriber_id(), request->subscribie_id())) {
-        response->set_message("Subscription does not exist");
+        return Status(grpc::NOT_FOUND, "Subscription does not exist");
     } else {
         db_connector.unsubscribe(request->subscriber_id(), request->subscribie_id());
         response->set_message("Unsubscription made");
