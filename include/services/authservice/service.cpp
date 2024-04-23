@@ -115,12 +115,9 @@ grpc::Status auth_service::Signup(
     authservice::Tokens *tokens = token_service.generate_tokens(payload);
     token_service.save_refresh_token(user.id(), tokens->refresh());
     response->set_allocated_tokens(tokens);
-    try {
-        save_user(user, password, tokens); //here
-    } catch (std::exception &e) {
-        std::cout << e.what() << '\n';
-    }
-    response->set_message("OK");
+    save_user(user, password, tokens);
+    // response.set_al
+    // response->set_message("OK");
     return grpc::Status::OK;
 }
 
@@ -144,11 +141,11 @@ grpc::Status auth_service_data::GetUserPrewiew(grpc::ServerContext *context,
 
 grpc::Status auth_service_data::GetUserFullPage(grpc::ServerContext *context, const authservice::RequestWithUserId *request, authservice::UserFullPage *response) {
     std::cout << "called getter\n";
-    // try {
+    try {
         database::authservice_database_api::get_user_full_page(request->user_id()).convert_to_proto(response);
-    // } catch(std::exception &e) {
-    //     std::cout << e.what() << '\n';
-    // }
+    } catch(std::exception &e) {
+        std::cout << e.what() << '\n';
+    }
     assert(response != nullptr);
     std::cout << "about: " << response->about() << '\n';
     std::cout << "quote: "  << response->quote() << '\n';

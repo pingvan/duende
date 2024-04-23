@@ -46,6 +46,7 @@ TEST_F(databaseTesting, TestTablesExists) {
     for (const auto& row : result) {
         tables.push_back(row[0].as<std::string>());
     }
+    //change to expect
     ASSERT_EQ(tables.size(), tablesCNT);
     ASSERT_THAT(tables, ::testing::Contains("users"));
     ASSERT_THAT(tables, ::testing::Contains("tokens"));
