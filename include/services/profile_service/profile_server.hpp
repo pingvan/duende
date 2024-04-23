@@ -61,6 +61,6 @@ class ProfileServiceImpl final : public ProfileService::Service
   Status RemoveFromListOfGenres(ServerContext *context, const GenreRequest *request,
                                 ProfileReply *reply) override;
 
-  Status GetProfile(ServerContext *context, const GetProfileRequest *request,
-                                GetProfileReply *reply) override;
+  // Status GetProfile(ServerContext *context, const GetProfileRequest *request,
+  //                               GetProfileReply *reply) override;
 };
