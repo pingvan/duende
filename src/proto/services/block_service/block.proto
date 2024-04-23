@@ -3,24 +3,9 @@ syntax = "proto3";
 package block;
 
 service BlockService {
-  rpc BlockStream(stream StreamRequest) returns (stream StreamResponse) {}
-}
-
-message StreamRequest {
-  oneof RequestEvent {
-    BlockRequest block_request = 1;
-    UnblockRequest unblock_request = 2;
-    ShowAllBlockedRequest show_all_blocked_request = 3;
-  }
-}
-
-message StreamResponse {
-  oneof ResponseEvent {
-    BlockResponse block_response = 1;
-    UnblockResponse unblock_response = 2;
-    ShowAllBlockedResponse show_all_blocked_response = 3;
-  }
-  Notification notification = 4;
+  rpc Block(BlockRequest) returns (BlockResponse) {}
+  rpc Unblock(UnblockRequest) returns (UnblockResponse) {}
+  rpc ShowAllBlocked(ShowAllBlockedRequest) returns (ShowAllBlockedResponse) {}
 }
 
 message BlockRequest {

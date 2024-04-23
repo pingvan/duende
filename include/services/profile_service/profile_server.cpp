@@ -2,18 +2,20 @@
 #include "components/database/services/authservice/authservice.hpp"
 #include "components/database/services/profile_service/profile_service.hpp"
 
-
 Status ProfileServiceImpl::ChangeUsername(
     ServerContext *context,
     const UsernameRequest *request,
     ProfileReply *reply
 ) {
     UsernameRequest current_profile = *request;
-    if (database::authservice_database_api::is_nickname_used(current_profile.username())) {
-        reply->set_message("Username already exists");
-        return Status::OK;
+    if (database::authservice_database_api::is_nickname_used(
+            current_profile.username()
+        )) {
+        return Status(grpc::ALREADY_EXISTS, "Username already exists");
     }
-    database::profile_service_database_api::change_nickname(current_profile.id(), current_profile.username());
+    database::profile_service_database_api::change_nickname(
+        current_profile.id(), current_profile.username()
+    );
     reply->set_message("Username changed");
     return Status::OK;
 }
@@ -36,10 +38,11 @@ Status ProfileServiceImpl::ChangeQuote(
 ) {
     QuoteRequest current_profile = *request;
     if (current_profile.quote().length() > 100) {
-        reply->set_message("Quote is too long");
-        return Status::OK;
+        return Status(grpc::INVALID_ARGUMENT, "Quote is too long");
     }
-    database::profile_service_database_api::change_quotation(current_profile.id(), current_profile.quote());
+    database::profile_service_database_api::change_quotation(
+        current_profile.id(), current_profile.quote()
+    );
     reply->set_message("Quote changed");
     return Status::OK;
 }
@@ -51,10 +54,11 @@ Status ProfileServiceImpl::ChangeBio(
 ) {
     BioRequest current_profile = *request;
     if (current_profile.bio().length() > 1000) {
-        reply->set_message("Bio is too long");
-        return Status::OK;
+        return Status(grpc::INVALID_ARGUMENT, "Bio is too long");
     }
-    database::profile_service_database_api::change_about(current_profile.id(), current_profile.bio());
+    database::profile_service_database_api::change_about(
+        current_profile.id(), current_profile.bio()
+    );
     reply->set_message("Bio changed");
     return Status::OK;
 }
@@ -66,7 +70,9 @@ Status ProfileServiceImpl::AddToWatchlist(
 ) {
     MovieRequest current_profile = *request;
     for (const auto &movie : current_profile.movies()) {
-        database::profile_service_database_api::add_watched(current_profile.id(), movie.id(), movie.rating());
+        database::profile_service_database_api::add_watched(
+            current_profile.id(), movie.id(), movie.rating()
+        );
     }
     reply->set_message("Watchlist changed");
     return Status::OK;
@@ -79,7 +85,9 @@ Status ProfileServiceImpl::RemoveFromWatchlist(
 ) {
     MovieRequest current_profile = *request;
     for (const auto &movie : current_profile.movies()) {
-        database::profile_service_database_api::remove_watched(current_profile.id(), movie.id());
+        database::profile_service_database_api::remove_watched(
+            current_profile.id(), movie.id()
+        );
     }
     reply->set_message("Watchlist changed");
     return Status::OK;
@@ -92,7 +100,9 @@ Status ProfileServiceImpl::AddToListOfActors(
 ) {
     ActorRequest current_profile = *request;
     for (const auto &actor : current_profile.actors()) {
-         database::profile_service_database_api::add_favourite_actor(current_profile.id(), actor.id());
+        database::profile_service_database_api::add_favourite_actor(
+            current_profile.id(), actor.id()
+        );
     }
     reply->set_message("List of actors changed");
     return Status::OK;
@@ -105,7 +115,9 @@ Status ProfileServiceImpl::RemoveFromListOfActors(
 ) {
     ActorRequest current_profile = *request;
     for (const auto &actor : current_profile.actors()) {
-        database::profile_service_database_api::remove_favourite_actor(current_profile.id(), actor.id());
+        database::profile_service_database_api::remove_favourite_actor(
+            current_profile.id(), actor.id()
+        );
     }
     reply->set_message("List of actors changed");
     return Status::OK;
@@ -118,7 +130,9 @@ Status ProfileServiceImpl::AddToListOfGenres(
 ) {
     GenreRequest current_profile = *request;
     for (const auto &genre : current_profile.genres()) {
-        database::profile_service_database_api::add_favourite_genre(current_profile.id(), genre.name());
+        database::profile_service_database_api::add_favourite_genre(
+            current_profile.id(), genre.name()
+        );
     }
     reply->set_message("List of genres changed");
     return Status::OK;
@@ -131,7 +145,9 @@ Status ProfileServiceImpl::RemoveFromListOfGenres(
 ) {
     GenreRequest current_profile = *request;
     for (const auto &genre : current_profile.genres()) {
-        database::profile_service_database_api::remove_favourite_genre(current_profile.id(), genre.name());
+        database::profile_service_database_api::remove_favourite_genre(
+            current_profile.id(), genre.name()
+        );
     }
     reply->set_message("List of genres changed");
     return Status::OK;
@@ -143,12 +159,16 @@ Status ProfileServiceImpl::GetProfile(
     GetProfileReply *reply
 ) {
     int id = request->id();
-    std::string username = database::profile_service_database_api::get_username(id);
+    std::string username =
+        database::profile_service_database_api::get_username(id);
     std::string quote = database::profile_service_database_api::get_quote(id);
     std::string bio = database::profile_service_database_api::get_bio(id);
-    std::vector<Movie> movies = database::profile_service_database_api::get_movies(id);
-    std::vector<Actor> actors = database::profile_service_database_api::get_actors(id);
-    std::vector<Genre> genres = database::profile_service_database_api::get_genres(id);
+    std::vector<Movie> movies =
+        database::profile_service_database_api::get_movies(id);
+    std::vector<Actor> actors =
+        database::profile_service_database_api::get_actors(id);
+    std::vector<Genre> genres =
+        database::profile_service_database_api::get_genres(id);
 
     reply->set_username(username);
     reply->set_quote(quote);
