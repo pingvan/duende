@@ -13,6 +13,8 @@ Profile::Profile(Manager* managerPtr, QWidget *parent)
 
     authservice::UserFullPage *user = manager->new_client.get_user_full_page(manager->ID);
 
+    assert(user != nullptr);
+
     leftBox = new QVBoxLayout;
     rightBox = new QVBoxLayout;
     QGridLayout *mainLayout = new QGridLayout(this);
@@ -43,6 +45,25 @@ Profile::Profile(Manager* managerPtr, QWidget *parent)
     label_username = new QLabel(QString::fromStdString(user->preview().login().c_str()));
     lineEdit_username = new QLineEdit();
     lineEdit_username->hide();
+
+    std::string genres_str = "Favorite genres: ";
+
+    if (!user->favorite_genres().empty()) {
+        for (const auto& genre : user->favorite_genres()) {
+            genres_str += genre + ", ";
+        }
+        genres_str = genres_str.substr(0, genres_str.size()-2);
+    }
+
+    QHBoxLayout *genresLayout = new QHBoxLayout;
+    label_favorite_genres = new QLabel(QString::fromStdString(genres_str));
+    button_edit_genres = new QPushButton("Add");
+    button_edit_genres->setFixedWidth(100);
+    button_edit_genres->setCursor(Qt::PointingHandCursor);
+    button_edit_genres->hide();
+    genresLayout->addWidget(label_favorite_genres);
+    genresLayout->addWidget(button_edit_genres);
+    connect(button_edit_genres, &QPushButton::clicked, this, &Profile::button_edit_genres_clicked);
 
     view_favActors = new QGraphicsView();
     scene_favActors = new QGraphicsScene();
@@ -97,8 +118,10 @@ Profile::Profile(Manager* managerPtr, QWidget *parent)
 
     rightBox->addWidget(label_username);
     rightBox->addWidget(lineEdit_username);
+    rightBox->addLayout(genresLayout);
     rightBox->addWidget(view_favActors);
     rightBox->addWidget(view_watchlist);
+   
 
     this->setLayout(mainLayout);
     qDebug() << "Profile page end\n";
@@ -124,6 +147,7 @@ void Profile::button_edit_clicked()
     lineEdit_username->setText(label_username->text());
     lineEdit_username->show();
     label_username->hide();
+    button_edit_genres->show();
 
 
     QPixmap plusPixmap(":/img/plus.png");
@@ -186,6 +210,7 @@ void Profile::button_save_clicked()
     label_username->setText(lineEdit_username->text());
     label_username->show();
     lineEdit_username->hide();
+    button_edit_genres->hide();
 
     int x = 0;
     scene_favActors->clear();
@@ -208,6 +233,7 @@ void Profile::button_save_clicked()
         x += item->boundingRect().width() + 10;
     }
 
+
     button_save->setVisible(false);
     button_edit->setVisible(true);
 }
@@ -228,4 +254,30 @@ void Profile::plusItem_watchlist_clicked()
     searchWindow->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     searchWindow->move(QGuiApplication::screens().at(0)->geometry().center() - searchWindow->rect().center());
     searchWindow->show();
+}
+
+void Profile::button_edit_genres_clicked()
+{
+    genres_searchWindow = new Genres_SearchWindow(manager, this);
+    connect(genres_searchWindow, &Genres_SearchWindow::windowClosed, this, &Profile::update_favorite_genres);
+    genres_searchWindow->setWindowModality(Qt::ApplicationModal);
+    genres_searchWindow->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+    genres_searchWindow->move(QGuiApplication::screens().at(0)->geometry().center() - genres_searchWindow->rect().center());
+    genres_searchWindow->show();
+}
+
+void Profile::update_favorite_genres()
+{
+    std::string genres_str = "Favorite genres: ";
+
+    auto user = manager->new_client.get_user_full_page(manager->ID);
+
+    if (!user->favorite_genres().empty()) {
+        for (const auto& genre : user->favorite_genres()) {
+            genres_str += genre + ", ";
+        }
+        genres_str = genres_str.substr(0, genres_str.size()-2);
+    }
+
+    label_favorite_genres->setText(QString::fromStdString(genres_str));
 }

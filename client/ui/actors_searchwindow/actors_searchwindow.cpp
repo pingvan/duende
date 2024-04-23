@@ -43,7 +43,12 @@ Actors_SearchWindow::~Actors_SearchWindow()
 }
 
 void Actors_SearchWindow::saveChanges()
-{
+{   
+    QString selectedActor = search_line->text();
+    if (!selectedActor.isEmpty()) {
+        manager->new_client.add_actor(manager->ID, actors_map[selectedActor]);
+    }
+    
     this->close();
 }
 
@@ -51,13 +56,17 @@ QStringList Actors_SearchWindow::searchActors(const QString &input)
 {
     QStringList actors;
 
+    actors_map.clear();
+
     auto response = manager->new_client.search_actor_by_name(input.toStdString());
 
     qDebug() << "response->actors__size() == " << response->actors_size();
 
     for (int i = 0; i < response->actors_size(); i++) {
         actors.append(QString::fromStdString(response->actors(i).full_name()));
+        actors_map.insert(QString::fromStdString(response->actors(i).full_name()), response->actors(i).actor_id());
     }
+
     return actors;
 }
 

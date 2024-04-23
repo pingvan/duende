@@ -1,7 +1,6 @@
 #include "questionnaire.h"
 #include "ui_questionnaire.h"
 
-
 Questionnaire::Questionnaire(Manager* managerPtr, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Questionnaire)
@@ -12,8 +11,16 @@ Questionnaire::Questionnaire(Manager* managerPtr, QWidget *parent)
     connect(this, &Questionnaire::questionnaireFilled, this, &Questionnaire::onQuestionnaireFilled);
 
     QGridLayout *gridLayout = new QGridLayout;
-
     QFormLayout *formLayout = new QFormLayout;
+    QVBoxLayout *actorsLayout = new QVBoxLayout;
+    QVBoxLayout *moviesLayout = new QVBoxLayout;
+    QVBoxLayout *genresLayout = new QVBoxLayout;
+    QHBoxLayout *actorsInputLayout = new QHBoxLayout;
+    QHBoxLayout *moviesInputLayout = new QHBoxLayout;
+    QHBoxLayout *genresInputLayout = new QHBoxLayout;
+    QVBoxLayout *actorsSelectedLayout = new QVBoxLayout;
+    QVBoxLayout *moviesSelectedLayout = new QVBoxLayout;
+    QVBoxLayout *genresSelectedLayout = new QVBoxLayout;
 
     lineEditActors = new QLineEdit;
     lineEditMovies = new QLineEdit;
@@ -22,6 +29,47 @@ Questionnaire::Questionnaire(Manager* managerPtr, QWidget *parent)
     lineEditActors->setPlaceholderText("Search actors...");
     lineEditMovies->setPlaceholderText("Search movies...");
     lineEditGenres->setPlaceholderText("Search genres...");
+
+    QLabel *selectedActorsPrefixLabel = new QLabel("You selected:");
+    QLabel *selectedMoviesPrefixLabel = new QLabel("You selected:");
+    QLabel *selectedGenresPrefixLabel = new QLabel("You selected:");
+
+    selectedActorsLabel = new QLabel;
+    selectedMoviesLabel = new QLabel;
+    selectedGenresLabel = new QLabel;
+
+    selectedActorsLabel->setWordWrap(true);
+    selectedMoviesLabel->setWordWrap(true);
+    selectedGenresLabel->setWordWrap(true);
+
+    actorsSelectedLayout->addWidget(selectedActorsPrefixLabel);
+    actorsSelectedLayout->addWidget(selectedActorsLabel);
+    moviesSelectedLayout->addWidget(selectedMoviesPrefixLabel);
+    moviesSelectedLayout->addWidget(selectedMoviesLabel);
+    genresSelectedLayout->addWidget(selectedGenresPrefixLabel);
+    genresSelectedLayout->addWidget(selectedGenresLabel);
+
+    QPushButton *addActorButton = new QPushButton(tr("Add"));
+    QPushButton *addMovieButton = new QPushButton(tr("Add"));
+    QPushButton *addGenreButton = new QPushButton(tr("Add"));
+
+    actorsInputLayout->addWidget(lineEditActors);
+    actorsInputLayout->addWidget(addActorButton);
+    moviesInputLayout->addWidget(lineEditMovies);
+    moviesInputLayout->addWidget(addMovieButton);
+    genresInputLayout->addWidget(lineEditGenres);
+    genresInputLayout->addWidget(addGenreButton);
+
+    actorsLayout->addLayout(actorsInputLayout);
+    actorsLayout->addLayout(actorsSelectedLayout);
+    moviesLayout->addLayout(moviesInputLayout);
+    moviesLayout->addLayout(moviesSelectedLayout);
+    genresLayout->addLayout(genresInputLayout);
+    genresLayout->addLayout(genresSelectedLayout);
+
+    formLayout->addRow(tr("Favorite Actors:"), actorsLayout);
+    formLayout->addRow(tr("Favorite Movies:"), moviesLayout);
+    formLayout->addRow(tr("Favorite Genres:"), genresLayout);
 
     actors_model = new QStringListModel(searchActors(""), lineEditActors);
     movies_model = new QStringListModel(searchMovies(""), lineEditMovies);
@@ -38,10 +86,6 @@ Questionnaire::Questionnaire(Manager* managerPtr, QWidget *parent)
     lineEditActors->setCompleter(actorsCompleter);
     lineEditMovies->setCompleter(moviesCompleter);
     lineEditGenres->setCompleter(genresCompleter);
-
-    formLayout->addRow(tr("Favorite Actors:"), lineEditActors);
-    formLayout->addRow(tr("Favorite Movies:"), lineEditMovies);
-    formLayout->addRow(tr("Favorite Genres:"), lineEditGenres);
 
     QPushButton *saveButton = new QPushButton(tr("Save"));
     formLayout->addWidget(saveButton);
@@ -60,13 +104,12 @@ Questionnaire::Questionnaire(Manager* managerPtr, QWidget *parent)
     connect(lineEditMovies, &QLineEdit::textChanged, this, &Questionnaire::updateMoviesList);
     connect(lineEditGenres, &QLineEdit::textChanged, this, &Questionnaire::updateGenresList);
 
-    connect(actorsCompleter, QOverload<const QString &>::of(&QCompleter::activated), this, &Questionnaire::onActorSelected);
-    connect(moviesCompleter, QOverload<const QString &>::of(&QCompleter::activated), this, &Questionnaire::onMovieSelected);
-    connect(genresCompleter, QOverload<const QString &>::of(&QCompleter::activated), this, &Questionnaire::onGenreSelected);
+    connect(addActorButton, &QPushButton::clicked, this, &Questionnaire::onAddActorClicked);
+    connect(addMovieButton, &QPushButton::clicked, this, &Questionnaire::onAddMovieClicked);
+    connect(addGenreButton, &QPushButton::clicked, this, &Questionnaire::onAddGenreClicked);
 
     qDebug() << "Questionnaire page end\n";
 }
-
 
 Questionnaire::~Questionnaire()
 {
@@ -75,14 +118,19 @@ Questionnaire::~Questionnaire()
 
 void Questionnaire::on_pushButton_save_questionnaire_clicked()
 {
-    QString favorite_actors = lineEditActors->text();
-    QString favorite_films = lineEditMovies->text();
-    QString favorite_genres = lineEditGenres->text();
+    for (int actorId : selectedActorsIds) {
+        manager->new_client.add_actor(manager->ID, actorId);
+    }
 
-    // TODO: actor and film id by name and rating
-    manager->new_client.add_actor(manager->ID, 0);
-    manager->new_client.add_movie(manager->ID, 0, 0);
-    manager->new_client.add_genre(manager->ID, favorite_genres.toStdString());
+    for (int i = 0; i < selectedMoviesIds.size(); i++) {
+        manager->new_client.add_movie(manager->ID, selectedMoviesIds[i], selectedMoviesRatings[i]);
+    }
+
+    for (const QString &genre : selectedGenresLabel->text().split(", ")) {
+        if (!genre.isEmpty()) {
+            manager->new_client.add_genre(manager->ID, genre.toStdString());
+        }
+    }
 
     emit questionnaireFilled();
 }
@@ -98,6 +146,7 @@ QStringList Questionnaire::searchActors(const QString &input)
 
     for (int i = 0; i < response->actors_size(); i++) {
         actors.append(QString::fromStdString(response->actors(i).full_name()));
+        actors_map.insert(QString::fromStdString(response->actors(i).full_name()), response->actors(i).actor_id());
     }
     return actors;
 }
@@ -110,6 +159,7 @@ QStringList Questionnaire::searchMovies(const QString &input)
 
     for (int i = 0; i < response->films_size(); i++) {
         films.append(QString::fromStdString(response->films(i).title()));
+        movies_map.insert(QString::fromStdString(response->films(i).title()), response->films(i).film_id());
     }
     return films;
 }
@@ -137,20 +187,37 @@ void Questionnaire::updateGenresList(const QString &input)
     genres_model->setStringList(searchGenres(input));
 }
 
-void Questionnaire::onActorSelected(const QString &actor)
+void Questionnaire::onAddActorClicked()
 {
-    qDebug() << "Actor selected: " << actor;
-    // Добавьте здесь код для обработки выбора актера
+    QString selectedActor = lineEditActors->text();
+    if (!selectedActor.isEmpty() && !selectedActorsLabel->text().contains(selectedActor)) {
+        selectedActorsLabel->setText(selectedActorsLabel->text() + ", " + selectedActor);
+        selectedActorsIds.append(actors_map.value(selectedActor));
+        lineEditActors->clear();
+    }
 }
 
-void Questionnaire::onMovieSelected(const QString &movie)
+void Questionnaire::onAddMovieClicked()
 {
-    qDebug() << "Movie selected: " << movie;
-    // Добавьте здесь код для обработки выбора фильма
+    QString selectedMovie = lineEditMovies->text();
+    if (!selectedMovie.isEmpty() && !selectedMoviesLabel->text().contains(selectedMovie)) {
+        bool ok;
+        int rating = QInputDialog::getInt(this, tr("Rate the movie"),
+                                          tr("Rating:"), 5, 0, 10, 1, &ok);
+        if (ok) {
+            selectedMoviesLabel->setText(selectedMoviesLabel->text() + ", " + selectedMovie + " (" + QString::number(rating) + ")");
+            selectedMoviesIds.append(movies_map.value(selectedMovie));
+            selectedMoviesRatings.append(rating);
+            lineEditMovies->clear();
+        }
+    }
 }
 
-void Questionnaire::onGenreSelected(const QString &genre)
+void Questionnaire::onAddGenreClicked()
 {
-    qDebug() << "Genre selected: " << genre;
-    // Добавьте здесь код для обработки выбора жанра
+    QString selectedGenre = lineEditGenres->text();
+    if (!selectedGenre.isEmpty() && !selectedGenresLabel->text().contains(selectedGenre)) {
+        selectedGenresLabel->setText(selectedGenresLabel->text() + ", " + selectedGenre);
+        lineEditGenres->clear();
+    }
 }

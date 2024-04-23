@@ -25,12 +25,13 @@ set(PROFILE ui/profile/profile.ui ui/profile/profile.h ui/profile/profile.cpp)
 set(QUESTIONNAIRE ui/questionnaire/questionnaire.ui ui/questionnaire/questionnaire.h ui/questionnaire/questionnaire.cpp)
 set(ACTORS_SEARCHWINDOW ui/actors_searchwindow/actors_searchwindow.ui ui/actors_searchwindow/actors_searchwindow.h ui/actors_searchwindow/actors_searchwindow.cpp)
 set(MOVIES_SEARCHWINDOW ui/movies_searchwindow/movies_searchwindow.ui ui/movies_searchwindow/movies_searchwindow.h ui/movies_searchwindow/movies_searchwindow.cpp)
+set(GENRES_SEARCHWINDOW ui/genres_searchwindow/genres_searchwindow.ui ui/genres_searchwindow/genres_searchwindow.h ui/genres_searchwindow/genres_searchwindow.cpp)
 
 qt6_add_resources(QRC_RESOURCES ui/resources.qrc)
 
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/ui)
 
-add_executable(duende ${PROTOS} client.cpp ui/main.cpp ${MAINWINDOW} ${REGISTRATIONPAGE} ${RECOMMENDATIONS} ${CHATS} ${FOLLOWS} ${PROFILE} ${QUESTIONNAIRE} ${ACTORS_SEARCHWINDOW} ${MOVIES_SEARCHWINDOW} ${QRC_RESOURCES})
+add_executable(duende ${PROTOS} client.cpp ui/main.cpp ${MAINWINDOW} ${REGISTRATIONPAGE} ${RECOMMENDATIONS} ${CHATS} ${FOLLOWS} ${PROFILE} ${QUESTIONNAIRE} ${ACTORS_SEARCHWINDOW} ${MOVIES_SEARCHWINDOW} ${GENRES_SEARCHWINDOW} ${QRC_RESOURCES})
 
 target_include_directories(duende PRIVATE
     ${Qt6Widgets_INCLUDE_DIRS},

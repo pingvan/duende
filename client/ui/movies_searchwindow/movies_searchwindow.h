@@ -11,6 +11,7 @@
 #include <QStringListModel>
 #include <QAbstractItemView>
 #include <QPushButton>
+#include <QInputDialog>
 
 namespace Ui {
 class Movies_SearchWindow;
@@ -35,6 +36,7 @@ private:
     QLineEdit *search_line;
     QStringListModel *model;
     QCompleter *completer;
+    QMap<QString, int> movies_map;
 };
 
 #endif // MOVIES_SEARCHWINDOW_H

@@ -36,6 +36,7 @@ private:
     QLineEdit *search_line;
     QStringListModel *model;
     QCompleter *completer;
+    QMap<QString, int> actors_map;
 };
 
 #endif // ACTORS_SEARCHWINDOW_H
