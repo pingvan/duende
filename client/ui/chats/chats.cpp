@@ -17,6 +17,10 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
 
     std::vector<chat_service::ChatPreview> chats = managerPtr->new_client.get_user_chats(manager->ID);
 
+    std::sort(chats.begin(), chats.end(), [](const chat_service::ChatPreview& a, const chat_service::ChatPreview& b) {
+        return a.time_stamp() > b.time_stamp();
+    });
+
     qDebug() << "Chats count: " << chats.size();
 
     chatList = new QListWidget();
@@ -25,6 +29,10 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     chatMessages->setReadOnly(true);
 
     chatPages = new QStackedWidget();
+
+    chatTitle = new QLabel();
+    chatTitle->setAlignment(Qt::AlignCenter);
+    chatTitle->setStyleSheet("font-size: 18px; font-weight: bold;");
 
     for (const auto &chat : chats) {
         QWidget *chatWidget = new QWidget();
@@ -46,10 +54,16 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
         chatList->addItem(item);
         chatList->setItemWidget(item, chatWidget);
 
-        auto *chatPage = new QTextEdit();
-        chatPage->setReadOnly(true);
+        auto *chatPage = new QWidget();
+        auto *chatPageLayout = new QVBoxLayout(chatPage);
+        auto *chatTextEdit = new QTextEdit();
+        chatTextEdit->setReadOnly(true);
+        chatPageLayout->addWidget(chatTextEdit);
+
         int index = chatPages->addWidget(chatPage);
         item->setData(Qt::UserRole + 1, index);
+
+        item->setData(Qt::UserRole + 2, chatNameLabel->text());
 
         chatWidget->setCursor(Qt::PointingHandCursor);
     }
@@ -63,6 +77,7 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     inputLayout->addWidget(sendButton);
 
     QVBoxLayout *rightLayout = new QVBoxLayout();
+    rightLayout->addWidget(chatTitle);
     rightLayout->addWidget(chatPages);
     rightLayout->addLayout(inputLayout);
 
@@ -100,9 +115,14 @@ void Chats::sendMessage() {
 
     messageInput->clear();
 
-    QTextEdit* chatPage = qobject_cast<QTextEdit*>(chatPages->currentWidget());
-    chatPage->insertHtml("<div style='text-align: right; color: blue;'>" + messageText + "</div><br><br>");
-    
+    QString time_stamp = "time???";
+
+    QWidget* chatPage = qobject_cast<QWidget*>(chatPages->currentWidget());
+    QTextEdit* chatTextEdit = chatPage->findChild<QTextEdit*>();
+    chatTextEdit->insertHtml("<div style='text-align: right; color: black;'>" +  QString::fromStdString(manager->new_client.get_user_full_page(manager->ID)->preview().login()) + " (You)" + "</div><br><br>");
+    chatTextEdit->insertHtml("<div style='text-align: left; color: black;'>" + messageText + "</div><br><br>");
+    chatTextEdit->insertHtml("<div style='text-align: left; color: black;'>" + time_stamp + "</div><br><br>");
+    chatTextEdit->insertHtml("<br><br>");
 }
 
 
@@ -113,17 +133,26 @@ void Chats::onChatClicked(QListWidgetItem* item) {
     std::vector<chat_service::MessageData> messages = manager->new_client.get_last_messages(manager->ID, chatId);
     qDebug() << "Messages count: " << messages.size();
 
-    QTextEdit* chatPage = qobject_cast<QTextEdit*>(chatPages->currentWidget());
-    chatPage->clear();
+    QWidget* chatPage = qobject_cast<QWidget*>(chatPages->currentWidget());
+    QTextEdit* chatTextEdit = chatPage->findChild<QTextEdit*>();
+    chatTextEdit->clear();
+
+    chatTitle->setText(item->data(Qt::UserRole + 2).toString());
 
     authservice::UserFullPage *user = manager->new_client.get_user_full_page(manager->ID);
 
     for (const auto& message : messages) {
         bool isUserMessage = (message.sender().login().c_str() == user->preview().login().c_str());
         if (isUserMessage) {
-            chatPage->insertHtml("<div style='text-align: right; color: blue;'>" + QString::fromStdString(message.message_text()) + "</div><br><br>");
+            chatTextEdit->insertHtml("<div style='text-align: right; color: blue;'>" + QString::fromStdString(message.sender().login()) + " (You)" + "</div><br><br>");
+            chatTextEdit->insertHtml("<div style='text-align: right; color: blue;'>" + QString::fromStdString(message.message_text()) + "</div><br><br>");
+            chatTextEdit->insertHtml("<div style='text-align: right; color: blue;'>" + QString::fromStdString(message.time_stamp()) + "</div><br><br>");
+            chatTextEdit->insertHtml("<br><br>");
         } else {
-            chatPage->insertHtml("<div style='text-align: left; color: black;'>" + QString::fromStdString(message.message_text()) + "</div><br><br>");
+            chatTextEdit->insertHtml("<div style='text-align: left; color: black;'>" + QString::fromStdString(message.sender().login()) + "</div><br><br>");
+            chatTextEdit->insertHtml("<div style='text-align: left; color: black;'>" + QString::fromStdString(message.message_text()) + "</div><br><br>");
+            chatTextEdit->insertHtml("<div style='text-align: left; color: black;'>" + QString::fromStdString(message.time_stamp()) + "</div><br><br>");
+            chatTextEdit->insertHtml("<br><br>");
         }
     }
 }

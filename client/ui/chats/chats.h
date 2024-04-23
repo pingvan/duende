@@ -15,6 +15,8 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QtConcurrent/QtConcurrent>
+#include <QLabel>
+#include <QThread>
 
 namespace Ui {
 class Chats;
@@ -45,6 +47,7 @@ private:
     QTextEdit *chatMessages;
     QLineEdit *messageInput;
     QPushButton *sendButton;
+    QLabel *chatTitle;
 };
 
 #endif // CHATS_H

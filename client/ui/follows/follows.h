@@ -2,6 +2,7 @@
 #define FOLLOWS_H
 
 #include "manager.hpp"
+#include "otherpage/otherpage.h"
 
 #include <QWidget>
 #include <QVBoxLayout>
@@ -25,8 +26,12 @@ public:
     QStringList searchUsers(const QString &input);
     ~Follows();
 
+signals:
+    void userClicked(int id);
+
 private slots:
     void updateUserList(const QString &input);
+    void onUserClicked(const QString &username);
 
 private:
     Ui::Follows *ui;
@@ -34,6 +39,7 @@ private:
     QLineEdit *search_line;
     QStringListModel *model;
     QCompleter *completer;
+    QMap<QString, int> users_id;
 };
 
 #endif // FOLLOWS_H
