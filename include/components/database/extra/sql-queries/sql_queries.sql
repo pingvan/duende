@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS passwords (
 CREATE TABLE IF NOT EXISTS forms (
     id SERIAL PRIMARY KEY,
     -- photo BYTEA,
-    quotation VARCHAR(50) NOT NULL, 
-    about VARCHAR(250) NOT NULL,
+    quotation VARCHAR(50), 
+    about VARCHAR(250),
     user_id INT NOT NULL,
     favourite_genres genre[],
     FOREIGN KEY (user_id) REFERENCES users(id)

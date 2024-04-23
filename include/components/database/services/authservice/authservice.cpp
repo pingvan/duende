@@ -78,7 +78,7 @@ int authservice_database_api::add_user(const std::string &user_email, const std:
     }
     connection.txn->exec_params("INSERT INTO tokens VALUES ($1, $2)", user_id, refresh_token);
     connection.txn->exec_params("INSERT INTO passwords VALUES ($1, $2, $3)", user_id, password_hash, password_salt);
-    connection.txn->exec_params("INSERT INTO forms (user_id, quotation, about) VALUES ($1, $2, $3)", user_id, "", "");
+    connection.txn->exec_params("INSERT INTO forms (user_id) VALUES ($1)", user_id);
     connection.txn->commit();
     return user_id;
 }
@@ -145,10 +145,17 @@ user_full_page authservice_database_api::get_user_full_page(const int &user_id) 
     for (const auto &row : result) {
         form_id = row[0].as<int>();
         //row[1].is_null()
-        full_page.quote = row[1].as<std::string>();
+        if (!row[1].is_null()) {
+            full_page.quote = row[1].as<std::string>();
+        }
         //here
-        full_page.about = row[2].as<std::string>();
-        full_page.fauvorite_genres = array_parser(row[3].as<std::string>());
+        if (!row[2].is_null()) {
+            full_page.about = row[2].as<std::string>();
+        }
+        if (!row[3].is_null()) {
+            full_page.fauvorite_genres = array_parser(row[3].as<std::string>());
+        }
+        
     }
     // assert(false);
     static std::string get_views = "SELECT ratio, title, description, genres "

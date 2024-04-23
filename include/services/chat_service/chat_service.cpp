@@ -5,13 +5,11 @@
 #include <iostream>
 #include "components/database/services/chat_service/chat_service.hpp"
 #include <iostream>
+#include <vector>
 
 
 grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests> *stream) {
     chat_service::ChatRequests request;
-    grpc::ClientContext client_context;
-    auto deadline = client_context.deadline();
-    client_context.set_deadline(std::chrono::system_clock::now() + std::chrono::milliseconds(10));
     while (stream->Read(&request)) {
         if (request.has_init()) {
             users_online.insert({request.init().user_id(), std::make_shared<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>(*stream)});
@@ -56,7 +54,8 @@ void chat_service_::send_to_chat(const chat_service::Message& msg) {
 
     auto timestamp = make_timestamp();
     auto message_id = database::chat_service_database_api::add_message(msg.sender_id(), msg.chat_id(), timestamp, msg.message_text());
-    auto members_ids = database::chat_service_database_api::get_members_ids(msg.chat_id());
+    // auto members_ids = database::chat_service_database_api::get_members_ids(msg.chat_id());
+    auto members_ids = std::vector{1, 35};
     for (auto member_id : members_ids) {
         if (member_id != msg.sender_id()) {
             if (auto ptr = users_online.find(member_id); ptr == users_online.end()) {
