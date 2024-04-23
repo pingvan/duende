@@ -89,6 +89,13 @@ CREATE TABLE IF NOT EXISTS chats (
     --admin_ids INT[] NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS chat_membership (
+    user_id INT NOT NULL,
+    chat_id INT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(chat_id) REFERENCES chats(id)
+);
+
 CREATE TABLE IF NOT EXISTS messages (
     id SERIAL PRIMARY KEY,
     sender_id INT NOT NULL,
