@@ -50,12 +50,12 @@ CREATE TABLE IF NOT EXISTS passwords (
     FOREIGN KEY (user_id) REFERENCES users(id)
 )
 """
-
+#changed lines 58, 59
 create_forms_table = """
 CREATE TABLE IF NOT EXISTS forms (
     id SERIAL PRIMARY KEY,
     photo BYTEA,
-    quotation VARCHAR(50),
+    quotation VARCHAR(50), 
     about VARCHAR(250),
     user_id INT NOT NULL,
     favourite_genres genre[],

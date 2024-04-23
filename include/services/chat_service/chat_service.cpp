@@ -8,8 +8,10 @@
 
 
 grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests> *stream) {
-    try {
     chat_service::ChatRequests request;
+    grpc::ClientContext client_context;
+    auto deadline = client_context.deadline();
+    client_context.set_deadline(std::chrono::system_clock::now() + std::chrono::milliseconds(10));
     while (stream->Read(&request)) {
         if (request.has_init()) {
             users_online.insert({request.init().user_id(), std::make_shared<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>(*stream)});
@@ -31,10 +33,6 @@ grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::Serve
         }
     }
     return grpc::Status::OK;
-    } catch(const std::exception& e) {
-        std::cerr << e.what() << '\n';
-        return grpc::Status::CANCELLED;
-    }
 }
 
 std::string chat_service_::make_timestamp() {
