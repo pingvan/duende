@@ -34,7 +34,6 @@ signals:
     void messageReceived(const QString& message);
 
 private slots:
-    void appendMessageToChat(const QString& message);
     void sendMessage();
     void onChatClicked(QListWidgetItem* item);
 

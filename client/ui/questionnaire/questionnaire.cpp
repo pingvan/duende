@@ -167,7 +167,28 @@ QStringList Questionnaire::searchMovies(const QString &input)
 QStringList Questionnaire::searchGenres(const QString &input)
 {
     QStringList genres;
-    genres << "drama" << "comedy" << "thriller";
+    genres << "action"
+       << "adventure"
+       << "comedy"
+       << "drama"
+       << "horror"
+       << "sci_fi"
+       << "fantasy"
+       << "thriller"
+       << "mystery"
+       << "romance"
+       << "animation"
+       << "documentary"
+       << "crime"
+       << "western"
+       << "music"
+       << "history"
+       << "war"
+       << "biographical"
+       << "sports"
+       << "family"
+       << "foreign"
+       << "tv_movie";
 
     return genres;
 }
@@ -191,7 +212,11 @@ void Questionnaire::onAddActorClicked()
 {
     QString selectedActor = lineEditActors->text();
     if (!selectedActor.isEmpty() && !selectedActorsLabel->text().contains(selectedActor)) {
-        selectedActorsLabel->setText(selectedActorsLabel->text() + ", " + selectedActor);
+        if (!selectedActorsLabel->text().isEmpty()) {
+            selectedActorsLabel->setText(selectedActorsLabel->text() + ", " + selectedActor);
+        } else {
+            selectedActorsLabel->setText(selectedActor);
+        }
         selectedActorsIds.append(actors_map.value(selectedActor));
         lineEditActors->clear();
     }
@@ -205,7 +230,11 @@ void Questionnaire::onAddMovieClicked()
         int rating = QInputDialog::getInt(this, tr("Rate the movie"),
                                           tr("Rating:"), 5, 0, 10, 1, &ok);
         if (ok) {
-            selectedMoviesLabel->setText(selectedMoviesLabel->text() + ", " + selectedMovie + " (" + QString::number(rating) + ")");
+            if (!selectedMoviesLabel->text().isEmpty()) {
+                selectedMoviesLabel->setText(selectedMoviesLabel->text() + ", " + selectedMovie + " (" + QString::number(rating) + ")");
+            } else {
+                selectedMoviesLabel->setText(selectedMovie + " (" + QString::number(rating) + ")");
+            }
             selectedMoviesIds.append(movies_map.value(selectedMovie));
             selectedMoviesRatings.append(rating);
             lineEditMovies->clear();
@@ -217,7 +246,11 @@ void Questionnaire::onAddGenreClicked()
 {
     QString selectedGenre = lineEditGenres->text();
     if (!selectedGenre.isEmpty() && !selectedGenresLabel->text().contains(selectedGenre)) {
-        selectedGenresLabel->setText(selectedGenresLabel->text() + ", " + selectedGenre);
+        if (!selectedGenresLabel->text().isEmpty()) {
+            selectedGenresLabel->setText(selectedGenresLabel->text() + ", " + selectedGenre);
+        } else {
+            selectedGenresLabel->setText(selectedGenre);
+        }
         lineEditGenres->clear();
     }
 }

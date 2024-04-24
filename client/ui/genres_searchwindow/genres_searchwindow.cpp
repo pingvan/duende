@@ -55,7 +55,28 @@ void Genres_SearchWindow::saveChanges()
 QStringList Genres_SearchWindow::searchGenres(const QString &input)
 {
     QStringList genres;
-    genres << "drama" << "comedy" << "thriller";
+    genres << "action"
+       << "adventure"
+       << "comedy"
+       << "drama"
+       << "horror"
+       << "sci_fi"
+       << "fantasy"
+       << "thriller"
+       << "mystery"
+       << "romance"
+       << "animation"
+       << "documentary"
+       << "crime"
+       << "western"
+       << "music"
+       << "history"
+       << "war"
+       << "biographical"
+       << "sports"
+       << "family"
+       << "foreign"
+       << "tv_movie";
 
     return genres;
 }

@@ -97,18 +97,11 @@ Chats::~Chats()
     delete ui;
 }
 
-void Chats::appendMessageToChat(const QString& message) {
-    QTextEdit* chatPage = qobject_cast<QTextEdit*>(chatPages->currentWidget());
-    if (chatPage) {
-        chatPage->append(message);
-    }
-}
-
 void Chats::sendMessage() {
     QString messageText = messageInput->text().trimmed();
 
-    int pageIndex = chatPages->currentIndex();
-    QListWidgetItem* currentItem = chatList->item(pageIndex);
+    QListWidgetItem* currentItem = chatList->currentItem();
+    int itemIndex = chatList->row(currentItem);
     int chatId = currentItem->data(Qt::UserRole).toInt();
 
     manager->new_client.send_message(manager->ID, chatId, messageText.toStdString());
@@ -123,6 +116,17 @@ void Chats::sendMessage() {
     chatTextEdit->insertHtml("<div style='text-align: left; color: black;'>" + messageText + "</div><br><br>");
     chatTextEdit->insertHtml("<div style='text-align: left; color: black;'>" + time_stamp + "</div><br><br>");
     chatTextEdit->insertHtml("<br><br>");
+
+    // currentItem->setSizeHint(chatWidget->sizeHint());
+    // currentItem->setData(Qt::UserRole, currentChatId);
+    // currentItem->setText(messageText);
+    // currentItem->setData(Qt::UserRole + 1, time_stamp);
+    // currentItem->setData(Qt::UserRole + 2, chatTitle->text());
+
+    QListWidgetItem *item = chatList->takeItem(itemIndex);
+    chatList->insertItem(0, item);
+    chatList->setCurrentItem(item);
+    chatList->setCursor(Qt::PointingHandCursor);
 }
 
 

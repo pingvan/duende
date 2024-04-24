@@ -44,7 +44,8 @@ OtherPage::OtherPage(int id, Manager* managerPtr, QWidget *parent) :
 
     if (!user->favorite_genres().empty()) {
         for (const auto& genre : user->favorite_genres()) {
-            genres_str += genre + ", ";
+            std::string favorite_genres_str = authservice::Genre_Name(genre);
+            genres_str += favorite_genres_str + ", ";
         }
         genres_str = genres_str.substr(0, genres_str.size()-2);
     }
@@ -137,7 +138,8 @@ void OtherPage::updatePage(int newId)
 
     if (!user->favorite_genres().empty()) {
         for (const auto& genre : user->favorite_genres()) {
-            genres_str += genre + ", ";
+            std::string favorite_genres_str = authservice::Genre_Name(genre);
+            genres_str += favorite_genres_str + ", ";
         }
         genres_str = genres_str.substr(0, genres_str.size()-2);
     }
