@@ -65,17 +65,3 @@ message GenreRequest{
 message ProfileReply {
   string message = 1;
 }
-
-message GetProfileRequest {
-  int32 id = 1;
-}
-
-message GetProfileReply {
-  string username = 1;
-  string quote = 2;
-  string bio = 3;
-  repeated Movie movies = 4;
-  repeated Actor actors = 5;
-  repeated Genre genres = 6;
-}
-

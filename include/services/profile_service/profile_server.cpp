@@ -153,42 +153,42 @@ Status ProfileServiceImpl::RemoveFromListOfGenres(
     return Status::OK;
 }
 
-Status ProfileServiceImpl::GetProfile(
-    ServerContext *context,
-    const GetProfileRequest *request,
-    GetProfileReply *reply
-) {
-    int id = request->id();
-    std::string username =
-        database::profile_service_database_api::get_username(id);
-    std::string quote = database::profile_service_database_api::get_quote(id);
-    std::string bio = database::profile_service_database_api::get_bio(id);
-    std::vector<Movie> movies =
-        database::profile_service_database_api::get_movies(id);
-    std::vector<Actor> actors =
-        database::profile_service_database_api::get_actors(id);
-    std::vector<Genre> genres =
-        database::profile_service_database_api::get_genres(id);
+// Status ProfileServiceImpl::GetProfile(
+//     ServerContext *context,
+//     const GetProfileRequest *request,
+//     GetProfileReply *reply
+// ) {
+//     int id = request->id();
+//     std::string username =
+//         database::profile_service_database_api::get_username(id);
+//     std::string quote = database::profile_service_database_api::get_quote(id);
+//     std::string bio = database::profile_service_database_api::get_bio(id);
+//     std::vector<Movie> movies =
+//         database::profile_service_database_api::get_movies(id);
+//     std::vector<Actor> actors =
+//         database::profile_service_database_api::get_actors(id);
+//     std::vector<Genre> genres =
+//         database::profile_service_database_api::get_genres(id);
 
-    reply->set_username(username);
-    reply->set_quote(quote);
-    reply->set_bio(bio);
+//     reply->set_username(username);
+//     reply->set_quote(quote);
+//     reply->set_bio(bio);
 
-    for (const auto &movie : movies) {
-        Movie *reply_movie = reply->add_movies();
-        reply_movie->set_id(movie.id());
-        reply_movie->set_rating(movie.rating());
-    }
+//     for (const auto &movie : movies) {
+//         Movie *reply_movie = reply->add_movies();
+//         reply_movie->set_id(movie.id());
+//         reply_movie->set_rating(movie.rating());
+//     }
 
-    for (const auto &actor : actors) {
-        Actor *reply_actor = reply->add_actors();
-        reply_actor->set_id(actor.id());
-    }
+//     for (const auto &actor : actors) {
+//         Actor *reply_actor = reply->add_actors();
+//         reply_actor->set_id(actor.id());
+//     }
 
-    for (const auto &genre : genres) {
-        Genre *reply_genre = reply->add_genres();
-        reply_genre->set_name(genre.name());
-    }
+//     for (const auto &genre : genres) {
+//         Genre *reply_genre = reply->add_genres();
+//         reply_genre->set_name(genre.name());
+//     }
 
-    return Status::OK;
-}
+//     return Status::OK;
+// }
