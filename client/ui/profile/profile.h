@@ -1,7 +1,7 @@
 #ifndef PROFILE_H
 #define PROFILE_H
 
-#include "manager.hpp"
+#include "manager.h"
 #include "actors_searchwindow/actors_searchwindow.h"
 #include "movies_searchwindow/movies_searchwindow.h"
 #include "genres_searchwindow/genres_searchwindow.h"

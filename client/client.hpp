@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <QtConcurrent/QtConcurrent>
+#include <QDebug>
 
 #include "services/authservice/authservice.grpc.pb.h"
 #include "services/authservice/authservice.pb.h"
@@ -29,55 +30,20 @@ private:
     grpc::ClientContext context;
 
 public:
+    std::function<void(const chat_service::Message&)> onNewMessageReceived;
+
     explicit client(const std::shared_ptr<grpc::Channel> &new_channel); 
 
-    void init_chat_stream(int user_id) {
-        stream = chat_stub->HandleChat(&context);
-
-        chat_service::ChatRequests request;
-        auto *init = new chat_service::InitialRequest;
-        init->set_user_id(user_id);
-        request.set_allocated_init(init);
-        stream->Write(request);
-
-        start_reading_stream();
-    }
-
-    void start_reading_stream() {
-        QFuture<void> future = QtConcurrent::run([this] {
-            chat_service::ChatResponses response;
-            while (stream->Read(&response)) {
-                if (response.has_accept_message()) {
-                    auto message = response.accept_message().msg();
-                    std::cout << "Message: " << message.message_text() << std::endl;
-                }
-            }
-        });
-    }
-
-    void send_message(int user_id, int chatId, const std::string& messageText) {
-        chat_service::SendMessageRequest request;
-        auto* message = new chat_service::Message();
-        message->set_sender_id(user_id);
-        message->set_chat_id(chatId);
-        message->set_message_text(messageText);
-        request.mutable_msg()->CopyFrom(*message);
-
-        chat_service::ChatRequests chatRequest;
-        chatRequest.mutable_send_message()->CopyFrom(request);
-
-        std::cout << chatRequest.DebugString() << std::endl;
-        bool status = stream->Write(chatRequest);
-        if (!status) {
-            std::cerr << "Error" << std::endl;
-        }
-    }
-
+    void init_chat_stream(int user_id);  
+    void start_reading_stream();
+    void send_message(int user_id, int chatId, const std::string& messageText);
 
     search_service::UserSearchResponse *search_user_by_credentials(const std::string &user_credentials);
     search_service::ActorSearchResponse *search_actor_by_name(const std::string &actor_name);
     search_service::FilmSearchResponse *search_film_by_title(const std::string &film_title);
+
     authservice::UserFullPage *get_user_full_page(int user_id);
+
     void change_username(int user_id, const std::string &new_username); 
     void change_quote(int user_id, const std::string &new_quote); 
     void change_bio(int user_id, const std::string &new_bio); 
@@ -87,8 +53,10 @@ public:
     void remove_movie(int user_id, int movie_id, int rating);
     void add_genre(int user_id, const std::string &genre_name);
     void remove_genre(int user_id, const std::string &genre_name);
+
     std::vector<chat_service::ChatPreview> get_user_chats(int user_id);
     std::vector<chat_service::MessageData> get_last_messages(int user_id, int chat_id);
+
     authservice::LoginResponse *login(const std::string &client_login, const std::string &password);
     authservice::SignupResponse *registration(
         const std::string &client_login,

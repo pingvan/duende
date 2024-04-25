@@ -1,7 +1,7 @@
 #ifndef FOLLOWS_H
 #define FOLLOWS_H
 
-#include "manager.hpp"
+#include "manager.h"
 #include "otherpage/otherpage.h"
 
 #include <QWidget>

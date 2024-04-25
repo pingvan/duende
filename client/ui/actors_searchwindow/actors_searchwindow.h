@@ -1,7 +1,7 @@
 #ifndef ACTORS_SEARCHWINDOW_H
 #define ACTORS_SEARCHWINDOW_H
 
-#include "manager.hpp"
+#include "manager.h"
 
 #include <QWidget>
 #include <QLineEdit>

@@ -1,7 +1,7 @@
 #ifndef GENRES_SEARCHWINDOW_H
 #define GENRES_SEARCHWINDOW_H
 
-#include "manager.hpp"
+#include "manager.h"
 
 #include <QWidget>
 #include <QLineEdit>

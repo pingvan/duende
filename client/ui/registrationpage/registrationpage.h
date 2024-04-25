@@ -1,7 +1,7 @@
 #ifndef REGISTRATIONPAGE_H
 #define REGISTRATIONPAGE_H
 
-#include "manager.hpp"
+#include "manager.h"
 
 #include <grpcpp/grpcpp.h>
 #include <QWidget>

@@ -2,7 +2,7 @@
 #include "registrationpage/registrationpage.h"
 #include "questionnaire/questionnaire.h"
 #include "../client.hpp"
-#include "../manager.hpp"
+#include "manager.h"
 
 #include <QApplication>
 #include <QMainWindow>

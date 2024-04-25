@@ -1,7 +1,7 @@
 #ifndef CHATS_H
 #define CHATS_H
 
-#include "manager.hpp"
+#include "manager.h"
 
 #include <grpcpp/grpcpp.h>
 #include <QDebug>
@@ -17,6 +17,8 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QLabel>
 #include <QThread>
+#include <QScrollArea>
+#include <QScrollBar> 
 
 namespace Ui {
 class Chats;
@@ -36,6 +38,7 @@ signals:
 private slots:
     void sendMessage();
     void onChatClicked(QListWidgetItem* item);
+    void onNewMessageReceived(const chat_service::Message& message);
 
 private:
     Ui::Chats *ui;
@@ -47,6 +50,13 @@ private:
     QLineEdit *messageInput;
     QPushButton *sendButton;
     QLabel *chatTitle;
+
+    QVBoxLayout *chatPageLayout;
+    QScrollArea *scrollArea;
+    QWidget *scrollWidget;
+    QVBoxLayout *scrollWidgetLayout;
+    QWidget *messageWidget;
+    QVBoxLayout *messageLayout;
 };
 
 #endif // CHATS_H

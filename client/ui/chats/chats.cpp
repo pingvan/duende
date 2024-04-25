@@ -55,11 +55,6 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
         chatList->setItemWidget(item, chatWidget);
 
         auto *chatPage = new QWidget();
-        auto *chatPageLayout = new QVBoxLayout(chatPage);
-        auto *chatTextEdit = new QTextEdit();
-        chatTextEdit->setReadOnly(true);
-        chatPageLayout->addWidget(chatTextEdit);
-
         int index = chatPages->addWidget(chatPage);
         item->setData(Qt::UserRole + 1, index);
 
@@ -69,7 +64,9 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     }
 
     messageInput = new QLineEdit();
+    messageInput->setFixedHeight(50);
     sendButton = new QPushButton("Send");
+    sendButton->setFixedHeight(50);
     sendButton->setCursor(Qt::PointingHandCursor);
 
     QHBoxLayout *inputLayout = new QHBoxLayout();
@@ -84,10 +81,21 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     mainLayout->addWidget(chatList);
     mainLayout->addLayout(rightLayout);
 
+    connect(messageInput, &QLineEdit::returnPressed, this, &Chats::sendMessage);
     connect(sendButton, &QPushButton::clicked, this, &Chats::sendMessage);
     connect(chatList, &QListWidget::itemClicked, this, &Chats::onChatClicked);
+    connect(manager, &Manager::newMessageReceived, this, &Chats::onNewMessageReceived);
 
     this->setLayout(mainLayout); 
+
+    chatPageLayout = new QVBoxLayout();
+    scrollArea = new QScrollArea();
+    scrollArea->setWidgetResizable(true);
+    scrollWidget = new QWidget();
+    scrollWidgetLayout = new QVBoxLayout();
+    chatPageLayout->addWidget(scrollArea);
+    scrollWidget->setLayout(scrollWidgetLayout);
+    scrollArea->setWidget(scrollWidget);
 
     qDebug() << "Chats page end\n";
 }
@@ -95,6 +103,60 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
 Chats::~Chats()
 {
     delete ui;
+}
+
+void Chats::onNewMessageReceived(const chat_service::Message& message) {
+    // TODO не всегда сообщения приходят, когда ты с человеком в чате. определять это, поднимать чат наверх
+
+    messageWidget = new QWidget();
+    messageLayout = new QVBoxLayout();
+
+    // TODO sender name
+    QLabel* senderLabel = new QLabel(QString::number(message.sender_id()));
+    QLabel* textLabel = new QLabel(QString::fromStdString(message.message_text()));
+    QLabel* timestampLabel = new QLabel(QString::fromStdString(message.timestamp_()));
+
+    messageLayout->addWidget(senderLabel);
+    messageLayout->addWidget(textLabel);
+    messageLayout->addWidget(timestampLabel);
+    messageWidget->setLayout(messageLayout);
+
+    scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignLeft);
+
+    scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
+    scrollArea->update();
+
+    // FIX THIS!!
+    QList<QListWidgetItem *> items = chatList->findItems(QString::number(message.chat_id()), Qt::MatchExactly);
+    if (!items.empty()) {
+        QWidget *chatWidget = new QWidget();
+        QHBoxLayout *chatLayout = new QHBoxLayout(chatWidget);
+
+        QVBoxLayout *textLayout = new QVBoxLayout();
+        // TODO chat name
+        QLabel *chatNameLabel = new QLabel("CHAT NAME");
+        QLabel *lastMessageLabel = new QLabel(textLabel);
+        textLayout->addWidget(chatNameLabel);
+        textLayout->addWidget(lastMessageLabel);
+
+        QLabel *timeLabel = new QLabel(timestampLabel);
+        chatLayout->addLayout(textLayout);
+        chatLayout->addWidget(timeLabel);
+
+        QListWidgetItem *item = items.first();
+        int itemIndex = chatList->row(item);
+        item = chatList->takeItem(itemIndex);
+        chatList->insertItem(0, item);
+        chatList->setItemWidget(item, chatWidget);
+        chatList->setCurrentItem(item);
+
+        item->setData(Qt::UserRole, message.chat_id());
+        item->setData(Qt::UserRole + 1, chatPages->currentIndex());
+        // TODO chat name
+        item->setData(Qt::UserRole + 2, "CHAT NAME");
+
+        chatWidget->setCursor(Qt::PointingHandCursor);
+    }
 }
 
 void Chats::sendMessage() {
@@ -108,55 +170,113 @@ void Chats::sendMessage() {
 
     messageInput->clear();
 
-    QString time_stamp = "time???";
+    // TODO timestamp
+    QString time_stamp = "2024-04-24 15:00:00";
 
-    QWidget* chatPage = qobject_cast<QWidget*>(chatPages->currentWidget());
-    QTextEdit* chatTextEdit = chatPage->findChild<QTextEdit*>();
-    chatTextEdit->insertHtml("<div style='text-align: right; color: black;'>" +  QString::fromStdString(manager->new_client.get_user_full_page(manager->ID)->preview().login()) + " (You)" + "</div><br><br>");
-    chatTextEdit->insertHtml("<div style='text-align: left; color: black;'>" + messageText + "</div><br><br>");
-    chatTextEdit->insertHtml("<div style='text-align: left; color: black;'>" + time_stamp + "</div><br><br>");
-    chatTextEdit->insertHtml("<br><br>");
-
-    // currentItem->setSizeHint(chatWidget->sizeHint());
-    // currentItem->setData(Qt::UserRole, currentChatId);
-    // currentItem->setText(messageText);
-    // currentItem->setData(Qt::UserRole + 1, time_stamp);
-    // currentItem->setData(Qt::UserRole + 2, chatTitle->text());
-
-    QListWidgetItem *item = chatList->takeItem(itemIndex);
-    chatList->insertItem(0, item);
-    chatList->setCurrentItem(item);
-    chatList->setCursor(Qt::PointingHandCursor);
-}
-
-
-void Chats::onChatClicked(QListWidgetItem* item) {
-    int chatId = item->data(Qt::UserRole).toInt();
-    int pageIndex = item->data(Qt::UserRole + 1).toInt();
-    chatPages->setCurrentIndex(pageIndex);
-    std::vector<chat_service::MessageData> messages = manager->new_client.get_last_messages(manager->ID, chatId);
-    qDebug() << "Messages count: " << messages.size();
-
-    QWidget* chatPage = qobject_cast<QWidget*>(chatPages->currentWidget());
-    QTextEdit* chatTextEdit = chatPage->findChild<QTextEdit*>();
-    chatTextEdit->clear();
-
-    chatTitle->setText(item->data(Qt::UserRole + 2).toString());
+    messageWidget = new QWidget();
+    messageLayout = new QVBoxLayout();
 
     authservice::UserFullPage *user = manager->new_client.get_user_full_page(manager->ID);
 
-    for (const auto& message : messages) {
-        bool isUserMessage = (message.sender().login().c_str() == user->preview().login().c_str());
-        if (isUserMessage) {
-            chatTextEdit->insertHtml("<div style='text-align: right; color: blue;'>" + QString::fromStdString(message.sender().login()) + " (You)" + "</div><br><br>");
-            chatTextEdit->insertHtml("<div style='text-align: right; color: blue;'>" + QString::fromStdString(message.message_text()) + "</div><br><br>");
-            chatTextEdit->insertHtml("<div style='text-align: right; color: blue;'>" + QString::fromStdString(message.time_stamp()) + "</div><br><br>");
-            chatTextEdit->insertHtml("<br><br>");
-        } else {
-            chatTextEdit->insertHtml("<div style='text-align: left; color: black;'>" + QString::fromStdString(message.sender().login()) + "</div><br><br>");
-            chatTextEdit->insertHtml("<div style='text-align: left; color: black;'>" + QString::fromStdString(message.message_text()) + "</div><br><br>");
-            chatTextEdit->insertHtml("<div style='text-align: left; color: black;'>" + QString::fromStdString(message.time_stamp()) + "</div><br><br>");
-            chatTextEdit->insertHtml("<br><br>");
+    QLabel* senderLabel = new QLabel(QString::fromStdString(user->preview().login()) + " (You)");
+    QLabel* textLabel = new QLabel(messageText);
+    QLabel* timestampLabel = new QLabel(time_stamp);
+
+    messageLayout->addWidget(senderLabel);
+    messageLayout->addWidget(textLabel);
+    messageLayout->addWidget(timestampLabel);
+    messageWidget->setLayout(messageLayout);
+
+    scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignRight);
+
+    scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
+    scrollArea->update();
+
+    QWidget *chatWidget = new QWidget();
+    QHBoxLayout *chatLayout = new QHBoxLayout(chatWidget);
+
+    QVBoxLayout *textLayout = new QVBoxLayout();
+    // TODO chat name
+    QLabel *chatNameLabel = new QLabel("CHAT NAME");
+    QLabel *lastMessageLabel = new QLabel(messageText);
+    textLayout->addWidget(chatNameLabel);
+    textLayout->addWidget(lastMessageLabel);
+
+    QLabel *timeLabel = new QLabel(time_stamp);
+    chatLayout->addLayout(textLayout);
+    chatLayout->addWidget(timeLabel);
+
+    QListWidgetItem *item = chatList->takeItem(itemIndex);
+    chatList->insertItem(0, item);
+    chatList->setItemWidget(item, chatWidget);
+    chatList->setCurrentItem(item);
+
+    item->setData(Qt::UserRole, chatId);
+    item->setData(Qt::UserRole + 1, chatPages->currentIndex());
+    // TODO chat name
+    item->setData(Qt::UserRole + 2, "CHAT NAME");
+
+    chatWidget->setCursor(Qt::PointingHandCursor);
+}
+
+void Chats::onChatClicked(QListWidgetItem* item)
+{
+    int chatId = item->data(Qt::UserRole).toInt();
+    auto pageIndex = item->data(Qt::UserRole + 1).toInt();
+
+    auto messages  = manager->new_client.get_last_messages(manager->ID, chatId);
+    std::sort(messages.begin(), messages.end(), [](const chat_service::MessageData& a, const chat_service::MessageData& b) {
+        return a.time_stamp() < b.time_stamp();
+    });
+    qDebug() << "Messages count: " << messages.size();
+
+    authservice::UserFullPage *user = manager->new_client.get_user_full_page(manager->ID);
+
+    chatTitle->setText(item->data(Qt::UserRole + 2).toString());
+    chatPages->setCurrentIndex(pageIndex);
+
+    if (scrollWidgetLayout != nullptr) {
+        while ( scrollWidgetLayout->count() != 0 ) {
+               auto item = scrollWidgetLayout->takeAt(0);
+               delete item->widget();
+               delete item;
         }
     }
+
+    chatPages->currentWidget()->setLayout(chatPageLayout);
+
+    for (const auto& message : messages) {
+        bool is_sender = (message.sender().login() == user->preview().login());
+
+        messageWidget  = new QWidget();
+        messageLayout  = new QVBoxLayout();
+
+        QLabel *senderLabel = is_sender
+            ? new QLabel(QString::fromStdString(message.sender().login()) + " (You)")
+            : new QLabel(QString::fromStdString(message.sender().login()));
+
+        QLabel *textLabel      = new QLabel(QString::fromStdString(message.message_text()));
+        QLabel *timestampLabel = new QLabel(QString::fromStdString(message.time_stamp()));
+
+        messageLayout->addWidget(senderLabel);
+        messageLayout->addWidget(textLabel);
+        messageLayout->addWidget(timestampLabel);
+        messageWidget->setLayout(messageLayout);
+
+        is_sender
+            ? scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignRight)
+            : scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignLeft);
+
+    }
+
+    scrollWidget->setLayout(scrollWidgetLayout);
+    scrollArea->setWidget(scrollWidget);
+
+    // TODO
+    scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
+    scrollArea->update();
+
+    qDebug() << "scrollArea->verticalScrollBar()->maximum(): " << scrollArea->verticalScrollBar()->maximum();
+    qDebug() << "scrollWidgetLayout->count(): " << scrollWidgetLayout->count();
 }
+

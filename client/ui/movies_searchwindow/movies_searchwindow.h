@@ -1,7 +1,7 @@
 #ifndef MOVIES_SEARCHWINDOW_H
 #define MOVIES_SEARCHWINDOW_H
 
-#include "manager.hpp"
+#include "manager.h"
 
 #include <QWidget>
 #include <QLineEdit>

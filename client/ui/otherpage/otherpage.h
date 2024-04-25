@@ -1,7 +1,7 @@
 #ifndef OTHERPAGE_H
 #define OTHERPAGE_H
 
-#include "manager.hpp"
+#include "manager.h"
 
 #include <QWidget>
 #include <QGridLayout>

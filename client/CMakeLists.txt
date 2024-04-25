@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 COMPONENTS Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Core REQUIRED)
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
@@ -32,7 +33,7 @@ qt6_add_resources(QRC_RESOURCES ui/resources.qrc)
 
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/ui)
 
-add_executable(duende ${PROTOS} client.cpp ui/main.cpp ${MAINWINDOW} ${REGISTRATIONPAGE} ${RECOMMENDATIONS} ${CHATS} ${FOLLOWS} ${PROFILE} ${OTHERPAGE} ${QUESTIONNAIRE} ${ACTORS_SEARCHWINDOW} ${MOVIES_SEARCHWINDOW} ${GENRES_SEARCHWINDOW} ${QRC_RESOURCES})
+add_executable(duende ${PROTOS} client.cpp ui/manager.h ui/main.cpp ${MAINWINDOW} ${REGISTRATIONPAGE} ${RECOMMENDATIONS} ${CHATS} ${FOLLOWS} ${PROFILE} ${OTHERPAGE} ${QUESTIONNAIRE} ${ACTORS_SEARCHWINDOW} ${MOVIES_SEARCHWINDOW} ${GENRES_SEARCHWINDOW} ${QRC_RESOURCES})
 
 target_include_directories(duende PRIVATE
     ${Qt6Widgets_INCLUDE_DIRS},
@@ -40,7 +41,8 @@ target_include_directories(duende PRIVATE
 )
 
 target_link_libraries(duende PRIVATE
-    Qt${QT_VERSION}::Widgets
+    Qt6::Core
+    Qt6::Widgets
     absl::flags_parse
     gRPC::grpc++
     protobuf::libprotobuf

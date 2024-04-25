@@ -11,6 +11,55 @@ client::client(const std::shared_ptr<grpc::Channel> &new_channel)
       search_stub(search_service::SerachService::NewStub(new_channel)) {
 }
 
+void client::init_chat_stream(int user_id) {
+    stream = chat_stub->HandleChat(&context);
+
+    chat_service::ChatRequests request;
+    auto *init = new chat_service::InitialRequest;
+    init->set_user_id(user_id);
+    request.set_allocated_init(init);
+    stream->Write(request);
+
+    start_reading_stream();
+}   
+
+void client::start_reading_stream() {
+    qDebug() << "start_reading_stream started";
+    QFuture<void> future = QtConcurrent::run([this] {
+        qDebug() << "QtConcurrent running";
+        chat_service::ChatResponses response;
+        while (stream->Read(&response)) {
+            qDebug() << "Response received";
+            if (response.has_accept_message()) {
+                auto message = response.accept_message().msg();
+                qDebug() << "Message accepted:" << QString::fromStdString(message.message_text());
+                if (onNewMessageReceived) {
+                    onNewMessageReceived(message);
+                }
+            }
+        }
+        qDebug() << "Stream ended";
+    });
+}
+
+void client::send_message(int user_id, int chatId, const std::string& messageText) {
+    chat_service::SendMessageRequest request;
+    auto* message = new chat_service::Message();
+    message->set_sender_id(user_id);
+    message->set_chat_id(chatId);
+    message->set_message_text(messageText);
+    request.mutable_msg()->CopyFrom(*message);
+
+    chat_service::ChatRequests chatRequest;
+    chatRequest.mutable_send_message()->CopyFrom(request);
+
+    std::cout << chatRequest.DebugString() << std::endl;
+    bool status = stream->Write(chatRequest);
+    if (!status) {
+        std::cerr << "Error" << std::endl;
+    }
+}
+
 search_service::UserSearchResponse *client::search_user_by_credentials(const std::string &user_credentials) {
     grpc::ClientContext context;
     search_service::UserSearchRequest request;
