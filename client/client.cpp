@@ -8,37 +8,78 @@ client::client(const std::shared_ptr<grpc::Channel> &new_channel)
       chat_data_stub(chat_service::ChatDataService::NewStub(new_channel)),
       chat_stub(chat_service::ChatHandler::NewStub(new_channel)),
       profile_stub(profile::ProfileService::NewStub(new_channel)),
-      search_stub(search_service::SerachService::NewStub(new_channel)) {
+      search_stub(search_service::SerachService::NewStub(new_channel)),
+      invite_stub(invitation::InvitationService::NewStub(new_channel)) {
+}
+
+void client::start_reading_invite_stream() {
+    qDebug() << "start_reading_invite_stream started";
+    invite_stream = invite_stub->InvitationStream(&invite_context);
+    QFuture<void> future = QtConcurrent::run([this] {
+        qDebug() << "QtConcurrent invite stream running";
+        invitation::StreamResponse response;
+        while (invite_stream->Read(&response)) {
+            qDebug() << "Invite response received";
+            if (response.has_send_invitation_response()) {
+                if (onNewInviteSended) {
+                    onNewInviteSended(response.send_invitation_response());
+                }
+            }
+            if (response.has_respond_to_invitation_response()) {
+                if (onInviteRespondReceived) {
+                    onInviteRespondReceived(response.respond_to_invitation_response());
+                }
+            }
+        }
+        qDebug() << "Invite stream ended";
+    });
+}
+
+void client::send_invite(int sender_id, int receiver_id, std::string invite_text, invitation::InviteStatus invite_status) {
+    invitation::SendInvitationRequest request;
+    request.set_sender_id(sender_id);
+    request.set_receiver_id(receiver_id);
+    request.set_invite_text(invite_text);
+    request.set_status(invite_status);
+
+    std::cout << request.DebugString() << std::endl;
+
+    invitation::StreamRequest stream_request;
+    stream_request.mutable_send_invitation_request()->CopyFrom(request);
+
+    bool status = invite_stream->Write(stream_request);
+    if (!status) {
+        std::cerr << "Error" << std::endl;
+    }
 }
 
 void client::init_chat_stream(int user_id) {
-    stream = chat_stub->HandleChat(&context);
+    chat_stream = chat_stub->HandleChat(&chat_context);
 
     chat_service::ChatRequests request;
     auto *init = new chat_service::InitialRequest;
     init->set_user_id(user_id);
     request.set_allocated_init(init);
-    stream->Write(request);
+    chat_stream->Write(request);
 
-    start_reading_stream();
+    start_reading_chat_stream();
 }   
 
-void client::start_reading_stream() {
-    qDebug() << "start_reading_stream started";
+void client::start_reading_chat_stream() {
+    qDebug() << "start_reading_chat_stream started";
     QFuture<void> future = QtConcurrent::run([this] {
-        qDebug() << "QtConcurrent running";
+        qDebug() << "QtConcurrent chat stream running";
         chat_service::ChatResponses response;
-        while (stream->Read(&response)) {
-            qDebug() << "Response received";
+        while (chat_stream->Read(&response)) {
+            qDebug() << "Chat response received";
             if (response.has_accept_message()) {
                 auto message = response.accept_message().msg();
-                qDebug() << "Message accepted:" << QString::fromStdString(message.message_text());
                 if (onNewMessageReceived) {
                     onNewMessageReceived(message);
                 }
             }
         }
-        qDebug() << "Stream ended";
+        qDebug() << "Chat stream ended";
     });
 }
 
@@ -54,7 +95,7 @@ void client::send_message(int user_id, int chatId, const std::string& messageTex
     chatRequest.mutable_send_message()->CopyFrom(request);
 
     std::cout << chatRequest.DebugString() << std::endl;
-    bool status = stream->Write(chatRequest);
+    bool status = chat_stream->Write(chatRequest);
     if (!status) {
         std::cerr << "Error" << std::endl;
     }
@@ -196,6 +237,8 @@ std::vector<chat_service::ChatPreview> client::get_user_chats(int user_id) {
     chat_service::GetChatsRequest request;
     auto *response = new chat_service::UserChats;
     request.set_user_id(user_id);
+
+    // here
     grpc::Status status = chat_data_stub->GetUserChats(&context, request, response);
     if (!status.ok()) {
         return {};

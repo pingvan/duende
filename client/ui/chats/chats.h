@@ -39,6 +39,8 @@ private slots:
     void sendMessage();
     void onChatClicked(QListWidgetItem* item);
     void onNewMessageReceived(const chat_service::Message& message);
+    void onNewInviteSended();
+    void onInviteRespondReceived();
 
 private:
     Ui::Chats *ui;

@@ -33,6 +33,9 @@ public:
     ~OtherPage();
     void updatePage(int newId);
 
+public slots:
+    void sendInvite();
+
 private:
     Ui::OtherPage *ui;
     Manager *manager;

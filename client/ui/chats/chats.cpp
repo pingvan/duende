@@ -50,7 +50,7 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
 
         QListWidgetItem *item = new QListWidgetItem();
         item->setSizeHint(chatWidget->sizeHint());
-        item->setData(Qt::UserRole, chat.chat_id());
+        item->setData(Qt::UserRole, QString::number(chat.chat_id()));
         chatList->addItem(item);
         chatList->setItemWidget(item, chatWidget);
 
@@ -85,6 +85,9 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     connect(sendButton, &QPushButton::clicked, this, &Chats::sendMessage);
     connect(chatList, &QListWidget::itemClicked, this, &Chats::onChatClicked);
     connect(manager, &Manager::newMessageReceived, this, &Chats::onNewMessageReceived);
+    connect(manager, &Manager::NewInviteSended, this, &Chats::onNewInviteSended);
+    connect(manager, &Manager::InviteRespondReceived, this, &Chats::onInviteRespondReceived);
+
 
     this->setLayout(mainLayout); 
 
@@ -105,41 +108,57 @@ Chats::~Chats()
     delete ui;
 }
 
-void Chats::onNewMessageReceived(const chat_service::Message& message) {
-    // TODO не всегда сообщения приходят, когда ты с человеком в чате. определять это, поднимать чат наверх
+void Chats::onInviteRespondReceived() {
+    qDebug() << "New invite respond received";
+}
 
-    messageWidget = new QWidget();
-    messageLayout = new QVBoxLayout();
+void Chats::onNewInviteSended() {
+    qDebug() << "New invite sended";
+}
+
+void Chats::onNewMessageReceived(const chat_service::Message& message) {
+    qDebug() << "New message received in Chats::onNewMessageReceived : " << QString::fromStdString(message.message_text());
 
     // TODO sender name
     QLabel* senderLabel = new QLabel(QString::number(message.sender_id()));
     QLabel* textLabel = new QLabel(QString::fromStdString(message.message_text()));
     QLabel* timestampLabel = new QLabel(QString::fromStdString(message.timestamp_()));
 
-    messageLayout->addWidget(senderLabel);
-    messageLayout->addWidget(textLabel);
-    messageLayout->addWidget(timestampLabel);
-    messageWidget->setLayout(messageLayout);
+    if (currentChatId == message.chat_id()) {
+        messageWidget = new QWidget();
+        messageLayout = new QVBoxLayout();
 
-    scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignLeft);
+        messageLayout->addWidget(senderLabel);
+        messageLayout->addWidget(textLabel);
+        messageLayout->addWidget(timestampLabel);
+        messageWidget->setLayout(messageLayout);
 
-    scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
-    scrollArea->update();
+        scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignLeft);
 
-    // FIX THIS!!
-    QList<QListWidgetItem *> items = chatList->findItems(QString::number(message.chat_id()), Qt::MatchExactly);
+        scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
+        scrollArea->update();
+    }
+
+    QList<QListWidgetItem *> items;
+    for(int i = 0; i < chatList->count(); ++i) {
+        QListWidgetItem* item = chatList->item(i);
+        if(item->data(Qt::UserRole).toInt() == message.chat_id()) {
+            items.append(item);
+        }
+    }
+
     if (!items.empty()) {
         QWidget *chatWidget = new QWidget();
         QHBoxLayout *chatLayout = new QHBoxLayout(chatWidget);
 
         QVBoxLayout *textLayout = new QVBoxLayout();
         // TODO chat name
-        QLabel *chatNameLabel = new QLabel("CHAT NAME");
-        QLabel *lastMessageLabel = new QLabel(textLabel);
+        QLabel *chatNameLabel = new QLabel(senderLabel->text());
+        QLabel *lastMessageLabel = new QLabel(textLabel->text());
         textLayout->addWidget(chatNameLabel);
         textLayout->addWidget(lastMessageLabel);
 
-        QLabel *timeLabel = new QLabel(timestampLabel);
+        QLabel *timeLabel = new QLabel(timestampLabel->text());
         chatLayout->addLayout(textLayout);
         chatLayout->addWidget(timeLabel);
 
@@ -150,10 +169,10 @@ void Chats::onNewMessageReceived(const chat_service::Message& message) {
         chatList->setItemWidget(item, chatWidget);
         chatList->setCurrentItem(item);
 
-        item->setData(Qt::UserRole, message.chat_id());
+        item->setData(Qt::UserRole, QString::number(message.chat_id()));
         item->setData(Qt::UserRole + 1, chatPages->currentIndex());
         // TODO chat name
-        item->setData(Qt::UserRole + 2, "CHAT NAME");
+        item->setData(Qt::UserRole + 2, senderLabel->text());
 
         chatWidget->setCursor(Qt::PointingHandCursor);
     }
@@ -162,9 +181,14 @@ void Chats::onNewMessageReceived(const chat_service::Message& message) {
 void Chats::sendMessage() {
     QString messageText = messageInput->text().trimmed();
 
+    if (messageText.isEmpty()) {
+        return;
+    }
+
     QListWidgetItem* currentItem = chatList->currentItem();
     int itemIndex = chatList->row(currentItem);
     int chatId = currentItem->data(Qt::UserRole).toInt();
+    QString chatName = currentItem->data(Qt::UserRole + 2).toString();
 
     manager->new_client.send_message(manager->ID, chatId, messageText.toStdString());
 
@@ -196,8 +220,7 @@ void Chats::sendMessage() {
     QHBoxLayout *chatLayout = new QHBoxLayout(chatWidget);
 
     QVBoxLayout *textLayout = new QVBoxLayout();
-    // TODO chat name
-    QLabel *chatNameLabel = new QLabel("CHAT NAME");
+    QLabel *chatNameLabel = new QLabel(chatName);
     QLabel *lastMessageLabel = new QLabel(messageText);
     textLayout->addWidget(chatNameLabel);
     textLayout->addWidget(lastMessageLabel);
@@ -211,10 +234,9 @@ void Chats::sendMessage() {
     chatList->setItemWidget(item, chatWidget);
     chatList->setCurrentItem(item);
 
-    item->setData(Qt::UserRole, chatId);
+    item->setData(Qt::UserRole, QString::number(chatId));
     item->setData(Qt::UserRole + 1, chatPages->currentIndex());
-    // TODO chat name
-    item->setData(Qt::UserRole + 2, "CHAT NAME");
+    item->setData(Qt::UserRole + 2, chatName);
 
     chatWidget->setCursor(Qt::PointingHandCursor);
 }
@@ -222,6 +244,7 @@ void Chats::sendMessage() {
 void Chats::onChatClicked(QListWidgetItem* item)
 {
     int chatId = item->data(Qt::UserRole).toInt();
+    currentChatId = chatId;
     auto pageIndex = item->data(Qt::UserRole + 1).toInt();
 
     auto messages  = manager->new_client.get_last_messages(manager->ID, chatId);

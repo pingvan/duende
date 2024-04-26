@@ -107,6 +107,7 @@ OtherPage::OtherPage(int id, Manager* managerPtr, QWidget *parent) :
     rightBox->addWidget(view_favActors);
     rightBox->addWidget(view_watchlist);
    
+    connect(inviteButton, &QPushButton::clicked, this, &OtherPage::sendInvite);
 
     this->setLayout(mainLayout);
 
@@ -116,6 +117,12 @@ OtherPage::OtherPage(int id, Manager* managerPtr, QWidget *parent) :
 OtherPage::~OtherPage()
 {
     delete ui;
+}
+
+void OtherPage::sendInvite() 
+{
+    assert(manager != nullptr);
+    manager->new_client.send_invite(manager->ID, id, "Hello", invitation::InviteStatus::SENDED);
 }
 
 void OtherPage::updatePage(int newId)
