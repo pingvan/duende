@@ -34,6 +34,8 @@ private:
     grpc::ClientContext chat_context;
     grpc::ClientContext invite_context;
 
+    std::string access_token = "access_token";
+
 public:
     std::function<void(const chat_service::Message&)> onNewMessageReceived;
     std::function<void(const invitation::SendInvitationResponse&)> onNewInviteSended;

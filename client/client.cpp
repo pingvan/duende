@@ -15,6 +15,7 @@ client::client(const std::shared_ptr<grpc::Channel> &new_channel)
 void client::start_reading_invite_stream() {
     qDebug() << "start_reading_invite_stream started";
     invite_stream = invite_stub->InvitationStream(&invite_context);
+    invite_context.AddMetadata("token", access_token);
     QFuture<void> future = QtConcurrent::run([this] {
         qDebug() << "QtConcurrent invite stream running";
         invitation::StreamResponse response;
@@ -55,6 +56,7 @@ void client::send_invite(int sender_id, int receiver_id, std::string invite_text
 
 void client::init_chat_stream(int user_id) {
     chat_stream = chat_stub->HandleChat(&chat_context);
+    chat_context.AddMetadata("token", access_token);
 
     chat_service::ChatRequests request;
     auto *init = new chat_service::InitialRequest;
@@ -103,6 +105,7 @@ void client::send_message(int user_id, int chatId, const std::string& messageTex
 
 search_service::UserSearchResponse *client::search_user_by_credentials(const std::string &user_credentials) {
     grpc::ClientContext context;
+    context.AddMetadata("token", access_token);
     search_service::UserSearchRequest request;
     auto *response = new search_service::UserSearchResponse;
     request.set_user_credentials(user_credentials);
@@ -112,6 +115,7 @@ search_service::UserSearchResponse *client::search_user_by_credentials(const std
 
 search_service::ActorSearchResponse *client::search_actor_by_name(const std::string &actor_name) {
     grpc::ClientContext context;
+    context.AddMetadata("token", access_token);
     search_service::ActorSearchRequest request;
     auto *response = new search_service::ActorSearchResponse;
     request.set_actor_name(actor_name);
@@ -121,6 +125,7 @@ search_service::ActorSearchResponse *client::search_actor_by_name(const std::str
 
 search_service::FilmSearchResponse *client::search_film_by_title(const std::string &film_title) {
     grpc::ClientContext context;
+    context.AddMetadata("token", access_token);
     search_service::FilmSearchRequest request;
     auto *response = new search_service::FilmSearchResponse;
     request.set_film_title(film_title);
@@ -130,11 +135,11 @@ search_service::FilmSearchResponse *client::search_film_by_title(const std::stri
 
 authservice::UserFullPage *client::get_user_full_page(int user_id) {
     grpc::ClientContext context;
+    std::cout << "Token: " << access_token << std::endl;
+    context.AddMetadata("token", access_token);
     authservice::RequestWithUserId request;
     auto *response = new authservice::UserFullPage;
     
-    std::cout << "ID: " << user_id << std::endl;
-
     request.set_user_id(user_id);
     grpc::Status status = authorization_data_stub->GetUserFullPage(&context, request, response);
     if (!status.ok()) {
@@ -145,6 +150,7 @@ authservice::UserFullPage *client::get_user_full_page(int user_id) {
 
 void client::add_genre(int user_id, const std::string &genre_name) {
     grpc::ClientContext context;
+    context.AddMetadata("token", access_token);
     profile::GenreRequest request;
     auto *response = new profile::ProfileReply;
     request.set_id(user_id);
@@ -155,6 +161,7 @@ void client::add_genre(int user_id, const std::string &genre_name) {
 
 void client::remove_genre(int user_id, const std::string &genre_name) {
     grpc::ClientContext context;
+    context.AddMetadata("token", access_token);
     profile::GenreRequest request;
     auto *response = new profile::ProfileReply;
     request.set_id(user_id);
@@ -165,6 +172,7 @@ void client::remove_genre(int user_id, const std::string &genre_name) {
 
 void client::add_movie(int user_id, int movie_id, int rating) {
     grpc::ClientContext context;
+    context.AddMetadata("token", access_token);
     profile::MovieRequest request;
     auto *response = new profile::ProfileReply;
     request.set_id(user_id);
@@ -176,6 +184,7 @@ void client::add_movie(int user_id, int movie_id, int rating) {
 
 void client::remove_movie(int user_id, int movie_id, int rating) {
     grpc::ClientContext context;
+    context.AddMetadata("token", access_token);
     profile::MovieRequest request;
     auto *response = new profile::ProfileReply;
     request.set_id(user_id);
@@ -187,6 +196,7 @@ void client::remove_movie(int user_id, int movie_id, int rating) {
 
 void client::add_actor(int user_id, int actor_id) {
     grpc::ClientContext context;
+    context.AddMetadata("token", access_token);
     profile::ActorRequest request;
     auto *response = new profile::ProfileReply;
     request.set_id(user_id);
@@ -197,6 +207,7 @@ void client::add_actor(int user_id, int actor_id) {
 
 void client::remove_actor(int user_id, int actor_id) {
     grpc::ClientContext context;
+    context.AddMetadata("token", access_token);
     profile::ActorRequest request;
     auto *response = new profile::ProfileReply;
     request.set_id(user_id);
@@ -207,6 +218,7 @@ void client::remove_actor(int user_id, int actor_id) {
 
 void client::change_bio(int user_id, const std::string &new_bio) {
     grpc::ClientContext context;
+    context.AddMetadata("token", access_token);
     profile::BioRequest request;
     auto *response = new profile::ProfileReply;
     request.set_id(user_id);
@@ -216,6 +228,7 @@ void client::change_bio(int user_id, const std::string &new_bio) {
 
 void client::change_quote(int user_id, const std::string &new_quote) {
     grpc::ClientContext context;
+    context.AddMetadata("token", access_token);
     profile::QuoteRequest request;
     auto *response = new profile::ProfileReply;
     request.set_id(user_id);
@@ -225,6 +238,7 @@ void client::change_quote(int user_id, const std::string &new_quote) {
 
 void client::change_username(int user_id, const std::string &new_username) {
     grpc::ClientContext context;
+    context.AddMetadata("token", access_token);
     profile::UsernameRequest request;
     auto *response = new profile::ProfileReply;
     request.set_id(user_id);
@@ -234,11 +248,12 @@ void client::change_username(int user_id, const std::string &new_username) {
 
 std::vector<chat_service::ChatPreview> client::get_user_chats(int user_id) {
     grpc::ClientContext context;
+    std::cout << "Token: " << access_token << std::endl;
+    context.AddMetadata("token", access_token);
     chat_service::GetChatsRequest request;
     auto *response = new chat_service::UserChats;
     request.set_user_id(user_id);
 
-    // here
     grpc::Status status = chat_data_stub->GetUserChats(&context, request, response);
     if (!status.ok()) {
         return {};
@@ -253,6 +268,7 @@ std::vector<chat_service::ChatPreview> client::get_user_chats(int user_id) {
 
 std::vector<chat_service::MessageData> client::get_last_messages(int user_id, int chat_id) {
     grpc::ClientContext context;
+    context.AddMetadata("token", access_token);
     chat_service::GetChatMessagesRequest request;
     auto *response = new chat_service::LastMessages;
     request.set_user_id(user_id);
@@ -271,6 +287,7 @@ std::vector<chat_service::MessageData> client::get_last_messages(int user_id, in
 
 authservice::LoginResponse *client::login(const std::string &client_login, const std::string &password) {
     grpc::ClientContext context;
+    context.AddMetadata("token", "ddd");
     authservice::LoginRequest request;
     auto *response = new authservice::LoginResponse;
     if (client_login.find('@') != -1) {
@@ -280,13 +297,19 @@ authservice::LoginResponse *client::login(const std::string &client_login, const
         request.set_username(client_login);
     }
     request.set_password(password);
+    qDebug() << "Login request from client";
     grpc::Status status = authorization_stub->Login(&context, request, response);
+    // why socket closed ???
     if (!status.ok()) {
+        if (status.error_message() == "Socket closed") {
+            access_token = "access_token";
+        }
         response->set_message(status.error_message());
     }
     else {
         response->set_message("OK");
     }
+    std::cout << status.error_message() << std::endl;
     return response;
 }
 
@@ -297,6 +320,7 @@ authservice::SignupResponse *client::registration(
     const std::string &password_confirmation
 ) {
     grpc::ClientContext context;
+    context.AddMetadata("token", access_token);
     authservice::SignupRequest request;
     auto *response = new authservice::SignupResponse;
     request.set_username(client_login);
