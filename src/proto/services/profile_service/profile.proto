@@ -12,7 +12,6 @@ service ProfileService {
   rpc RemoveFromListOfActors (ActorRequest) returns (ProfileReply) {}
   rpc AddToListOfGenres (GenreRequest) returns (ProfileReply) {}
   rpc RemoveFromListOfGenres (GenreRequest) returns (ProfileReply) {}
-  rpc GetProfile (GetProfileRequest) returns (GetProfileReply) {}
 }
 
 service ProfileServiceData {
