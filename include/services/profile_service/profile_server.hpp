@@ -25,7 +25,6 @@ using profile::ActorRequest;
 using profile::GenreRequest;
 using profile::BioRequest;
 using profile::QuoteRequest;
-using profile::GetProfileRequest;
 using profile::ProfileService;
 
 class ProfileServiceImpl final : public ProfileService::Service
