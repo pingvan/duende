@@ -1,19 +1,7 @@
 #include "service.hpp"
 
 grpc::Status auth_service::password_is_valid(const std::string &password) {
-    int digit_count = 0;
-    int upper_count = 0;
-    int lower_count = 0;
     for (char symbol : password) {
-        if (isdigit(symbol)) {
-            digit_count++;
-        }
-        if (isupper(symbol)) {
-            upper_count++;
-        }
-        if (islower(symbol)) {
-            lower_count++;
-        }
         if (std::isspace(symbol)) {
             return grpc::Status(
                 grpc::StatusCode::INVALID_ARGUMENT,
@@ -21,71 +9,26 @@ grpc::Status auth_service::password_is_valid(const std::string &password) {
             );
         }
     }
-    if (password.size() < 8) {
+    if (password.empty()) {
         return grpc::Status(
             grpc::StatusCode::INVALID_ARGUMENT,
-            "Password is too short. It must be at least 8 characters long"
-        );
-    }
-    if (digit_count == 0) {
-        return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT, "Password must contain a digit"
-        );
-    }
-    if (upper_count == 0) {
-        return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT,
-            "Password must contain an uppercase letter"
-        );
-    }
-    if (lower_count == 0) {
-        return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT,
-            "Password must contain a lowercase letter"
+            "Password must not be empty"
         );
     }
     return grpc::Status::OK;
 }
 
 grpc::Status auth_service::username_is_valid(const std::string &username) {
-    int upper_count = 0;
-    int lower_count = 0;
-    for (char symbol : username) {
-        if (isupper(symbol)) {
-            upper_count++;
-        }
-        if (islower(symbol)) {
-            lower_count++;
-        }
-        if (std::isspace(symbol)) {
-            return grpc::Status(
-                grpc::StatusCode::INVALID_ARGUMENT,
-                "Username must not contain spaces"
-            );
-        }
-    }
-    if (username.size() < 4) {
+    if (username.empty()) {
         return grpc::Status(
             grpc::StatusCode::INVALID_ARGUMENT,
-            "Username is too short. It must be at least 4 characters long"
+            "Username must not be empty"
         );
     }
     if (username.size() > 20) {
         return grpc::Status(
             grpc::StatusCode::INVALID_ARGUMENT,
             "Username is too long. It must be at most 20 characters long"
-        );
-    }
-    if (upper_count > 0) {
-        return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT,
-            "Username must not contain uppercase letters"
-        );
-    }
-    if (lower_count == 0) {
-        return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT,
-            "Username must contain a lowercase letter"
         );
     }
     return grpc::Status::OK;

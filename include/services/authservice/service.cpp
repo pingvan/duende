@@ -102,10 +102,16 @@ grpc::Status auth_service::Signup(
     if (!password_is_valid(password).ok()) {
         return password_is_valid(password);
     }
-    if (connector.is_nickname_used(username) || connector.is_email_used(email)) {
-        response->set_message("User already exists");
+    if (connector.is_nickname_used(username)) {
+        response->set_message("Username already registered");
         return grpc::Status(
-            grpc::StatusCode::ALREADY_EXISTS, "User already exists"
+            grpc::StatusCode::ALREADY_EXISTS, "Username already registered"
+        );
+    }
+    if (connector.is_email_used(email)) {
+        response->set_message("Email already registered");
+        return grpc::Status(
+            grpc::StatusCode::ALREADY_EXISTS, "Email already registered"
         );
     }
     if (password != password_confirmation) {
