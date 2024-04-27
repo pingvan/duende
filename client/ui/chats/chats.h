@@ -41,11 +41,17 @@ private slots:
     void onNewMessageReceived(const chat_service::Message& message);
     void onNewInviteSended();
     void onInviteRespondReceived();
+    void build();
+    void connect_slots();
+    void make_chat_item(const chat_service::ChatPreview& chat, int chat_page_index, int item_index);
+    void make_message_item(const chat_service::MessageData& message);
 
 private:
     Ui::Chats *ui;
     Manager *manager;
-    int currentChatId;
+    QHBoxLayout *mainLayout;
+
+    int currentChatId = -1;
     QStackedWidget *chatPages;
     QListWidget *chatList;
     QTextEdit *chatMessages;

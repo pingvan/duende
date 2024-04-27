@@ -60,8 +60,6 @@ QStringList Actors_SearchWindow::searchActors(const QString &input)
 
     auto response = manager->new_client.search_actor_by_name(input.toStdString());
 
-    qDebug() << "response->actors__size() == " << response->actors_size();
-
     for (int i = 0; i < response->actors_size(); i++) {
         actors.append(QString::fromStdString(response->actors(i).full_name()));
         actors_map.insert(QString::fromStdString(response->actors(i).full_name()), response->actors(i).actor_id());

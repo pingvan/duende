@@ -40,8 +40,6 @@ QStringList Follows::searchUsers(const QString &input)
 
     auto response = manager->new_client.search_user_by_credentials(input.toStdString());
 
-    qDebug() << "response->users_size() == " << response->users_size();
-
     for (int i = 0; i < response->users_size(); i++) {
         users.append(QString::fromStdString(response->users(i).login()));
         users_id[QString::fromStdString(response->users(i).login())] = response->users(i).user_id();

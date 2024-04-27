@@ -11,8 +11,6 @@ OtherPage::OtherPage(int id, Manager* managerPtr, QWidget *parent) :
 
     qDebug() << "Other page start";
 
-    qDebug() << "ID: " << id;
-
     authservice::UserFullPage *user = manager->new_client.get_user_full_page(id);
 
     assert(user != nullptr);
@@ -130,8 +128,6 @@ void OtherPage::updatePage(int newId)
     id = newId;
 
     qDebug() << "Update page start";
-
-    qDebug() << "New ID: " << id;
 
     authservice::UserFullPage *user = manager->new_client.get_user_full_page(id);
 

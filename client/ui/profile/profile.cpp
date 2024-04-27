@@ -195,6 +195,7 @@ void Profile::button_edit_clicked()
 void Profile::button_save_clicked()
 {   
     manager->new_client.change_username(manager->ID, lineEdit_username->text().toStdString());
+    manager->username = lineEdit_username->text().toStdString();
     manager->new_client.change_quote(manager->ID, lineEdit_status->text().toStdString());
     manager->new_client.change_bio(manager->ID, textEdit_about->toPlainText().toStdString());
     
