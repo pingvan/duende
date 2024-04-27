@@ -3,6 +3,7 @@
 #include "questionnaire/questionnaire.h"
 #include "../client.hpp"
 #include "manager.h"
+#include "interceptor.hpp"
 
 #include <QApplication>
 #include <QMainWindow>
@@ -25,7 +26,12 @@ int main(int argc, char *argv[])
     splash->show();
     QTimer::singleShot(3000, splash, SLOT(close()));
 
-    Manager manager(grpc::CreateChannel(server_address, grpc::InsecureChannelCredentials()));
+    grpc::ChannelArguments args;
+    std::vector<std::unique_ptr<grpc::experimental::ClientInterceptorFactoryInterface>> interceptor_creators;
+    interceptor_creators.push_back(std::make_unique<interceptorFactory>());
+    auto channel = grpc::experimental::CreateCustomChannelWithInterceptors(server_address, grpc::InsecureChannelCredentials(), args, std::move(interceptor_creators));
+
+    Manager manager(channel);
 
     QMainWindow mainWindow;
     QStackedWidget *stackedWidget = new QStackedWidget;
