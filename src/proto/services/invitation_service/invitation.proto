@@ -48,7 +48,6 @@ message StreamRequest {
   oneof RequestEvent {
     SendInvitationRequest send_invitation_request = 1;
     RespondToInvitationRequest respond_to_invitation_request = 2;
-    CheckNewInvitationsRequest check_new_invitations_request = 3;
   }
 }
 
@@ -56,9 +55,8 @@ message StreamResponse {
   oneof ResponseEvent {
     SendInvitationResponse send_invitation_response = 1;
     RespondToInvitationResponse respond_to_invitation_response = 2;
-    CheckNewInvitationsResponse check_new_invitations_response = 3;
   }
-  Notification notification = 4;
+  Notification notification = 3;
 }
 
 message SendInvitationRequest {
@@ -74,18 +72,10 @@ message RespondToInvitationRequest {
   bool accept = 2;
 }
 
-message CheckNewInvitationsRequest {
-  int32 receiver_id = 1;
-}
-
 message SendInvitationResponse {
   string message = 1;
 }
 
 message RespondToInvitationResponse {
   string message = 1;
-}
-
-message CheckNewInvitationsResponse {
-  repeated int32 invitation_ids = 1;
 }

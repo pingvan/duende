@@ -15,7 +15,6 @@ using invitation::StreamResponse;
 using invitation::InvitationService;
 using invitation::SendInvitationRequest;
 using invitation::RespondToInvitationRequest;
-using invitation::CheckNewInvitationsRequest;
 using invitation::Notification;
 
 class InvitationServiceImpl final : public InvitationService::Service {
