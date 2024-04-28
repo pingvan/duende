@@ -1,15 +1,17 @@
-cmake_minimum_required(VERSION 3.22.1)
+cmake_minimum_required(VERSION 3.26.1)
 
 project(duende)
 
 include(./cmake/grpc-generation.cmake)
 
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(./include/)
+# set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
+# set(CMAKE_CXX_FLAGS "-fsanitize=undefined,address")
 
+add_subdirectory(./include/)
 add_subdirectory(./test/)
 
 message(NOTICE "COMPONENTS_SRCS: " ${COMPONENTS_SRCS})
@@ -19,10 +21,34 @@ find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
+find_package(GTest REQUIRED)
+# find_package(GMock REQUIRED)
 
 pkg_check_modules(LIBPQXX REQUIRED libpqxx)
 
 #if error occurs visit https://cmake.org/cmake/help/latest/module/FindPkgConfig.html
+
+add_executable(tests
+        test/doctest_main.cpp
+
+        ${TESTS_SRCS}
+
+        ${COMPONENTS_SRCS}
+        ${SERVICES_SRCS}
+
+        ${generated_proto_models_srcs}
+)
+
+add_executable(gtests
+        gtests/gtest_main.cpp
+
+        # ${TESTS_SRCS}
+
+        ${COMPONENTS_SRCS}
+        ${SERVICES_SRCS}
+
+        ${generated_proto_models_srcs}
+)
 
 add_executable(main
     src/main.cpp
@@ -33,7 +59,14 @@ add_executable(main
     ${generated_proto_models_srcs}
 )
 
+
 add_dependencies(main generate_proto_models)
+add_dependencies(tests generate_proto_models)
+add_dependencies(gtests generate_proto_models)
+
+
+target_link_options(main PUBLIC
+        -lpqxx)
 
 target_link_libraries(main
         absl::flags_parse
@@ -52,3 +85,47 @@ target_include_directories(main PUBLIC
 target_link_options(main PUBLIC
         ${LIBPQXX_LDFLAGS})
 
+target_link_options(tests PUBLIC
+        -lpqxx)
+
+target_link_libraries(tests
+        absl::flags_parse
+        gRPC::grpc++
+        protobuf::libprotobuf
+        Threads::Threads
+)
+
+target_include_directories(tests PUBLIC
+        ./include
+        ./libs
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${LIBPQXX_INCLUDE_DIRS}
+)
+
+target_link_options(tests PUBLIC
+        ${LIBPQXX_LDFLAGS})
+
+
+target_link_libraries(gtests
+        absl::flags_parse
+        gRPC::grpc++
+        protobuf::libprotobuf
+        Threads::Threads
+        # GTest::gtest
+        GTest::gtest_main 
+        # GTest::gmock 
+        GTest::gmock_main
+)
+
+target_include_directories(gtests PUBLIC
+        ./include
+        ./libs
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${LIBPQXX_INCLUDE_DIRS}
+)
+
+target_link_options(gtests PUBLIC
+        -lpqxx)
+
+target_link_options(gtests PUBLIC
+        ${LIBPQXX_LDFLAGS})

@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package chat_service;
+
+import "services/authservice/authservice.proto";
+
+enum Status {
+    SUCCESS = 0;
+    ERROR = 1;
+}
+
+service ChatHandler {
+    rpc HandleChat(stream ChatRequests) returns (stream ChatResponses);
+}
+
+service ChatDataService {
+    rpc GetUserChats(GetChatsRequest) returns (UserChats);
+    rpc GetLastMessages(GetChatMessagesRequest) returns (LastMessages);
+}
+
+message GetChatsRequest {
+    int32 user_id = 1;
+}
+
+message GetChatMessagesRequest {
+    int32 user_id = 1;
+    int32 chat_id = 2;
+}
+
+message ChatRequests {
+    oneof request {
+        InitialRequest init = 1;
+        SendMessageRequest send_message = 2;
+        DisconnectRequest leave = 3;
+    }
+
+}
+
+message ChatResponses {
+    oneof response {
+        InitialResponse init = 1;
+        AcceptMessage accept_message = 2;
+        DisconnectResponse leave = 3;
+    }
+}
+
+message InitialRequest {
+    int32 user_id = 1;
+}
+
+message InitialResponse {
+    Status status = 1;
+}
+
+message DisconnectRequest {
+    int32 user_id = 1;
+}
+
+message DisconnectResponse {
+    Status status = 1;
+}
+
+message SendMessageRequest {
+    Message msg = 1;
+}
+
+message AcceptMessage {
+    Message msg = 1;
+}
+
+message Message {
+    int32 sender_id = 1;
+    int32  chat_id = 2;
+    string timestamp_ = 3;
+    string message_text = 4;
+};
+
+//not hehe...
+
+message MessageData {
+  string message_text = 1;
+  authservice.UserPreview sender = 2;
+  string time_stamp = 3;
+}
+
+message ChatPreview {
+  uint32 chat_id = 1;
+  string name = 2;
+  string description = 3;
+  string time_stamp = 4;
+  MessageData last_message = 5;
+}
+
+message UserChats {
+  repeated ChatPreview user_chats = 1;
+}
+
+message LastMessages {
+  repeated MessageData messages = 1;
+}

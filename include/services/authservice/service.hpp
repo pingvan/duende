@@ -1,6 +1,7 @@
 #pragma once
 
 #include <grpcpp/grpcpp.h>
+#include <grpcpp/support/status.h>
 #include "services/authservice/authservice.grpc.pb.h"
 #include "services/authservice/authservice.pb.h"
 
@@ -20,8 +21,22 @@ struct auth_service final : public authservice::AuthService::Service {
         const authservice::LogoutRequest *request,
         authservice::LogoutResponse *response
     ) override;
-    grpc::Status save_user(authservice::User &user, std::string password);
+    int save_user(authservice::User &user, std::string password, authservice::Tokens *tokens);
     grpc::Status password_is_valid(const std::string &password);
     grpc::Status username_is_valid(const std::string &username);
     grpc::Status email_is_valid(const std::string &email);
+};  
+
+struct auth_service_data final : public authservice::AuthServiceData::Service {
+    grpc::Status GetUserPrewiew(
+        grpc::ServerContext *context,
+        const authservice::RequestWithUserId *request,
+        authservice::UserPreview *response
+    ) override;
+
+    grpc::Status GetUserFullPage(
+        grpc::ServerContext *context,
+        const authservice::RequestWithUserId *request,
+        authservice::UserFullPage *response
+    ) override;
 };
