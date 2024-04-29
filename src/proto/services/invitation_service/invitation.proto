@@ -68,8 +68,9 @@ message SendInvitationRequest {
 }
 
 message RespondToInvitationRequest {
-  int32 receiver_id = 1;
-  bool accept = 2;
+  uint32 invite_id = 1;
+  int32 receiver_id = 2;
+  bool accept = 3;
 }
 
 message SendInvitationResponse {

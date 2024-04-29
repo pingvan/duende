@@ -9,7 +9,7 @@ Status InvitationServiceImpl::InvitationStream(
     ServerReaderWriter<StreamResponse, StreamRequest> *stream
 ) {
     StreamRequest request;
-    database::connector db_connector;
+    database::invite_service_database_api db_api;
     int user_id = -1;
     while (stream->Read(&request)) {
         StreamResponse response;
@@ -18,14 +18,15 @@ Status InvitationServiceImpl::InvitationStream(
                 request.send_invitation_request();
             user_id = send_request.sender_id();
             online_users[user_id] = stream;
-            if (db_connector.is_invitation_sent(
+            if (db_api.is_invite_already_sended(
                     send_request.sender_id(), send_request.receiver_id()
                 )) {
                 return grpc::Status(
                     grpc::ALREADY_EXISTS, "Invitation already sent"
                 );
             } else {
-                db_connector.send_invitation(
+                db_api.add_invite(
+                    "Invitation", database::invite_status::sent,
                     send_request.sender_id(), send_request.receiver_id()
                 );
                 response.mutable_send_invitation_response()->set_message(
@@ -42,36 +43,31 @@ Status InvitationServiceImpl::InvitationStream(
         } else if (request.has_respond_to_invitation_request()) {
             const RespondToInvitationRequest &respond_request =
                 request.respond_to_invitation_request();
-            if (db_connector.is_invitation_accepted(respond_request.receiver_id(
-                ))) {
-                return grpc::Status(
-                    grpc::ALREADY_EXISTS, "Invitation already accepted"
+            int invite_id = respond_request.invite_id();
+            if (respond_request.accept()) {
+                db_api.change_invite_status(
+                    invite_id, database::invite_status::accepted
                 );
-            } else {
-                db_connector.respond_to_invitation(
-                    respond_request.receiver_id(), respond_request.accept()
+                db_api.create_chat(respond_request.receiver_id());
+                response.mutable_respond_to_invitation_response()->set_message(
+                    "Invitation accepted and chat created"
                 );
-                if (respond_request.accept()) {
-                    db_connector.create_chat(respond_request.receiver_id());
-                    response.mutable_respond_to_invitation_response()
-                        ->set_message("Invitation accepted and chat created");
-                    Notification *notification =
-                        response.mutable_notification();
-                    notification->set_sender_id(respond_request.sender_id());
-                    notification->set_receiver_id(respond_request.receiver_id()
-                    );
-                    notification->set_message("Your invitation was accepted");
-                    if (online_users.count(respond_request.sender_id())) {
-                        online_users[respond_request.sender_id()]->Write(
-                            response
-                        );
-                    }
-                } else {
-                    response.mutable_respond_to_invitation_response()
-                        ->set_message("Invitation declined");
+                Notification *notification = response.mutable_notification();
+                notification->set_sender_id(respond_request.sender_id());
+                notification->set_receiver_id(respond_request.receiver_id());
+                notification->set_message("Your invitation was accepted");
+                if (online_users.count(respond_request.sender_id())) {
+                    online_users[respond_request.sender_id()]->Write(response);
                 }
-                stream->Write(response);
+            } else {
+                db_api.change_invite_status(
+                    invite_id, database::invite_status::declined
+                );
+                response.mutable_respond_to_invitation_response()->set_message(
+                    "Invitation declined"
+                );
             }
+            stream->Write(response);
         }
     }
     if (user_id != -1) {

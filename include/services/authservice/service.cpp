@@ -3,7 +3,6 @@
 #include "token.hpp"
 #include "components/database/services/authservice/authservice.hpp"
 
-#include <cassert>
 #include <iostream>
 
 
@@ -92,6 +91,8 @@ grpc::Status auth_service::Signup(
     payload.set_email(email);
     payload.set_user_id(user.id());
 
+    response->set_id(user.id());
+
     if (!username_is_valid(username).ok()) {
         return username_is_valid(username);
     }
@@ -102,11 +103,13 @@ grpc::Status auth_service::Signup(
         return password_is_valid(password);
     }
     if (connector.is_nickname_used(username) || connector.is_email_used(email)) {
+        response->set_message("User already exists");
         return grpc::Status(
             grpc::StatusCode::ALREADY_EXISTS, "User already exists"
         );
     }
     if (password != password_confirmation) {
+        response->set_message("Passwords do not match");
         return grpc::Status(
             grpc::StatusCode::INVALID_ARGUMENT, "Passwords do not match"
         );
@@ -115,11 +118,7 @@ grpc::Status auth_service::Signup(
     authservice::Tokens *tokens = token_service.generate_tokens(payload);
     token_service.save_refresh_token(user.id(), tokens->refresh());
     response->set_allocated_tokens(tokens);
-    try {
-        save_user(user, password, tokens); //here
-    } catch (std::exception &e) {
-        std::cout << e.what() << '\n';
-    }
+    save_user(user, password, tokens);
     response->set_message("OK");
     return grpc::Status::OK;
 }

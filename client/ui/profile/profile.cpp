@@ -11,6 +11,7 @@ Profile::Profile(Manager* managerPtr, QWidget *parent)
 
     qDebug() << "Profile page start\n";
 
+<<<<<<< HEAD
     
     authservice::UserFullPage *user = manager->new_client.get_user_full_page(manager->ID);
 
@@ -18,6 +19,10 @@ Profile::Profile(Manager* managerPtr, QWidget *parent)
 
     qDebug() << "after profile page\n";
 
+=======
+    authservice::UserFullPage *user = manager->new_client.get_user_full_page(manager->ID);
+
+>>>>>>> alina/sonya
     leftBox = new QVBoxLayout;
     rightBox = new QVBoxLayout;
     QGridLayout *mainLayout = new QGridLayout(this);
@@ -219,7 +224,11 @@ void Profile::button_save_clicked()
 
 void Profile::plusItem_favActors_clicked()
 {
+<<<<<<< HEAD
     Actors_SearchWindow *searchWindow = new Actors_SearchWindow(this);
+=======
+    Actors_SearchWindow *searchWindow = new Actors_SearchWindow(manager, this);
+>>>>>>> alina/sonya
     searchWindow->setWindowModality(Qt::ApplicationModal);
     searchWindow->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     searchWindow->move(QGuiApplication::screens().at(0)->geometry().center() - searchWindow->rect().center());
@@ -228,7 +237,11 @@ void Profile::plusItem_favActors_clicked()
 
 void Profile::plusItem_watchlist_clicked()
 {
+<<<<<<< HEAD
     Movies_SearchWindow *searchWindow = new Movies_SearchWindow(this);
+=======
+    Movies_SearchWindow *searchWindow = new Movies_SearchWindow(manager, this);
+>>>>>>> alina/sonya
     searchWindow->setWindowModality(Qt::ApplicationModal);
     searchWindow->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     searchWindow->move(QGuiApplication::screens().at(0)->geometry().center() - searchWindow->rect().center());

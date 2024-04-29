@@ -15,7 +15,11 @@ find_package(PkgConfig REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
+<<<<<<< HEAD
 set(PROTOS ../build/services/authservice/authservice.grpc.pb.cc ../build/services/authservice/authservice.pb.cc ../build/services/chat_service/chat_service.grpc.pb.cc ../build/services/chat_service/chat_service.pb.cc ../build/services/profile_service/profile.grpc.pb.cc ../build/services/profile_service/profile.pb.cc)
+=======
+set(PROTOS ../build/services/authservice/authservice.grpc.pb.cc ../build/services/authservice/authservice.pb.cc ../build/services/chat_service/chat_service.grpc.pb.cc ../build/services/chat_service/chat_service.pb.cc ../build/services/profile_service/profile.grpc.pb.cc ../build/services/profile_service/profile.pb.cc ../build/services/search_service/search_service.grpc.pb.cc ../build/services/search_service/search_service.pb.cc)
+>>>>>>> alina/sonya
 set(MAINWINDOW ui/mainwindow/mainwindow.ui ui/mainwindow/mainwindow.h ui/mainwindow/mainwindow.cpp)
 set(REGISTRATIONPAGE ui/registrationpage/registrationpage.ui ui/registrationpage/registrationpage.h ui/registrationpage/registrationpage.cpp)
 set(RECOMMENDATIONS ui/recommendations/recommendations.ui ui/recommendations/recommendations.h ui/recommendations/recommendations.cpp)
@@ -30,9 +34,12 @@ qt6_add_resources(QRC_RESOURCES ui/resources.qrc)
 
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/ui)
 
+<<<<<<< HEAD
 # add_compile_options(-fsanitize=address,undefined)
 # add_link_options(-fsanitize=address,undefined)
 
+=======
+>>>>>>> alina/sonya
 add_executable(duende ${PROTOS} client.cpp ui/main.cpp ${MAINWINDOW} ${REGISTRATIONPAGE} ${RECOMMENDATIONS} ${CHATS} ${FOLLOWS} ${PROFILE} ${QUESTIONNAIRE} ${ACTORS_SEARCHWINDOW} ${MOVIES_SEARCHWINDOW} ${QRC_RESOURCES})
 
 target_include_directories(duende PRIVATE
@@ -46,4 +53,8 @@ target_link_libraries(duende PRIVATE
     gRPC::grpc++
     protobuf::libprotobuf
     Threads::Threads
+<<<<<<< HEAD
+=======
+    pqxx
+>>>>>>> alina/sonya
     )

@@ -1,17 +1,50 @@
 #include "client.hpp"
 
+
 client::client(const std::shared_ptr<grpc::Channel> &new_channel)
     : channel(new_channel),
       authorization_stub(authservice::AuthService::NewStub(new_channel)),
       authorization_data_stub(authservice::AuthServiceData::NewStub(new_channel)),
       chat_data_stub(chat_service::ChatDataService::NewStub(new_channel)),
-      profile_stub(profile::ProfileService::NewStub(new_channel)) {
+      chat_stub(chat_service::ChatHandler::NewStub(new_channel)),
+      profile_stub(profile::ProfileService::NewStub(new_channel)),
+      search_stub(search_service::SerachService::NewStub(new_channel)) {
+}
+
+search_service::UserSearchResponse *client::search_user_by_credentials(const std::string &user_credentials) {
+    grpc::ClientContext context;
+    search_service::UserSearchRequest request;
+    auto *response = new search_service::UserSearchResponse;
+    request.set_user_credentials(user_credentials);
+    grpc::Status status = search_stub->SearchUserByCredentials(&context, request, response);
+    return response;
+}
+
+search_service::ActorSearchResponse *client::search_actor_by_name(const std::string &actor_name) {
+    grpc::ClientContext context;
+    search_service::ActorSearchRequest request;
+    auto *response = new search_service::ActorSearchResponse;
+    request.set_actor_name(actor_name);
+    grpc::Status status = search_stub->SearchActorByName(&context, request, response);
+    return response;
+}
+
+search_service::FilmSearchResponse *client::search_film_by_title(const std::string &film_title) {
+    grpc::ClientContext context;
+    search_service::FilmSearchRequest request;
+    auto *response = new search_service::FilmSearchResponse;
+    request.set_film_title(film_title);
+    grpc::Status status = search_stub->SearchFilmByTitle(&context, request, response);
+    return response;
 }
 
 authservice::UserFullPage *client::get_user_full_page(int user_id) {
     grpc::ClientContext context;
     authservice::RequestWithUserId request;
     auto *response = new authservice::UserFullPage;
+    
+    std::cout << "ID: " << user_id << std::endl;
+
     request.set_user_id(user_id);
     grpc::Status status = authorization_data_stub->GetUserFullPage(&context, request, response);
     if (!status.ok()) {
@@ -126,6 +159,24 @@ std::vector<chat_service::ChatPreview> client::get_user_chats(int user_id) {
     return chats;
 }
 
+std::vector<chat_service::MessageData> client::get_last_messages(int user_id, int chat_id) {
+    grpc::ClientContext context;
+    chat_service::GetChatMessagesRequest request;
+    auto *response = new chat_service::LastMessages;
+    request.set_user_id(user_id);
+    request.set_chat_id(chat_id);
+    grpc::Status status = chat_data_stub->GetLastMessages(&context, request, response);
+    if (!status.ok()) {
+        return {};
+    }
+
+    std::vector<chat_service::MessageData> messages;
+    for (int i = 0; i < response->messages_size(); i++) {
+        messages.push_back(response->messages(i));
+    }
+    return messages;
+}
+
 authservice::LoginResponse *client::login(const std::string &client_login, const std::string &password) {
     grpc::ClientContext context;
     authservice::LoginRequest request;
@@ -147,7 +198,7 @@ authservice::LoginResponse *client::login(const std::string &client_login, const
     return response;
 }
 
-grpc::Status client::registration(
+authservice::SignupResponse *client::registration(
     const std::string &client_login,
     const std::string &email,
     const std::string &password,
@@ -161,5 +212,12 @@ grpc::Status client::registration(
     request.set_password(password);
     request.set_password_confirmation(password_confirmation);
 
-    return authorization_stub->Signup(&context, request, response);
+    grpc::Status status = authorization_stub->Signup(&context, request, response);
+    if (!status.ok()) {
+        response->set_message(status.error_message());
+    }
+    else {
+        response->set_message("OK");
+    }
+    return response;
 }
