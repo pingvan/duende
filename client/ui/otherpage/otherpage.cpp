@@ -11,33 +11,37 @@ OtherPage::OtherPage(int id, Manager* managerPtr, QWidget *parent) :
 
     qDebug() << "Other page start";
 
-    authservice::UserFullPage *user = manager->new_client.get_user_full_page(id);
+    user = manager->new_client.get_user_full_page(id);
 
     assert(user != nullptr);
 
-    leftBox = new QVBoxLayout;
-    rightBox = new QVBoxLayout;
-    QGridLayout *mainLayout = new QGridLayout(this);
-    mainLayout->addLayout(leftBox, 0, 0);
-    mainLayout->addLayout(rightBox, 0, 1);
-    mainLayout->setColumnMinimumWidth(0, 500);
-    mainLayout->setColumnStretch(0, 0);
+    build();
 
-    QLabel *label_photo = new QLabel();
-    QPixmap pixmap(":/img/robertdeniro.jpg");
-    pixmap = pixmap.scaledToWidth(mainLayout->columnMinimumWidth(0), Qt::SmoothTransformation);
-    label_photo->setPixmap(pixmap);
+    qDebug() << "Other page end";
+}
 
-    label_status = new QLabel(QString::fromStdString(user->quote().c_str()));
-    label_status->setMaximumWidth(500);
+void OtherPage::sendInvite() 
+{
+    assert(manager != nullptr);
+    manager->new_client.send_invite(manager->ID, id, "Hello", invitation::InviteStatus::SENDED);
+}
 
-    label_about = new QLabel(QString::fromStdString(user->about().c_str()));
-    label_about->setMaximumWidth(500);
-    label_about->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    label_about->setWordWrap(true);
+void OtherPage::updatePage(int newId)
+{
+    qDebug() << "Update page start";
 
-    label_username = new QLabel(QString::fromStdString(user->preview().login().c_str()));
+    id = newId;
 
+    user = manager->new_client.get_user_full_page(id);
+
+    assert(user != nullptr);
+
+    // update all labels
+    label_status->setText(QString::fromStdString(user->quote().c_str()));
+    label_about->setText(QString::fromStdString(user->about().c_str()));
+    label_username->setText(QString::fromStdString(user->preview().login().c_str()));
+
+    // update genres
     std::string genres_str = "Favorite genres: ";
 
     if (!user->favorite_genres().empty()) {
@@ -48,13 +52,41 @@ OtherPage::OtherPage(int id, Manager* managerPtr, QWidget *parent) :
         genres_str = genres_str.substr(0, genres_str.size()-2);
     }
 
-    QHBoxLayout *genresLayout = new QHBoxLayout;
-    label_favorite_genres = new QLabel(QString::fromStdString(genres_str));
-    genresLayout->addWidget(label_favorite_genres);
+    label_favorite_genres->setText(QString::fromStdString(genres_str));
+
+    // update scenes
+    build_scenes();
+
+    qDebug() << "Update page end";
+}
+
+void OtherPage::build_scenes()
+{
+    // delete if something
+    if (view_favActors != nullptr) {
+        delete view_favActors;
+        view_favActors = nullptr;
+    }
+    if (scene_favActors != nullptr) {
+        delete scene_favActors;
+        scene_favActors = nullptr;
+    }
+    if (view_watchlist != nullptr) {
+        delete view_watchlist;
+        view_watchlist = nullptr;
+    }
+    if (scene_watchlist != nullptr) {
+        delete scene_watchlist;
+        scene_watchlist = nullptr;
+    }
 
     view_favActors = new QGraphicsView();
     scene_favActors = new QGraphicsScene();
+    view_watchlist = new QGraphicsView();
+    scene_watchlist = new QGraphicsScene();
 
+    // fav actors
+    favActorsImages.clear();
     favActorsImages << ":/img/tarantino.jpg" << ":/img/tarantino.jpg" << ":/img/tarantino.jpg";
     int x = 0;
     for (auto it = favActorsImages.rbegin(); it != favActorsImages.rend(); ++it) {
@@ -69,9 +101,8 @@ OtherPage::OtherPage(int id, Manager* managerPtr, QWidget *parent) :
     view_favActors->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view_favActors->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    view_watchlist = new QGraphicsView();
-    scene_watchlist = new QGraphicsScene();
-
+    // watchlist
+    watchlistImages.clear();
     watchlistImages << ":/img/titanik.jpeg" << ":/img/titanik.jpeg" << ":/img/titanik.jpeg";
     x = 0;
     for (auto it = watchlistImages.rbegin(); it != watchlistImages.rend(); ++it) {
@@ -86,57 +117,43 @@ OtherPage::OtherPage(int id, Manager* managerPtr, QWidget *parent) :
     view_watchlist->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view_watchlist->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    QSpacerItem* verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    
-    QPushButton *inviteButton = new QPushButton("Send Invitation");
-    QPushButton *subscribeButton = new QPushButton("Subscribe");
-    QHBoxLayout *buttonsLayout = new QHBoxLayout;
-    buttonsLayout->addWidget(inviteButton);
-    buttonsLayout->addWidget(subscribeButton);
-
-    leftBox->addWidget(label_photo);
-    leftBox->addWidget(label_status);
-    leftBox->addWidget(label_about);
-    leftBox->addItem(verticalSpacer);
-    leftBox->addLayout(buttonsLayout);
-
-    rightBox->addWidget(label_username);
-    rightBox->addLayout(genresLayout);
+    // add to layout
     rightBox->addWidget(view_favActors);
     rightBox->addWidget(view_watchlist);
-   
-    connect(inviteButton, &QPushButton::clicked, this, &OtherPage::sendInvite);
+}
 
+void OtherPage::build()
+{
+    // main layout
+    leftBox = new QVBoxLayout;
+    rightBox = new QVBoxLayout;
+    QGridLayout *mainLayout = new QGridLayout(this);
+    mainLayout->addLayout(leftBox, 0, 0);
+    mainLayout->addLayout(rightBox, 0, 1);
+    mainLayout->setColumnMinimumWidth(0, 500);
+    mainLayout->setColumnStretch(0, 0);
     this->setLayout(mainLayout);
 
-    qDebug() << "Other page end";
-}
+    // photo
+    QLabel *label_photo = new QLabel();
+    QPixmap pixmap(":/img/robertdeniro.jpg");
+    pixmap = pixmap.scaledToWidth(mainLayout->columnMinimumWidth(0), Qt::SmoothTransformation);
+    label_photo->setPixmap(pixmap);
 
-OtherPage::~OtherPage()
-{
-    delete ui;
-}
+    // status
+    label_status = new QLabel(QString::fromStdString(user->quote().c_str()));
+    label_status->setMaximumWidth(500);
 
-void OtherPage::sendInvite() 
-{
-    assert(manager != nullptr);
-    manager->new_client.send_invite(manager->ID, id, "Hello", invitation::InviteStatus::SENDED);
-}
+    // about
+    label_about = new QLabel(QString::fromStdString(user->about().c_str()));
+    label_about->setMaximumWidth(500);
+    label_about->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    label_about->setWordWrap(true);
 
-void OtherPage::updatePage(int newId)
-{
-    id = newId;
+    // username
+    label_username = new QLabel(QString::fromStdString(user->preview().login().c_str()));
 
-    qDebug() << "Update page start";
-
-    authservice::UserFullPage *user = manager->new_client.get_user_full_page(id);
-
-    assert(user != nullptr);
-
-    label_status->setText(QString::fromStdString(user->quote().c_str()));
-    label_about->setText(QString::fromStdString(user->about().c_str()));
-    label_username->setText(QString::fromStdString(user->preview().login().c_str()));
-
+    // genres
     std::string genres_str = "Favorite genres: ";
 
     if (!user->favorite_genres().empty()) {
@@ -147,27 +164,37 @@ void OtherPage::updatePage(int newId)
         genres_str = genres_str.substr(0, genres_str.size()-2);
     }
 
-    label_favorite_genres->setText(QString::fromStdString(genres_str));
+    QHBoxLayout *genresLayout = new QHBoxLayout;
+    label_favorite_genres = new QLabel(QString::fromStdString(genres_str));
+    genresLayout->addWidget(label_favorite_genres);
+    
+    // spacer
+    QSpacerItem* verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    
+    // buttons
+    QPushButton *inviteButton = new QPushButton("Send Invitation");
+    QPushButton *subscribeButton = new QPushButton("Subscribe");
+    QHBoxLayout *buttonsLayout = new QHBoxLayout;
+    buttonsLayout->addWidget(inviteButton);
+    buttonsLayout->addWidget(subscribeButton);
 
-    scene_favActors->clear();
-    int x = 0;
-    for (auto it = favActorsImages.rbegin(); it != favActorsImages.rend(); ++it) {
-        QPixmap pixmap(*it);
-        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap.scaledToHeight(view_favActors->height()));
-        item->setPos(x, 0);
-        scene_favActors->addItem(item);
-        x += item->boundingRect().width() + 10;
-    }
+    // left layout
+    leftBox->addWidget(label_photo);
+    leftBox->addWidget(label_status);
+    leftBox->addWidget(label_about);
+    leftBox->addItem(verticalSpacer);
+    leftBox->addLayout(buttonsLayout);
 
-    scene_watchlist->clear();
-    x = 0;
-    for (auto it = watchlistImages.rbegin(); it != watchlistImages.rend(); ++it) {
-        QPixmap pixmap(*it);
-        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap.scaledToHeight(view_watchlist->height()));
-        item->setPos(x, 0);
-        scene_watchlist->addItem(item);
-        x += item->boundingRect().width() + 10;
-    }
+    // right layout
+    rightBox->addWidget(label_username);
+    rightBox->addLayout(genresLayout);
 
-    qDebug() << "Update page end";
+    build_scenes();
+   
+    connect(inviteButton, &QPushButton::clicked, this, &OtherPage::sendInvite);
+}
+
+OtherPage::~OtherPage()
+{
+    delete ui;
 }

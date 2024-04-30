@@ -10,8 +10,6 @@ MainWindow::MainWindow(Manager* managerPtr, QWidget *parent)
 
     qDebug() << "Main window start\n";
 
-    qDebug() << "ID: " << manager->ID;
-
     auto *centralWidget = new QWidget(this);
     auto *layout = new QHBoxLayout(centralWidget);
 

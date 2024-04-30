@@ -34,6 +34,8 @@ class Profile : public QWidget
 public:
     explicit Profile(Manager* managerPtr, QWidget *parent = nullptr);
     ~Profile();
+    void build();
+    void build_scenes(bool edit_mode = false);
 
 private slots:
     void button_edit_clicked();
@@ -46,6 +48,7 @@ private slots:
 private:
     Ui::Profile *ui;
     Manager *manager;
+    authservice::UserFullPage *user;
 
     QVBoxLayout *leftBox;
     QVBoxLayout *rightBox;
@@ -60,15 +63,15 @@ private:
     QLineEdit *lineEdit_username;
     QLineEdit *lineEdit_favActors;
 
-    QGraphicsView *view_favActors;
-    QGraphicsView *view_watchlist;
+    QGraphicsView *view_favActors = nullptr;
+    QGraphicsView *view_watchlist = nullptr;
 
     QPushButton *button_edit;
     QPushButton *button_save;
     QPushButton *button_edit_genres;
 
-    QGraphicsScene *scene_favActors;
-    QGraphicsScene *scene_watchlist;
+    QGraphicsScene *scene_favActors = nullptr;
+    QGraphicsScene *scene_watchlist = nullptr;
 
     QStringList favActorsImages;
     QStringList watchlistImages;
