@@ -4,7 +4,6 @@
 #include "components/database/services/invite_service/invite_service.hpp"
 #include "services/invitation_service/invitation.grpc.pb.h"
 #include "services/invitation_service/invitation.pb.h"
-#include "services/chat_service/chat_service.hpp"
 
 using grpc::Server;
 using grpc::ServerBuilder;
