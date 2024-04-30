@@ -1,6 +1,5 @@
 #include "chat_service.hpp"
-#include <__algorithm/ranges_sort.h>
-#include <__algorithm/ranges_unique.h>
+#include <algorithm>
 #include <grpcpp/support/status.h>
 
 #include <algorithm>
@@ -61,11 +60,10 @@ void chat_service_::send_to_chat(const chat_service::Message& msg) {
     auto message_id = database::chat_service_database_api::add_message(msg.sender_id(), msg.chat_id(), timestamp, msg.message_text());
     auto members_ids = database::chat_service_database_api::get_members_ids(msg.chat_id());
     
-    // std::ranges::sort(members_ids);
-    // std::sort(members_ids.begin(), members_ids.end());
-    // auto members_id = std::unique(members_ids.begin(), members_ids.end());
-    // auto members_id = std::ranges::unique(members_ids);
-    members_ids = {64, 71};
+    std::sort(members_ids.begin(), members_ids.end());
+    auto last = std::unique(members_ids.begin(), members_ids.end());
+    members_ids.erase(last, members_ids.end());
+    // members_ids = {64, 71};
     for (auto member_id : members_ids) {
         if (member_id != msg.sender_id()) {
             if (auto ptr = users_online.find(member_id); ptr == users_online.end()) {

@@ -28,6 +28,11 @@ public:
             };
     }
 
+    void logout() {
+        ID = -1;
+        username = "";
+    }
+
     Manager() = default;
     Manager(const Manager& other) = delete;
     Manager(Manager&& other) noexcept = default;

@@ -35,6 +35,12 @@ grpc::Status auth_service::username_is_valid(const std::string &username) {
 }
 
 grpc::Status auth_service::email_is_valid(const std::string &email) {
+    if (email.empty()) {
+        return grpc::Status(
+            grpc::StatusCode::INVALID_ARGUMENT,
+            "Email must not be empty"
+        );
+    }
     for (char symbol : email) {
         if (std::isspace(symbol)) {
             return grpc::Status(

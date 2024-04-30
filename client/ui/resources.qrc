@@ -9,5 +9,6 @@
         <file>img/search.png</file>
         <file>img/person.png</file>
         <file>img/chat.png</file>
+        <file>img/logout.png</file>
     </qresource>
 </RCC>

@@ -2,7 +2,6 @@
 #define REGISTRATIONPAGE_H
 
 #include "manager.h"
-#include "interceptor.hpp"
 
 #include <grpcpp/grpcpp.h>
 #include <QWidget>
