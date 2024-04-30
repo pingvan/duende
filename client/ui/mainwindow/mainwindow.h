@@ -6,6 +6,7 @@
 #include "profile/profile.h"
 #include "chats/chats.h"
 #include "follows/follows.h"
+#include "otherpage/otherpage.h"
 
 #include <QMainWindow>
 #include <QWidget>
@@ -38,6 +39,7 @@ public:
 
 private slots:
     void openProfilePage();
+    void openOtherPage(int id);
 
 private:
     Ui::MainWindow *ui;
@@ -46,5 +48,6 @@ private:
     RegistrationPage *registrationPage;
     Profile *profile;
     Chats *chats;
+    OtherPage *otherPage;
 };
 #endif // MAINWINDOW_H

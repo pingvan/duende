@@ -1,7 +1,7 @@
 #ifndef ACTORS_SEARCHWINDOW_H
 #define ACTORS_SEARCHWINDOW_H
 
-#include "manager.hpp"
+#include "manager.h"
 
 #include <QWidget>
 #include <QLineEdit>
@@ -36,6 +36,7 @@ private:
     QLineEdit *search_line;
     QStringListModel *model;
     QCompleter *completer;
+    QMap<QString, int> actors_map;
 };
 
 #endif // ACTORS_SEARCHWINDOW_H

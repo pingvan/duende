@@ -94,6 +94,7 @@ void RegistrationPage::loginButton_clicked()
     QString password = lineEdit_login_password->text();
     authservice::LoginResponse *response = manager->new_client.login(login.toStdString(), password.toStdString());
     manager->ID = response->id();
+    manager->username = manager->new_client.get_user_full_page(manager->ID)->preview().login();
 
     qDebug() << "ID: " << manager->ID;
 
@@ -123,6 +124,7 @@ void RegistrationPage::signupButton_clicked()
         authservice::LoginResponse *response = manager->new_client.login(username.toStdString(), password.toStdString());
         manager->ID = response->id();
         manager->new_client.change_username(manager->ID, username.toStdString());
+        manager->username = username.toStdString();
         emit registrationSuccessful();
     }
     else {

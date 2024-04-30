@@ -67,7 +67,6 @@ std::string authservice_database_api::get_user_nickname(const int &user_id) {
 }
 
 
-
 int authservice_database_api::add_user(const std::string &user_email, const std::string &user_nickname,
     const std::string &refresh_token,
     const std::string &password_hash, const std::string &password_salt) {
@@ -146,10 +145,17 @@ user_full_page authservice_database_api::get_user_full_page(const int &user_id) 
     for (const auto &row : result) {
         form_id = row[0].as<int>();
         //row[1].is_null()
-        full_page.quote = row[1].as<std::string>();
+        if (!row[1].is_null()) {
+            full_page.quote = row[1].as<std::string>();
+        }
         //here
-        full_page.about = row[2].as<std::string>();
-        full_page.fauvorite_genres = array_parser(row[3].as<std::string>());
+        if (!row[2].is_null()) {
+            full_page.about = row[2].as<std::string>();
+        }
+        if (!row[3].is_null()) {
+            full_page.fauvorite_genres = array_parser(row[3].as<std::string>());
+        }
+        
     }
     // assert(false);
     static std::string get_views = "SELECT ratio, title, description, genres "

@@ -1,7 +1,7 @@
 #ifndef CHATS_H
 #define CHATS_H
 
-#include "manager.hpp"
+#include "manager.h"
 
 #include <grpcpp/grpcpp.h>
 #include <QDebug>
@@ -15,6 +15,10 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QtConcurrent/QtConcurrent>
+#include <QLabel>
+#include <QThread>
+#include <QScrollArea>
+#include <QScrollBar> 
 
 namespace Ui {
 class Chats;
@@ -32,19 +36,35 @@ signals:
     void messageReceived(const QString& message);
 
 private slots:
-    void appendMessageToChat(const QString& message);
     void sendMessage();
     void onChatClicked(QListWidgetItem* item);
+    void onNewMessageReceived(const chat_service::Message& message);
+    void onNewInviteSended();
+    void onInviteRespondReceived();
+    void build();
+    void connect_slots();
+    void make_chat_item(const chat_service::ChatPreview& chat, int chat_page_index, int item_index);
+    void make_message_item(const chat_service::MessageData& message);
 
 private:
     Ui::Chats *ui;
     Manager *manager;
-    int currentChatId;
+    QHBoxLayout *mainLayout;
+
+    int currentChatId = -1;
     QStackedWidget *chatPages;
     QListWidget *chatList;
     QTextEdit *chatMessages;
     QLineEdit *messageInput;
     QPushButton *sendButton;
+    QLabel *chatTitle;
+
+    QVBoxLayout *chatPageLayout;
+    QScrollArea *scrollArea;
+    QWidget *scrollWidget;
+    QVBoxLayout *scrollWidgetLayout;
+    QWidget *messageWidget;
+    QVBoxLayout *messageLayout;
 };
 
 #endif // CHATS_H

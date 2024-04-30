@@ -2,7 +2,8 @@
 #include "registrationpage/registrationpage.h"
 #include "questionnaire/questionnaire.h"
 #include "../client.hpp"
-#include "../manager.hpp"
+#include "manager.h"
+#include "interceptor.hpp"
 
 #include <QApplication>
 #include <QMainWindow>
@@ -25,7 +26,12 @@ int main(int argc, char *argv[])
     splash->show();
     QTimer::singleShot(3000, splash, SLOT(close()));
 
-    Manager manager(grpc::CreateChannel(server_address, grpc::InsecureChannelCredentials()));
+    grpc::ChannelArguments args;
+    std::vector<std::unique_ptr<grpc::experimental::ClientInterceptorFactoryInterface>> interceptor_creators;
+    interceptor_creators.push_back(std::make_unique<interceptorFactory>());
+    auto channel = grpc::experimental::CreateCustomChannelWithInterceptors(server_address, grpc::InsecureChannelCredentials(), args, std::move(interceptor_creators));
+
+    Manager manager(channel);
 
     QMainWindow mainWindow;
     QStackedWidget *stackedWidget = new QStackedWidget;
@@ -35,6 +41,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(registrationPage, &RegistrationPage::registrationSuccessful, [&](){
         manager.new_client.init_chat_stream(manager.ID);
+        manager.new_client.start_reading_invite_stream();
         Questionnaire *questionnairePage = new Questionnaire(&manager);
         stackedWidget->addWidget(questionnairePage);
         stackedWidget->setCurrentWidget(questionnairePage);
@@ -46,6 +53,7 @@ int main(int argc, char *argv[])
     });
     QObject::connect(registrationPage, &RegistrationPage::loginSuccessful, [&](){
         manager.new_client.init_chat_stream(manager.ID);
+        manager.new_client.start_reading_invite_stream();
         MainWindow *mainPage = new MainWindow(&manager);
         stackedWidget->addWidget(mainPage);
         stackedWidget->setCurrentWidget(mainPage);

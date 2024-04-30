@@ -1,17 +1,20 @@
 #include "chat_service.hpp"
+#include <__algorithm/ranges_sort.h>
+#include <__algorithm/ranges_unique.h>
 #include <grpcpp/support/status.h>
 
+#include <algorithm>
+#include <cassert>
 #include <chrono>
 #include <iostream>
+#include <cassert>
 #include "components/database/services/chat_service/chat_service.hpp"
 #include <iostream>
+#include <vector>
 
 
 grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests> *stream) {
     chat_service::ChatRequests request;
-    grpc::ClientContext client_context;
-    auto deadline = client_context.deadline();
-    client_context.set_deadline(std::chrono::system_clock::now() + std::chrono::milliseconds(10));
     while (stream->Read(&request)) {
         if (request.has_init()) {
             users_online.insert({request.init().user_id(), std::make_shared<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>(*stream)});
@@ -57,6 +60,12 @@ void chat_service_::send_to_chat(const chat_service::Message& msg) {
     auto timestamp = make_timestamp();
     auto message_id = database::chat_service_database_api::add_message(msg.sender_id(), msg.chat_id(), timestamp, msg.message_text());
     auto members_ids = database::chat_service_database_api::get_members_ids(msg.chat_id());
+    
+    // std::ranges::sort(members_ids);
+    // std::sort(members_ids.begin(), members_ids.end());
+    // auto members_id = std::unique(members_ids.begin(), members_ids.end());
+    // auto members_id = std::ranges::unique(members_ids);
+    members_ids = {64, 71};
     for (auto member_id : members_ids) {
         if (member_id != msg.sender_id()) {
             if (auto ptr = users_online.find(member_id); ptr == users_online.end()) {
@@ -64,7 +73,10 @@ void chat_service_::send_to_chat(const chat_service::Message& msg) {
                 database::chat_service_database_api::add_unhandle_message(member_id, message_id);
             } else {
                 uint cnt = 0;
-                std::cout << "writing\n";
+                std::cout << "writing to: " << ptr->first << '\n';
+                assert(ptr != users_online.end());
+                assert(ptr->second != nullptr);
+                // ptr->second->SendInitialMetadata();
                 bool success = ptr->second->Write(response);
                 std::cout << "status: " << success << '\n';
                 while (!success && cnt != 10) {
@@ -72,6 +84,7 @@ void chat_service_::send_to_chat(const chat_service::Message& msg) {
                     cnt++;
                 }
                 if (!success) { //if not successfull - considering that stream is closed;
+                    std::cout << "erasing: " << ptr->first << '\n';
                     users_online.erase(ptr->first);
                     goto Unhandled;
                 }

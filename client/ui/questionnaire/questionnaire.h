@@ -1,7 +1,7 @@
 #ifndef QUESTIONNAIRE_H
 #define QUESTIONNAIRE_H
 
-#include "manager.hpp"
+#include "manager.h"
 
 #include <QWidget>
 #include <QFormLayout>
@@ -13,6 +13,9 @@
 #include <QCompleter>
 #include <QStringListModel>
 #include <QMap>
+#include <QLabel>
+#include <QInputDialog>
+#include <QList>
 
 namespace Ui {
 class Questionnaire;
@@ -38,6 +41,9 @@ private slots:
     void updateActorsList(const QString &input);
     void updateMoviesList(const QString &input);
     void updateGenresList(const QString &input);
+    void onAddActorClicked();
+    void onAddMovieClicked();
+    void onAddGenreClicked();
 
 private:
     Ui::Questionnaire *ui;
@@ -45,9 +51,18 @@ private:
     QLineEdit *lineEditActors;
     QLineEdit *lineEditMovies;
     QLineEdit *lineEditGenres;
+    QPushButton *addActorButton;
+    QPushButton *addMovieButton;
+    QPushButton *addGenreButton;
+    QLabel *selectedActorsLabel;
+    QLabel *selectedMoviesLabel;
+    QLabel *selectedGenresLabel;
     QStringListModel *actors_model;
     QStringListModel *movies_model;
     QStringListModel *genres_model;
+    QList<int> selectedActorsIds;
+    QList<int> selectedMoviesIds;
+    QList<int> selectedMoviesRatings;
     QMap<QString, int> actors_map;
     QMap<QString, int> movies_map;
     QMap<QString, int> genres_map;

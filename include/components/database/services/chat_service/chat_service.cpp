@@ -45,6 +45,12 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
         chat_ids.push_back(row[0].as<int>());
     }
     static std::string quer_sec = "SELECT id, created_at, is_group_chat, chat_name, description, users_count FROM chats WHERE id = $1";
+    /*
+    SELECT c.chat_id, c.chat_info, m.message_id, m.time_sent
+    FROM chats c
+    JOIN messages m ON c.chat_id = m.chat_id
+    ORDER BY m.time_sent DESC;
+    */
     user_chats chats;
     chats.user_chats.reserve(chat_ids.size());
     for (const auto &chat_id : chat_ids) {

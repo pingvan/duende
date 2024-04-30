@@ -25,6 +25,8 @@ Follows::Follows(Manager* managerPtr, QWidget *parent)
     layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
     connect(search_line, &QLineEdit::textChanged, this, &Follows::updateUserList);
+    connect(completer, QOverload<const QString &>::of(&QCompleter::activated), this, &Follows::onUserClicked);
+
 }
 
 Follows::~Follows()
@@ -38,10 +40,9 @@ QStringList Follows::searchUsers(const QString &input)
 
     auto response = manager->new_client.search_user_by_credentials(input.toStdString());
 
-    qDebug() << "response->users_size() == " << response->users_size();
-
     for (int i = 0; i < response->users_size(); i++) {
         users.append(QString::fromStdString(response->users(i).login()));
+        users_id[QString::fromStdString(response->users(i).login())] = response->users(i).user_id();
     }
     return users;
 }
@@ -49,4 +50,10 @@ QStringList Follows::searchUsers(const QString &input)
 void Follows::updateUserList(const QString &input)
 {
     model->setStringList(searchUsers(input));
+}
+
+void Follows::onUserClicked(const QString &username)
+{
+    int id = users_id[username];
+    emit userClicked(id);
 }

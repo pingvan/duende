@@ -1,9 +1,10 @@
 #ifndef PROFILE_H
 #define PROFILE_H
 
-#include "manager.hpp"
+#include "manager.h"
 #include "actors_searchwindow/actors_searchwindow.h"
 #include "movies_searchwindow/movies_searchwindow.h"
+#include "genres_searchwindow/genres_searchwindow.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -37,8 +38,10 @@ public:
 private slots:
     void button_edit_clicked();
     void button_save_clicked();
+    void button_edit_genres_clicked();
     void plusItem_favActors_clicked();
     void plusItem_watchlist_clicked();
+    void update_favorite_genres();
 
 private:
     Ui::Profile *ui;
@@ -50,6 +53,7 @@ private:
     QLabel *label_status;
     QLabel *label_about;
     QLabel *label_username;
+    QLabel *label_favorite_genres;
 
     QLineEdit *lineEdit_status;
     QTextEdit *textEdit_about;
@@ -61,12 +65,15 @@ private:
 
     QPushButton *button_edit;
     QPushButton *button_save;
+    QPushButton *button_edit_genres;
 
     QGraphicsScene *scene_favActors;
     QGraphicsScene *scene_watchlist;
 
     QStringList favActorsImages;
     QStringList watchlistImages;
+
+    Genres_SearchWindow *genres_searchWindow;
 };
 
 class ClickablePixmapItem : public QObject, public QGraphicsPixmapItem

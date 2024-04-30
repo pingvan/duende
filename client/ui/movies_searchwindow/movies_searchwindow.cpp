@@ -44,6 +44,15 @@ Movies_SearchWindow::~Movies_SearchWindow()
 
 void Movies_SearchWindow::saveChanges()
 {
+    QString selectedMovie = search_line->text();
+    if (!selectedMovie.isEmpty()) {
+        bool ok;
+        int rating = QInputDialog::getInt(this, tr("Rate the movie"),
+                                          tr("Rating:"), 5, 0, 10, 1, &ok);
+        if (ok) {
+            manager->new_client.add_movie(manager->ID, movies_map[selectedMovie], rating);
+        }
+    }
     this->close();
 }
 
@@ -51,13 +60,15 @@ QStringList Movies_SearchWindow::searchMovies(const QString &input)
 {
     QStringList films;
 
-    auto response = manager->new_client.search_film_by_title(input.toStdString());
+    movies_map.clear();
 
-    qDebug() << "response->films_size() == " << response->films_size();
+    auto response = manager->new_client.search_film_by_title(input.toStdString());
 
     for (int i = 0; i < response->films_size(); i++) {
         films.append(QString::fromStdString(response->films(i).title()));
+        movies_map.insert(QString::fromStdString(response->films(i).title()), response->films(i).film_id());
     }
+
     return films;
 }
 

@@ -10,37 +10,36 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 COMPONENTS Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Core REQUIRED)
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
-<<<<<<< HEAD
-set(PROTOS ../build/services/authservice/authservice.grpc.pb.cc ../build/services/authservice/authservice.pb.cc ../build/services/chat_service/chat_service.grpc.pb.cc ../build/services/chat_service/chat_service.pb.cc ../build/services/profile_service/profile.grpc.pb.cc ../build/services/profile_service/profile.pb.cc)
-=======
-set(PROTOS ../build/services/authservice/authservice.grpc.pb.cc ../build/services/authservice/authservice.pb.cc ../build/services/chat_service/chat_service.grpc.pb.cc ../build/services/chat_service/chat_service.pb.cc ../build/services/profile_service/profile.grpc.pb.cc ../build/services/profile_service/profile.pb.cc ../build/services/search_service/search_service.grpc.pb.cc ../build/services/search_service/search_service.pb.cc)
->>>>>>> alina/sonya
+set(AUTHSERVICE_PROTO ../build/services/authservice/authservice.grpc.pb.cc ../build/services/authservice/authservice.pb.cc)
+set(CHAT_SERVICE_PROTO ../build/services/chat_service/chat_service.grpc.pb.cc ../build/services/chat_service/chat_service.pb.cc)
+set(PROFILE_SERVICE_PROTO ../build/services/profile_service/profile.grpc.pb.cc ../build/services/profile_service/profile.pb.cc)
+set(SEARCH_SERVICE_PROTO ../build/services/search_service/search_service.grpc.pb.cc ../build/services/search_service/search_service.pb.cc)
+set(INVITE_SERVICE_PROTO ../build/services/invitation_service/invitation.grpc.pb.cc ../build/services/invitation_service/invitation.pb.cc)
+set(PROTOS ${AUTHSERVICE_PROTO} ${CHAT_SERVICE_PROTO} ${PROFILE_SERVICE_PROTO} ${SEARCH_SERVICE_PROTO} ${INVITE_SERVICE_PROTO})
+
 set(MAINWINDOW ui/mainwindow/mainwindow.ui ui/mainwindow/mainwindow.h ui/mainwindow/mainwindow.cpp)
 set(REGISTRATIONPAGE ui/registrationpage/registrationpage.ui ui/registrationpage/registrationpage.h ui/registrationpage/registrationpage.cpp)
 set(RECOMMENDATIONS ui/recommendations/recommendations.ui ui/recommendations/recommendations.h ui/recommendations/recommendations.cpp)
 set(CHATS ui/chats/chats.ui ui/chats/chats.h ui/chats/chats.cpp)
 set(FOLLOWS ui/follows/follows.ui ui/follows/follows.h ui/follows/follows.cpp)
 set(PROFILE ui/profile/profile.ui ui/profile/profile.h ui/profile/profile.cpp)
+set(OTHERPAGE ui/otherpage/otherpage.ui ui/otherpage/otherpage.h ui/otherpage/otherpage.cpp)
 set(QUESTIONNAIRE ui/questionnaire/questionnaire.ui ui/questionnaire/questionnaire.h ui/questionnaire/questionnaire.cpp)
 set(ACTORS_SEARCHWINDOW ui/actors_searchwindow/actors_searchwindow.ui ui/actors_searchwindow/actors_searchwindow.h ui/actors_searchwindow/actors_searchwindow.cpp)
 set(MOVIES_SEARCHWINDOW ui/movies_searchwindow/movies_searchwindow.ui ui/movies_searchwindow/movies_searchwindow.h ui/movies_searchwindow/movies_searchwindow.cpp)
+set(GENRES_SEARCHWINDOW ui/genres_searchwindow/genres_searchwindow.ui ui/genres_searchwindow/genres_searchwindow.h ui/genres_searchwindow/genres_searchwindow.cpp)
 
 qt6_add_resources(QRC_RESOURCES ui/resources.qrc)
 
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/ui)
 
-<<<<<<< HEAD
-# add_compile_options(-fsanitize=address,undefined)
-# add_link_options(-fsanitize=address,undefined)
-
-=======
->>>>>>> alina/sonya
-add_executable(duende ${PROTOS} client.cpp ui/main.cpp ${MAINWINDOW} ${REGISTRATIONPAGE} ${RECOMMENDATIONS} ${CHATS} ${FOLLOWS} ${PROFILE} ${QUESTIONNAIRE} ${ACTORS_SEARCHWINDOW} ${MOVIES_SEARCHWINDOW} ${QRC_RESOURCES})
+add_executable(duende ${PROTOS} client.cpp ui/manager.h ui/main.cpp ${MAINWINDOW} ${REGISTRATIONPAGE} ${RECOMMENDATIONS} ${CHATS} ${FOLLOWS} ${PROFILE} ${OTHERPAGE} ${QUESTIONNAIRE} ${ACTORS_SEARCHWINDOW} ${MOVIES_SEARCHWINDOW} ${GENRES_SEARCHWINDOW} ${QRC_RESOURCES})
 
 target_include_directories(duende PRIVATE
     ${Qt6Widgets_INCLUDE_DIRS},
@@ -48,13 +47,11 @@ target_include_directories(duende PRIVATE
 )
 
 target_link_libraries(duende PRIVATE
-    Qt${QT_VERSION}::Widgets
+    Qt6::Core
+    Qt6::Widgets
     absl::flags_parse
     gRPC::grpc++
     protobuf::libprotobuf
     Threads::Threads
-<<<<<<< HEAD
-=======
     pqxx
->>>>>>> alina/sonya
     )

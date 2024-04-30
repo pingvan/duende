@@ -1,32 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
+ <author/>
+ <comment/>
+ <exportmacro/>
  <class>Chats</class>
- <widget class="QWidget" name="Chats">
+ <widget name="Chats" class="QWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>967</width>
-    <height>622</height>
+    <width>400</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>420</x>
-     <y>290</y>
-     <width>63</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Chats</string>
-   </property>
-  </widget>
  </widget>
- <resources/>
+ <pixmapfunction/>
  <connections/>
 </ui>
