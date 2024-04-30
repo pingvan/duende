@@ -3,14 +3,16 @@
 
 std::unordered_map<
     int,
-    ServerReaderWriter<InvitationEventResponse, InvitationEventRequest> *>
+    grpc::ServerReaderWriter<
+        InvitationEventResponse,
+        InvitationEventRequest>*>
     online_users;
 
 std::unordered_map<
     int,
-    std::shared_ptr<grpc::ServerReaderWriter<
+    grpc::ServerReaderWriter<
         InvitationEventResponse,
-        InvitationEventRequest>>>
+        InvitationEventRequest>*>
     online_users_chat;
 
 Status InvitationServiceImpl::InvitationStream(
@@ -101,5 +103,4 @@ Status InvitationServiceImpl::InvitationStream(
     if (user_id != -1) {
         online_users.erase(user_id);
     }
-    return Status::OK;
 }
