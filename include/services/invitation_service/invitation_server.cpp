@@ -95,7 +95,6 @@ Status InvitationServiceImpl::InvitationStream(
             stream->Write(response);
         }
     }
-
     if (user_id != -1) {
         online_users.erase(user_id);
     }
