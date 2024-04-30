@@ -14,7 +14,11 @@ Status InvitationServiceImpl::InvitationStream(
             const SendInvitationRequest &send_request =
                 request.send_invitation_request();
             user_id = send_request.sender_id();
-            online_users[user_id] = stream;
+            users_online.insert(
+                {user_id,
+                 std::make_shared<grpc::ServerReaderWriter<
+                     InvitationEventResponse, InvitationEventRequest>>(*stream)}
+            );
             if (invite_db_api.is_invite_already_sended(
                     send_request.sender_id(), send_request.receiver_id()
                 )) {
@@ -33,8 +37,8 @@ Status InvitationServiceImpl::InvitationStream(
                 notification->set_sender_id(send_request.sender_id());
                 notification->set_receiver_id(send_request.receiver_id());
                 notification->set_message("You have a new invitation");
-                if (online_users.count(send_request.receiver_id())) {
-                    online_users[send_request.receiver_id()]->Write(response);
+                if (users_online.count(send_request.receiver_id())) {
+                    users_online[send_request.receiver_id()]->Write(response);
                 } else {
                     int invite_id = invite_db_api.add_invite(
                         send_request.sender_id(), send_request.receiver_id(),
@@ -60,8 +64,8 @@ Status InvitationServiceImpl::InvitationStream(
                 notification->set_sender_id(respond_request.sender_id());
                 notification->set_receiver_id(respond_request.receiver_id());
                 notification->set_message("Your invitation was accepted");
-                if (online_users.count(respond_request.sender_id())) {
-                    online_users[respond_request.sender_id()]->Write(response);
+                if (users_online.count(respond_request.sender_id())) {
+                    users_online[respond_request.sender_id()]->Write(response);
                 }
             } else {
                 invite_db_api.change_invite_status(
@@ -93,6 +97,6 @@ Status InvitationServiceImpl::InvitationStream(
         }
     }
     if (user_id != -1) {
-        online_users.erase(user_id);
+        users_online.erase(user_id);
     }
 }
