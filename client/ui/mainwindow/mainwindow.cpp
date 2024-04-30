@@ -77,7 +77,7 @@ MainWindow::MainWindow(Manager* managerPtr, QWidget *parent)
     toolbar->setToolButtonStyle(Qt::ToolButtonIconOnly);
     toolbar->setCursor(Qt::PointingHandCursor);
 
-    toolbar->addAction(QIcon(":/img/logout.png"), "Exit", this, &QApplication::quit);
+    toolbar->addAction(QIcon(":/img/cross.png"), "Exit", this, &QApplication::quit);
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     toolbar->addWidget(spacer);

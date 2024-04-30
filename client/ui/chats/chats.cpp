@@ -11,19 +11,23 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
 
     qDebug() << "Chats page start\n";
 
+    // build layout
     build();
 
+    // user chats
     std::vector<chat_service::ChatPreview> chats = manager->new_client.get_user_chats(manager->ID);
     std::sort(chats.begin(), chats.end(), [](const chat_service::ChatPreview& a, const chat_service::ChatPreview& b) {
         return a.time_stamp() > b.time_stamp();
     });
 
+    // deal with chats
     for (const auto &chat : chats) {
         auto *chatPage = new QWidget();
         int index = chatPages->addWidget(chatPage);
         make_chat_item(chat, index, -1);
     }
 
+    // connect slots
     connect_slots();
 
     qDebug() << "Chats page end\n";
@@ -47,6 +51,7 @@ void Chats::onNewMessageReceived(const chat_service::Message& message) {
     QLabel* textLabel      = new QLabel(QString::fromStdString(message.message_text()));
     QLabel* timestampLabel = new QLabel(QString::fromStdString(message.timestamp_()));
 
+    // current message
     chat_service::MessageData *current_message = new chat_service::MessageData();
     authservice::UserPreview *sender = new authservice::UserPreview();
     sender->set_login(senderLabel->text().toStdString());
@@ -54,10 +59,12 @@ void Chats::onNewMessageReceived(const chat_service::Message& message) {
     current_message->set_message_text(message.message_text());
     current_message->set_time_stamp(message.timestamp_());
 
+    // check if current chat
     if (currentChatId == message.chat_id()) {
         make_message_item(*current_message);
     }
 
+    // search item that corresponds to the chat
     QListWidgetItem *current_item;
     for(int i = 0; i < chatList->count(); ++i) {
         QListWidgetItem* item = chatList->item(i);
@@ -69,6 +76,7 @@ void Chats::onNewMessageReceived(const chat_service::Message& message) {
 
     if (current_item == nullptr) return;
 
+    // current chat
     chat_service::ChatPreview current_chat;
     current_chat.set_chat_id(message.chat_id());
     current_chat.set_name(current_item->data(Qt::UserRole + 2).toString().toStdString());
@@ -79,11 +87,13 @@ void Chats::onNewMessageReceived(const chat_service::Message& message) {
 }
 
 void Chats::sendMessage() {
+    // get message data
     QString message_text     = messageInput->text().trimmed();
     QString sender_username  = QString::fromStdString(manager->username);
     // TODO timestamp
     QString time_stamp       = "2024-04-24 15:00:00";
 
+    // check something
     if (message_text.isEmpty()) {
         return;
     }
@@ -94,21 +104,26 @@ void Chats::sendMessage() {
 
     messageInput->clear();
 
+    // get current chat
     QListWidgetItem* current_item = chatList->currentItem();
     int item_index                = chatList->row(current_item);
     QString chat_name             = current_item->data(Qt::UserRole + 2).toString();
 
+    // send message
     manager->new_client.send_message(manager->ID, currentChatId, message_text.toStdString());
 
+    // make last message instance
     chat_service::MessageData *last_message = new chat_service::MessageData();
     last_message->set_message_text(message_text.toStdString());
 
+    // make current chat instance
     chat_service::ChatPreview current_chat;
     current_chat.set_chat_id(currentChatId);
     current_chat.set_name(chat_name.toStdString());
     current_chat.set_time_stamp(time_stamp.toStdString());
     current_chat.set_allocated_last_message(last_message);
 
+    // make message instance
     chat_service::MessageData message;
     authservice::UserPreview *sender = new authservice::UserPreview();
     sender->set_login(sender_username.toStdString());
@@ -122,15 +137,18 @@ void Chats::sendMessage() {
 
 void Chats::onChatClicked(QListWidgetItem* item)
 {
+    // get chat data
     currentChatId = item->data(Qt::UserRole).toInt();
     chatPages->setCurrentIndex(item->data(Qt::UserRole + 1).toInt());
     chatTitle->setText(item->data(Qt::UserRole + 2).toString());
 
+    // get messages
     auto messages  = manager->new_client.get_last_messages(manager->ID, currentChatId);
     std::sort(messages.begin(), messages.end(), [](const chat_service::MessageData& a, const chat_service::MessageData& b) {
         return a.time_stamp() < b.time_stamp();
     });
 
+    // clear chat page
     if (scrollWidgetLayout != nullptr) {
         while ( scrollWidgetLayout->count() != 0 ) {
                auto item = scrollWidgetLayout->takeAt(0);
@@ -141,6 +159,7 @@ void Chats::onChatClicked(QListWidgetItem* item)
 
     chatPages->currentWidget()->setLayout(chatPageLayout);
 
+    // make messages
     for (const auto& message : messages) {
         make_message_item(message);
     }
@@ -156,6 +175,7 @@ void Chats::onChatClicked(QListWidgetItem* item)
 
 void Chats::make_message_item(const chat_service::MessageData& message)
 {
+    // get message data
     QString sender_username = QString::fromStdString(message.sender().login());
     QString my_username     = QString::fromStdString(manager->username);
     QString message_text    = QString::fromStdString(message.message_text());
@@ -163,6 +183,7 @@ void Chats::make_message_item(const chat_service::MessageData& message)
 
     bool am_i_sender = (sender_username == my_username);
 
+    // make message widget
     messageWidget = new QWidget();
     messageLayout = new QVBoxLayout();
 
@@ -192,26 +213,31 @@ void Chats::make_message_item(const chat_service::MessageData& message)
 
 void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_index, int item_index)
 {
+    // get chat data
     QString chat_name    = QString::fromStdString(chat.name());
     int chat_id          = chat.chat_id();
     QString time_stamp   = QString::fromStdString(chat.time_stamp());
     QString last_message = QString::fromStdString(chat.last_message().message_text());
 
+    // make chat widget
     QWidget *chatWidget     = new QWidget();
     chatWidget->setFixedWidth(chatList->width());
     QHBoxLayout *chatLayout = new QHBoxLayout(chatWidget);
 
+    // make text and name layout
     QVBoxLayout *textLayout  = new QVBoxLayout();
     QLabel *chatNameLabel    = new QLabel(chat_name);
     QLabel *lastMessageLabel = new QLabel(last_message);
     textLayout->addWidget(chatNameLabel);
     textLayout->addWidget(lastMessageLabel);
 
+    // make time label
     QLabel *timeLabel = new QLabel(time_stamp);
     chatLayout->addLayout(textLayout);
     chatLayout->addStretch(1);
     chatLayout->addWidget(timeLabel);
 
+    // set chat widget
     QListWidgetItem *item;
     if (item_index == -1) {
         item = new QListWidgetItem();
@@ -225,6 +251,7 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     chatList->setItemWidget(item, chatWidget);
     chatList->setCurrentItem(item);
 
+    // set data 
     item->setData(Qt::UserRole, chat_id);
     item->setData(Qt::UserRole + 1, chat_page_index);
     item->setData(Qt::UserRole + 2, chatNameLabel->text());
@@ -234,19 +261,23 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
 
 void Chats::build()
 {
+    // main layout
     mainLayout = new QHBoxLayout(this);
     this->setLayout(mainLayout); 
 
+    // left layout
     chatList = new QListWidget();
     chatList->setFixedWidth(500);
     chatList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     
+    // right layout
     chatPages = new QStackedWidget();
 
     chatTitle = new QLabel();
     chatTitle->setAlignment(Qt::AlignCenter);
     chatTitle->setStyleSheet("font-size: 18px; font-weight: bold;");
 
+    // input layout
     messageInput = new QLineEdit();
     sendButton   = new QPushButton("Send");
     messageInput->setFixedHeight(50);
@@ -265,6 +296,7 @@ void Chats::build()
     mainLayout->addWidget(chatList);
     mainLayout->addLayout(rightLayout);
 
+    // chat page layout
     chatPageLayout     = new QVBoxLayout();
     scrollArea         = new QScrollArea();
     scrollWidget       = new QWidget();
