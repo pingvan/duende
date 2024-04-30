@@ -11,7 +11,7 @@ std::unordered_map<
         chat_service::ChatRequests>>>
     online_users_chat;
 
-Status HandleChat(
+Status ChatHandlerImpl::HandleChat(
     ServerContext *context,
     ServerReaderWriter<ChatResponses, ChatRequests> *stream
 ) {
