@@ -4,6 +4,13 @@
 std::unordered_map<int, ServerReaderWriter<StreamResponse, StreamRequest> *>
     online_users;
 
+std::unordered_map<
+    int,
+    std::shared_ptr<grpc::ServerReaderWriter<
+        chat_service::ChatResponses,
+        chat_service::ChatRequests>>>
+    online_users_chat;
+
 Status InvitationServiceImpl::InvitationStream(
     ServerContext *context,
     ServerReaderWriter<StreamResponse, StreamRequest> *stream
@@ -37,21 +44,16 @@ Status InvitationServiceImpl::InvitationStream(
                 notification->set_sender_id(send_request.sender_id());
                 notification->set_receiver_id(send_request.receiver_id());
                 notification->set_message("You have a new invitation");
-                online_users.insert(
-                    {send_request.receiver_id(),
-                     std::make_shared<grpc::ServerReaderWriter<
-                         chat_service::ChatResponses,
-                         chat_service::ChatRequests>>(*stream)}
-                );
-                response.mutable_send_invitation_response()->set_message(
-                    "Chat initialized"
-                );
+                online_users_chat[send_request.sender_id()] = stream;
                 std::string initial_message =
                     "Hi! Do you want to talk with me?";
-                //+ данные из анкеты
-                response.mutable_send_invitation_response()->set_message(
-                    initial_message
-                );
+                chat_service::ChatResponses chat_response;
+                chat_response.set_message(initial_message);
+                if (online_users_chat.count(send_request.receiver_id())) {
+                    online_users_chat[send_request.receiver_id()]->Write(
+                        chat_response
+                    );
+                }
                 if (online_users.count(send_request.receiver_id())) {
                     online_users[send_request.receiver_id()]->Write(response);
                 } else {
@@ -91,6 +93,9 @@ Status InvitationServiceImpl::InvitationStream(
                     "Invitation declined"
                 );
                 online_users.erase(respond_request.sender_id());
+                if (online_users_chat.count(respond_request.sender_id())) {
+                    online_users_chat.erase(respond_request.sender_id());
+                }
             }
             stream->Write(response);
         }
