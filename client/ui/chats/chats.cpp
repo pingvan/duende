@@ -150,6 +150,7 @@ void Chats::onChatClicked(QListWidgetItem* item)
 
     // TODO
     scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->update();
 }
 
@@ -170,18 +171,22 @@ void Chats::make_message_item(const chat_service::MessageData& message)
         : new QLabel(sender_username);
 
     QLabel *textLabel      = new QLabel(message_text);
+    textLabel->setWordWrap(true);
+    textLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QLabel *timestampLabel = new QLabel(time_stamp);
 
     messageLayout->addWidget(senderLabel);
     messageLayout->addWidget(textLabel);
     messageLayout->addWidget(timestampLabel);
     messageWidget->setLayout(messageLayout);
+    messageWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
     am_i_sender
         ? scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignRight)
         : scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignLeft);
 
     scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->update();
 }
 
@@ -193,6 +198,7 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     QString last_message = QString::fromStdString(chat.last_message().message_text());
 
     QWidget *chatWidget     = new QWidget();
+    chatWidget->setFixedWidth(chatList->width());
     QHBoxLayout *chatLayout = new QHBoxLayout(chatWidget);
 
     QVBoxLayout *textLayout  = new QVBoxLayout();
@@ -203,6 +209,7 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
 
     QLabel *timeLabel = new QLabel(time_stamp);
     chatLayout->addLayout(textLayout);
+    chatLayout->addStretch(1);
     chatLayout->addWidget(timeLabel);
 
     QListWidgetItem *item;
@@ -232,6 +239,7 @@ void Chats::build()
 
     chatList = new QListWidget();
     chatList->setFixedWidth(500);
+    chatList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     
     chatPages = new QStackedWidget();
 

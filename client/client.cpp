@@ -56,7 +56,6 @@ void client::send_invite(int sender_id, int receiver_id, std::string invite_text
 
 void client::init_chat_stream(int user_id) {
     chat_stream = chat_stub->HandleChat(&chat_context);
-    
 
     chat_service::ChatRequests request;
     auto *init = new chat_service::InitialRequest;
@@ -80,9 +79,23 @@ void client::start_reading_chat_stream() {
                     onNewMessageReceived(message);
                 }
             }
+            else if (response.has_init()) {
+                qDebug() << (response.init().status() == chat_service::Status::SUCCESS);
+            }
+            else if (response.has_leave()) {
+                qDebug() << (response.leave().status() == chat_service::Status::SUCCESS);
+            }
         }
         qDebug() << "Chat stream ended";
     });
+}
+
+void client::leave_chat_stream(int user_id) {
+    chat_service::ChatRequests request;
+    auto *leave = new chat_service::DisconnectRequest;
+    leave->set_user_id(user_id);
+    request.set_allocated_leave(leave);
+    chat_stream->Write(request);
 }
 
 void client::send_message(int user_id, int chatId, const std::string& messageText) {

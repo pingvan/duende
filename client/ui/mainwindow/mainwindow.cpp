@@ -79,6 +79,7 @@ MainWindow::MainWindow(Manager* managerPtr, QWidget *parent)
     toolbar->setToolButtonStyle(Qt::ToolButtonIconOnly);
     toolbar->setCursor(Qt::PointingHandCursor);
 
+    toolbar->addAction(QIcon(":/img/logout.png"), "Exit", this, &QApplication::quit);
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     toolbar->addWidget(spacer);
@@ -96,6 +97,8 @@ MainWindow::MainWindow(Manager* managerPtr, QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+    qDebug() << "Main window deleted\n";
+    manager->new_client.leave_chat_stream(manager->ID);
 }
 
 void MainWindow::openProfilePage() {

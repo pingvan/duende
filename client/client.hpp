@@ -43,6 +43,7 @@ public:
 
     void init_chat_stream(int user_id);  
     void start_reading_chat_stream();
+    void leave_chat_stream(int user_id);
     void send_message(int user_id, int chatId, const std::string& messageText);
 
     void start_reading_invite_stream();
