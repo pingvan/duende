@@ -37,7 +37,7 @@ Status InvitationServiceImpl::InvitationStream(
                 notification->set_sender_id(send_request.sender_id());
                 notification->set_receiver_id(send_request.receiver_id());
                 notification->set_message("You have a new invitation");
-                users_online.insert(
+                online_users.insert(
                     {send_request.receiver_id(),
                      std::make_shared<grpc::ServerReaderWriter<
                          chat_service::ChatResponses,
@@ -65,41 +65,39 @@ Status InvitationServiceImpl::InvitationStream(
                     online_users[send_request.receiver_id()]->Write(response);
                 }
             }
-        }
-    }
-    else if (request.has_respond_to_invitation_request()) {
-        const RespondToInvitationRequest &respond_request =
-            request.respond_to_invitation_request();
-        int invite_id = respond_request.invite_id();
-        if (respond_request.accept()) {
-            invite_db_api.change_invite_status(
-                invite_id, database::invite_status::accepted
-            );
-            response.mutable_respond_to_invitation_response()->set_message(
-                "Invitation accepted"
-            );
-            Notification *notification = response.mutable_notification();
-            notification->set_sender_id(respond_request.sender_id());
-            notification->set_receiver_id(respond_request.receiver_id());
-            notification->set_message("Your invitation was accepted");
-            if (online_users.count(respond_request.sender_id())) {
-                online_users[respond_request.sender_id()]->Write(response);
+        } else if (request.has_respond_to_invitation_request()) {
+            const RespondToInvitationRequest &respond_request =
+                request.respond_to_invitation_request();
+            int invite_id = respond_request.invite_id();
+            if (respond_request.accept()) {
+                invite_db_api.change_invite_status(
+                    invite_id, database::invite_status::accepted
+                );
+                response.mutable_respond_to_invitation_response()->set_message(
+                    "Invitation accepted"
+                );
+                Notification *notification = response.mutable_notification();
+                notification->set_sender_id(respond_request.sender_id());
+                notification->set_receiver_id(respond_request.receiver_id());
+                notification->set_message("Your invitation was accepted");
+                if (online_users.count(respond_request.sender_id())) {
+                    online_users[respond_request.sender_id()]->Write(response);
+                }
+            } else {
+                invite_db_api.change_invite_status(
+                    invite_id, database::invite_status::declined
+                );
+                response.mutable_respond_to_invitation_response()->set_message(
+                    "Invitation declined"
+                );
+                online_users.erase(respond_request.sender_id());
             }
-        } else {
-            invite_db_api.change_invite_status(
-                invite_id, database::invite_status::declined
-            );
-            response.mutable_respond_to_invitation_response()->set_message(
-                "Invitation declined"
-            );
-            online_users.erase(respond_request.sender_id());
+            stream->Write(response);
         }
-        stream->Write(response);
     }
-}
 
-if (user_id != -1) {
-    online_users.erase(user_id);
-}
-return Status::OK;
+    if (user_id != -1) {
+        online_users.erase(user_id);
+    }
+    return Status::OK;
 }
