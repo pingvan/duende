@@ -11,6 +11,30 @@ std::unordered_map<
         chat_service::ChatRequests>>>
     online_users_chat;
 
+Status HandleChat(
+    ServerContext *context,
+    ServerReaderWriter<ChatResponses, ChatRequests> *stream
+) {
+    ChatRequests request;
+    while (stream->Read(&request)) {
+        StreamResponse response;
+        if (request.has_init()) {
+            user_id = request.init().user_id();
+            online_users.insert({user_id, stream});
+            online_users_chat.insert({user_id, stream});
+            response.mutable_init_response()->set_status(Status::SUCCESS);
+            stream->Write(response);
+        } else if (request.has_leave()) {
+            user_id = request.leave().user_id();
+            online_users.erase(user_id);
+            online_users_chat.erase(user_id);
+            response.mutable_leave_response()->set_status(Status::SUCCESS);
+            stream->Write(response);
+        }
+    }
+    return Status::OK;
+}
+
 Status InvitationServiceImpl::InvitationStream(
     ServerContext *context,
     ServerReaderWriter<StreamResponse, StreamRequest> *stream

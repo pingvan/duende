@@ -17,10 +17,20 @@ using invitation::InvitationService;
 using invitation::SendInvitationRequest;
 using invitation::RespondToInvitationRequest;
 using invitation::Notification;
+using chat_service::ChatRequests;
+using chat_service::ChatResponses;
+using chat_service::ChatHandler;
 
 class InvitationServiceImpl final : public InvitationService::Service {
     Status InvitationStream(
         ServerContext *context,
         ServerReaderWriter<StreamResponse, StreamRequest> *stream
+    ) override;
+};
+
+class ChatHandlerImpl final : public ChatHandler::Service {
+    Status HandleChat(
+        ServerContext *context,
+        ServerReaderWriter<ChatResponses, ChatRequests> *stream
     ) override;
 };

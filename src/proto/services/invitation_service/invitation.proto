@@ -12,6 +12,8 @@ enum InviteStatus {
 
 service InvitationService {
   rpc InvitationStream(stream StreamRequest) returns (stream StreamResponse) {}
+  rpc Init(InitRequest) returns (InitResponse) {}
+  rpc Leave(LeaveRequest) returns (LeaveResponse) {}
 }
 
 service InvitionDataService {
@@ -48,6 +50,8 @@ message StreamRequest {
   oneof RequestEvent {
     SendInvitationRequest send_invitation_request = 1;
     RespondToInvitationRequest respond_to_invitation_request = 2;
+    InitRequest init_request = 3;
+    LeaveRequest leave_request = 4;
   }
 }
 
@@ -55,8 +59,10 @@ message StreamResponse {
   oneof ResponseEvent {
     SendInvitationResponse send_invitation_response = 1;
     RespondToInvitationResponse respond_to_invitation_response = 2;
+    InitResponse init_response = 3;
+    LeaveResponse leave_response = 4;
   }
-  Notification notification = 3;
+  Notification notification = 5;
 }
 
 message SendInvitationRequest {
@@ -64,7 +70,6 @@ message SendInvitationRequest {
   int32 receiver_id = 2;
   string invite_text = 3;
   InviteStatus status = 4;
-
 }
 
 message RespondToInvitationRequest {
@@ -78,5 +83,21 @@ message SendInvitationResponse {
 }
 
 message RespondToInvitationResponse {
+  string message = 1;
+}
+
+message InitRequest {
+  int32 user_id = 1;
+}
+
+message InitResponse {
+  string message = 1;
+}
+
+message LeaveRequest {
+  int32 user_id = 1;
+}
+
+message LeaveResponse {
   string message = 1;
 }
