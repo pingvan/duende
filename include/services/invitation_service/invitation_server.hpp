@@ -10,22 +10,38 @@ using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::ServerReaderWriter;
 using grpc::Status;
+using invitation::InitRequest;
+using invitation::InitResponse;
 using invitation::InvitationEventRequest;
 using invitation::InvitationEventResponse;
 using invitation::InvitationService;
-using invitation::SendInvitationRequest;
-using invitation::SendInvitationResponse;
-using invitation::RespondToInvitationRequest;
-using invitation::RespondToInvitationResponse;
-using invitation::InitRequest;
-using invitation::InitResponse;
 using invitation::LeaveRequest;
 using invitation::LeaveResponse;
 using invitation::Notification;
+using invitation::RespondToInvitationRequest;
+using invitation::RespondToInvitationResponse;
+using invitation::SendInvitationRequest;
+using invitation::SendInvitationResponse;
 
 class InvitationServiceImpl final : public InvitationService::Service {
     Status InvitationStream(
         ServerContext *context,
-        ServerReaderWriter<InvitationEventResponse, InvitationEventRequest> *stream
+        ServerReaderWriter<InvitationEventResponse, InvitationEventRequest>
+            *stream
     ) override;
+
+private:
+    std::unordered_map<
+        int,
+        std::shared_ptr<grpc::ServerReaderWriter<
+            InvitationEventResponse,
+            InvitationEventRequest>>>
+        users_online;
+
+    std::unordered_map<
+        int,
+        std::shared_ptr<grpc::ServerReaderWriter<
+            InvitationEventResponse,
+            InvitationEventRequest>>>
+        users_online_chat;
 };

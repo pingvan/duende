@@ -5,9 +5,14 @@ package invitation;
 import "services/authservice/authservice.proto";
 
 enum InviteStatus {
-  SENDED = 0;
+  SENT = 0;
   ACCEPTED = 1;
   DECLINED = 2;
+}
+
+enum Status {
+    SUCCESS = 0;
+    ERROR = 1;
 }
 
 service InvitationService {
@@ -73,7 +78,7 @@ message SendInvitationRequest {
 message RespondToInvitationRequest {
   uint32 invite_id = 1;
   int32 receiver_id = 2;
-  bool accept = 3;
+  InviteStatus status = 4;
 }
 
 message SendInvitationResponse {
@@ -89,7 +94,7 @@ message InitRequest {
 }
 
 message InitResponse {
-  string message = 1;
+  Status status = 1;
 }
 
 message LeaveRequest {
@@ -97,5 +102,5 @@ message LeaveRequest {
 }
 
 message LeaveResponse {
-  string message = 1;
+  Status status = 1;
 }
