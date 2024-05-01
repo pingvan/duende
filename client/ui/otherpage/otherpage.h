@@ -35,6 +35,9 @@ public:
     void build();
     void build_scenes();
 
+signals:
+    void inviteSent(const invitation::Invite&);
+
 public slots:
     void sendInvite();
 

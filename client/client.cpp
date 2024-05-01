@@ -9,21 +9,32 @@ client::client(const std::shared_ptr<grpc::Channel> &new_channel)
       chat_stub(chat_service::ChatHandler::NewStub(new_channel)),
       profile_stub(profile::ProfileService::NewStub(new_channel)),
       search_stub(search_service::SerachService::NewStub(new_channel)),
-      invite_stub(invitation::InvitationService::NewStub(new_channel)) {
+      invite_stub(invitation::InvitationService::NewStub(new_channel)),
+      invite_data_stub(invitation::InvitationDataService::NewStub(new_channel)) {
+}
+
+void client::init_invite_stream(int user_id) {
+    invite_stream = invite_stub->InvitationStream(&invite_context);
+    
+    invitation::InvitationRequest request;
+    auto *init = new invitation::InitRequest;
+    init->set_user_id(user_id);
+    request.set_allocated_init_request(init);
+    invite_stream->Write(request);
+
+    start_reading_invite_stream();
 }
 
 void client::start_reading_invite_stream() {
     qDebug() << "start_reading_invite_stream started";
-    invite_stream = invite_stub->InvitationStream(&invite_context);
-    
     QFuture<void> future = QtConcurrent::run([this] {
         qDebug() << "QtConcurrent invite stream running";
-        invitation::StreamResponse response;
+        invitation::InvitationResponse response;
         while (invite_stream->Read(&response)) {
             qDebug() << "Invite response received";
             if (response.has_send_invitation_response()) {
-                if (onNewInviteSended) {
-                    onNewInviteSended(response.send_invitation_response());
+                if (onNewInviteReceived) {
+                    onNewInviteReceived(response.send_invitation_response());
                 }
             }
             if (response.has_respond_to_invitation_response()) {
@@ -31,27 +42,77 @@ void client::start_reading_invite_stream() {
                     onInviteRespondReceived(response.respond_to_invitation_response());
                 }
             }
+            if (response.has_init_response()) {
+                qDebug() << (response.init_response().status() == invitation::Status::SUCCESS);
+            }
+            if (response.has_leave_response()) {
+                qDebug() << (response.leave_response().status() == invitation::Status::SUCCESS);
+            }
         }
         qDebug() << "Invite stream ended";
     });
 }
 
-void client::send_invite(int sender_id, int receiver_id, std::string invite_text, invitation::InviteStatus invite_status) {
+void client::leave_invite_stream(int user_id) {
+    invitation::InvitationRequest request;
+    auto *leave = new invitation::LeaveRequest;
+    leave->set_user_id(user_id);
+    request.set_allocated_leave_request(leave);
+    invite_stream->Write(request);
+}
+
+void client::send_invite(int sender_id, int receiver_id) {
     invitation::SendInvitationRequest request;
     request.set_sender_id(sender_id);
     request.set_receiver_id(receiver_id);
-    request.set_invite_text(invite_text);
-    request.set_status(invite_status);
 
     std::cout << request.DebugString() << std::endl;
 
-    invitation::StreamRequest stream_request;
+    invitation::InvitationRequest stream_request;
     stream_request.mutable_send_invitation_request()->CopyFrom(request);
+
+    assert(invite_stream != nullptr);
 
     bool status = invite_stream->Write(stream_request);
     if (!status) {
         std::cerr << "Error" << std::endl;
     }
+}
+
+std::vector<invitation::Invite> client::get_sent_invites(int user_id) {
+    grpc::ClientContext context;
+    
+    invitation::RequestWithId request;
+    auto *response = new invitation::InvitesSent;
+    request.set_id(user_id);
+    grpc::Status status = invite_data_stub->GetSentInvitations(&context, request, response);
+    if (!status.ok()) {
+        return {};
+    }
+
+    std::vector<invitation::Invite> invites;
+    for (int i = 0; i < response->invites_size(); i++) {
+        invites.push_back(response->invites(i));
+    }
+    return invites;
+}
+
+std::vector<invitation::Invite> client::get_received_invites(int user_id) {
+    grpc::ClientContext context;
+    
+    invitation::RequestWithId request;
+    auto *response = new invitation::InvitesReceived;
+    request.set_id(user_id);
+    grpc::Status status = invite_data_stub->GetReceivedInvitations(&context, request, response);
+    if (!status.ok()) {
+        return {};
+    }
+
+    std::vector<invitation::Invite> invites;
+    for (int i = 0; i < response->invites_size(); i++) {
+        invites.push_back(response->invites(i));
+    }
+    return invites;
 }
 
 void client::init_chat_stream(int user_id) {

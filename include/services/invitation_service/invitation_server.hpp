@@ -5,28 +5,10 @@
 #include "services/invitation_service/invitation.grpc.pb.h"
 #include "services/invitation_service/invitation.pb.h"
 
-using grpc::Server;
-using grpc::ServerBuilder;
-using grpc::ServerContext;
-using grpc::ServerReaderWriter;
-using grpc::Status;
-using invitation::InitRequest;
-using invitation::InitResponse;
-using invitation::InvitationEventRequest;
-using invitation::InvitationEventResponse;
-using invitation::InvitationService;
-using invitation::LeaveRequest;
-using invitation::LeaveResponse;
-using invitation::Notification;
-using invitation::RespondToInvitationRequest;
-using invitation::RespondToInvitationResponse;
-using invitation::SendInvitationRequest;
-using invitation::SendInvitationResponse;
-
-class InvitationServiceImpl final : public InvitationService::Service {
-    Status InvitationStream(
-        ServerContext *context,
-        ServerReaderWriter<InvitationEventResponse, InvitationEventRequest>
+struct InvitationServiceImpl final : public invitation::InvitationService::Service {
+    grpc::Status InvitationStream(
+        grpc::ServerContext *context,
+        grpc::ServerReaderWriter<invitation::InvitationResponse, invitation::InvitationRequest>
             *stream
     ) override;
 
@@ -34,14 +16,20 @@ private:
     std::unordered_map<
         int,
         std::shared_ptr<grpc::ServerReaderWriter<
-            InvitationEventResponse,
-            InvitationEventRequest>>>
+            invitation::InvitationResponse,
+            invitation::InvitationRequest>>>
         users_online;
+};
 
-    std::unordered_map<
-        int,
-        std::shared_ptr<grpc::ServerReaderWriter<
-            InvitationEventResponse,
-            InvitationEventRequest>>>
-        users_online_chat;
+struct invitation_service_data final : public invitation::InvitationDataService::Service {
+    grpc::Status GetReceivedInvitations(
+        grpc::ServerContext *context,
+        const invitation::RequestWithId *request,
+        invitation::InvitesReceived *response
+    ) override;
+    grpc::Status GetSentInvitations(
+        grpc::ServerContext *context,
+        const invitation::RequestWithId *request,
+        invitation::InvitesSent *response
+    ) override;
 };

@@ -16,10 +16,10 @@ enum Status {
 }
 
 service InvitationService {
-  rpc InvitationStream(stream InvitationEventRequest) returns (stream InvitationEventResponse) {}
+  rpc InvitationStream(stream InvitationRequest) returns (stream InvitationResponse) {}
 }
 
-service InvitionDataService {
+service InvitationDataService {
   rpc GetReceivedInvitations(RequestWithId) returns (InvitesReceived) {}
   rpc GetSentInvitations(RequestWithId) returns (InvitesSent) {} 
 }
@@ -49,7 +49,7 @@ message Notification {
     string message = 3;
 }
 
-message InvitationEventRequest {
+message InvitationRequest {
   oneof RequestEvent {
     SendInvitationRequest send_invitation_request = 1;
     RespondToInvitationRequest respond_to_invitation_request = 2;
@@ -58,7 +58,7 @@ message InvitationEventRequest {
   }
 }
 
-message InvitationEventResponse {
+message InvitationResponse {
   oneof ResponseEvent {
     SendInvitationResponse send_invitation_response = 1;
     RespondToInvitationResponse respond_to_invitation_response = 2;
@@ -69,24 +69,27 @@ message InvitationEventResponse {
 }
 
 message SendInvitationRequest {
-  int32 sender_id = 1;
-  int32 receiver_id = 2;
-  string invite_text = 3;
-  InviteStatus status = 4;
+  Invite invite = 1;
+  int32 sender_id = 2;
+  int32 receiver_id = 3;
 }
 
 message RespondToInvitationRequest {
   uint32 invite_id = 1;
   int32 receiver_id = 2;
-  InviteStatus status = 4;
+  InviteStatus status = 3;
 }
 
 message SendInvitationResponse {
-  string message = 1;
+  Invite invite = 1;
+  int32 sender_id = 2;
+  int32 receiver_id = 3;
 }
 
 message RespondToInvitationResponse {
-  string message = 1;
+  uint32 invite_id = 1;
+  int32 receiver_id = 2;
+  InviteStatus status = 3;
 }
 
 message InitRequest {

@@ -27,16 +27,17 @@ private:
     std::unique_ptr<profile::ProfileService::Stub> profile_stub;
     std::unique_ptr<search_service::SerachService::Stub> search_stub;
     std::unique_ptr<invitation::InvitationService::Stub> invite_stub;
+    std::unique_ptr<invitation::InvitationDataService::Stub> invite_data_stub;
 
     std::unique_ptr<grpc::ClientReaderWriter<chat_service::ChatRequests, chat_service::ChatResponses>> chat_stream;
-    std::unique_ptr<grpc::ClientReaderWriter<invitation::StreamRequest, invitation::StreamResponse>> invite_stream;
+    std::unique_ptr<grpc::ClientReaderWriter<invitation::InvitationRequest, invitation::InvitationResponse>> invite_stream;
 
     grpc::ClientContext chat_context;
     grpc::ClientContext invite_context;
 
 public:
     std::function<void(const chat_service::Message&)> onNewMessageReceived;
-    std::function<void(const invitation::SendInvitationResponse&)> onNewInviteSended;
+    std::function<void(const invitation::SendInvitationResponse&)> onNewInviteReceived;
     std::function<void(const invitation::RespondToInvitationResponse&)> onInviteRespondReceived;
 
     explicit client(const std::shared_ptr<grpc::Channel> &new_channel); 
@@ -46,8 +47,14 @@ public:
     void leave_chat_stream(int user_id);
     void send_message(int user_id, int chatId, const std::string& messageText);
 
+    void init_invite_stream(int user_id);
     void start_reading_invite_stream();
-    void send_invite(int sender_id, int receiver_id, std::string invite_text, invitation::InviteStatus invite_status);
+    void leave_invite_stream(int user_id);
+    void send_invite(int sender_id, int receiver_id);
+    void respond_invite(int invite_id, int sender_id, int receiver_id, bool accept);
+
+    std::vector<invitation::Invite> get_sent_invites(int user_id);
+    std::vector<invitation::Invite> get_received_invites(int user_id);
 
     search_service::UserSearchResponse *search_user_by_credentials(const std::string &user_credentials);
     search_service::ActorSearchResponse *search_actor_by_name(const std::string &actor_name);

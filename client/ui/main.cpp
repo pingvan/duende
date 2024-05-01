@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     // Registration case
     QObject::connect(registrationPage, &RegistrationPage::registrationSuccessful, [&](){
         manager.new_client.init_chat_stream(manager.ID);
-        manager.new_client.start_reading_invite_stream();
+        manager.new_client.init_invite_stream(manager.ID);
 
         // Questionnaire page
         Questionnaire *questionnairePage = new Questionnaire(&manager);
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     // Login case
     QObject::connect(registrationPage, &RegistrationPage::loginSuccessful, [&](){
         manager.new_client.init_chat_stream(manager.ID);
-        manager.new_client.start_reading_invite_stream();
+        manager.new_client.init_invite_stream(manager.ID);
         // Main page
         MainWindow *mainPage = new MainWindow(&manager);
         stackedWidget->addWidget(mainPage);

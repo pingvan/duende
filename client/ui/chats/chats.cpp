@@ -14,11 +14,30 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     // build layout
     build();
 
-    // user chats
+    // user chats and invites
     std::vector<chat_service::ChatPreview> chats = manager->new_client.get_user_chats(manager->ID);
+    std::vector<invitation::Invite> received_invites = manager->new_client.get_received_invites(manager->ID);
+    std::vector<invitation::Invite> sent_invites = manager->new_client.get_sent_invites(manager->ID);
     std::sort(chats.begin(), chats.end(), [](const chat_service::ChatPreview& a, const chat_service::ChatPreview& b) {
         return a.time_stamp() > b.time_stamp();
     });
+
+    qDebug() << "Chats size: " << chats.size();
+    qDebug() << "Received invites size: " << received_invites.size();
+    qDebug() << "Sent invites size: " << sent_invites.size();
+
+    // deal with invites
+    for (const auto &invite : received_invites) {
+        auto *invitePage = new QWidget();
+        int index = invitePages->addWidget(invitePage);
+        make_invite_item(invite, index);
+    }
+
+    for (const auto &invite : sent_invites) {
+        auto *invitePage = new QWidget();
+        int index = invitePages->addWidget(invitePage);
+        make_invite_item(invite, index);
+    }
 
     // deal with chats
     for (const auto &chat : chats) {
@@ -33,12 +52,18 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     qDebug() << "Chats page end\n";
 }
 
-void Chats::onInviteRespondReceived() {
+void Chats::onInviteRespondReceived(const invitation::RespondToInvitationResponse&) {
     qDebug() << "New invite respond received";
 }
 
-void Chats::onNewInviteSended() {
-    qDebug() << "New invite sended";
+void Chats::onNewInviteSent(const invitation::Invite& invite)
+{
+    make_invite_item(invite, invitePages->currentIndex());
+}
+
+void Chats::onNewInviteReceived(const invitation::SendInvitationResponse& invite) {
+    qDebug() << "New invite received";
+    make_invite_item(invite.invite(), invitePages->currentIndex());
 }
 
 void Chats::onNewMessageReceived(const chat_service::Message& message) {
@@ -259,6 +284,47 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     chatWidget->setCursor(Qt::PointingHandCursor);
 }
 
+void Chats::make_invite_item(const invitation::Invite& invite, int invite_page_index)
+{
+    // get chat data
+    QString sender_name    = QString::fromStdString(invite.sender().login());
+    int invite_id          = invite.invite_id();
+    QString invite_text    = QString::fromStdString(invite.invite_text());
+    QString time_stamp     = "2024-04-24 15:00:00"; //TODO
+
+    // make chat widget
+    QWidget *inviteWidget     = new QWidget();
+    inviteWidget->setFixedWidth(inviteList->width());
+    QHBoxLayout *inviteLayout = new QHBoxLayout(inviteWidget);
+
+    // make text and name layout
+    QVBoxLayout *textLayout  = new QVBoxLayout();
+    QLabel *senderNameLabel    = new QLabel(sender_name);
+    QLabel *inviteMessageLabel = new QLabel(invite_text);
+    textLayout->addWidget(senderNameLabel);
+    textLayout->addWidget(inviteMessageLabel);
+
+    // make time label
+    QLabel *timeLabel = new QLabel(time_stamp);
+    inviteLayout->addLayout(textLayout);
+    inviteLayout->addStretch(1);
+    inviteLayout->addWidget(timeLabel);
+
+    // set chat widget
+    QListWidgetItem *item = new QListWidgetItem();
+    item->setSizeHint(inviteWidget->sizeHint());
+    inviteList->addItem(item);
+    inviteList->setItemWidget(item, inviteWidget);
+    inviteList->setCurrentItem(item);
+
+    // set data 
+    item->setData(Qt::UserRole, invite_id);
+    item->setData(Qt::UserRole + 1, invite_page_index);
+    item->setData(Qt::UserRole + 2, senderNameLabel->text());
+
+    inviteWidget->setCursor(Qt::PointingHandCursor);
+}
+
 void Chats::build()
 {
     // main layout
@@ -269,13 +335,24 @@ void Chats::build()
     chatList = new QListWidget();
     chatList->setFixedWidth(500);
     chatList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    inviteList = new QListWidget();
+    inviteList->setFixedWidth(500);
+    inviteList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    inviteList->hide();
     
     // right layout
     chatPages = new QStackedWidget();
+    invitePages = new QStackedWidget();
 
     chatTitle = new QLabel();
     chatTitle->setAlignment(Qt::AlignCenter);
     chatTitle->setStyleSheet("font-size: 18px; font-weight: bold;");
+
+    inviteTitle = new QLabel();
+    inviteTitle->setAlignment(Qt::AlignCenter);
+    inviteTitle->setStyleSheet("font-size: 18px; font-weight: bold;");
+    inviteTitle->hide();
 
     // input layout
     messageInput = new QLineEdit();
@@ -284,16 +361,38 @@ void Chats::build()
     sendButton->setFixedHeight(50);
     sendButton->setCursor(Qt::PointingHandCursor);
 
+    toggleButton = new QPushButton();
+    toggleButton->setText("Check invites");
+    connect(toggleButton, &QPushButton::clicked, [this]() {
+        bool isChatsVisible = chatList->isVisible();
+        chatList->setVisible(!isChatsVisible);
+        chatTitle->setVisible(!isChatsVisible);
+        chatPages->setVisible(!isChatsVisible);
+        messageInput->setVisible(!isChatsVisible);
+        sendButton->setVisible(!isChatsVisible);
+        inviteList->setVisible(isChatsVisible);
+        inviteTitle->setVisible(isChatsVisible);
+        invitePages->setVisible(isChatsVisible);
+        toggleButton->setText(!isChatsVisible ? "Check invites" : "Check chats");
+    });
+
     QHBoxLayout *inputLayout = new QHBoxLayout();
     inputLayout->addWidget(messageInput);
     inputLayout->addWidget(sendButton);
 
     QVBoxLayout *rightLayout = new QVBoxLayout();
     rightLayout->addWidget(chatTitle);
+    rightLayout->addWidget(inviteTitle);
     rightLayout->addWidget(chatPages);
+    rightLayout->addWidget(invitePages);
     rightLayout->addLayout(inputLayout);
 
-    mainLayout->addWidget(chatList);
+    QVBoxLayout *leftLayout = new QVBoxLayout();
+    leftLayout->addWidget(toggleButton);
+    leftLayout->addWidget(chatList);
+    leftLayout->addWidget(inviteList);
+
+    mainLayout->addLayout(leftLayout);
     mainLayout->addLayout(rightLayout);
 
     // chat page layout
@@ -314,8 +413,9 @@ void Chats::connect_slots()
     connect(sendButton, &QPushButton::clicked, this, &Chats::sendMessage);
     connect(chatList, &QListWidget::itemClicked, this, &Chats::onChatClicked);
     connect(manager, &Manager::newMessageReceived, this, &Chats::onNewMessageReceived);
-    connect(manager, &Manager::NewInviteSended, this, &Chats::onNewInviteSended);
+    connect(manager, &Manager::NewInviteReceived, this, &Chats::onNewInviteReceived);
     connect(manager, &Manager::InviteRespondReceived, this, &Chats::onInviteRespondReceived);
+    connect(manager, &Manager::NewInviteSent, this, &Chats::onNewInviteSent);
 }
 
 Chats::~Chats()

@@ -23,7 +23,18 @@ OtherPage::OtherPage(int id, Manager* managerPtr, QWidget *parent) :
 void OtherPage::sendInvite() 
 {
     assert(manager != nullptr);
-    manager->new_client.send_invite(manager->ID, id, "Hello", invitation::InviteStatus::SENDED);
+    manager->new_client.send_invite(manager->ID, id);
+    invitation::Invite invite;
+    authservice::UserPreview *sender = new authservice::UserPreview();
+    sender->set_login(manager->username);
+    invite.set_allocated_sender(sender);
+    invite.set_invite_text("Invitation");
+    invite.set_status(invitation::InviteStatus::SENT);
+    // FIX
+    if (manager->onNewInviteSent) {
+        manager->onNewInviteSent(invite);
+    }
+    qDebug() << "Invite sended";
 }
 
 void OtherPage::updatePage(int newId)

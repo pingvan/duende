@@ -20,11 +20,14 @@ public:
             new_client.onNewMessageReceived = [this](const chat_service::Message& message) {
                 emit newMessageReceived(message);
             };
-            new_client.onNewInviteSended = [this](const invitation::SendInvitationResponse& response) {
-                emit NewInviteSended(response);
+            new_client.onNewInviteReceived = [this](const invitation::SendInvitationResponse& response) {
+                emit NewInviteReceived(response);
             };
             new_client.onInviteRespondReceived = [this](const invitation::RespondToInvitationResponse& response) {
                 emit InviteRespondReceived(response);
+            };
+            onNewInviteSent = [this](const invitation::Invite& invite) {
+                emit NewInviteSent(invite);
             };
     }
 
@@ -32,6 +35,8 @@ public:
         ID = -1;
         username = "";
     }
+
+    std::function<void(const invitation::Invite&)> onNewInviteSent;
 
     Manager() = default;
     Manager(const Manager& other) = delete;
@@ -41,8 +46,9 @@ public:
 
 signals:
     void newMessageReceived(const chat_service::Message& message);
-    void NewInviteSended(const invitation::SendInvitationResponse& response);
+    void NewInviteReceived(const invitation::SendInvitationResponse& response);
     void InviteRespondReceived(const invitation::RespondToInvitationResponse& response);
+    void NewInviteSent(const invitation::Invite& invite);
     
 };
 
