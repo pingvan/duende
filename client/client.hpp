@@ -51,7 +51,7 @@ public:
     void start_reading_invite_stream();
     void leave_invite_stream(int user_id);
     void send_invite(int sender_id, int receiver_id);
-    void respond_invite(int invite_id, int sender_id, int receiver_id, bool accept);
+    void respond_invite(int invite_id, int receiver_id, bool accept);
 
     std::vector<invitation::Invite> get_sent_invites(int user_id);
     std::vector<invitation::Invite> get_received_invites(int user_id);

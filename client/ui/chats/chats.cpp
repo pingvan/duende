@@ -52,6 +52,38 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     qDebug() << "Chats page end\n";
 }
 
+void Chats::onInviteRespond(bool accept)
+{
+    // get current invite
+    QListWidgetItem* current_item = inviteList->currentItem();
+    int item_index                = inviteList->row(current_item);
+    QString sender_name           = current_item->data(Qt::UserRole + 2).toString();
+    int page_index                = current_item->data(Qt::UserRole + 1).toInt();
+    int invite_id                 = current_item->data(Qt::UserRole).toInt();
+    int receiver_id               = 1; //TODO
+
+    // delete invite from list
+    QListWidgetItem* item         = inviteList->takeItem(item_index);
+    delete item;
+
+    // delete corresponding page
+    QWidget* page = invitePages->widget(page_index);
+    invitePages->removeWidget(page);
+    currentInviteId = -1;
+
+    if (invitePageLayout != nullptr) {
+        while (invitePageLayout->count() != 0) {
+            auto item = invitePageLayout->takeAt(0);
+            delete item->widget();
+            delete item;
+        }
+    }
+
+    inviteTitle->setText("");
+
+    manager->new_client.respond_invite(invite_id, receiver_id, accept);
+}
+
 void Chats::onInviteRespondReceived(const invitation::RespondToInvitationResponse&) {
     qDebug() << "New invite respond received";
 }
@@ -175,10 +207,10 @@ void Chats::onChatClicked(QListWidgetItem* item)
 
     // clear chat page
     if (scrollWidgetLayout != nullptr) {
-        while ( scrollWidgetLayout->count() != 0 ) {
-               auto item = scrollWidgetLayout->takeAt(0);
-               delete item->widget();
-               delete item;
+        while (scrollWidgetLayout->count() != 0) {
+            auto item = scrollWidgetLayout->takeAt(0);
+            delete item->widget();
+            delete item;
         }
     }
 
@@ -196,6 +228,81 @@ void Chats::onChatClicked(QListWidgetItem* item)
     scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->update();
+}
+
+void Chats::onInviteClicked(QListWidgetItem* item)
+{
+    // get invite data
+    currentInviteId = item->data(Qt::UserRole).toInt();
+    invitePages->setCurrentIndex(item->data(Qt::UserRole + 1).toInt());
+    inviteTitle->setText(item->data(Qt::UserRole + 2).toString());
+
+    if (invitePageLayout != nullptr) {
+        while (invitePageLayout->count() != 0) {
+            auto item = invitePageLayout->takeAt(0);
+            delete item->widget();
+            delete item;
+        }
+    }
+
+    QFrame *invite = new QFrame();
+    invite->setFixedSize(600, 700);
+    QGraphicsDropShadowEffect* shadowEffect = new QGraphicsDropShadowEffect(this);
+    shadowEffect->setBlurRadius(10);
+    shadowEffect->setXOffset(10);
+    shadowEffect->setYOffset(10);
+    shadowEffect->setColor(QColor(136, 136, 136));
+
+    invite->setGraphicsEffect(shadowEffect);
+    invite->setStyleSheet("background-color: #FFFFFF; border-radius: 10px;");
+
+    QVBoxLayout *inviteLayout = new QVBoxLayout(invite);
+
+    QLabel* photoLabel = new QLabel(this);
+    QLabel* inviteTextLabel = new QLabel(this);
+    QLabel* descriptionTitleLabel = new QLabel("Some information about me:", this);
+    descriptionTitleLabel->setStyleSheet("font-weight: bold;");
+    QLabel* descriptionLabel = new QLabel(this);
+    acceptButton = new QPushButton("Accept", this);
+    acceptButton->show();
+    acceptButton->setFixedHeight(50);
+    declineButton = new QPushButton("Decline", this);
+    declineButton->show();
+    declineButton->setFixedHeight(50);
+    acceptButton->setStyleSheet("background-color: #A18594;");
+    declineButton->setStyleSheet("background-color: #E4717A;");
+    acceptButton->setCursor(Qt::PointingHandCursor);
+    declineButton->setCursor(Qt::PointingHandCursor);
+    connect(acceptButton, &QPushButton::clicked, this, [this]() { onInviteRespond(true); });
+    connect(declineButton, &QPushButton::clicked, this, [this]() { onInviteRespond(false); });
+
+    QPixmap photoPixmap(":/img/robertdeniro.jpg");
+    QPixmap circlePixmap(photoPixmap.size());
+    circlePixmap.fill(Qt::transparent);
+    QPainter painter(&circlePixmap);
+    QPainterPath path;
+    path.addEllipse(circlePixmap.rect());
+    painter.setClipPath(path);
+    painter.drawPixmap(0, 0, photoPixmap);
+    photoLabel->setPixmap(circlePixmap.scaled(300, 300, Qt::KeepAspectRatio));
+    photoLabel->setAlignment(Qt::AlignCenter);
+
+    inviteTextLabel->setText("Invite text");
+    descriptionLabel->setText("Short description");
+
+    inviteLayout->addWidget(photoLabel);
+    inviteLayout->addWidget(inviteTextLabel);
+    inviteLayout->addWidget(descriptionTitleLabel);
+    inviteLayout->addWidget(descriptionLabel);
+
+    QHBoxLayout* buttonLayout = new QHBoxLayout;
+    buttonLayout->addWidget(acceptButton);
+    buttonLayout->addWidget(declineButton);
+
+    inviteLayout->addLayout(buttonLayout);
+
+    invitePageLayout->addWidget(invite, 0, Qt::AlignCenter);
+    invitePages->currentWidget()->setLayout(invitePageLayout);
 }
 
 void Chats::make_message_item(const chat_service::MessageData& message)
@@ -344,6 +451,7 @@ void Chats::build()
     // right layout
     chatPages = new QStackedWidget();
     invitePages = new QStackedWidget();
+    invitePages->hide();
 
     chatTitle = new QLabel();
     chatTitle->setAlignment(Qt::AlignCenter);
@@ -405,6 +513,13 @@ void Chats::build()
     chatPageLayout->addWidget(scrollArea);
     scrollWidget->setLayout(scrollWidgetLayout);
     scrollArea->setWidget(scrollWidget);
+
+    // invite page layout
+    invitePageLayout = new QVBoxLayout();
+    acceptButton = new QPushButton("Accept", this);
+    acceptButton->hide();
+    declineButton = new QPushButton("Decline", this);
+    declineButton->hide();
 }
 
 void Chats::connect_slots()
@@ -412,10 +527,13 @@ void Chats::connect_slots()
     connect(messageInput, &QLineEdit::returnPressed, this, &Chats::sendMessage);
     connect(sendButton, &QPushButton::clicked, this, &Chats::sendMessage);
     connect(chatList, &QListWidget::itemClicked, this, &Chats::onChatClicked);
+    connect(inviteList, &QListWidget::itemClicked, this, &Chats::onInviteClicked);
     connect(manager, &Manager::newMessageReceived, this, &Chats::onNewMessageReceived);
     connect(manager, &Manager::NewInviteReceived, this, &Chats::onNewInviteReceived);
     connect(manager, &Manager::InviteRespondReceived, this, &Chats::onInviteRespondReceived);
     connect(manager, &Manager::NewInviteSent, this, &Chats::onNewInviteSent);
+    connect(acceptButton, &QPushButton::clicked, this, [this]() { onInviteRespond(true); });
+    connect(declineButton, &QPushButton::clicked, this, [this]() { onInviteRespond(false); });
 }
 
 Chats::~Chats()

@@ -20,6 +20,8 @@
 #include <QThread>
 #include <QScrollArea>
 #include <QScrollBar> 
+#include <QGraphicsDropShadowEffect>
+
 
 namespace Ui {
 class Chats;
@@ -39,6 +41,7 @@ signals:
 private slots:
     void sendMessage();
     void onChatClicked(QListWidgetItem* item);
+    void onInviteClicked(QListWidgetItem* item);
     void onNewMessageReceived(const chat_service::Message& message);
     void onNewInviteSent(const invitation::Invite& invite);
     void onNewInviteReceived(const invitation::SendInvitationResponse&);
@@ -48,6 +51,7 @@ private slots:
     void make_chat_item(const chat_service::ChatPreview& chat, int chat_page_index, int item_index);
     void make_message_item(const chat_service::MessageData& message);
     void make_invite_item(const invitation::Invite& invite, int invite_page_index);
+    void onInviteRespond(bool accept);
 
 private:
     Ui::Chats *ui;
@@ -68,11 +72,15 @@ private:
     QPushButton* toggleButton;
 
     QVBoxLayout *chatPageLayout;
+    QVBoxLayout *invitePageLayout;
     QScrollArea *scrollArea;
     QWidget *scrollWidget;
     QVBoxLayout *scrollWidgetLayout;
     QWidget *messageWidget;
     QVBoxLayout *messageLayout;
+
+    QPushButton* acceptButton;
+    QPushButton* declineButton;
 };
 
 #endif // CHATS_H

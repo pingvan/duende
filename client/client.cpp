@@ -79,6 +79,25 @@ void client::send_invite(int sender_id, int receiver_id) {
     }
 }
 
+void client::respond_invite(int invite_id, int receiver_id, bool accept) {
+    invitation::RespondToInvitationRequest request;
+    request.set_invite_id(invite_id);
+    request.set_receiver_id(receiver_id);
+    request.set_status(accept ? invitation::InviteStatus::ACCEPTED : invitation::InviteStatus::DECLINED);
+
+    std::cout << request.DebugString() << std::endl;
+
+    invitation::InvitationRequest stream_request;
+    stream_request.mutable_respond_to_invitation_request()->CopyFrom(request);
+
+    assert(invite_stream != nullptr);
+
+    bool status = invite_stream->Write(stream_request);
+    if (!status) {
+        std::cerr << "Error" << std::endl;
+    }
+}
+
 std::vector<invitation::Invite> client::get_sent_invites(int user_id) {
     grpc::ClientContext context;
     
