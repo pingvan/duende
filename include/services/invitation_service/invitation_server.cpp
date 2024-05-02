@@ -15,7 +15,7 @@ grpc::Status InvitationServiceImpl::InvitationStream(
                 int sender_id = request.send_invitation_request().sender_id();
                 int receiver_id = request.send_invitation_request().receiver_id();
                 int invite_id = invite_db_api.add_invite(
-                    "Invitation", invite_status::sent,
+                    "User " + std::to_string(sender_id) + " invites you to chat", invite_status::sent,
                     sender_id, receiver_id
                 );
 
@@ -40,6 +40,8 @@ grpc::Status InvitationServiceImpl::InvitationStream(
                         receiver_id, invite_id
                     );
                 }
+
+                invite->set_invite_text("You have invited user " + std::to_string(receiver_id) + " to chat");
 
                 stream->Write(response);
             }

@@ -52,6 +52,8 @@ private slots:
     void make_message_item(const chat_service::MessageData& message);
     void make_invite_item(const invitation::Invite& invite, int invite_page_index);
     void delete_invite_item(int invite_id);
+    void updateChatList(const QString &input);
+    void updateInviteList(const QString &input);
 
 private:
     Ui::Chats *ui;
@@ -83,6 +85,13 @@ private:
     QPushButton* declineButton;
 
     QMap<int, std::vector<chat_service::MessageData>> chatMessagesData;
+
+    QLineEdit *search_line_chats;
+    QLineEdit *search_line_invites;
+    QStringListModel *model_chats;
+    QStringListModel *model_invites;
+    QCompleter *completer_chats;
+    QCompleter *completer_invites;
 };
 
 #endif // CHATS_H

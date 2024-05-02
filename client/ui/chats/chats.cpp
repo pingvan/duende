@@ -341,7 +341,7 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
 
 void Chats::make_invite_item(const invitation::Invite& invite, int invite_page_index)
 {
-    // get chat data
+    // get invite data
     QString sender_name    = QString::fromStdString(invite.sender().login());
     int invite_id          = invite.invite_id();
     QString invite_text    = QString::fromStdString(invite.invite_text());
@@ -349,7 +349,7 @@ void Chats::make_invite_item(const invitation::Invite& invite, int invite_page_i
     int sender_id          = 1; // TODO
     int receiver_id        = 1; // TODO
 
-    // make chat widget
+    // make invite widget
     QWidget *inviteWidget     = new QWidget();
     inviteWidget->setFixedWidth(inviteList->width());
     QHBoxLayout *inviteLayout = new QHBoxLayout(inviteWidget);
@@ -367,7 +367,7 @@ void Chats::make_invite_item(const invitation::Invite& invite, int invite_page_i
     inviteLayout->addStretch(1);
     inviteLayout->addWidget(timeLabel);
 
-    // set chat widget
+    // set invite widget
     QListWidgetItem *item = new QListWidgetItem();
     item->setSizeHint(inviteWidget->sizeHint());
     inviteList->addItem(item);
@@ -424,6 +424,24 @@ void Chats::delete_invite_item(int invite_id)
     
 }
 
+void Chats::updateChatList(const QString &input)
+{
+    for(int i = 0; i < chatList->count(); i++) {
+        QListWidgetItem* item = chatList->item(i);
+        bool matches = item->data(Qt::UserRole + 2).toString().contains(input, Qt::CaseInsensitive);
+        item->setHidden(!matches);
+    }
+}
+
+void Chats::updateInviteList(const QString &input)
+{
+    for(int i = 0; i < inviteList->count(); i++) {
+        QListWidgetItem* item = inviteList->item(i);
+        bool matches = item->data(Qt::UserRole + 2).toString().contains(input, Qt::CaseInsensitive);
+        item->setHidden(!matches);
+    }
+}
+
 void Chats::build()
 {
     // main layout
@@ -461,6 +479,27 @@ void Chats::build()
     sendButton->setFixedHeight(50);
     sendButton->setCursor(Qt::PointingHandCursor);
 
+    search_line_chats = new QLineEdit;
+    search_line_chats->setPlaceholderText("Search chats...");
+    search_line_chats->setFixedWidth(chatList->width());
+    search_line_invites = new QLineEdit;
+    search_line_invites->setPlaceholderText("Search invites...");
+    search_line_invites->setFixedWidth(inviteList->width());
+    search_line_invites->hide();
+
+    // model_chats = new QStringListModel(searchChats(""), search_line_chats);
+    // model_invites = new QStringListModel(searchInvites(""), search_line_invites);
+
+    // completer_chats = new QCompleter(model_chats);
+    // completer_invites = new QCompleter(model_invites);
+    // completer_chats->setCaseSensitivity(Qt::CaseInsensitive);
+    // completer_invites->setCaseSensitivity(Qt::CaseInsensitive);
+    // search_line_chats->setCompleter(completer_chats);
+    // search_line_invites->setCompleter(completer_invites);
+
+    connect(search_line_chats, &QLineEdit::textChanged, this, &Chats::updateChatList);
+    connect(search_line_invites, &QLineEdit::textChanged, this, &Chats::updateInviteList);
+
     toggleButton = new QPushButton();
     toggleButton->setText("Check invites");
     connect(toggleButton, &QPushButton::clicked, [this]() {
@@ -474,6 +513,8 @@ void Chats::build()
         inviteTitle->setVisible(isChatsVisible);
         invitePages->setVisible(isChatsVisible);
         toggleButton->setText(!isChatsVisible ? "Check invites" : "Check chats");
+        search_line_chats->setVisible(!isChatsVisible);
+        search_line_invites->setVisible(isChatsVisible);
     });
 
     QHBoxLayout *inputLayout = new QHBoxLayout();
@@ -488,6 +529,8 @@ void Chats::build()
     rightLayout->addLayout(inputLayout);
 
     QVBoxLayout *leftLayout = new QVBoxLayout();
+    leftLayout->addWidget(search_line_chats);
+    leftLayout->addWidget(search_line_invites);
     leftLayout->addWidget(toggleButton);
     leftLayout->addWidget(chatList);
     leftLayout->addWidget(inviteList);
