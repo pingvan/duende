@@ -5,22 +5,31 @@
 #include "services/invitation_service/invitation.grpc.pb.h"
 #include "services/invitation_service/invitation.pb.h"
 
-using grpc::Server;
-using grpc::ServerBuilder;
-using grpc::ServerContext;
-using grpc::ServerReaderWriter;
-using grpc::Status;
-using invitation::StreamRequest;
-using invitation::StreamResponse;
-using invitation::InvitationService;
-using invitation::SendInvitationRequest;
-using invitation::RespondToInvitationRequest;
-using invitation::CheckNewInvitationsRequest;
-using invitation::Notification;
+struct InvitationServiceImpl final : public invitation::InvitationService::Service {
+    grpc::Status InvitationStream(
+        grpc::ServerContext *context,
+        grpc::ServerReaderWriter<invitation::InvitationResponse, invitation::InvitationRequest>
+            *stream
+    ) override;
 
-class InvitationServiceImpl final : public InvitationService::Service {
-    Status InvitationStream(
-        ServerContext *context,
-        ServerReaderWriter<StreamResponse, StreamRequest> *stream
+private:
+    std::unordered_map<
+        int,
+        std::shared_ptr<grpc::ServerReaderWriter<
+            invitation::InvitationResponse,
+            invitation::InvitationRequest>>>
+        users_online;
+};
+
+struct invitation_service_data final : public invitation::InvitationDataService::Service {
+    grpc::Status GetReceivedInvitations(
+        grpc::ServerContext *context,
+        const invitation::RequestWithId *request,
+        invitation::InvitesReceived *response
+    ) override;
+    grpc::Status GetSentInvitations(
+        grpc::ServerContext *context,
+        const invitation::RequestWithId *request,
+        invitation::InvitesSent *response
     ) override;
 };

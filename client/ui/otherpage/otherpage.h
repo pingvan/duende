@@ -32,6 +32,11 @@ public:
     explicit OtherPage(int id, Manager* managerPtr, QWidget *parent = nullptr);
     ~OtherPage();
     void updatePage(int newId);
+    void build();
+    void build_scenes();
+
+signals:
+    void inviteSent(const invitation::Invite&);
 
 public slots:
     void sendInvite();
@@ -39,6 +44,7 @@ public slots:
 private:
     Ui::OtherPage *ui;
     Manager *manager;
+    authservice::UserFullPage *user;
     int id;
 
     QVBoxLayout *leftBox;
@@ -49,11 +55,11 @@ private:
     QLabel *label_username;
     QLabel *label_favorite_genres;
 
-    QGraphicsView *view_favActors;
-    QGraphicsView *view_watchlist;
+    QGraphicsView *view_favActors = nullptr;
+    QGraphicsView *view_watchlist = nullptr;
 
-    QGraphicsScene *scene_favActors;
-    QGraphicsScene *scene_watchlist;
+    QGraphicsScene *scene_favActors = nullptr;
+    QGraphicsScene *scene_watchlist = nullptr;
 
     QStringList favActorsImages;
     QStringList watchlistImages;

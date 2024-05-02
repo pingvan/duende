@@ -10,8 +10,6 @@ MainWindow::MainWindow(Manager* managerPtr, QWidget *parent)
 
     qDebug() << "Main window start\n";
 
-    qDebug() << "ID: " << manager->ID;
-
     auto *centralWidget = new QWidget(this);
     auto *layout = new QHBoxLayout(centralWidget);
 
@@ -79,6 +77,7 @@ MainWindow::MainWindow(Manager* managerPtr, QWidget *parent)
     toolbar->setToolButtonStyle(Qt::ToolButtonIconOnly);
     toolbar->setCursor(Qt::PointingHandCursor);
 
+    toolbar->addAction(QIcon(":/img/cross.png"), "Exit", this, &QApplication::quit);
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     toolbar->addWidget(spacer);
@@ -96,6 +95,9 @@ MainWindow::MainWindow(Manager* managerPtr, QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+    qDebug() << "Main window deleted\n";
+    manager->new_client.leave_chat_stream(manager->ID);
+    manager->new_client.leave_invite_stream(manager->ID);
 }
 
 void MainWindow::openProfilePage() {

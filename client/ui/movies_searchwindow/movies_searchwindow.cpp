@@ -64,8 +64,6 @@ QStringList Movies_SearchWindow::searchMovies(const QString &input)
 
     auto response = manager->new_client.search_film_by_title(input.toStdString());
 
-    qDebug() << "response->films_size() == " << response->films_size();
-
     for (int i = 0; i < response->films_size(); i++) {
         films.append(QString::fromStdString(response->films(i).title()));
         movies_map.insert(QString::fromStdString(response->films(i).title()), response->films(i).film_id());

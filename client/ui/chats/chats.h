@@ -2,6 +2,7 @@
 #define CHATS_H
 
 #include "manager.h"
+#include "otherpage/otherpage.h"
 
 #include <grpcpp/grpcpp.h>
 #include <QDebug>
@@ -19,6 +20,8 @@
 #include <QThread>
 #include <QScrollArea>
 #include <QScrollBar> 
+#include <QGraphicsDropShadowEffect>
+
 
 namespace Ui {
 class Chats;
@@ -36,29 +39,50 @@ signals:
     void messageReceived(const QString& message);
 
 private slots:
-    void sendMessage();
+    void build();
+    void connect_slots();
     void onChatClicked(QListWidgetItem* item);
+    void onInviteClicked(QListWidgetItem* item);
+    void sendMessage();
     void onNewMessageReceived(const chat_service::Message& message);
-    void onNewInviteSended();
-    void onInviteRespondReceived();
+    void onNewInviteReceived(const invitation::SendInvitationResponse&);
+    void onInviteRespond(bool accept);
+    void onInviteRespondReceived(const invitation::RespondToInvitationResponse&);
+    void make_chat_item(const chat_service::ChatPreview& chat, int chat_page_index, int item_index);
+    void make_message_item(const chat_service::MessageData& message);
+    void make_invite_item(const invitation::Invite& invite, int invite_page_index);
+    void delete_invite_item(int invite_id);
 
 private:
     Ui::Chats *ui;
     Manager *manager;
-    int currentChatId;
+    QHBoxLayout *mainLayout;
+
+    int currentChatId = -1;
+    int currentInviteId = -1;
     QStackedWidget *chatPages;
+    QStackedWidget *invitePages;
     QListWidget *chatList;
+    QListWidget *inviteList;
     QTextEdit *chatMessages;
     QLineEdit *messageInput;
     QPushButton *sendButton;
     QLabel *chatTitle;
+    QLabel *inviteTitle;
+    QPushButton* toggleButton;
 
     QVBoxLayout *chatPageLayout;
+    QVBoxLayout *invitePageLayout;
     QScrollArea *scrollArea;
     QWidget *scrollWidget;
     QVBoxLayout *scrollWidgetLayout;
     QWidget *messageWidget;
     QVBoxLayout *messageLayout;
+
+    QPushButton* acceptButton;
+    QPushButton* declineButton;
+
+    QMap<int, std::vector<chat_service::MessageData>> chatMessagesData;
 };
 
 #endif // CHATS_H

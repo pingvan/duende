@@ -5,16 +5,21 @@ package invitation;
 import "services/authservice/authservice.proto";
 
 enum InviteStatus {
-  SENDED = 0;
+  SENT = 0;
   ACCEPTED = 1;
   DECLINED = 2;
 }
 
-service InvitationService {
-  rpc InvitationStream(stream StreamRequest) returns (stream StreamResponse) {}
+enum Status {
+    SUCCESS = 0;
+    ERROR = 1;
 }
 
-service InvitionDataService {
+service InvitationService {
+  rpc InvitationStream(stream InvitationRequest) returns (stream InvitationResponse) {}
+}
+
+service InvitationDataService {
   rpc GetReceivedInvitations(RequestWithId) returns (InvitesReceived) {}
   rpc GetSentInvitations(RequestWithId) returns (InvitesSent) {} 
 }
@@ -44,48 +49,61 @@ message Notification {
     string message = 3;
 }
 
-message StreamRequest {
+message InvitationRequest {
   oneof RequestEvent {
     SendInvitationRequest send_invitation_request = 1;
     RespondToInvitationRequest respond_to_invitation_request = 2;
-    CheckNewInvitationsRequest check_new_invitations_request = 3;
+    InitRequest init_request = 3;
+    LeaveRequest leave_request = 4;
   }
 }
 
-message StreamResponse {
+message InvitationResponse {
   oneof ResponseEvent {
     SendInvitationResponse send_invitation_response = 1;
     RespondToInvitationResponse respond_to_invitation_response = 2;
-    CheckNewInvitationsResponse check_new_invitations_response = 3;
+    InitResponse init_response = 3;
+    LeaveResponse leave_response = 4;
   }
-  Notification notification = 4;
+  Notification notification = 5;
 }
 
 message SendInvitationRequest {
-  int32 sender_id = 1;
-  int32 receiver_id = 2;
-  string invite_text = 3;
-  InviteStatus status = 4;
-
+  Invite invite = 1;
+  int32 sender_id = 2;
+  int32 receiver_id = 3;
 }
 
 message RespondToInvitationRequest {
-  int32 receiver_id = 1;
-  bool accept = 2;
-}
-
-message CheckNewInvitationsRequest {
-  int32 receiver_id = 1;
+  uint32 invite_id = 1;
+  int32 receiver_id = 2;
+  InviteStatus status = 3;
 }
 
 message SendInvitationResponse {
-  string message = 1;
+  Invite invite = 1;
+  int32 sender_id = 2;
+  int32 receiver_id = 3;
 }
 
 message RespondToInvitationResponse {
-  string message = 1;
+  uint32 invite_id = 1;
+  int32 receiver_id = 2;
+  InviteStatus status = 3;
 }
 
-message CheckNewInvitationsResponse {
-  repeated int32 invitation_ids = 1;
+message InitRequest {
+  int32 user_id = 1;
+}
+
+message InitResponse {
+  Status status = 1;
+}
+
+message LeaveRequest {
+  int32 user_id = 1;
+}
+
+message LeaveResponse {
+  Status status = 1;
 }
