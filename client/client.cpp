@@ -134,6 +134,16 @@ std::vector<invitation::Invite> client::get_received_invites(int user_id) {
     return invites;
 }
 
+void client::create_private_chat(int first_id, int second_id) {
+    grpc::ClientContext context;
+    
+    chat_service::CreatePrivateChatRequest request;
+    auto *response = new chat_service::ChatPreview;
+    request.set_firest_user_id(first_id);
+    request.set_second_user_id(second_id);
+    grpc::Status status = invite_stub->CreatePrivateChat(&context, request, response);
+}
+
 void client::init_chat_stream(int user_id) {
     chat_stream = chat_stub->HandleChat(&chat_context);
 
@@ -159,11 +169,8 @@ void client::start_reading_chat_stream() {
                     onNewMessageReceived(message);
                 }
             }
-            else if (response.has_init()) {
-                qDebug() << (response.init().status() == chat_service::Status::SUCCESS);
-            }
-            else if (response.has_leave()) {
-                qDebug() << (response.leave().status() == chat_service::Status::SUCCESS);
+            else if (response.has_response_with_status()) {
+                qDebug() << (response.response_with_status().status() == chat_service::Status::SUCCESS);
             }
         }
         qDebug() << "Chat stream ended";
@@ -180,7 +187,7 @@ void client::leave_chat_stream(int user_id) {
 
 void client::send_message(int user_id, int chatId, const std::string& messageText) {
     chat_service::SendMessageRequest request;
-    auto* message = new chat_service::Message();
+    auto* message = new chat_service::MessageSend();
     message->set_sender_id(user_id);
     message->set_chat_id(chatId);
     message->set_message_text(messageText);
@@ -226,11 +233,11 @@ search_service::FilmSearchResponse *client::search_film_by_title(const std::stri
     return response;
 }
 
-authservice::UserFullPage *client::get_user_full_page(int user_id) {
+common::UserFullPage *client::get_user_full_page(int user_id) {
     grpc::ClientContext context;
     
     authservice::RequestWithUserId request;
-    auto *response = new authservice::UserFullPage;
+    auto *response = new common::UserFullPage;
     
     request.set_user_id(user_id);
     grpc::Status status = authorization_data_stub->GetUserFullPage(&context, request, response);
@@ -357,7 +364,7 @@ std::vector<chat_service::ChatPreview> client::get_user_chats(int user_id) {
     return chats;
 }
 
-std::vector<chat_service::MessageData> client::get_last_messages(int user_id, int chat_id) {
+std::vector<chat_service::MessageReceived> client::get_last_messages(int user_id, int chat_id) {
     grpc::ClientContext context;
     
     chat_service::GetChatMessagesRequest request;
@@ -369,7 +376,7 @@ std::vector<chat_service::MessageData> client::get_last_messages(int user_id, in
         return {};
     }
 
-    std::vector<chat_service::MessageData> messages;
+    std::vector<chat_service::MessageReceived> messages;
     for (int i = 0; i < response->messages_size(); i++) {
         messages.push_back(response->messages(i));
     }

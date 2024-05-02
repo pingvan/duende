@@ -47,7 +47,7 @@ void OtherPage::updatePage(int newId)
 
     if (!user->favorite_genres().empty()) {
         for (const auto& genre : user->favorite_genres()) {
-            std::string favorite_genres_str = authservice::Genre_Name(genre);
+            std::string favorite_genres_str = common::Genre_Name(genre);
             genres_str += favorite_genres_str + ", ";
         }
         genres_str = genres_str.substr(0, genres_str.size()-2);
@@ -159,7 +159,7 @@ void OtherPage::build()
 
     if (!user->favorite_genres().empty()) {
         for (const auto& genre : user->favorite_genres()) {
-            std::string favorite_genres_str = authservice::Genre_Name(genre);
+            std::string favorite_genres_str = common::Genre_Name(genre);
             genres_str += favorite_genres_str + ", ";
         }
         genres_str = genres_str.substr(0, genres_str.size()-2);

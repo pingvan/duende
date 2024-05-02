@@ -6,6 +6,8 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QDebug>
 
+#include "common/common.grpc.pb.h"
+#include "common/common.pb.h"
 #include "services/authservice/authservice.grpc.pb.h"
 #include "services/authservice/authservice.pb.h"
 #include "services/chat_service/chat_service.grpc.pb.h"
@@ -36,7 +38,7 @@ private:
     grpc::ClientContext invite_context;
 
 public:
-    std::function<void(const chat_service::Message&)> onNewMessageReceived;
+    std::function<void(const chat_service::MessageReceived&)> onNewMessageReceived;
     std::function<void(const invitation::SendInvitationResponse&)> onNewInviteReceived;
     std::function<void(const invitation::RespondToInvitationResponse&)> onInviteRespondReceived;
 
@@ -52,6 +54,7 @@ public:
     void leave_invite_stream(int user_id);
     void send_invite(int sender_id, int receiver_id);
     void respond_invite(int invite_id, int receiver_id, bool accept);
+    void create_private_chat(int first_id, int second_id);
 
     std::vector<invitation::Invite> get_sent_invites(int user_id);
     std::vector<invitation::Invite> get_received_invites(int user_id);
@@ -60,7 +63,7 @@ public:
     search_service::ActorSearchResponse *search_actor_by_name(const std::string &actor_name);
     search_service::FilmSearchResponse *search_film_by_title(const std::string &film_title);
 
-    authservice::UserFullPage *get_user_full_page(int user_id);
+    common::UserFullPage *get_user_full_page(int user_id);
 
     void change_username(int user_id, const std::string &new_username); 
     void change_quote(int user_id, const std::string &new_quote); 
@@ -73,7 +76,7 @@ public:
     void remove_genre(int user_id, const std::string &genre_name);
 
     std::vector<chat_service::ChatPreview> get_user_chats(int user_id);
-    std::vector<chat_service::MessageData> get_last_messages(int user_id, int chat_id);
+    std::vector<chat_service::MessageReceived> get_last_messages(int user_id, int chat_id);
 
     authservice::LoginResponse *login(const std::string &client_login, const std::string &password);
     authservice::SignupResponse *registration(

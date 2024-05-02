@@ -48,7 +48,7 @@ private slots:
 private:
     Ui::Profile *ui;
     Manager *manager;
-    authservice::UserFullPage *user;
+    common::UserFullPage *user;
 
     QVBoxLayout *leftBox;
     QVBoxLayout *rightBox;

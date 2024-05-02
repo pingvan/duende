@@ -26,13 +26,13 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     for (const auto &invite : received_invites) {
         auto *invitePage = new QWidget();
         int index = invitePages->addWidget(invitePage);
-        make_invite_item(invite, index);
+        make_invite_item(invite, false, index);
     }
 
     for (const auto &invite : sent_invites) {
         auto *invitePage = new QWidget();
         int index = invitePages->addWidget(invitePage);
-        make_invite_item(invite, index);
+        make_invite_item(invite, true, index);
     }
 
     // deal with chats
@@ -71,29 +71,23 @@ void Chats::onInviteRespondReceived(const invitation::RespondToInvitationRespons
 }
 
 void Chats::onNewInviteReceived(const invitation::SendInvitationResponse& invite) {
-    make_invite_item(invite.invite(), invitePages->currentIndex());
+    // get invite data
+    bool am_i_sender = (invite.sender().user_id() == manager->ID);
+    make_invite_item(invite.invite(), am_i_sender, invitePages->currentIndex());
 }
 
-void Chats::onNewMessageReceived(const chat_service::Message& message) {
-    // TODO sender name
-    QLabel* senderLabel    = new QLabel(QString::number(message.sender_id()));
+void Chats::onNewMessageReceived(const chat_service::MessageReceived& message) {
+    // get message data
+    QLabel* senderLabel    = new QLabel(QString::fromStdString(message.sender().login()));
     QLabel* textLabel      = new QLabel(QString::fromStdString(message.message_text()));
-    QLabel* timestampLabel = new QLabel(QString::fromStdString(message.timestamp_()));
+    QLabel* timestampLabel = new QLabel(QString::fromStdString(message.time_stamp()));
     int chat_id            = message.chat_id();
 
-    // current message
-    chat_service::MessageData *current_message = new chat_service::MessageData();
-    authservice::UserPreview *sender = new authservice::UserPreview();
-    sender->set_login(senderLabel->text().toStdString());
-    current_message->set_allocated_sender(sender);
-    current_message->set_message_text(message.message_text());
-    current_message->set_time_stamp(message.timestamp_());
-
-    chatMessagesData[chat_id].push_back(*current_message);
+    chatMessagesData[chat_id].push_back(message);
 
     // check if current chat
     if (currentChatId == chat_id) {
-        make_message_item(*current_message);
+        make_message_item(message);
     }
 
     // search item that corresponds to the chat
@@ -113,7 +107,8 @@ void Chats::onNewMessageReceived(const chat_service::Message& message) {
     current_chat.set_chat_id(chat_id);
     current_chat.set_name(current_item->data(Qt::UserRole + 2).toString().toStdString());
     current_chat.set_time_stamp(timestampLabel->text().toStdString());
-    current_chat.set_allocated_last_message(current_message);
+    chat_service::MessageReceived* message_copy = new chat_service::MessageReceived(message);
+    current_chat.set_allocated_last_message(message_copy);
 
     make_chat_item(current_chat, chatPages->currentIndex(), chatList->row(current_item));
 }
@@ -147,7 +142,7 @@ void Chats::onChatClicked(QListWidgetItem* item)
     // get messages
     if (chatMessagesData[currentChatId].empty()) {
         auto messages = manager->new_client.get_last_messages(manager->ID, currentChatId);
-        std::sort(messages.begin(), messages.end(), [](const chat_service::MessageData& a, const chat_service::MessageData& b) {
+        std::sort(messages.begin(), messages.end(), [](const chat_service::MessageReceived& a, const chat_service::MessageReceived& b) {
             return a.time_stamp() < b.time_stamp();
         });
         chatMessagesData[currentChatId] = messages;
@@ -253,7 +248,7 @@ void Chats::onInviteClicked(QListWidgetItem* item)
     invitePages->currentWidget()->setLayout(invitePageLayout);
 }
 
-void Chats::make_message_item(const chat_service::MessageData& message)
+void Chats::make_message_item(const chat_service::MessageReceived& message)
 {
     // get message data
     QString sender_username = QString::fromStdString(message.sender().login());
@@ -339,15 +334,15 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     chatWidget->setCursor(Qt::PointingHandCursor);
 }
 
-void Chats::make_invite_item(const invitation::Invite& invite, int invite_page_index)
+void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender, int invite_page_index)
 {
     // get invite data
     QString sender_name    = QString::fromStdString(invite.sender().login());
     int invite_id          = invite.invite_id();
     QString invite_text    = QString::fromStdString(invite.invite_text());
     QString time_stamp     = "2024-04-24 15:00:00"; //TODO
-    int sender_id          = 1; // TODO
-    int receiver_id        = 1; // TODO
+    int sender_id          = am_i_sender ? manager->ID : invite.sender().user_id();
+    int receiver_id        = am_i_sender ? invite.sender().user_id() : manager->ID;
 
     // make invite widget
     QWidget *inviteWidget     = new QWidget();
@@ -379,6 +374,7 @@ void Chats::make_invite_item(const invitation::Invite& invite, int invite_page_i
     item->setData(Qt::UserRole + 1, invite_page_index);
     item->setData(Qt::UserRole + 2, senderNameLabel->text());
     item->setData(Qt::UserRole + 3, sender_id);
+    item->setData(Qt::UserRole + 4, receiver_id);
 
     inviteWidget->setCursor(Qt::PointingHandCursor);
 }
