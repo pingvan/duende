@@ -103,4 +103,18 @@ bool chat_service_database_api::check_user_in_chat(const int &user_id, const int
     return is_user_in_chat;
 }
 
+int chat_service_database_api::create_private_chat(const std::pair<int, int> &users_ids, const std::string &timestamp)  {
+        const connector connection;
+        static std::string quer = "INSERT INTO chats (created_at, is_group_chat, users_count) VALUES ($1, false, 2) RETURNING id";
+        const auto result = connection.txn->exec_params(quer, timestamp);
+        int chat_id = 0;
+        for (const auto &row : result) {
+            chat_id = row[0].as<int>();
+        }
+        static std::string quer_sec = "INSERT INTO chat_membership (user_id, chat_id) VALUES ($1, $2)";
+        connection.txn->exec_params(quer_sec, users_ids.first, chat_id);
+        connection.txn->exec_params(quer_sec, users_ids.second, chat_id);
+        connection.txn->commit();
+        return chat_id;
+}
 }

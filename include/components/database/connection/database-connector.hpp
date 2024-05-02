@@ -14,6 +14,7 @@ struct chat_service_database_api;
 struct front_service;
 struct invite_service_database_api;
 struct search_service_database_api;
+struct subscription_service_database_api;
 
 struct databaseTesting;
 
@@ -35,6 +36,7 @@ public:
     friend struct front_service;
     friend struct invite_service_database_api;
     friend struct search_service_database_api;
+    friend struct subscription_service_database_api;
 
     friend struct databaseTesting;
 

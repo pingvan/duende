@@ -142,12 +142,12 @@ grpc::Status auth_service::Logout(
 
 grpc::Status auth_service_data::GetUserPrewiew(grpc::ServerContext *context,
  const authservice::RequestWithUserId *request,
-  authservice::UserPreview *response) {
+  common::UserPreview *response) {
     database::authservice_database_api::get_user_preview(request->user_id()).convert_to_proto(response);
     return grpc::Status::OK;
 }
 
-grpc::Status auth_service_data::GetUserFullPage(grpc::ServerContext *context, const authservice::RequestWithUserId *request, authservice::UserFullPage *response) {
+grpc::Status auth_service_data::GetUserFullPage(grpc::ServerContext *context, const authservice::RequestWithUserId *request, common::UserFullPage *response) {
     database::authservice_database_api::get_user_full_page(request->user_id()).convert_to_proto(response);
     return grpc::Status::OK;
 }

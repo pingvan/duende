@@ -31,12 +31,12 @@ struct auth_service_data final : public authservice::AuthServiceData::Service {
     grpc::Status GetUserPrewiew(
         grpc::ServerContext *context,
         const authservice::RequestWithUserId *request,
-        authservice::UserPreview *response
+        common::UserPreview *response
     ) override;
 
     grpc::Status GetUserFullPage(
         grpc::ServerContext *context,
         const authservice::RequestWithUserId *request,
-        authservice::UserFullPage *response
+        common::UserFullPage *response
     ) override;
 };

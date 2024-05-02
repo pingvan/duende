@@ -14,9 +14,13 @@
 struct chat_service_ final : public chat_service::ChatHandler::Service {
     [[nodiscard]] static std::string make_timestamp();
     grpc::Status HandleChat(grpc::ServerContext* context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>* stream) override;
-    chat_service::ChatResponses send_to_chat(const chat_service::Message& msg);
+    grpc::Status CreatePrivateChat(grpc::ServerContext* context, const chat_service::CreatePrivateChatRequest* request, chat_service::ChatPreview* response) override;
+    chat_service::ChatResponses send_to_chat(const chat_service::MessageSend& msg);
 private:
     std::unordered_map<int, std::shared_ptr<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>> users_online;
+    // std::unordered_map<int, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests> *> users_online;
+    // std::unordered_map<int, std::weak_ptr<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>> users_online_weak;
+    // std::unordered_map<int, std::weak_ptr<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>> users_online_weak_created_locally;
 };
 
 struct chat_data_service final : public chat_service::ChatDataService::Service {

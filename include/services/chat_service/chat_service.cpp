@@ -1,5 +1,4 @@
 #include "chat_service.hpp"
-#include <algorithm>
 #include <grpcpp/support/status.h>
 
 #include <algorithm>
@@ -8,7 +7,10 @@
 #include <iostream>
 #include <cassert>
 #include "components/database/services/chat_service/chat_service.hpp"
+#include "components/database/services/authservice/authservice.hpp"
+#include "services/chat_service/chat_service.pb.h"
 #include <iostream>
+#include <memory>
 #include <vector>
 
 
@@ -17,24 +19,44 @@ grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::Serve
     while (stream->Read(&request)) {
         if (request.has_init()) {
             users_online.insert({request.init().user_id(), std::make_shared<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>(*stream)});
+            // users_online_weak.insert({request.init().user_id(), users_online[request.init().user_id()]});
+
+            // auto sh = std::make_shared<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>(*stream);
+            // std::weak_ptr<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>> gw = sh;
+            // users_online_weak_created_locally.insert({request.init().user_id(), gw});
+            // auto shared = std::make_shared<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>(*stream);
+            // auto weak = shared;
+            // users_online_weak.insert({request.init().user_id(), weak});
             chat_service::ChatResponses response;
-            const auto init_response= new chat_service::InitialResponse;
+            //CONST???
+            const auto init_response = new chat_service::OperationStatusResponse;
             init_response->set_status(chat_service::Status::SUCCESS);
-            response.set_allocated_init(init_response);
+            response.set_allocated_response_with_status(init_response);
             stream->Write(response);
         } else if (request.has_send_message()) {
+            auto a = request.send_message().msg();
             stream->Write(send_to_chat(request.send_message().msg()));
         } else if (request.has_leave()) {
-            users_online.erase(request.leave().user_id());
+            // users_online.erase(request.leave().user_id());
             chat_service::ChatResponses response;
-            const auto disconnect_response= new chat_service::DisconnectResponse;
+            //CONST???
+            const auto disconnect_response= new chat_service::OperationStatusResponse;
             disconnect_response->set_status(chat_service::Status::SUCCESS);
-            response.set_allocated_leave(disconnect_response);
+            response.set_allocated_response_with_status(disconnect_response);
+            // response.set_allocated_leave(disconnect_response);
             stream->Write(response);
         } else {
         }
     }
     return grpc::Status::OK;
+}
+
+std::chrono::system_clock::time_point make_chrono_type(const std::string& timestamp_str) {
+        std::tm tm = {};
+        std::istringstream ss(timestamp_str);
+        ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");
+        auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+        return tp;
 }
 
 std::string chat_service_::make_timestamp() {
@@ -48,21 +70,22 @@ std::string chat_service_::make_timestamp() {
 }
 
 
-chat_service::ChatResponses chat_service_::send_to_chat(const chat_service::Message& msg) {
+chat_service::ChatResponses chat_service_::send_to_chat(const chat_service::MessageSend& msg) {
     chat_service::ChatResponses response;
-    auto *accept_message = new chat_service::AcceptMessage;
-    auto *allocated_msg = new chat_service::Message(msg);
-    accept_message->set_allocated_msg(allocated_msg);
-    response.set_allocated_accept_message(accept_message);
+    auto *accept_message = new chat_service::MessageReceived;
+    auto *allocated_msg = new chat_service::MessageSend(msg);
+    // accept_message->set_allocated_accept_message(allocated_msg);
+    // response.set_allocated_accept_message(accept_message);
 
 
     auto timestamp = make_timestamp();
     auto message_id = database::chat_service_database_api::add_message(msg.sender_id(), msg.chat_id(), timestamp, msg.message_text());
     auto members_ids = database::chat_service_database_api::get_members_ids(msg.chat_id());
     
-    std::sort(members_ids.begin(), members_ids.end());
-    auto last = std::unique(members_ids.begin(), members_ids.end());
-    members_ids.erase(last, members_ids.end());
+    
+    // std::ranges::sort(members_ids);
+    // auto members_id = std::unique(members_ids.begin(), members_ids.end());
+    // auto members_id = std::ranges::unique(members_ids);
     // members_ids = {64, 71};
     for (auto member_id : members_ids) {
         if (member_id != msg.sender_id()) {
@@ -72,12 +95,48 @@ chat_service::ChatResponses chat_service_::send_to_chat(const chat_service::Mess
             } else {
                 uint cnt = 0;
                 std::cout << "writing to: " << ptr->first << '\n';
-                assert(ptr != users_online.end());
-                assert(ptr->second != nullptr);
+                // assert(ptr != users_online.end());
+
+                // assert(ptr->second != nullptr);
+                // std::cout << "pointer: " <<  ptr->second << '\n';
                 // ptr->second->SendInitialMetadata();
+
+                // std::cout << "looking inside users_online_weak\n";
+                // std::cout << "gw.use_count() == " << users_online_weak[member_id].use_count() << "; ";
+                // // we have to make a copy of shared pointer before usage:
+                // auto spt = users_online_weak[member_id].lock();
+                // if (spt)
+                //     std::cout << "*spt is okay " << '\n';
+                // else
+                //     std::cout << "gw is expired\n";
+
+                // bool success1 = spt->Write(response);
+
+                // std::cout << "looking inside users_online_weak_created_locally\n";
+                // std::cout << "gw.use_count() == " << users_online_weak_created_locally[member_id].use_count() << "; ";
+                // // we have to make a copy of shared pointer before usage:
+                // auto spt1 = users_online_weak_created_locally[member_id].lock();
+                // if (spt1)
+                //     std::cout << "*spt is okay " << '\n';
+                // else
+                //     std::cout << "gw is expired\n";
+
+                // bool success2 = spt->Write(response);
+
+
+                // std::cerr << "shared use count: " << ptr->second.use_count() << '\n';
+
+                // if (!ptr->second) {
+                //     std::cerr << "wow it works this way!!!1\n";
+                //     return;
+                // } else {
+                //     std::cerr << "nonono\n";
+                // }
+
                 bool success = ptr->second->Write(response);
                 std::cout << "status: " << success << '\n';
                 while (!success && cnt != 10) {
+                    // success = spt->Write(response);
                     success = ptr->second->Write(response);
                     cnt++;
                 }
@@ -91,6 +150,20 @@ chat_service::ChatResponses chat_service_::send_to_chat(const chat_service::Mess
     }
 
     return response;
+}
+
+//make interseptors which check that this fucntion can be called only form other invite service
+grpc::Status chat_service_::CreatePrivateChat(grpc::ServerContext *context, const chat_service::CreatePrivateChatRequest *request, chat_service::ChatPreview *response) {
+        auto chat_id = database::chat_service_database_api::create_private_chat({request->firest_user_id(), request->second_user_id()}, make_timestamp());
+        response->set_chat_id(chat_id);
+        response->set_is_group_chat(false);
+        auto first_user_preview = database::authservice_database_api::get_user_preview(request->firest_user_id()); 
+        auto second_user_preview = database::authservice_database_api::get_user_preview(request->second_user_id());
+        auto first_user_preview_proto = response->add_chat_members();
+        auto second_user_preview_proto = response->add_chat_members();
+        first_user_preview.convert_to_proto(first_user_preview_proto);
+        second_user_preview.convert_to_proto(second_user_preview_proto);
+        return grpc::Status::OK;
 }
 
 grpc::Status chat_data_service::GetUserChats(grpc::ServerContext *context, const chat_service::GetChatsRequest *request, chat_service::UserChats *response) {

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22.1)
+cmake_minimum_required(VERSION 3.26.1)
 
 project(duende)
 
@@ -28,6 +28,28 @@ pkg_check_modules(LIBPQXX REQUIRED libpqxx)
 
 #if error occurs visit https://cmake.org/cmake/help/latest/module/FindPkgConfig.html
 
+add_executable(tests
+        test/doctest_main.cpp
+
+        ${TESTS_SRCS}
+
+        ${COMPONENTS_SRCS}
+        ${SERVICES_SRCS}
+
+        ${generated_proto_models_srcs}
+)
+
+add_executable(gtests
+        gtests/gtest_main.cpp
+
+        # ${TESTS_SRCS}
+
+        ${COMPONENTS_SRCS}
+        ${SERVICES_SRCS}
+
+        ${generated_proto_models_srcs}
+)
+
 add_executable(main
     src/main.cpp
 
@@ -39,6 +61,8 @@ add_executable(main
 
 
 add_dependencies(main generate_proto_models)
+add_dependencies(tests generate_proto_models)
+add_dependencies(gtests generate_proto_models)
 
 
 target_link_options(main PUBLIC
@@ -49,7 +73,6 @@ target_link_libraries(main
         gRPC::grpc++
         protobuf::libprotobuf
         Threads::Threads
-        pqxx
 )
 
 target_include_directories(main PUBLIC
@@ -60,4 +83,47 @@ target_include_directories(main PUBLIC
 )
 
 target_link_options(main PUBLIC
+        ${LIBPQXX_LDFLAGS})
+
+target_link_options(tests PUBLIC
+        -lpqxx)
+
+target_link_libraries(tests
+        absl::flags_parse
+        gRPC::grpc++
+        protobuf::libprotobuf
+        Threads::Threads
+)
+
+target_include_directories(tests PUBLIC
+        ./include
+        ./libs
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${LIBPQXX_INCLUDE_DIRS}
+)
+
+target_link_options(tests PUBLIC
+        ${LIBPQXX_LDFLAGS})
+
+
+target_link_libraries(gtests
+        absl::flags_parse
+        gRPC::grpc++
+        protobuf::libprotobuf
+        Threads::Threads
+        GTest::gtest_main 
+        GTest::gmock_main
+)
+
+target_include_directories(gtests PUBLIC
+        ./include
+        ./libs
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${LIBPQXX_INCLUDE_DIRS}
+)
+
+target_link_options(gtests PUBLIC
+        -lpqxx)
+
+target_link_options(gtests PUBLIC
         ${LIBPQXX_LDFLAGS})
