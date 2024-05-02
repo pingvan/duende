@@ -46,7 +46,7 @@
         int id;
         std::string full_name;
 
-        void convert_to_proto(authservice::ActorPreview *proto) const {
+        void convert_to_proto(common::ActorPreview *proto) const {
             proto->set_full_name(full_name);
         }
 
@@ -70,7 +70,7 @@
         std::string title;
         // std::vector<unsigned char> cover;
 
-        void convert_to_proto(authservice::FilmPreview *proto) const {
+        void convert_to_proto(common::FilmPreview *proto) const {
             proto->set_title(title);
         }
 
@@ -85,13 +85,13 @@
         std::string description;
         std::vector<genre> genres;
 
-        void convert_to_proto(authservice::FilmFullPage *proto) const {
-            auto prewiew_proto = new authservice::FilmPreview;
+        void convert_to_proto(common::FilmFullPage *proto) const {
+            auto prewiew_proto = new common::FilmPreview;
             preview.convert_to_proto(prewiew_proto);
             proto->set_allocated_preview(prewiew_proto);
             proto->set_description(description);
             for (const auto& genre : this->genres) {
-                proto->add_genres(static_cast<authservice::Genre>(genre));
+                proto->add_genres(static_cast<common::Genre>(genre));
             }
         }
     };
@@ -100,8 +100,8 @@
         film_full_page full_page;
         int ratio;
 
-        void convert_to_proto(authservice::FilmOnUserPage *proto)  const {
-            auto *film_full_page_proto = new authservice::FilmFullPage;
+        void convert_to_proto(common::FilmOnUserPage *proto)  const {
+            auto *film_full_page_proto = new common::FilmFullPage;
             full_page.convert_to_proto(film_full_page_proto);
             proto->set_allocated_full_page(film_full_page_proto);
             proto->set_ratio(ratio);
@@ -115,7 +115,8 @@
         int id;
         std::string login;
 
-        void convert_to_proto(authservice::UserPreview *response) const  {
+        void convert_to_proto(common::UserPreview *response) const  {
+            response->set_user_id(id);
             response->set_login(login);
         }
 
@@ -133,15 +134,14 @@
         std::vector<actor_preview> fauvorite_actors;
         std::vector<film_on_user_page> watched_films;
 
-        void convert_to_proto(authservice::UserFullPage *proto) const {
-            try {
-                auto *protobuf_prewiew = new authservice::UserPreview;
+        void convert_to_proto(common::UserFullPage *proto) const {
+                auto *protobuf_prewiew = new common::UserPreview;
                 protobuf_prewiew->set_login(prewiew.login);
                 proto->set_allocated_preview(protobuf_prewiew);
                 proto->set_quote(quote);
                 proto->set_about(about);
                 for (const auto& genre : fauvorite_genres) {
-                    proto->add_favorite_genres(static_cast<authservice::Genre>(genre));
+                    proto->add_favorite_genres(static_cast<common::Genre>(genre));
                 }
                 for (const auto& actor : fauvorite_actors) {
                     auto actor_proto = proto->add_favorite_actors();
@@ -151,9 +151,6 @@
                     auto film_proto = proto->add_watched_films();
                     film.convert_to_proto(film_proto);
                 }
-            } catch (std::exception &e) {
-                std::cout << e.what() << '\n';
-            }
         }
     };
 
@@ -162,10 +159,10 @@
         user_preview sender;
         std::string time_stamp;
 
-        void convert_to_proto(chat_service::MessageData *proto) const {
+        void convert_to_proto(chat_service::MessageReceived *proto) const {
             proto->set_message_text(message_text);
             proto->set_time_stamp(time_stamp);
-            auto *sender_proto = new authservice::UserPreview;
+            auto *sender_proto = new common::UserPreview;
             sender.convert_to_proto(sender_proto);
             proto->set_allocated_sender(sender_proto);
         }
@@ -173,10 +170,12 @@
 
     struct chat_preview  { //do as user_chat inner struct
         uint chat_id;
+        bool is_group_chat;
         std::string name;
         std::string description;
         std::string time_stamp;
         message last_message;
+        std::vector<user_preview> chat_members; //not created
         // std::vector<unsigned char> cover;
 
         void convert_to_proto(chat_service::ChatPreview *proto) const  {
@@ -184,9 +183,14 @@
             proto->set_name(name);
             proto->set_description(description);
             proto->set_time_stamp(time_stamp);
-            auto *last_message_proto = new chat_service::MessageData;
+            auto *last_message_proto = new chat_service::MessageReceived;
             last_message.convert_to_proto(last_message_proto);
             proto->set_allocated_last_message(last_message_proto);
+            for (const auto &user_preview_ : chat_members) {
+                auto user_preview_proto = proto->add_chat_members();
+                user_preview_.convert_to_proto(user_preview_proto);
+            }
+            proto->set_is_group_chat(is_group_chat);
         }
     };
 
@@ -221,7 +225,7 @@
         void convert_to_proto(invitation::Invite *proto) const {
             proto->set_invite_id(invite_id);
             proto->set_invite_text(invite_text);
-            auto *prewiew_proto = new authservice::UserPreview;
+            auto *prewiew_proto = new common::UserPreview;
             sender.convert_to_proto(prewiew_proto);
             proto->set_allocated_sender(prewiew_proto);
             proto->set_status(static_cast<invitation::InviteStatus>(status));

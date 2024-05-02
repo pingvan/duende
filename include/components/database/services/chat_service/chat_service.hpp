@@ -16,5 +16,7 @@ struct chat_service_database_api {
     static last_messages get_chats_messages(const int &chat_id);
 
     static bool check_user_in_chat(const int &user_id, const int &chat_id);
+
+    static int create_private_chat(const std::pair<int, int> &users_ids, const std::string &timestamp);
 };
 }

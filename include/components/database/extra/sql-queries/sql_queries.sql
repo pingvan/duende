@@ -81,9 +81,9 @@ CREATE TABLE IF NOT EXISTS chats (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMP NOT NULL,
     is_group_chat BOOLEAN NOT NULL,
-    chat_name VARCHAR(50) NOT NULL,
+    chat_name VARCHAR(50),
     -- cover BYTEA,
-    description text NOT NULL,
+    description text,
     users_count INT NOT NULL
     --users_ids INT[] NOT NULL,
     --admin_ids INT[] NOT NULL
@@ -95,16 +95,6 @@ CREATE TABLE IF NOT EXISTS chat_membership (
     user_id INT NOT NULL,
     chat_id INT NOT NULL,
     FOREIGN KEY(user_id) REFERENCES users(id),
-    FOREIGN KEY(chat_id) REFERENCES chats(id)
-);
-
-CREATE TABLE IF NOT EXISTS messages (
-    id SERIAL PRIMARY KEY,
-    sender_id INT NOT NULL,
-    chat_id INT NOT NULL,
-    sended_at TIMESTAMP NOT NULL,
-    message_text_data text NOT NULL,
-    FOREIGN KEY(sender_id) REFERENCES users(id),
     FOREIGN KEY(chat_id) REFERENCES chats(id)
 );
 
@@ -150,6 +140,12 @@ CREATE TABLE IF NOT EXISTS subscriptions (
     FOREIGN KEY(first_user_id) REFERENCES users(id),
     FOREIGN KEY(second_user_id) REFERENCES users(id)
 );
+
+-- CREATE TABLE IF NOT EXISTS subscriptions (
+--     user_id INT NOT NULL,
+--     subscriptions_to INT[] NOT NULL,
+--     FOREIGN KEY(user_id) REFERENCES users(id)
+-- );
 
 CREATE TABLE IF NOT EXISTS black_list (
     user_id INT NOT NULL,

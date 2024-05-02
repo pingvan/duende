@@ -13,12 +13,13 @@ set(proto_models_dir "${CMAKE_CURRENT_SOURCE_DIR}/src/proto")
 # list of all proto models of the project
 # insert relative paths of the proto models
 set(proto_filepaths
+        "src/proto/common/common.proto"
         "src/proto/services/authservice/authservice.proto"
         "src/proto/services/profile_service/profile.proto"
          "src/proto/services/invitation_service/invitation.proto"
         "src/proto/services/chat_service/chat_service.proto"
         "src/proto/services/front_service/front_service.proto"
-        "src/proto/services/invite_service/invite_service.proto"
+        # "src/proto/services/invite_service/invite_service.proto"
         "src/proto/services/search_service/search_service.proto"
 )
 

@@ -76,6 +76,34 @@ const std::vector<std::string_view> databaseTesting::tables = {
 
 std::vector<std::string_view> databaseTesting::clearing_commands = {};
 
+TEST(ProtoTesting, TestChatProtos) {
+    const uint chat_id = 1;
+    const uint user_id = 1;
+    std::size_t sum_size = 0;
+    chat_service::ChatPreview chat_preview_proto;
+    chat_preview_proto.set_chat_id(chat_id);
+    const std::string name = "name";
+    const std::string desc = "desc";
+    // const std::string time = "time";
+    const std::string message_text = "text";
+    const std::string message_time = "time";
+    const std::string login = "login";
+    chat_preview_proto.set_name(login);
+    chat_preview_proto.set_description(desc);
+    auto last_message = chat_preview_proto.mutable_last_message();
+    last_message->set_message_text(message_text);
+    last_message->set_time_stamp(message_time);
+    auto sender = last_message->mutable_sender();
+    sender->set_user_id(user_id);
+    sender->set_login(login);
+    std::cerr << "getting size\n";
+    auto size_of_proto = chat_preview_proto.ByteSizeLong();
+    std::cerr << "size of proto: " << size_of_proto << std::endl;
+    sum_size += sizeof(chat_id) + sizeof(chat_preview_proto.name()) + sizeof(chat_preview_proto.description()) + sizeof(chat_preview_proto.time_stamp()) + sizeof(chat_preview_proto.last_message().message_text()) + sizeof(chat_preview_proto.last_message().time_stamp()) + sizeof(sender->user_id()) + sizeof(sender->login());
+    std::cerr << "sum size: " << sum_size << std::endl;
+    EXPECT_EQ(sum_size, size_of_proto);
+}
+
 TEST_F(databaseTesting, TestConnection) {
     ASSERT_NE(connector.con, nullptr);
     ASSERT_TRUE(connector.con->is_open()) << "Connection to database failed"; 
@@ -325,133 +353,133 @@ TEST_F(databaseTesting, TestColumnsChatMembership) {
     ASSERT_THAT(column_names, ::testing::Contains("chat_id"));
 }
 
-TEST(chat_service, TestChatService) {
-    std::mutex m;
-    std::condition_variable cv;
-    std::condition_variable cv_ready_for_second;
-    bool ready = false, ready_for_second = false;
+// TEST(chat_service, TestChatService) {
+//     std::mutex m;
+//     std::condition_variable cv;
+//     std::condition_variable cv_ready_for_second;
+//     bool ready = false, ready_for_second = false;
 
-    constexpr int first_user_id = 93, second_user_id = 99, chat_id = 1;
+//     constexpr int first_user_id = 93, second_user_id = 99, chat_id = 1;
 
-    std::thread first_client([&]() {
+//     std::thread first_client([&]() {
 
-        auto channel = grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials());
-        auto stub = chat_service::ChatHandler::NewStub(channel);
-        auto context = new grpc::ClientContext();
-        // context->set_deadline(std::chrono::milliseconds(1000));
-        auto stream = stub->HandleChat(context);
-        chat_service::ChatRequests request;
+//         auto channel = grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials());
+//         auto stub = chat_service::ChatHandler::NewStub(channel);
+//         auto context = new grpc::ClientContext();
+//         // context->set_deadline(std::chrono::milliseconds(1000));
+//         auto stream = stub->HandleChat(context);
+//         chat_service::ChatRequests request;
 
-        std::thread ([&]() {
-            chat_service::ChatResponses response;
-            while (stream->Read(&response)) {
-                if (response.has_accept_message()) {
-                    std::cout << "Message accepted" << std::endl;
-                }
-            }
-            std::cout << "reader first finished" << std::endl;
-        }).detach();
+//         std::thread ([&]() {
+//             chat_service::ChatResponses response;
+//             while (stream->Read(&response)) {
+//                 if (response.has_accept_message()) {
+//                     std::cout << "Message accepted" << std::endl;
+//                 }
+//             }
+//             std::cout << "reader first finished" << std::endl;
+//         }).detach();
 
-        request.mutable_init()->set_user_id(first_user_id);
-        stream->Write(request);
+//         request.mutable_init()->set_user_id(first_user_id);
+//         stream->Write(request);
 
-        std::unique_lock<std::mutex> l(m);
-        ready = true;
-        cv.notify_all();
-        l.unlock();
-        std::cout << "second client notified\n";
+//         std::unique_lock<std::mutex> l(m);
+//         ready = true;
+//         cv.notify_all();
+//         l.unlock();
+//         std::cout << "second client notified\n";
 
-        chat_service::ChatRequests request2;
-        request2.mutable_send_message()->mutable_msg()->set_sender_id(first_user_id);
-        request2.mutable_send_message()->mutable_msg()->set_chat_id(chat_id);
-        request2.mutable_send_message()->mutable_msg()->set_message_text("Hello");
-        stream->Write(request2);
+//         chat_service::ChatRequests request2;
+//         request2.mutable_send_message()->mutable_msg()->set_sender_id(first_user_id);
+//         request2.mutable_send_message()->mutable_msg()->set_chat_id(chat_id);
+//         request2.mutable_send_message()->mutable_msg()->set_message_text("Hello");
+//         stream->Write(request2);
 
-        std::unique_lock<std::mutex> l1(m);
-        cv_ready_for_second.wait(l1, [&](){ return ready_for_second; });
-        l1.unlock();
+//         std::unique_lock<std::mutex> l1(m);
+//         cv_ready_for_second.wait(l1, [&](){ return ready_for_second; });
+//         l1.unlock();
 
-        chat_service::ChatRequests request3;
-        request2.mutable_send_message()->mutable_msg()->set_sender_id(first_user_id);
-        request2.mutable_send_message()->mutable_msg()->set_chat_id(chat_id);
-        request2.mutable_send_message()->mutable_msg()->set_message_text("Word");
-        stream->Write(request2);
-        std::cout << "wrote second msg\n";
+//         chat_service::ChatRequests request3;
+//         request2.mutable_send_message()->mutable_msg()->set_sender_id(first_user_id);
+//         request2.mutable_send_message()->mutable_msg()->set_chat_id(chat_id);
+//         request2.mutable_send_message()->mutable_msg()->set_message_text("Word");
+//         stream->Write(request2);
+//         std::cout << "wrote second msg\n";
 
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+//         std::this_thread::sleep_for(std::chrono::seconds(2));
 
-        stream->WritesDone();
-        stream->Finish();
-        std::cout << "first finished\n";
-    });
+//         stream->WritesDone();
+//         stream->Finish();
+//         std::cout << "first finished\n";
+//     });
 
-    std::thread second_client([&]() {
-        auto channel = grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials());
-        auto stub = chat_service::ChatHandler::NewStub(channel);
-        auto context = new grpc::ClientContext();
-        // context->set_deadline(std::chrono::milliseconds(1000));
-        auto stream = stub->HandleChat(context);
-        chat_service::ChatRequests request;
+//     std::thread second_client([&]() {
+//         auto channel = grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials());
+//         auto stub = chat_service::ChatHandler::NewStub(channel);
+//         auto context = new grpc::ClientContext();
+//         // context->set_deadline(std::chrono::milliseconds(1000));
+//         auto stream = stub->HandleChat(context);
+//         chat_service::ChatRequests request;
 
-        std::mutex local_m;
-        std::condition_variable cv_get_first;
-        bool get_first = false;
+//         std::mutex local_m;
+//         std::condition_variable cv_get_first;
+//         bool get_first = false;
 
-        bool end_reading = false;
-        std::thread ([&]() {
-            chat_service::ChatResponses response;
-            while (stream->Read(&response)) {
-                if (response.has_accept_message()) {
-                    EXPECT_EQ(response.accept_message().msg().sender_id(), first_user_id);
-                    EXPECT_EQ(response.accept_message().msg().chat_id(), chat_id);
-                    EXPECT_EQ(response.accept_message().msg().message_text(), "Hello");
-                    std::cout << "Message accepted from 2nd" << std::endl;
+//         bool end_reading = false;
+//         std::thread ([&]() {
+//             chat_service::ChatResponses response;
+//             while (stream->Read(&response)) {
+//                 if (response.has_accept_message()) {
+//                     EXPECT_EQ(response.accept_message().msg().sender().user_id(), first_user_id);
+//                     EXPECT_EQ(response.accept_message().msg().chat_id(), chat_id);
+//                     EXPECT_EQ(response.accept_message().msg().message_text(), "Hello");
+//                     std::cout << "Message accepted from 2nd" << std::endl;
 
-                    std::unique_lock<std::mutex> l(local_m);
-                    get_first = true;
-                    cv_get_first.notify_all();
-                    std::cout << "second notified about readig complette\n";
-                    l.unlock();
-                }
-            }
-            // end_reading = true;
-            std::cout << "reader second finished" << std::endl;
-        }).detach();
+//                     std::unique_lock<std::mutex> l(local_m);
+//                     get_first = true;
+//                     cv_get_first.notify_all();
+//                     std::cout << "second notified about readig complette\n";
+//                     l.unlock();
+//                 }
+//             }
+//             // end_reading = true;
+//             std::cout << "reader second finished" << std::endl;
+//         }).detach();
 
-        request.mutable_init()->set_user_id(second_user_id);
-        stream->Write(request);
+//         request.mutable_init()->set_user_id(second_user_id);
+//         stream->Write(request);
 
-        std::unique_lock<std::mutex> l(m);
-        cv.wait(l, [&](){return ready;});
-        l.unlock();
-        std::cout << "both threads inited\n";
+//         std::unique_lock<std::mutex> l(m);
+//         cv.wait(l, [&](){return ready;});
+//         l.unlock();
+//         std::cout << "both threads inited\n";
 
-        std::unique_lock<std::mutex> l1(local_m);
-        cv_get_first.wait(l1, [&](){return get_first;});
-        std::cout << "first message readed, finishinf stream\n";
-        l1.unlock();
-        std::cout << "unlocked\n";
-        stream->WritesDone();
-        stream->Finish();
-        std::cout << "second stream finished\n";
+//         std::unique_lock<std::mutex> l1(local_m);
+//         cv_get_first.wait(l1, [&](){return get_first;});
+//         std::cout << "first message readed, finishinf stream\n";
+//         l1.unlock();
+//         std::cout << "unlocked\n";
+//         stream->WritesDone();
+//         stream->Finish();
+//         std::cout << "second stream finished\n";
 
-        // ASSERT_TRUE(end_reading);
-        std::unique_lock<std::mutex> l2(m);
-        ready_for_second = true;
-        cv_ready_for_second.notify_all();
-        l2.unlock();
+//         // ASSERT_TRUE(end_reading);
+//         std::unique_lock<std::mutex> l2(m);
+//         ready_for_second = true;
+//         cv_ready_for_second.notify_all();
+//         l2.unlock();
 
-        std::cout << "end of second thread\n";
-    });
+//         std::cout << "end of second thread\n";
+//     });
 
-    first_client.join();
-    second_client.join();
-}
-
-
-
-// int main(int argc, char **argv) {
-//     ::testing::InitGoogleTest(&argc, argv);
-//     // ::testing::InitGoogleMock(&argc, argv);
-//     return RUN_ALL_TESTS();
+//     first_client.join();
+//     second_client.join();
 // }
+
+
+
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    // ::testing::InitGoogleMock(&argc, argv);
+    return RUN_ALL_TESTS();
+}

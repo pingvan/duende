@@ -15,6 +15,7 @@ enum Status {
 
 service ChatHandler {
     rpc HandleChat(stream ChatRequests) returns (stream ChatResponses);
+    rpc CreatePrivateChat(CreatePrivateChatRequest) returns (ChatPreview);
 }
 
 service ChatDataService {
@@ -49,12 +50,12 @@ message SendMessageRequest {
     MessageSend msg = 1;
 }
 
-message OperationStatusResposne {
+message OperationStatusResponse {
     Status status = 1;
 }
 
 message AcceptMessageResponse {
-    Message msg = 1;
+    MessageReceived msg = 1;
 }
 
 message MessageSend {
@@ -65,17 +66,20 @@ message MessageSend {
 };
 
 message MessageReceived {
-  string message_text = 1;
-  common.UserPreview sender = 2;
-  string time_stamp = 3;
+    common.UserPreview sender = 1;
+    int32 chat_id = 2;
+  string message_text = 3;
+  string time_stamp = 4;
 }
 
 message ChatPreview {
   uint32 chat_id = 1;
-  string name = 2;
-  string description = 3;
-  string time_stamp = 4;
-  MessageReceived last_message = 5;
+  bool is_group_chat = 2;
+  optional string name = 3;
+  optional string description = 4;
+  string time_stamp = 5;
+  MessageReceived last_message = 6;
+  repeated common.UserPreview chat_members = 7;
 }
 
 message GetChatsRequest {
@@ -92,5 +96,10 @@ message UserChats {
 }
 
 message LastMessages {
-  repeated MessageData messages = 1;
+  repeated MessageReceived messages = 1;
+}
+
+message CreatePrivateChatRequest {
+    int32 firest_user_id = 1;
+    int32 second_user_id = 2;
 }

@@ -1,5 +1,4 @@
 #include <string>
-#include <services/front_service/front_service.hpp>
 #include <iostream>
 
 // #include "components/database/connection/database-connector.hpp"
@@ -9,7 +8,6 @@
 #include "components/database/services/authservice/authservice.hpp"
 #include "components/database/services/profile_service/profile_service.hpp"
 #include "components/database/services/chat_service/chat_service.hpp"
-#include "components/database/services/front_service/front_service.hpp"
 #include "components/database/services/invite_service/invite_service.hpp"
 
 // const database::connector connection;

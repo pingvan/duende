@@ -7,6 +7,8 @@
 #include <iostream>
 #include <cassert>
 #include "components/database/services/chat_service/chat_service.hpp"
+#include "components/database/services/authservice/authservice.hpp"
+#include "services/chat_service/chat_service.pb.h"
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -26,18 +28,22 @@ grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::Serve
             // auto weak = shared;
             // users_online_weak.insert({request.init().user_id(), weak});
             chat_service::ChatResponses response;
-            const auto init_response = new chat_service::InitialResponse;
+            //CONST???
+            const auto init_response = new chat_service::OperationStatusResponse;
             init_response->set_status(chat_service::Status::SUCCESS);
-            response.set_allocated_init(init_response);
+            response.set_allocated_response_with_status(init_response);
             stream->Write(response);
         } else if (request.has_send_message()) {
+            auto a = request.send_message().msg();
             stream->Write(send_to_chat(request.send_message().msg()));
         } else if (request.has_leave()) {
             // users_online.erase(request.leave().user_id());
             chat_service::ChatResponses response;
-            const auto disconnect_response= new chat_service::DisconnectResponse;
+            //CONST???
+            const auto disconnect_response= new chat_service::OperationStatusResponse;
             disconnect_response->set_status(chat_service::Status::SUCCESS);
-            response.set_allocated_leave(disconnect_response);
+            response.set_allocated_response_with_status(disconnect_response);
+            // response.set_allocated_leave(disconnect_response);
             stream->Write(response);
         } else {
         }
@@ -64,12 +70,12 @@ std::string chat_service_::make_timestamp() {
 }
 
 
-chat_service::ChatResponses chat_service_::send_to_chat(const chat_service::Message& msg) {
+chat_service::ChatResponses chat_service_::send_to_chat(const chat_service::MessageSend& msg) {
     chat_service::ChatResponses response;
-    auto *accept_message = new chat_service::AcceptMessage;
-    auto *allocated_msg = new chat_service::Message(msg);
-    accept_message->set_allocated_msg(allocated_msg);
-    response.set_allocated_accept_message(accept_message);
+    auto *accept_message = new chat_service::MessageReceived;
+    auto *allocated_msg = new chat_service::MessageSend(msg);
+    // accept_message->set_allocated_accept_message(allocated_msg);
+    // response.set_allocated_accept_message(accept_message);
 
 
     auto timestamp = make_timestamp();
@@ -144,6 +150,20 @@ chat_service::ChatResponses chat_service_::send_to_chat(const chat_service::Mess
     }
 
     return response;
+}
+
+//make interseptors which check that this fucntion can be called only form other invite service
+grpc::Status chat_service_::CreatePrivateChat(grpc::ServerContext *context, const chat_service::CreatePrivateChatRequest *request, chat_service::ChatPreview *response) {
+        auto chat_id = database::chat_service_database_api::create_private_chat({request->firest_user_id(), request->second_user_id()}, make_timestamp());
+        response->set_chat_id(chat_id);
+        response->set_is_group_chat(false);
+        auto first_user_preview = database::authservice_database_api::get_user_preview(request->firest_user_id()); 
+        auto second_user_preview = database::authservice_database_api::get_user_preview(request->second_user_id());
+        auto first_user_preview_proto = response->add_chat_members();
+        auto second_user_preview_proto = response->add_chat_members();
+        first_user_preview.convert_to_proto(first_user_preview_proto);
+        second_user_preview.convert_to_proto(second_user_preview_proto);
+        return grpc::Status::OK;
 }
 
 grpc::Status chat_data_service::GetUserChats(grpc::ServerContext *context, const chat_service::GetChatsRequest *request, chat_service::UserChats *response) {

@@ -124,6 +124,7 @@ user_preview authservice_database_api::get_user_preview(const int &user_id) {
     static std::string querr = "SELECT login FROM users WHERE id = $1";
     const auto result = connection.txn->exec_params(querr, user_id);
     user_preview prewiew;
+    prewiew.id = user_id;
     for (const auto &row : result) {
         prewiew.login = row[0].as<std::string>();
     }
