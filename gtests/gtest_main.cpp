@@ -331,6 +331,8 @@ TEST(chat_service, TestChatService) {
     std::condition_variable cv_ready_for_second;
     bool ready = false, ready_for_second = false;
 
+    constexpr int first_user_id = 93, second_user_id = 99, chat_id = 1;
+
     std::thread first_client([&]() {
 
         auto channel = grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials());
@@ -350,7 +352,7 @@ TEST(chat_service, TestChatService) {
             std::cout << "reader first finished" << std::endl;
         }).detach();
 
-        request.mutable_init()->set_user_id(64);
+        request.mutable_init()->set_user_id(first_user_id);
         stream->Write(request);
 
         std::unique_lock<std::mutex> l(m);
@@ -360,8 +362,8 @@ TEST(chat_service, TestChatService) {
         std::cout << "second client notified\n";
 
         chat_service::ChatRequests request2;
-        request2.mutable_send_message()->mutable_msg()->set_sender_id(64);
-        request2.mutable_send_message()->mutable_msg()->set_chat_id(1);
+        request2.mutable_send_message()->mutable_msg()->set_sender_id(first_user_id);
+        request2.mutable_send_message()->mutable_msg()->set_chat_id(chat_id);
         request2.mutable_send_message()->mutable_msg()->set_message_text("Hello");
         stream->Write(request2);
 
@@ -370,16 +372,16 @@ TEST(chat_service, TestChatService) {
         l1.unlock();
 
         chat_service::ChatRequests request3;
-        request2.mutable_send_message()->mutable_msg()->set_sender_id(64);
-        request2.mutable_send_message()->mutable_msg()->set_chat_id(1);
+        request2.mutable_send_message()->mutable_msg()->set_sender_id(first_user_id);
+        request2.mutable_send_message()->mutable_msg()->set_chat_id(chat_id);
         request2.mutable_send_message()->mutable_msg()->set_message_text("Word");
         stream->Write(request2);
         std::cout << "wrote second msg\n";
 
         std::this_thread::sleep_for(std::chrono::seconds(2));
 
-        // stream->Finish();
         stream->WritesDone();
+        stream->Finish();
         std::cout << "first finished\n";
     });
 
@@ -400,8 +402,8 @@ TEST(chat_service, TestChatService) {
             chat_service::ChatResponses response;
             while (stream->Read(&response)) {
                 if (response.has_accept_message()) {
-                    EXPECT_EQ(response.accept_message().msg().sender_id(), 64);
-                    EXPECT_EQ(response.accept_message().msg().chat_id(), 1);
+                    EXPECT_EQ(response.accept_message().msg().sender_id(), first_user_id);
+                    EXPECT_EQ(response.accept_message().msg().chat_id(), chat_id);
                     EXPECT_EQ(response.accept_message().msg().message_text(), "Hello");
                     std::cout << "Message accepted from 2nd" << std::endl;
 
@@ -416,7 +418,7 @@ TEST(chat_service, TestChatService) {
             std::cout << "reader second finished" << std::endl;
         }).detach();
 
-        request.mutable_init()->set_user_id(71);
+        request.mutable_init()->set_user_id(second_user_id);
         stream->Write(request);
 
         std::unique_lock<std::mutex> l(m);
@@ -430,7 +432,7 @@ TEST(chat_service, TestChatService) {
         l1.unlock();
         std::cout << "unlocked\n";
         stream->WritesDone();
-        // stream->Finish();
+        stream->Finish();
         std::cout << "second stream finished\n";
 
         // ASSERT_TRUE(end_reading);

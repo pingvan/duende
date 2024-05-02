@@ -8,14 +8,14 @@
 #include "services/chat_service/chat_service.hpp"
 #include "services/search_service/search_service.hpp"
 
-std::string server_address("0.0.0.0:50051");
+static const std::string server_address("0.0.0.0:50051");
 
 void read(const std::string &path, std::string& content) {
     // std::cout << "Reading file: " << path << "\n";
     std::ifstream file(path);
     if (!file.is_open()) {
         std::cerr << "Failed to open file: " << path << '\n';
-        std::exit(1);
+        // std::exit(1);
     }
     std::string line;
     while (std::getline(file, line)) {
@@ -42,6 +42,9 @@ void run_server() {
     auto root_path = std::filesystem::path("src/cert/ca.crt");
 
     auto current_path = std::filesystem::current_path();
+
+    std::cout << "current path: " << current_path << std::endl;
+
     auto parent_path = current_path.parent_path();
 
     read(parent_path / key_path, key);
@@ -59,7 +62,8 @@ void run_server() {
     auto server_credentials = grpc::SslServerCredentials(ssl_options);
 
     grpc::ServerBuilder builder;
-    builder.AddListeningPort(server_address, server_credentials);
+    // builder.AddListeningPort(server_address, server_credentials);
+    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
     builder.RegisterService(&auth_service);
     builder.RegisterService(&profile_service);
     builder.RegisterService(&chat_service);

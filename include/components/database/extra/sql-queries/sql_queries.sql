@@ -89,6 +89,8 @@ CREATE TABLE IF NOT EXISTS chats (
     --admin_ids INT[] NOT NULL
 );
 
+--think about chat_membership as array of chats_ids
+
 CREATE TABLE IF NOT EXISTS chat_membership (
     user_id INT NOT NULL,
     chat_id INT NOT NULL,
@@ -140,3 +142,17 @@ CREATE TABLE IF NOT EXISTS unhandled_messages (
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(message_id) REFERENCES messages(id)
 );
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+    first_user_id INT NOT NULL,
+    second_user_id INT NOT NULL,
+    is_mutual BOOLEAN NOT NULL,
+    FOREIGN KEY(first_user_id) REFERENCES users(id),
+    FOREIGN KEY(second_user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS black_list (
+    user_id INT NOT NULL,
+    blocked_users_id INT[] NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+)

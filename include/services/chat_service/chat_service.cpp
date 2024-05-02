@@ -1,6 +1,4 @@
 #include "chat_service.hpp"
-#include <__algorithm/ranges_sort.h>
-#include <__algorithm/ranges_unique.h>
 #include <grpcpp/support/status.h>
 
 #include <algorithm>
@@ -10,6 +8,7 @@
 #include <cassert>
 #include "components/database/services/chat_service/chat_service.hpp"
 #include <iostream>
+#include <memory>
 #include <vector>
 
 
@@ -18,15 +17,23 @@ grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::Serve
     while (stream->Read(&request)) {
         if (request.has_init()) {
             users_online.insert({request.init().user_id(), std::make_shared<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>(*stream)});
+            // users_online_weak.insert({request.init().user_id(), users_online[request.init().user_id()]});
+
+            // auto sh = std::make_shared<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>(*stream);
+            // std::weak_ptr<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>> gw = sh;
+            // users_online_weak_created_locally.insert({request.init().user_id(), gw});
+            // auto shared = std::make_shared<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>(*stream);
+            // auto weak = shared;
+            // users_online_weak.insert({request.init().user_id(), weak});
             chat_service::ChatResponses response;
-            const auto init_response= new chat_service::InitialResponse;
+            const auto init_response = new chat_service::InitialResponse;
             init_response->set_status(chat_service::Status::SUCCESS);
             response.set_allocated_init(init_response);
             stream->Write(response);
         } else if (request.has_send_message()) {
             send_to_chat(request.send_message().msg());
         } else if (request.has_leave()) {
-            users_online.erase(request.leave().user_id());
+            // users_online.erase(request.leave().user_id());
             chat_service::ChatResponses response;
             const auto disconnect_response= new chat_service::DisconnectResponse;
             disconnect_response->set_status(chat_service::Status::SUCCESS);
@@ -36,6 +43,14 @@ grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::Serve
         }
     }
     return grpc::Status::OK;
+}
+
+std::chrono::system_clock::time_point make_chrono_type(const std::string& timestamp_str) {
+        std::tm tm = {};
+        std::istringstream ss(timestamp_str);
+        ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");
+        auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+        return tp;
 }
 
 std::string chat_service_::make_timestamp() {
@@ -61,11 +76,11 @@ void chat_service_::send_to_chat(const chat_service::Message& msg) {
     auto message_id = database::chat_service_database_api::add_message(msg.sender_id(), msg.chat_id(), timestamp, msg.message_text());
     auto members_ids = database::chat_service_database_api::get_members_ids(msg.chat_id());
     
+    
     // std::ranges::sort(members_ids);
-    // std::sort(members_ids.begin(), members_ids.end());
     // auto members_id = std::unique(members_ids.begin(), members_ids.end());
     // auto members_id = std::ranges::unique(members_ids);
-    members_ids = {64, 71};
+    // members_ids = {64, 71};
     for (auto member_id : members_ids) {
         if (member_id != msg.sender_id()) {
             if (auto ptr = users_online.find(member_id); ptr == users_online.end()) {
@@ -74,12 +89,48 @@ void chat_service_::send_to_chat(const chat_service::Message& msg) {
             } else {
                 uint cnt = 0;
                 std::cout << "writing to: " << ptr->first << '\n';
-                assert(ptr != users_online.end());
-                assert(ptr->second != nullptr);
+                // assert(ptr != users_online.end());
+
+                // assert(ptr->second != nullptr);
+                // std::cout << "pointer: " <<  ptr->second << '\n';
                 // ptr->second->SendInitialMetadata();
+
+                // std::cout << "looking inside users_online_weak\n";
+                // std::cout << "gw.use_count() == " << users_online_weak[member_id].use_count() << "; ";
+                // // we have to make a copy of shared pointer before usage:
+                // auto spt = users_online_weak[member_id].lock();
+                // if (spt)
+                //     std::cout << "*spt is okay " << '\n';
+                // else
+                //     std::cout << "gw is expired\n";
+
+                // bool success1 = spt->Write(response);
+
+                // std::cout << "looking inside users_online_weak_created_locally\n";
+                // std::cout << "gw.use_count() == " << users_online_weak_created_locally[member_id].use_count() << "; ";
+                // // we have to make a copy of shared pointer before usage:
+                // auto spt1 = users_online_weak_created_locally[member_id].lock();
+                // if (spt1)
+                //     std::cout << "*spt is okay " << '\n';
+                // else
+                //     std::cout << "gw is expired\n";
+
+                // bool success2 = spt->Write(response);
+
+
+                // std::cerr << "shared use count: " << ptr->second.use_count() << '\n';
+
+                // if (!ptr->second) {
+                //     std::cerr << "wow it works this way!!!1\n";
+                //     return;
+                // } else {
+                //     std::cerr << "nonono\n";
+                // }
+
                 bool success = ptr->second->Write(response);
                 std::cout << "status: " << success << '\n';
                 while (!success && cnt != 10) {
+                    // success = spt->Write(response);
                     success = ptr->second->Write(response);
                     cnt++;
                 }

@@ -2,12 +2,16 @@ syntax = "proto3";
 
 package chat_service;
 
-import "services/authservice/authservice.proto";
+//import "services/authservice/authservice.proto";
+
+import "common/common.proto";
 
 enum Status {
     SUCCESS = 0;
     ERROR = 1;
 }
+
+//TODO::make one service not to hold many connections 
 
 service ChatHandler {
     rpc HandleChat(stream ChatRequests) returns (stream ChatResponses);
@@ -16,15 +20,6 @@ service ChatHandler {
 service ChatDataService {
     rpc GetUserChats(GetChatsRequest) returns (UserChats);
     rpc GetLastMessages(GetChatMessagesRequest) returns (LastMessages);
-}
-
-message GetChatsRequest {
-    int32 user_id = 1;
-}
-
-message GetChatMessagesRequest {
-    int32 user_id = 1;
-    int32 chat_id = 2;
 }
 
 message ChatRequests {
@@ -38,48 +33,40 @@ message ChatRequests {
 
 message ChatResponses {
     oneof response {
-        InitialResponse init = 1;
-        AcceptMessage accept_message = 2;
-        DisconnectResponse leave = 3;
+        OperationStatusResponse response_with_status = 1;
+        AcceptMessageResponse accept_message = 2;
     }
 }
 
 message InitialRequest {
     int32 user_id = 1;
 }
-
-message InitialResponse {
-    Status status = 1;
-}
-
 message DisconnectRequest {
     int32 user_id = 1;
 }
 
-message DisconnectResponse {
+message SendMessageRequest {
+    MessageSend msg = 1;
+}
+
+message OperationStatusResposne {
     Status status = 1;
 }
 
-message SendMessageRequest {
+message AcceptMessageResponse {
     Message msg = 1;
 }
 
-message AcceptMessage {
-    Message msg = 1;
-}
-
-message Message {
+message MessageSend {
     int32 sender_id = 1;
     int32  chat_id = 2;
     string timestamp_ = 3;
     string message_text = 4;
 };
 
-//not hehe...
-
-message MessageData {
+message MessageReceived {
   string message_text = 1;
-  authservice.UserPreview sender = 2;
+  common.UserPreview sender = 2;
   string time_stamp = 3;
 }
 
@@ -88,7 +75,16 @@ message ChatPreview {
   string name = 2;
   string description = 3;
   string time_stamp = 4;
-  MessageData last_message = 5;
+  MessageReceived last_message = 5;
+}
+
+message GetChatsRequest {
+    int32 user_id = 1;
+}
+
+message GetChatMessagesRequest {
+    int32 user_id = 1;
+    int32 chat_id = 2;
 }
 
 message UserChats {
