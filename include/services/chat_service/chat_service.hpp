@@ -14,7 +14,7 @@
 struct chat_service_ final : public chat_service::ChatHandler::Service {
     [[nodiscard]] static std::string make_timestamp();
     grpc::Status HandleChat(grpc::ServerContext* context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>* stream) override;
-    void send_to_chat(const chat_service::Message& msg);
+    chat_service::ChatResponses send_to_chat(const chat_service::Message& msg);
 private:
     std::unordered_map<int, std::shared_ptr<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>> users_online;
 };

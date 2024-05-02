@@ -39,19 +39,19 @@ signals:
     void messageReceived(const QString& message);
 
 private slots:
-    void sendMessage();
-    void onChatClicked(QListWidgetItem* item);
-    void onInviteClicked(QListWidgetItem* item);
-    void onNewMessageReceived(const chat_service::Message& message);
-    void onNewInviteSent(const invitation::Invite& invite);
-    void onNewInviteReceived(const invitation::SendInvitationResponse&);
-    void onInviteRespondReceived(const invitation::RespondToInvitationResponse&);
     void build();
     void connect_slots();
+    void onChatClicked(QListWidgetItem* item);
+    void onInviteClicked(QListWidgetItem* item);
+    void sendMessage();
+    void onNewMessageReceived(const chat_service::Message& message);
+    void onNewInviteReceived(const invitation::SendInvitationResponse&);
+    void onInviteRespond(bool accept);
+    void onInviteRespondReceived(const invitation::RespondToInvitationResponse&);
     void make_chat_item(const chat_service::ChatPreview& chat, int chat_page_index, int item_index);
     void make_message_item(const chat_service::MessageData& message);
     void make_invite_item(const invitation::Invite& invite, int invite_page_index);
-    void onInviteRespond(bool accept);
+    void delete_invite_item(int invite_id);
 
 private:
     Ui::Chats *ui;
@@ -81,6 +81,8 @@ private:
 
     QPushButton* acceptButton;
     QPushButton* declineButton;
+
+    QMap<int, std::vector<chat_service::MessageData>> chatMessagesData;
 };
 
 #endif // CHATS_H

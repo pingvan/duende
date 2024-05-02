@@ -26,17 +26,12 @@ public:
             new_client.onInviteRespondReceived = [this](const invitation::RespondToInvitationResponse& response) {
                 emit InviteRespondReceived(response);
             };
-            onNewInviteSent = [this](const invitation::Invite& invite) {
-                emit NewInviteSent(invite);
-            };
     }
 
     void logout() {
         ID = -1;
         username = "";
     }
-
-    std::function<void(const invitation::Invite&)> onNewInviteSent;
 
     Manager() = default;
     Manager(const Manager& other) = delete;
@@ -48,7 +43,6 @@ signals:
     void newMessageReceived(const chat_service::Message& message);
     void NewInviteReceived(const invitation::SendInvitationResponse& response);
     void InviteRespondReceived(const invitation::RespondToInvitationResponse& response);
-    void NewInviteSent(const invitation::Invite& invite);
     
 };
 

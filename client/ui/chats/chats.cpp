@@ -22,10 +22,6 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
         return a.time_stamp() > b.time_stamp();
     });
 
-    qDebug() << "Chats size: " << chats.size();
-    qDebug() << "Received invites size: " << received_invites.size();
-    qDebug() << "Sent invites size: " << sent_invites.size();
-
     // deal with invites
     for (const auto &invite : received_invites) {
         auto *invitePage = new QWidget();
@@ -56,57 +52,34 @@ void Chats::onInviteRespond(bool accept)
 {
     // get current invite
     QListWidgetItem* current_item = inviteList->currentItem();
-    int item_index                = inviteList->row(current_item);
-    QString sender_name           = current_item->data(Qt::UserRole + 2).toString();
-    int page_index                = current_item->data(Qt::UserRole + 1).toInt();
+    int receiver_id               = current_item->data(Qt::UserRole + 3).toInt();
     int invite_id                 = current_item->data(Qt::UserRole).toInt();
-    int receiver_id               = 1; //TODO
-
-    // delete invite from list
-    QListWidgetItem* item         = inviteList->takeItem(item_index);
-    delete item;
 
     // delete corresponding page
-    QWidget* page = invitePages->widget(page_index);
-    invitePages->removeWidget(page);
-    currentInviteId = -1;
-
-    if (invitePageLayout != nullptr) {
-        while (invitePageLayout->count() != 0) {
-            auto item = invitePageLayout->takeAt(0);
-            delete item->widget();
-            delete item;
-        }
-    }
-
-    inviteTitle->setText("");
+    delete_invite_item(invite_id);
 
     manager->new_client.respond_invite(invite_id, receiver_id, accept);
 }
 
-void Chats::onInviteRespondReceived(const invitation::RespondToInvitationResponse&) {
-    qDebug() << "New invite respond received";
-}
+void Chats::onInviteRespondReceived(const invitation::RespondToInvitationResponse& response) {
+    // get response data
+    int invite_id = response.invite_id();
+    bool accept   = (response.status() == invitation::InviteStatus::ACCEPTED);
 
-void Chats::onNewInviteSent(const invitation::Invite& invite)
-{
-    make_invite_item(invite, invitePages->currentIndex());
+    delete_invite_item(invite_id);
+    // TODO add chat
 }
 
 void Chats::onNewInviteReceived(const invitation::SendInvitationResponse& invite) {
-    qDebug() << "New invite received";
     make_invite_item(invite.invite(), invitePages->currentIndex());
 }
 
 void Chats::onNewMessageReceived(const chat_service::Message& message) {
-    qDebug() << "New message received : " << QString::fromStdString(message.message_text());
-    qDebug() << "New message received time_stamp: " << QString::fromStdString(message.timestamp_());
-    qDebug() << "New message received sender: " << QString::number(message.sender_id());
-
     // TODO sender name
     QLabel* senderLabel    = new QLabel(QString::number(message.sender_id()));
     QLabel* textLabel      = new QLabel(QString::fromStdString(message.message_text()));
     QLabel* timestampLabel = new QLabel(QString::fromStdString(message.timestamp_()));
+    int chat_id            = message.chat_id();
 
     // current message
     chat_service::MessageData *current_message = new chat_service::MessageData();
@@ -116,8 +89,10 @@ void Chats::onNewMessageReceived(const chat_service::Message& message) {
     current_message->set_message_text(message.message_text());
     current_message->set_time_stamp(message.timestamp_());
 
+    chatMessagesData[chat_id].push_back(*current_message);
+
     // check if current chat
-    if (currentChatId == message.chat_id()) {
+    if (currentChatId == chat_id) {
         make_message_item(*current_message);
     }
 
@@ -125,7 +100,7 @@ void Chats::onNewMessageReceived(const chat_service::Message& message) {
     QListWidgetItem *current_item;
     for(int i = 0; i < chatList->count(); ++i) {
         QListWidgetItem* item = chatList->item(i);
-        if(item->data(Qt::UserRole).toInt() == message.chat_id()) {
+        if(item->data(Qt::UserRole).toInt() == chat_id) {
             current_item = item;
             break;
         }
@@ -135,7 +110,7 @@ void Chats::onNewMessageReceived(const chat_service::Message& message) {
 
     // current chat
     chat_service::ChatPreview current_chat;
-    current_chat.set_chat_id(message.chat_id());
+    current_chat.set_chat_id(chat_id);
     current_chat.set_name(current_item->data(Qt::UserRole + 2).toString().toStdString());
     current_chat.set_time_stamp(timestampLabel->text().toStdString());
     current_chat.set_allocated_last_message(current_message);
@@ -146,9 +121,6 @@ void Chats::onNewMessageReceived(const chat_service::Message& message) {
 void Chats::sendMessage() {
     // get message data
     QString message_text     = messageInput->text().trimmed();
-    QString sender_username  = QString::fromStdString(manager->username);
-    // TODO timestamp
-    QString time_stamp       = "2024-04-24 15:00:00";
 
     // check something
     if (message_text.isEmpty()) {
@@ -161,35 +133,8 @@ void Chats::sendMessage() {
 
     messageInput->clear();
 
-    // get current chat
-    QListWidgetItem* current_item = chatList->currentItem();
-    int item_index                = chatList->row(current_item);
-    QString chat_name             = current_item->data(Qt::UserRole + 2).toString();
-
     // send message
     manager->new_client.send_message(manager->ID, currentChatId, message_text.toStdString());
-
-    // make last message instance
-    chat_service::MessageData *last_message = new chat_service::MessageData();
-    last_message->set_message_text(message_text.toStdString());
-
-    // make current chat instance
-    chat_service::ChatPreview current_chat;
-    current_chat.set_chat_id(currentChatId);
-    current_chat.set_name(chat_name.toStdString());
-    current_chat.set_time_stamp(time_stamp.toStdString());
-    current_chat.set_allocated_last_message(last_message);
-
-    // make message instance
-    chat_service::MessageData message;
-    authservice::UserPreview *sender = new authservice::UserPreview();
-    sender->set_login(sender_username.toStdString());
-    message.set_allocated_sender(sender);
-    message.set_message_text(message_text.toStdString());
-    message.set_time_stamp(time_stamp.toStdString());
-
-    make_message_item(message);
-    make_chat_item(current_chat, chatPages->currentIndex(), item_index);
 }
 
 void Chats::onChatClicked(QListWidgetItem* item)
@@ -200,10 +145,13 @@ void Chats::onChatClicked(QListWidgetItem* item)
     chatTitle->setText(item->data(Qt::UserRole + 2).toString());
 
     // get messages
-    auto messages  = manager->new_client.get_last_messages(manager->ID, currentChatId);
-    std::sort(messages.begin(), messages.end(), [](const chat_service::MessageData& a, const chat_service::MessageData& b) {
-        return a.time_stamp() < b.time_stamp();
-    });
+    if (chatMessagesData[currentChatId].empty()) {
+        auto messages = manager->new_client.get_last_messages(manager->ID, currentChatId);
+        std::sort(messages.begin(), messages.end(), [](const chat_service::MessageData& a, const chat_service::MessageData& b) {
+            return a.time_stamp() < b.time_stamp();
+        });
+        chatMessagesData[currentChatId] = messages;
+    }
 
     // clear chat page
     if (scrollWidgetLayout != nullptr) {
@@ -217,7 +165,7 @@ void Chats::onChatClicked(QListWidgetItem* item)
     chatPages->currentWidget()->setLayout(chatPageLayout);
 
     // make messages
-    for (const auto& message : messages) {
+    for (const auto& message : chatMessagesData[currentChatId]) {
         make_message_item(message);
     }
 
@@ -398,6 +346,8 @@ void Chats::make_invite_item(const invitation::Invite& invite, int invite_page_i
     int invite_id          = invite.invite_id();
     QString invite_text    = QString::fromStdString(invite.invite_text());
     QString time_stamp     = "2024-04-24 15:00:00"; //TODO
+    int sender_id          = 1; // TODO
+    int receiver_id        = 1; // TODO
 
     // make chat widget
     QWidget *inviteWidget     = new QWidget();
@@ -428,8 +378,50 @@ void Chats::make_invite_item(const invitation::Invite& invite, int invite_page_i
     item->setData(Qt::UserRole, invite_id);
     item->setData(Qt::UserRole + 1, invite_page_index);
     item->setData(Qt::UserRole + 2, senderNameLabel->text());
+    item->setData(Qt::UserRole + 3, sender_id);
 
     inviteWidget->setCursor(Qt::PointingHandCursor);
+}
+
+void Chats::delete_invite_item(int invite_id)
+{
+    // get current invite
+    QListWidgetItem* current_item;
+    for(int i = 0; i < inviteList->count(); ++i) {
+        QListWidgetItem* item = inviteList->item(i);
+        if(item->data(Qt::UserRole).toInt() == invite_id) {
+            current_item = item;
+            break;
+        }
+    }
+    int item_index                = inviteList->row(current_item);
+    int receiver_id               = current_item->data(Qt::UserRole + 3).toInt();
+    QString sender_name           = current_item->data(Qt::UserRole + 2).toString();
+    int page_index                = current_item->data(Qt::UserRole + 1).toInt();
+    
+
+    // delete invite from list
+    QListWidgetItem* item         = inviteList->takeItem(item_index);
+    delete item;
+
+    // delete corresponding page
+    QWidget* page = invitePages->widget(page_index);
+    invitePages->removeWidget(page);
+
+    if (currentInviteId == invite_id) {
+        currentInviteId = -1;
+
+        if (invitePageLayout != nullptr) {
+            while (invitePageLayout->count() != 0) {
+                auto item = invitePageLayout->takeAt(0);
+                delete item->widget();
+                delete item;
+            }
+        }
+
+        inviteTitle->setText("");
+    }
+    
 }
 
 void Chats::build()
@@ -531,7 +523,6 @@ void Chats::connect_slots()
     connect(manager, &Manager::newMessageReceived, this, &Chats::onNewMessageReceived);
     connect(manager, &Manager::NewInviteReceived, this, &Chats::onNewInviteReceived);
     connect(manager, &Manager::InviteRespondReceived, this, &Chats::onInviteRespondReceived);
-    connect(manager, &Manager::NewInviteSent, this, &Chats::onNewInviteSent);
     connect(acceptButton, &QPushButton::clicked, this, [this]() { onInviteRespond(true); });
     connect(declineButton, &QPushButton::clicked, this, [this]() { onInviteRespond(false); });
 }

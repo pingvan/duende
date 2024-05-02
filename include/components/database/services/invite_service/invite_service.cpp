@@ -24,7 +24,7 @@ namespace database {
 
     void invite_service_database_api::change_invite_status(const int &invite_id, const invite_status &new_status) {
         const connector connection;
-        static std::string quer = "UPDATE invites SET invite_status = $1 WHERE invite = $2";
+        static std::string quer = "UPDATE invites SET invite_status = $2 WHERE id = $1";
         const auto result = connection.txn->exec_params(quer, invite_id, enum_invite_status_to_string(new_status));
         connection.txn->commit();
     }

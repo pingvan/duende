@@ -23,7 +23,7 @@ grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::Serve
             response.set_allocated_init(init_response);
             stream->Write(response);
         } else if (request.has_send_message()) {
-            send_to_chat(request.send_message().msg());
+            stream->Write(send_to_chat(request.send_message().msg()));
         } else if (request.has_leave()) {
             users_online.erase(request.leave().user_id());
             chat_service::ChatResponses response;
@@ -48,7 +48,7 @@ std::string chat_service_::make_timestamp() {
 }
 
 
-void chat_service_::send_to_chat(const chat_service::Message& msg) {
+chat_service::ChatResponses chat_service_::send_to_chat(const chat_service::Message& msg) {
     chat_service::ChatResponses response;
     auto *accept_message = new chat_service::AcceptMessage;
     auto *allocated_msg = new chat_service::Message(msg);
@@ -89,6 +89,8 @@ void chat_service_::send_to_chat(const chat_service::Message& msg) {
             }
         }
     }
+
+    return response;
 }
 
 grpc::Status chat_data_service::GetUserChats(grpc::ServerContext *context, const chat_service::GetChatsRequest *request, chat_service::UserChats *response) {

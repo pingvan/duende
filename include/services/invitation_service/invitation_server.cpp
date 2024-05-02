@@ -40,6 +40,8 @@ grpc::Status InvitationServiceImpl::InvitationStream(
                         receiver_id, invite_id
                     );
                 }
+
+                stream->Write(response);
             }
         } else if (request.has_respond_to_invitation_request()) {
             invitation::InvitationResponse response;
@@ -67,6 +69,8 @@ grpc::Status InvitationServiceImpl::InvitationStream(
                     invite_id, invite_status::declined
                 );
             }
+
+            stream->Write(response);
         } else if (request.has_init_request()) {
             invitation::InvitationResponse response;
             users_online.insert(
