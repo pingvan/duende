@@ -1,52 +1,53 @@
 #pragma once
 
+#include <cassert>
 #include <vector>
 #include <string>
 #include <string_view>
 
 #include "services/authservice/authservice.pb.h"
 #include "services/chat_service/chat_service.pb.h"
-// #include "services/profile_service/profile_service.pb.h"
-// #include "services/invitation/invitation.pb.h"
+#include "services/profile_service/profile.pb.h"
 #include "services/invitation_service/invitation.pb.h"
 #include "services/search_service/search_service.pb.h"
+#include "common/common.pb.h"
 
-    enum class genre {
-    action,
-    adventure,
-    comedy,
-    drama,
-    horror,
-    sci_fi,
-    fantasy,
-    thriller,
-    mystery,
-    romance,
-    animation,
-    documentary,
-    crime,
-    western,
-    music,
-    history,
-    war,
-    biographical,
-    sports,
-    family,
-    foreign,
-    tv_movie
+enum class genre {
+    ACTION,
+    ADVENTURE,
+    COMEDY,
+    DRAMA,
+    HORROR,
+    SCI_FI,
+    FANTASY,
+    THRILLER,
+    MYSTERY,
+    ROMANCE,
+    ANIMATION,
+    DOCUMENTARY,
+    CRIME,
+    WESTERN,
+    MUSIC,
+    HISTORY,
+    WAR,
+    BIOGRAPHICAL,
+    SPORTS,
+    FAMILY,
+    FOREIGN,
+    TV_MOVIE
 };
 
-    enum class invite_status {sent, accepted, declined};
+enum class invite_status { SENT, ACCEPTED, DECLINED };
 
     struct actor_preview  {
-        // std::string first_name;
-        // std::string last_name;
         actor_preview() = default;
-        actor_preview(const int &id_, const std::string &full_name_) : id(id_), full_name(full_name_) {}
-        int id;
+        actor_preview(const uint &id_, const std::string &full_name_) : id(id_), full_name(full_name_) {}
+
+        uint id;
         std::string full_name;
 
         void convert_to_proto(common::ActorPreview *proto) const {
+            proto->set_actor_id(id);
             proto->set_full_name(full_name);
         }
 
@@ -57,20 +58,16 @@
     };
 
 
-    //or full page (with more info) if we become crazy
-    /*struct actor_with_photo : actor_preview {
-
-    };*/
-
-    //for search mostly
     struct film_preview  {
         film_preview() = default;
-        film_preview(const int &id_, const std::string &title_) : id(id_), title(title_) {}
-        int id;
+        film_preview(const uint &id_, const std::string &title_) : id(id_), title(title_) {}
+
+        uint id;
         std::string title;
         // std::vector<unsigned char> cover;
 
         void convert_to_proto(common::FilmPreview *proto) const {
+            proto->set_film_id(id);
             proto->set_title(title);
         }
 
@@ -98,7 +95,7 @@
 
     struct film_on_user_page  {
         film_full_page full_page;
-        int ratio;
+        uint ratio;
 
         void convert_to_proto(common::FilmOnUserPage *proto)  const {
             auto *film_full_page_proto = new common::FilmFullPage;
@@ -109,11 +106,12 @@
     };
 
     struct user_preview  {
-        // std::vector<unsigned char> photo;
         user_preview() = default;
         user_preview(const int &id_, const std::string &login_) : id(id_), login(login_) {}
-        int id;
+        
+        uint id;
         std::string login;
+        // std::vector<unsigned char> photo;
 
         void convert_to_proto(common::UserPreview *response) const  {
             response->set_user_id(id);
@@ -127,6 +125,13 @@
     };
 
     struct user_full_page  {
+        // user_full_page() = default;   
+        /*user_full_page(const user_preview &prewiew_, const std::string &quote_,
+         const std::string &about_, const std::vector<genre> &genres_,
+          const std::vector<actor_preview> &actors_, const std::vector<film_on_user_page> &films) 
+          : prewiew(prewiew_), quote(quote_), about(about_), fauvorite_genres(genres_),
+          fauvorite_actors(actors_), watched_films(films) {}*/
+
         user_preview prewiew;
         std::string quote;
         std::string about;
@@ -136,7 +141,7 @@
 
         void convert_to_proto(common::UserFullPage *proto) const {
                 auto *protobuf_prewiew = new common::UserPreview;
-                protobuf_prewiew->set_login(prewiew.login);
+                prewiew.convert_to_proto(protobuf_prewiew);
                 proto->set_allocated_preview(protobuf_prewiew);
                 proto->set_quote(quote);
                 proto->set_about(about);
@@ -168,14 +173,14 @@
         }
     };
 
-    struct chat_preview  { //do as user_chat inner struct
+    struct chat_preview  { 
         uint chat_id;
         bool is_group_chat;
         std::string name;
         std::string description;
         std::string time_stamp;
         message last_message;
-        std::vector<user_preview> chat_members; //not created
+        std::vector<user_preview> chat_members;
         // std::vector<unsigned char> cover;
 
         void convert_to_proto(chat_service::ChatPreview *proto) const  {

@@ -15,7 +15,7 @@ grpc::Status InvitationServiceImpl::InvitationStream(
                 int sender_id = request.send_invitation_request().sender_id();
                 int receiver_id = request.send_invitation_request().receiver_id();
                 int invite_id = invite_db_api.add_invite(
-                    "Invitation", invite_status::sent,
+                    "Invitation", invite_status::SENT,
                     sender_id, receiver_id
                 );
 
@@ -52,7 +52,7 @@ grpc::Status InvitationServiceImpl::InvitationStream(
 
             if (status == invitation::InviteStatus::ACCEPTED) {
                 invite_db_api.change_invite_status(
-                    invite_id, invite_status::accepted
+                    invite_id, invite_status::ACCEPTED
                 );
 
                 respond_response->set_invite_id(invite_id);
@@ -66,7 +66,7 @@ grpc::Status InvitationServiceImpl::InvitationStream(
 
             } else {
                 invite_db_api.change_invite_status(
-                    invite_id, invite_status::declined
+                    invite_id, invite_status::DECLINED
                 );
             }
 
