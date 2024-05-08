@@ -1,7 +1,7 @@
 #include "invitation_server.hpp"
 #include <unordered_map>
 
-grpc::Status InvitationServiceImpl::InvitationStream(
+grpc::Status invitation_service::InvitationStream(
     grpc::ServerContext *context,
     grpc::ServerReaderWriter<invitation::InvitationResponse, invitation::InvitationRequest> *stream
 ) {
@@ -53,6 +53,7 @@ grpc::Status InvitationServiceImpl::InvitationStream(
             invitation::InvitationResponse response;
             const auto respond_response = new invitation::RespondToInvitationResponse;
             int invite_id = request.respond_to_invitation_request().invite_id();
+            int sender_id = request.respond_to_invitation_request().sender_id();
             int receiver_id = request.respond_to_invitation_request().receiver_id();
             auto status = request.respond_to_invitation_request().status();
 
@@ -60,6 +61,8 @@ grpc::Status InvitationServiceImpl::InvitationStream(
                 invite_db_api.change_invite_status(
                     invite_id, invite_status::ACCEPTED
                 );
+
+                respond_response->set_allocated_chat(create_private_chat(sender_id, receiver_id));
             } else {
                 invite_db_api.change_invite_status(
                     invite_id, invite_status::DECLINED
@@ -99,7 +102,20 @@ grpc::Status InvitationServiceImpl::InvitationStream(
     return grpc::Status::OK;
 }
 
-grpc::Status invitation_service_data::GetReceivedInvitations(
+chat_service::ChatPreview *invitation_service::create_private_chat(int first_id, int second_id) {
+    grpc::ClientContext context;
+
+    chat_service::CreatePrivateChatRequest request;
+    request.set_firest_user_id(first_id);
+    request.set_second_user_id(second_id);
+
+    auto *response = new chat_service::ChatPreview;
+    grpc::Status status = chat_stub->CreatePrivateChat(&context, request, response);
+
+    return response;
+}
+
+grpc::Status invitation_data_service::GetReceivedInvitations(
     grpc::ServerContext *context,
     const invitation::RequestWithId *request,
     invitation::InvitesReceived *response
@@ -113,7 +129,7 @@ grpc::Status invitation_service_data::GetReceivedInvitations(
     return grpc::Status::OK;
 }
 
-grpc::Status invitation_service_data::GetSentInvitations(
+grpc::Status invitation_data_service::GetSentInvitations(
     grpc::ServerContext *context,
     const invitation::RequestWithId *request,
     invitation::InvitesSent *response

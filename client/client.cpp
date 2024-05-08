@@ -87,9 +87,10 @@ void client::send_invite(int sender_id, int receiver_id, std::string sender_logi
     }
 }
 
-void client::respond_invite(int invite_id, int receiver_id, bool accept) {
+void client::respond_invite(int invite_id, int sender_id, int receiver_id, bool accept) {
     invitation::RespondToInvitationRequest request;
     request.set_invite_id(invite_id);
+    request.set_sender_id(sender_id);
     request.set_receiver_id(receiver_id);
     request.set_status(accept ? invitation::InviteStatus::ACCEPTED : invitation::InviteStatus::DECLINED);
 
@@ -140,16 +141,6 @@ std::vector<invitation::Invite> client::get_received_invites(int user_id) {
         invites.push_back(response->invites(i));
     }
     return invites;
-}
-
-void client::create_private_chat(int first_id, int second_id) {
-    grpc::ClientContext context;
-    
-    chat_service::CreatePrivateChatRequest request;
-    auto *response = new chat_service::ChatPreview;
-    request.set_firest_user_id(first_id);
-    request.set_second_user_id(second_id);
-    // grpc::Status status = invite_stub->CreatePrivateChat(&context, request, response);
 }
 
 void client::init_chat_stream(int user_id) {

@@ -26,14 +26,16 @@ void read(const std::string &path, std::string& content) {
 }
 
 void run_server() {
+    std::shared_ptr<grpc::Channel> chat_channel = grpc::CreateChannel(server_address, grpc::InsecureChannelCredentials());
+
     auth_service auth_service;
     auth_service_data auth_service_data;
     ProfileServiceImpl profile_service;
     chat_service_ chat_service;
     chat_data_service chat_data_service;
     SearchService search_service;
-    InvitationServiceImpl invitation_service;
-    invitation_service_data invitation_data_service;
+    invitation_service invitation_service(chat_channel);
+    invitation_data_service invitation_data_service;
 
     // std::string key;
     // std::string cert;
