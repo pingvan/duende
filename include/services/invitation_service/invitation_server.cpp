@@ -10,26 +10,32 @@ grpc::Status InvitationServiceImpl::InvitationStream(
     while (stream->Read(&request)) {
         if (request.has_send_invitation_request()) {
             if (!invite_db_api.is_invite_already_sended(
-                    request.send_invitation_request().sender_id(), request.send_invitation_request().receiver_id()
+                    request.send_invitation_request().sender().user_id(), request.send_invitation_request().receiver().user_id()
                 )) {
-                int sender_id = request.send_invitation_request().sender_id();
-                int receiver_id = request.send_invitation_request().receiver_id();
+                int sender_id = request.send_invitation_request().sender().user_id();
+                int receiver_id = request.send_invitation_request().receiver().user_id();
+                std::string sender_login = request.send_invitation_request().sender().login();
+                std::string receiver_login = request.send_invitation_request().receiver().login();
+                std::string invite_text = request.send_invitation_request().invite_text();
                 int invite_id = invite_db_api.add_invite(
-                    "User " + std::to_string(sender_id) + " invites you to chat", invite_status::sent,
+                    invite_text, invite_status::SENT,
                     sender_id, receiver_id
                 );
 
                 invitation::InvitationResponse response;
 
+                const auto sender = new common::UserPreview;
+                const auto receiver = new common::UserPreview;
+                sender->set_login(sender_login);
+                receiver->set_login(receiver_login);
+                sender->set_user_id(sender_id);
+                receiver->set_user_id(receiver_id);
+
                 const auto send_response = new invitation::SendInvitationResponse;
-                send_response->set_sender_id(sender_id);
-                send_response->set_receiver_id(receiver_id);
-                
-                const auto invite = new invitation::Invite;
-                invite->set_invite_id(invite_id);
-                invite->set_invite_text("User " + std::to_string(sender_id) + " invites you to chat");
-                invite->set_status(invitation::InviteStatus::SENT);
-                send_response->set_allocated_invite(invite);
+                send_response->set_allocated_sender(sender);
+                send_response->set_allocated_receiver(receiver);
+                send_response->set_invite_id(invite_id);
+                send_response->set_invite_text(invite_text);
 
                 response.set_allocated_send_invitation_response(send_response);
                 
@@ -40,8 +46,6 @@ grpc::Status InvitationServiceImpl::InvitationStream(
                         receiver_id, invite_id
                     );
                 }
-
-                invite->set_invite_text("You have invited user " + std::to_string(receiver_id) + " to chat");
 
                 stream->Write(response);
             }
@@ -56,20 +60,19 @@ grpc::Status InvitationServiceImpl::InvitationStream(
                 invite_db_api.change_invite_status(
                     invite_id, invite_status::ACCEPTED
                 );
-
-                respond_response->set_invite_id(invite_id);
-                respond_response->set_receiver_id(receiver_id);
-                respond_response->set_status(status);
-                response.set_allocated_respond_to_invitation_response(respond_response);
-
-                if (users_online.count(receiver_id)) {
-                    users_online[receiver_id]->Write(response);
-                }
-
             } else {
                 invite_db_api.change_invite_status(
                     invite_id, invite_status::DECLINED
                 );
+            }
+
+            respond_response->set_invite_id(invite_id);
+            respond_response->set_receiver_id(receiver_id);
+            respond_response->set_status(status);
+            response.set_allocated_respond_to_invitation_response(respond_response);
+
+            if (users_online.count(receiver_id)) {
+                users_online[receiver_id]->Write(response);
             }
 
             stream->Write(response);

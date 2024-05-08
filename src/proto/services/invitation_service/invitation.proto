@@ -69,9 +69,10 @@ message InvitationResponse {
 }
 
 message SendInvitationRequest {
-  Invite invite = 1;
-  int32 sender_id = 2;
-  int32 receiver_id = 3;
+  common.UserPreview sender = 1;
+  common.UserPreview receiver = 2;
+  string invite_text = 3;
+  int32 invite_id = 4;
 }
 
 message RespondToInvitationRequest {
@@ -82,9 +83,10 @@ message RespondToInvitationRequest {
 }
 
 message SendInvitationResponse {
-  Invite invite = 1;
-  int32 sender_id = 2;
-  int32 receiver_id = 3;
+  common.UserPreview sender = 1;
+  common.UserPreview receiver = 2;
+  string invite_text = 3;
+  int32 invite_id = 4;
 }
 
 message RespondToInvitationResponse {

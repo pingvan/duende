@@ -46,6 +46,7 @@ private:
     Manager *manager;
     common::UserFullPage *user;
     int id;
+    std::string login;
 
     QVBoxLayout *leftBox;
     QVBoxLayout *rightBox;

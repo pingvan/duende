@@ -61,10 +61,18 @@ void client::leave_invite_stream(int user_id) {
     invite_stream->Write(request);
 }
 
-void client::send_invite(int sender_id, int receiver_id) {
+void client::send_invite(int sender_id, int receiver_id, std::string sender_login, std::string receiver_login) {
+    common::UserPreview* sender = new common::UserPreview;
+    common::UserPreview* receiver = new common::UserPreview;
+    sender->set_user_id(sender_id);
+    receiver->set_user_id(receiver_id);
+    sender->set_login(sender_login);
+    receiver->set_login(receiver_login);
+
     invitation::SendInvitationRequest request;
-    request.set_sender_id(sender_id);
-    request.set_receiver_id(receiver_id);
+    request.set_allocated_sender(sender);
+    request.set_allocated_receiver(receiver);
+    request.set_invite_text("Invitation"); //TODO add invite text with purpose of invite
 
     std::cout << request.DebugString() << std::endl;
 
@@ -141,7 +149,7 @@ void client::create_private_chat(int first_id, int second_id) {
     auto *response = new chat_service::ChatPreview;
     request.set_firest_user_id(first_id);
     request.set_second_user_id(second_id);
-    grpc::Status status = invite_stub->CreatePrivateChat(&context, request, response);
+    // grpc::Status status = invite_stub->CreatePrivateChat(&context, request, response);
 }
 
 void client::init_chat_stream(int user_id) {
