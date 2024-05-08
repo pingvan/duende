@@ -12,6 +12,9 @@
 #include <QCompleter>
 #include <QSpacerItem>
 #include <QDebug>
+#include <QListWidget>
+#include <QPushButton>
+#include <QScrollArea>
 
 namespace Ui {
 class Follows;
@@ -32,6 +35,7 @@ signals:
 private slots:
     void updateUserList(const QString &input);
     void onUserClicked(const QString &username);
+    void toggleLists();
 
 private:
     Ui::Follows *ui;
@@ -40,6 +44,9 @@ private:
     QStringListModel *model;
     QCompleter *completer;
     QMap<QString, int> users_id;
+    QListWidget *subscribersList;
+    QListWidget *subscriptionsList;
+    QPushButton *toggleButton;
 };
 
 #endif // FOLLOWS_H

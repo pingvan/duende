@@ -72,7 +72,8 @@ void Chats::onInviteRespondReceived(const invitation::RespondToInvitationRespons
 
 void Chats::onNewInviteReceived(const invitation::SendInvitationResponse& invite) {
     // get invite data
-    bool am_i_sender = (invite.sender().user_id() == manager->ID);
+    // bool am_i_sender = (invite.sender().user_id() == manager->ID);
+    bool am_i_sender = false;
     make_invite_item(invite.invite(), am_i_sender, invitePages->currentIndex());
 }
 

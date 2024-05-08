@@ -141,7 +141,7 @@ void client::create_private_chat(int first_id, int second_id) {
     auto *response = new chat_service::ChatPreview;
     request.set_firest_user_id(first_id);
     request.set_second_user_id(second_id);
-    grpc::Status status = invite_stub->CreatePrivateChat(&context, request, response);
+    // grpc::Status status = invite_stub->CreatePrivateChat(&context, request, response);
 }
 
 void client::init_chat_stream(int user_id) {

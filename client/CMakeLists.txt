@@ -16,6 +16,8 @@ find_package(PkgConfig REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
+pkg_check_modules(LIBPQXX REQUIRED libpqxx)
+
 set(COMMON_PROTO ../build/common/common.grpc.pb.cc ../build/common/common.pb.cc)
 set(AUTHSERVICE_PROTO ../build/services/authservice/authservice.grpc.pb.cc ../build/services/authservice/authservice.pb.cc)
 set(CHAT_SERVICE_PROTO ../build/services/chat_service/chat_service.grpc.pb.cc ../build/services/chat_service/chat_service.pb.cc)
@@ -45,7 +47,9 @@ add_executable(client ${PROTOS} client.cpp ui/manager.h ui/main.cpp ${MAINWINDOW
 target_include_directories(client PRIVATE
     ${Qt6Widgets_INCLUDE_DIRS},
     ../build/
+    ${LIBPQXX_INCLUDE_DIRS}
 )
+
 
 target_link_libraries(client PRIVATE
     Qt6::Core
@@ -55,3 +59,6 @@ target_link_libraries(client PRIVATE
     protobuf::libprotobuf
     Threads::Threads
 )
+
+target_link_options(client PUBLIC
+        ${LIBPQXX_LDFLAGS})
