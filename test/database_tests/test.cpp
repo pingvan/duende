@@ -152,7 +152,7 @@ TEST_CASE("testing invite sending") {
     REQUIRE(id1 != UNDEFINED_ID);
     auto id2 = authservice_database_api::add_user(email2, login2, "token2", "hash2", "salt2");
     REQUIRE(id2 != UNDEFINED_ID);
-    auto invite_id = invite_service_database_api::add_invite(invite_text, invite_status::sent, id1, id2);
+    auto invite_id = invite_service_database_api::add_invite(invite_text, invite_status::SENT, id1, id2);
     REQUIRE(invite_id != UNDEFINED_ID);
     invites_recivie recieved = invite_service_database_api::get_received_invites(id2);
     REQUIRE(recieved.invites.size() != 0);
@@ -160,7 +160,7 @@ TEST_CASE("testing invite sending") {
     CHECK(first_invite_received.invite_id == invite_id);
     CHECK(first_invite_received.invite_text == invite_text);
     CHECK(first_invite_received.sender.login == login1);
-    CHECK(first_invite_received.status == invite_status::sent);
+    CHECK(first_invite_received.status == invite_status::SENT);
 
     invites_sent sended = invite_service_database_api::get_sended_invites(id1);
     REQUIRE(sended.invites.size() != 0);
@@ -168,7 +168,7 @@ TEST_CASE("testing invite sending") {
     CHECK(first_invite_sent.invite_id == invite_id);
     CHECK(first_invite_sent.invite_text == invite_text);
     CHECK(first_invite_sent.sender.login == login2);
-    CHECK(first_invite_sent.status == invite_status::sent);
+    CHECK(first_invite_sent.status == invite_status::SENT);
     
 }
 
