@@ -54,6 +54,7 @@ static constexpr auto qt_meta_stringdata_CLASSChatsENDCLASS = QtMocHelpers::stri
     "chat_service::MessageReceived",
     "onNewInviteReceived",
     "invitation::SendInvitationResponse",
+    "invite_response",
     "onInviteRespond",
     "accept",
     "onInviteRespondReceived",
@@ -68,7 +69,6 @@ static constexpr auto qt_meta_stringdata_CLASSChatsENDCLASS = QtMocHelpers::stri
     "invitation::Invite",
     "invite",
     "am_i_sender",
-    "invite_page_index",
     "delete_invite_item",
     "invite_id",
     "updateChatList",
@@ -94,20 +94,20 @@ struct qt_meta_stringdata_CLASSChatsENDCLASS_t {
     char stringdata13[20];
     char stringdata14[35];
     char stringdata15[16];
-    char stringdata16[7];
-    char stringdata17[24];
-    char stringdata18[40];
-    char stringdata19[15];
-    char stringdata20[26];
-    char stringdata21[5];
-    char stringdata22[16];
-    char stringdata23[11];
-    char stringdata24[18];
-    char stringdata25[17];
-    char stringdata26[19];
-    char stringdata27[7];
-    char stringdata28[12];
-    char stringdata29[18];
+    char stringdata16[16];
+    char stringdata17[7];
+    char stringdata18[24];
+    char stringdata19[40];
+    char stringdata20[15];
+    char stringdata21[26];
+    char stringdata22[5];
+    char stringdata23[16];
+    char stringdata24[11];
+    char stringdata25[18];
+    char stringdata26[17];
+    char stringdata27[19];
+    char stringdata28[7];
+    char stringdata29[12];
     char stringdata30[19];
     char stringdata31[10];
     char stringdata32[15];
@@ -133,26 +133,26 @@ Q_CONSTINIT static const qt_meta_stringdata_CLASSChatsENDCLASS_t qt_meta_stringd
         QT_MOC_LITERAL(136, 29),  // "chat_service::MessageReceived"
         QT_MOC_LITERAL(166, 19),  // "onNewInviteReceived"
         QT_MOC_LITERAL(186, 34),  // "invitation::SendInvitationRes..."
-        QT_MOC_LITERAL(221, 15),  // "onInviteRespond"
-        QT_MOC_LITERAL(237, 6),  // "accept"
-        QT_MOC_LITERAL(244, 23),  // "onInviteRespondReceived"
-        QT_MOC_LITERAL(268, 39),  // "invitation::RespondToInvitati..."
-        QT_MOC_LITERAL(308, 14),  // "make_chat_item"
-        QT_MOC_LITERAL(323, 25),  // "chat_service::ChatPreview"
-        QT_MOC_LITERAL(349, 4),  // "chat"
-        QT_MOC_LITERAL(354, 15),  // "chat_page_index"
-        QT_MOC_LITERAL(370, 10),  // "item_index"
-        QT_MOC_LITERAL(381, 17),  // "make_message_item"
-        QT_MOC_LITERAL(399, 16),  // "make_invite_item"
-        QT_MOC_LITERAL(416, 18),  // "invitation::Invite"
-        QT_MOC_LITERAL(435, 6),  // "invite"
-        QT_MOC_LITERAL(442, 11),  // "am_i_sender"
-        QT_MOC_LITERAL(454, 17),  // "invite_page_index"
-        QT_MOC_LITERAL(472, 18),  // "delete_invite_item"
-        QT_MOC_LITERAL(491, 9),  // "invite_id"
-        QT_MOC_LITERAL(501, 14),  // "updateChatList"
-        QT_MOC_LITERAL(516, 5),  // "input"
-        QT_MOC_LITERAL(522, 16)   // "updateInviteList"
+        QT_MOC_LITERAL(221, 15),  // "invite_response"
+        QT_MOC_LITERAL(237, 15),  // "onInviteRespond"
+        QT_MOC_LITERAL(253, 6),  // "accept"
+        QT_MOC_LITERAL(260, 23),  // "onInviteRespondReceived"
+        QT_MOC_LITERAL(284, 39),  // "invitation::RespondToInvitati..."
+        QT_MOC_LITERAL(324, 14),  // "make_chat_item"
+        QT_MOC_LITERAL(339, 25),  // "chat_service::ChatPreview"
+        QT_MOC_LITERAL(365, 4),  // "chat"
+        QT_MOC_LITERAL(370, 15),  // "chat_page_index"
+        QT_MOC_LITERAL(386, 10),  // "item_index"
+        QT_MOC_LITERAL(397, 17),  // "make_message_item"
+        QT_MOC_LITERAL(415, 16),  // "make_invite_item"
+        QT_MOC_LITERAL(432, 18),  // "invitation::Invite"
+        QT_MOC_LITERAL(451, 6),  // "invite"
+        QT_MOC_LITERAL(458, 11),  // "am_i_sender"
+        QT_MOC_LITERAL(470, 18),  // "delete_invite_item"
+        QT_MOC_LITERAL(489, 9),  // "invite_id"
+        QT_MOC_LITERAL(499, 14),  // "updateChatList"
+        QT_MOC_LITERAL(514, 5),  // "input"
+        QT_MOC_LITERAL(520, 16)   // "updateInviteList"
     },
     "Chats",
     "messageReceived",
@@ -169,6 +169,7 @@ Q_CONSTINIT static const qt_meta_stringdata_CLASSChatsENDCLASS_t qt_meta_stringd
     "chat_service::MessageReceived",
     "onNewInviteReceived",
     "invitation::SendInvitationResponse",
+    "invite_response",
     "onInviteRespond",
     "accept",
     "onInviteRespondReceived",
@@ -183,7 +184,6 @@ Q_CONSTINIT static const qt_meta_stringdata_CLASSChatsENDCLASS_t qt_meta_stringd
     "invitation::Invite",
     "invite",
     "am_i_sender",
-    "invite_page_index",
     "delete_invite_item",
     "invite_id",
     "updateChatList",
@@ -218,14 +218,14 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSChatsENDCLASS[] = {
       10,    0,  121,    2, 0x08,    9 /* Private */,
       11,    1,  122,    2, 0x08,   10 /* Private */,
       13,    1,  125,    2, 0x08,   12 /* Private */,
-      15,    1,  128,    2, 0x08,   14 /* Private */,
-      17,    1,  131,    2, 0x08,   16 /* Private */,
-      19,    3,  134,    2, 0x08,   18 /* Private */,
-      24,    1,  141,    2, 0x08,   22 /* Private */,
-      25,    3,  144,    2, 0x08,   24 /* Private */,
-      30,    1,  151,    2, 0x08,   28 /* Private */,
-      32,    1,  154,    2, 0x08,   30 /* Private */,
-      34,    1,  157,    2, 0x08,   32 /* Private */,
+      16,    1,  128,    2, 0x08,   14 /* Private */,
+      18,    1,  131,    2, 0x08,   16 /* Private */,
+      20,    3,  134,    2, 0x08,   18 /* Private */,
+      25,    1,  141,    2, 0x08,   22 /* Private */,
+      26,    2,  144,    2, 0x08,   24 /* Private */,
+      30,    1,  149,    2, 0x08,   27 /* Private */,
+      32,    1,  152,    2, 0x08,   29 /* Private */,
+      34,    1,  155,    2, 0x08,   31 /* Private */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::QString,    3,
@@ -237,12 +237,12 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSChatsENDCLASS[] = {
     QMetaType::Void, 0x80000000 | 7,    8,
     QMetaType::Void,
     QMetaType::Void, 0x80000000 | 12,    3,
-    QMetaType::Void, 0x80000000 | 14,    2,
-    QMetaType::Void, QMetaType::Bool,   16,
-    QMetaType::Void, 0x80000000 | 18,    2,
-    QMetaType::Void, 0x80000000 | 20, QMetaType::Int, QMetaType::Int,   21,   22,   23,
+    QMetaType::Void, 0x80000000 | 14,   15,
+    QMetaType::Void, QMetaType::Bool,   17,
+    QMetaType::Void, 0x80000000 | 19,    2,
+    QMetaType::Void, 0x80000000 | 21, QMetaType::Int, QMetaType::Int,   22,   23,   24,
     QMetaType::Void, 0x80000000 | 12,    3,
-    QMetaType::Void, 0x80000000 | 26, QMetaType::Bool, QMetaType::Int,   27,   28,   29,
+    QMetaType::Void, 0x80000000 | 27, QMetaType::Bool,   28,   29,
     QMetaType::Void, QMetaType::Int,   31,
     QMetaType::Void, QMetaType::QString,   33,
     QMetaType::Void, QMetaType::QString,   33,
@@ -298,7 +298,6 @@ Q_CONSTINIT const QMetaObject Chats::staticMetaObject = { {
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<const invitation::Invite &, std::false_type>,
         QtPrivate::TypeAndForceComplete<bool, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
         // method 'delete_invite_item'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<int, std::false_type>,
@@ -330,7 +329,7 @@ void Chats::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void 
         case 9: _t->onInviteRespondReceived((*reinterpret_cast< std::add_pointer_t<invitation::RespondToInvitationResponse>>(_a[1]))); break;
         case 10: _t->make_chat_item((*reinterpret_cast< std::add_pointer_t<chat_service::ChatPreview>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[3]))); break;
         case 11: _t->make_message_item((*reinterpret_cast< std::add_pointer_t<chat_service::MessageReceived>>(_a[1]))); break;
-        case 12: _t->make_invite_item((*reinterpret_cast< std::add_pointer_t<invitation::Invite>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<bool>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[3]))); break;
+        case 12: _t->make_invite_item((*reinterpret_cast< std::add_pointer_t<invitation::Invite>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<bool>>(_a[2]))); break;
         case 13: _t->delete_invite_item((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 14: _t->updateChatList((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         case 15: _t->updateInviteList((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
