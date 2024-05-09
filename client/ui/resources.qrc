@@ -11,5 +11,6 @@
         <file>img/chat.png</file>
         <file>img/logout.png</file>
         <file>img/cross.png</file>
+        <file>img/follows.png</file>
     </qresource>
 </RCC>

@@ -17,7 +17,7 @@ public:
 
     explicit Manager(const std::shared_ptr<grpc::Channel> &new_channel, QObject* parent = nullptr)
         : QObject(parent), new_client(new_channel) {
-            new_client.onNewMessageReceived = [this](const chat_service::Message& message) {
+            new_client.onNewMessageReceived = [this](const chat_service::MessageReceived& message) {
                 emit newMessageReceived(message);
             };
             new_client.onNewInviteReceived = [this](const invitation::SendInvitationResponse& response) {
@@ -40,7 +40,7 @@ public:
     Manager &operator=(Manager&&) noexcept = default;
 
 signals:
-    void newMessageReceived(const chat_service::Message& message);
+    void newMessageReceived(const chat_service::MessageReceived& message);
     void NewInviteReceived(const invitation::SendInvitationResponse& response);
     void InviteRespondReceived(const invitation::RespondToInvitationResponse& response);
     

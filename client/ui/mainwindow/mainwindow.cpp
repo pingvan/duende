@@ -51,7 +51,7 @@ MainWindow::MainWindow(Manager* managerPtr, QWidget *parent)
     layout->addWidget(pages, 4);
     
     auto *chatsPage = new Chats(managerPtr);
-    auto *recommendationsPage = new Recommendations();
+    auto *recommendationsPage = new Recommendations(managerPtr);
     auto *followsPage = new Follows(managerPtr);
     auto *profilePage = new Profile(managerPtr);
 
@@ -86,7 +86,7 @@ MainWindow::MainWindow(Manager* managerPtr, QWidget *parent)
     connect(chats_button, &QPushButton::clicked, this, [this]() { pages->setCurrentIndex(0); });
     connect(rec_button, &QPushButton::clicked, this, [this]() { pages->setCurrentIndex(1); });
     connect(search_button, &QPushButton::clicked, this, [this]() { pages->setCurrentIndex(2); });
-    connect(followsPage, &Follows::userClicked, this, &MainWindow::openOtherPage);
+    connect(recommendationsPage, &Recommendations::userClicked, this, &MainWindow::openOtherPage);
 
     qDebug() << "Main window end\n";
 }

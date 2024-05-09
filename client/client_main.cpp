@@ -4,7 +4,7 @@
 #include <fstream>
 #include "client.hpp"
 
-std::string server_address("127.0.0.1:12345");
+std::string server_address("0.0.0.0:50051");
 
 void read(const std::string &path, std::string& content) {
     // std::cout << "Reading file: " << path << "\n";

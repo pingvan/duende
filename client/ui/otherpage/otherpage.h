@@ -44,8 +44,9 @@ public slots:
 private:
     Ui::OtherPage *ui;
     Manager *manager;
-    authservice::UserFullPage *user;
+    common::UserFullPage *user;
     int id;
+    std::string login;
 
     QVBoxLayout *leftBox;
     QVBoxLayout *rightBox;
