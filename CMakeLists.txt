@@ -8,11 +8,10 @@ include(./cmake/grpc-generation.cmake)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 # set(CMAKE_CXX_FLAGS "-fsanitize=undefined,address")
 
 add_subdirectory(./include/)
-add_subdirectory(./test/)
 
 message(NOTICE "COMPONENTS_SRCS: " ${COMPONENTS_SRCS})
 message(NOTICE "SERVICES_SRCS: " ${SERVICES_SRCS})
@@ -27,17 +26,6 @@ find_package(GTest REQUIRED)
 pkg_check_modules(LIBPQXX REQUIRED libpqxx)
 
 #if error occurs visit https://cmake.org/cmake/help/latest/module/FindPkgConfig.html
-
-add_executable(tests
-        test/doctest_main.cpp
-
-        ${TESTS_SRCS}
-
-        ${COMPONENTS_SRCS}
-        ${SERVICES_SRCS}
-
-        ${generated_proto_models_srcs}
-)
 
 add_executable(gtests
         gtests/gtest_main.cpp
@@ -61,12 +49,8 @@ add_executable(main
 
 
 add_dependencies(main generate_proto_models)
-add_dependencies(tests generate_proto_models)
 add_dependencies(gtests generate_proto_models)
 
-
-target_link_options(main PUBLIC
-        -lpqxx)
 
 target_link_libraries(main
         absl::flags_parse
@@ -83,28 +67,10 @@ target_include_directories(main PUBLIC
 )
 
 target_link_options(main PUBLIC
-        ${LIBPQXX_LDFLAGS})
-
-target_link_options(tests PUBLIC
         -lpqxx)
 
-target_link_libraries(tests
-        absl::flags_parse
-        gRPC::grpc++
-        protobuf::libprotobuf
-        Threads::Threads
-)
-
-target_include_directories(tests PUBLIC
-        ./include
-        ./libs
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${LIBPQXX_INCLUDE_DIRS}
-)
-
-target_link_options(tests PUBLIC
+target_link_options(main PUBLIC
         ${LIBPQXX_LDFLAGS})
-
 
 target_link_libraries(gtests
         absl::flags_parse

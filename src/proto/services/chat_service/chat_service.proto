@@ -2,16 +2,12 @@ syntax = "proto3";
 
 package chat_service;
 
-//import "services/authservice/authservice.proto";
-
 import "common/common.proto";
 
 enum Status {
     SUCCESS = 0;
     ERROR = 1;
 }
-
-//TODO::make one service not to hold many connections 
 
 service ChatHandler {
     rpc HandleChat(stream ChatRequests) returns (stream ChatResponses);
@@ -61,15 +57,14 @@ message AcceptMessageResponse {
 message MessageSend {
     int32 sender_id = 1;
     int32  chat_id = 2;
-    string timestamp_ = 3;
-    string message_text = 4;
+    string message_text = 3;
 };
 
 message MessageReceived {
     common.UserPreview sender = 1;
     int32 chat_id = 2;
-  string message_text = 3;
-  string time_stamp = 4;
+    string message_text = 3;
+    string time_stamp = 4;
 }
 
 message ChatPreview {

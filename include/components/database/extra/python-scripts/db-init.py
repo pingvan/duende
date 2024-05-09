@@ -30,7 +30,7 @@ END $$
 cursor.execute(create_genre_type)
 cursor.execute(create_invite_status_type)
 
-f = open('../sql-queries/sql_queries.sql', 'r')
+f = open('../../schema/sql-queries/sql_queries.sql', 'r')
 sql = f.read()
 cursor.execute(sql)
 

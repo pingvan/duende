@@ -50,11 +50,6 @@ enum class invite_status { SENT, ACCEPTED, DECLINED };
             proto->set_actor_id(id);
             proto->set_full_name(full_name);
         }
-
-        void convert_to_proto(search_service::Actor *proto) const {
-            proto->set_actor_id(id);
-            proto->set_full_name(full_name);
-        }
     };
 
 
@@ -67,11 +62,6 @@ enum class invite_status { SENT, ACCEPTED, DECLINED };
         // std::vector<unsigned char> cover;
 
         void convert_to_proto(common::FilmPreview *proto) const {
-            proto->set_film_id(id);
-            proto->set_title(title);
-        }
-
-        void convert_to_proto(search_service::Film *proto) const {
             proto->set_film_id(id);
             proto->set_title(title);
         }
@@ -114,11 +104,6 @@ enum class invite_status { SENT, ACCEPTED, DECLINED };
         // std::vector<unsigned char> photo;
 
         void convert_to_proto(common::UserPreview *response) const  {
-            response->set_user_id(id);
-            response->set_login(login);
-        }
-
-        void convert_to_proto(search_service::User *response) const  {
             response->set_user_id(id);
             response->set_login(login);
         }

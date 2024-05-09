@@ -18,8 +18,6 @@ set(proto_filepaths
         "src/proto/services/profile_service/profile.proto"
          "src/proto/services/invitation_service/invitation.proto"
         "src/proto/services/chat_service/chat_service.proto"
-        "src/proto/services/front_service/front_service.proto"
-        # "src/proto/services/invite_service/invite_service.proto"
         "src/proto/services/search_service/search_service.proto"
 )
 
