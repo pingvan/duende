@@ -17,44 +17,58 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     search_line->setCompleter(completer);
 
-    // layout->addWidget(search_line);
-
     QHBoxLayout *topLayout = new QHBoxLayout;
 
     subscribersList = new QListWidget;
-    subscribersList = new QListWidget();
-    subscribersList->setFixedWidth(500);
     subscribersList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     subscriptionsList = new QListWidget;
-    subscriptionsList->setFixedWidth(500);
     subscriptionsList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    subscriptionsList->hide();
 
     QScrollArea *scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true); 
+    scrollArea->setFrameShape(QFrame::NoFrame); 
+
     QWidget *listWidget = new QWidget;
     QVBoxLayout *listLayout = new QVBoxLayout(listWidget);
     listLayout->addWidget(subscribersList);
     listLayout->addWidget(subscriptionsList);
     scrollArea->setWidget(listWidget);
 
-    toggleButton = new QPushButton("Show Subscribers");
-    toggleButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QHBoxLayout *buttonsLayout = new QHBoxLayout;
 
-    topLayout->addWidget(toggleButton);
-    topLayout->addStretch();
-    search_line->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    topLayout->addWidget(search_line);
+    QPushButton *subscribersButton = new QPushButton("Subscribers");
+    QPushButton *subscriptionsButton = new QPushButton("Subscriptions");
 
-    topLayout->setStretchFactor(toggleButton, 4);
-    topLayout->setStretchFactor(search_line, 6);
+    QButtonGroup *buttonGroup = new QButtonGroup(this);
 
-    layout->addLayout(topLayout);
+    buttonGroup->addButton(subscriptionsButton);
+    buttonGroup->addButton(subscribersButton);
+
+    subscribersButton->setCheckable(true);
+    subscriptionsButton->setCheckable(true);
+
+    subscriptionsButton->setChecked(true);
+
+    buttonsLayout->addWidget(subscriptionsButton);
+    buttonsLayout->addWidget(subscribersButton);
+
+    layout->addWidget(search_line);
+    layout->addLayout(buttonsLayout);
     layout->addWidget(scrollArea);
-    layout->addStretch();
+    layout->addStretch(1);
+    // layout->addStretch();
 
     subscribersList->hide();
-    connect(toggleButton, &QPushButton::clicked, this, &Follows::toggleLists);
+    connect(subscriptionsButton, &QPushButton::clicked, [this]() {
+        subscriptionsList->show();
+        subscribersList->hide();
+    });
+
+    connect(subscribersButton, &QPushButton::clicked, [this]() {
+        subscribersList->show();
+        subscriptionsList->hide();
+    });
 
     layout->addItem(
         new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding)
@@ -67,18 +81,6 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
         completer, QOverload<const QString &>::of(&QCompleter::activated), this,
         &Follows::onUserClicked
     );
-}
-
-void Follows::toggleLists() {
-    if (subscribersList->isVisible()) {
-        subscribersList->hide();
-        subscriptionsList->show();
-        toggleButton->setText("Show Subscribers");
-    } else {
-        subscriptionsList->hide();
-        subscribersList->show();
-        toggleButton->setText("Show Subscriptions");
-    }
 }
 
 Follows::~Follows() {

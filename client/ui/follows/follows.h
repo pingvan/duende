@@ -15,6 +15,7 @@
 #include <QListWidget>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QButtonGroup>
 
 namespace Ui {
 class Follows;
@@ -35,7 +36,7 @@ signals:
 private slots:
     void updateUserList(const QString &input);
     void onUserClicked(const QString &username);
-    void toggleLists();
+    // void toggleLists();
 
 private:
     Ui::Follows *ui;

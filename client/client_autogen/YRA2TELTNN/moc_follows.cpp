@@ -46,12 +46,11 @@ static constexpr auto qt_meta_stringdata_CLASSFollowsENDCLASS = QtMocHelpers::st
     "updateUserList",
     "input",
     "onUserClicked",
-    "username",
-    "toggleLists"
+    "username"
 );
 #else  // !QT_MOC_HAS_STRING_DATA
 struct qt_meta_stringdata_CLASSFollowsENDCLASS_t {
-    uint offsetsAndSizes[18];
+    uint offsetsAndSizes[16];
     char stringdata0[8];
     char stringdata1[12];
     char stringdata2[1];
@@ -60,7 +59,6 @@ struct qt_meta_stringdata_CLASSFollowsENDCLASS_t {
     char stringdata5[6];
     char stringdata6[14];
     char stringdata7[9];
-    char stringdata8[12];
 };
 #define QT_MOC_LITERAL(ofs, len) \
     uint(sizeof(qt_meta_stringdata_CLASSFollowsENDCLASS_t::offsetsAndSizes) + ofs), len 
@@ -73,8 +71,7 @@ Q_CONSTINIT static const qt_meta_stringdata_CLASSFollowsENDCLASS_t qt_meta_strin
         QT_MOC_LITERAL(24, 14),  // "updateUserList"
         QT_MOC_LITERAL(39, 5),  // "input"
         QT_MOC_LITERAL(45, 13),  // "onUserClicked"
-        QT_MOC_LITERAL(59, 8),  // "username"
-        QT_MOC_LITERAL(68, 11)   // "toggleLists"
+        QT_MOC_LITERAL(59, 8)   // "username"
     },
     "Follows",
     "userClicked",
@@ -83,8 +80,7 @@ Q_CONSTINIT static const qt_meta_stringdata_CLASSFollowsENDCLASS_t qt_meta_strin
     "updateUserList",
     "input",
     "onUserClicked",
-    "username",
-    "toggleLists"
+    "username"
 };
 #undef QT_MOC_LITERAL
 #endif // !QT_MOC_HAS_STRING_DATA
@@ -96,7 +92,7 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSFollowsENDCLASS[] = {
       12,       // revision
        0,       // classname
        0,    0, // classinfo
-       4,   14, // methods
+       3,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -104,12 +100,11 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSFollowsENDCLASS[] = {
        1,       // signalCount
 
  // signals: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    1,   38,    2, 0x06,    1 /* Public */,
+       1,    1,   32,    2, 0x06,    1 /* Public */,
 
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       4,    1,   41,    2, 0x08,    3 /* Private */,
-       6,    1,   44,    2, 0x08,    5 /* Private */,
-       8,    0,   47,    2, 0x08,    7 /* Private */,
+       4,    1,   35,    2, 0x08,    3 /* Private */,
+       6,    1,   38,    2, 0x08,    5 /* Private */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::Int,    3,
@@ -117,7 +112,6 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSFollowsENDCLASS[] = {
  // slots: parameters
     QMetaType::Void, QMetaType::QString,    5,
     QMetaType::Void, QMetaType::QString,    7,
-    QMetaType::Void,
 
        0        // eod
 };
@@ -139,9 +133,7 @@ Q_CONSTINIT const QMetaObject Follows::staticMetaObject = { {
         QtPrivate::TypeAndForceComplete<const QString &, std::false_type>,
         // method 'onUserClicked'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<const QString &, std::false_type>,
-        // method 'toggleLists'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>
+        QtPrivate::TypeAndForceComplete<const QString &, std::false_type>
     >,
     nullptr
 } };
@@ -155,7 +147,6 @@ void Follows::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, voi
         case 0: _t->userClicked((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 1: _t->updateUserList((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         case 2: _t->onUserClicked((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 3: _t->toggleLists(); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -189,13 +180,13 @@ int Follows::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 4)
+        if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 4;
+        _id -= 3;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 4)
+        if (_id < 3)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 4;
+        _id -= 3;
     }
     return _id;
 }

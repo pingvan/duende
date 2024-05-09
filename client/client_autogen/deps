@@ -1540,6 +1540,7 @@ client_autogen/timestamp: \
 	/Users/alina/Qt/6.6.1/macos/lib/QtGui.framework/Versions/A/Headers/qwindowdefs.h \
 	/Users/alina/Qt/6.6.1/macos/lib/QtWidgets.framework/Versions/A/Headers/QAbstractItemView \
 	/Users/alina/Qt/6.6.1/macos/lib/QtWidgets.framework/Versions/A/Headers/QApplication \
+	/Users/alina/Qt/6.6.1/macos/lib/QtWidgets.framework/Versions/A/Headers/QButtonGroup \
 	/Users/alina/Qt/6.6.1/macos/lib/QtWidgets.framework/Versions/A/Headers/QComboBox \
 	/Users/alina/Qt/6.6.1/macos/lib/QtWidgets.framework/Versions/A/Headers/QCompleter \
 	/Users/alina/Qt/6.6.1/macos/lib/QtWidgets.framework/Versions/A/Headers/QDockWidget \
@@ -1577,6 +1578,7 @@ client_autogen/timestamp: \
 	/Users/alina/Qt/6.6.1/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractspinbox.h \
 	/Users/alina/Qt/6.6.1/macos/lib/QtWidgets.framework/Versions/A/Headers/qapplication.h \
 	/Users/alina/Qt/6.6.1/macos/lib/QtWidgets.framework/Versions/A/Headers/qboxlayout.h \
+	/Users/alina/Qt/6.6.1/macos/lib/QtWidgets.framework/Versions/A/Headers/qbuttongroup.h \
 	/Users/alina/Qt/6.6.1/macos/lib/QtWidgets.framework/Versions/A/Headers/qcombobox.h \
 	/Users/alina/Qt/6.6.1/macos/lib/QtWidgets.framework/Versions/A/Headers/qcompleter.h \
 	/Users/alina/Qt/6.6.1/macos/lib/QtWidgets.framework/Versions/A/Headers/qdialog.h \
