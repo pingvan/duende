@@ -1,7 +1,7 @@
 #include "invitation_server.hpp"
 #include <unordered_map>
 
-grpc::Status InvitationServiceImpl::InvitationStream(
+grpc::Status invitation_service::InvitationStream(
     grpc::ServerContext *context,
     grpc::ServerReaderWriter<invitation::InvitationResponse, invitation::InvitationRequest> *stream
 ) {
@@ -10,26 +10,32 @@ grpc::Status InvitationServiceImpl::InvitationStream(
     while (stream->Read(&request)) {
         if (request.has_send_invitation_request()) {
             if (!invite_db_api.is_invite_already_sended(
-                    request.send_invitation_request().sender_id(), request.send_invitation_request().receiver_id()
+                    request.send_invitation_request().sender().user_id(), request.send_invitation_request().receiver().user_id()
                 )) {
-                int sender_id = request.send_invitation_request().sender_id();
-                int receiver_id = request.send_invitation_request().receiver_id();
+                int sender_id = request.send_invitation_request().sender().user_id();
+                int receiver_id = request.send_invitation_request().receiver().user_id();
+                std::string sender_login = request.send_invitation_request().sender().login();
+                std::string receiver_login = request.send_invitation_request().receiver().login();
+                std::string invite_text = request.send_invitation_request().invite_text();
                 int invite_id = invite_db_api.add_invite(
-                    "User " + std::to_string(sender_id) + " invites you to chat", invite_status::sent,
+                    invite_text, invite_status::SENT,
                     sender_id, receiver_id
                 );
 
                 invitation::InvitationResponse response;
 
+                const auto sender = new common::UserPreview;
+                const auto receiver = new common::UserPreview;
+                sender->set_login(sender_login);
+                receiver->set_login(receiver_login);
+                sender->set_user_id(sender_id);
+                receiver->set_user_id(receiver_id);
+
                 const auto send_response = new invitation::SendInvitationResponse;
-                send_response->set_sender_id(sender_id);
-                send_response->set_receiver_id(receiver_id);
-                
-                const auto invite = new invitation::Invite;
-                invite->set_invite_id(invite_id);
-                invite->set_invite_text("User " + std::to_string(sender_id) + " invites you to chat");
-                invite->set_status(invitation::InviteStatus::SENT);
-                send_response->set_allocated_invite(invite);
+                send_response->set_allocated_sender(sender);
+                send_response->set_allocated_receiver(receiver);
+                send_response->set_invite_id(invite_id);
+                send_response->set_invite_text(invite_text);
 
                 response.set_allocated_send_invitation_response(send_response);
                 
@@ -41,35 +47,35 @@ grpc::Status InvitationServiceImpl::InvitationStream(
                     );
                 }
 
-                invite->set_invite_text("You have invited user " + std::to_string(receiver_id) + " to chat");
-
                 stream->Write(response);
             }
         } else if (request.has_respond_to_invitation_request()) {
             invitation::InvitationResponse response;
             const auto respond_response = new invitation::RespondToInvitationResponse;
             int invite_id = request.respond_to_invitation_request().invite_id();
+            int sender_id = request.respond_to_invitation_request().sender_id();
             int receiver_id = request.respond_to_invitation_request().receiver_id();
             auto status = request.respond_to_invitation_request().status();
 
             if (status == invitation::InviteStatus::ACCEPTED) {
                 invite_db_api.change_invite_status(
-                    invite_id, invite_status::accepted
+                    invite_id, invite_status::ACCEPTED
                 );
 
-                respond_response->set_invite_id(invite_id);
-                respond_response->set_receiver_id(receiver_id);
-                respond_response->set_status(status);
-                response.set_allocated_respond_to_invitation_response(respond_response);
-
-                if (users_online.count(receiver_id)) {
-                    users_online[receiver_id]->Write(response);
-                }
-
+                respond_response->set_allocated_chat(create_private_chat(sender_id, receiver_id));
             } else {
                 invite_db_api.change_invite_status(
-                    invite_id, invite_status::declined
+                    invite_id, invite_status::DECLINED
                 );
+            }
+
+            respond_response->set_invite_id(invite_id);
+            respond_response->set_receiver_id(receiver_id);
+            respond_response->set_status(status);
+            response.set_allocated_respond_to_invitation_response(respond_response);
+
+            if (users_online.count(receiver_id)) {
+                users_online[receiver_id]->Write(response);
             }
 
             stream->Write(response);
@@ -96,7 +102,20 @@ grpc::Status InvitationServiceImpl::InvitationStream(
     return grpc::Status::OK;
 }
 
-grpc::Status invitation_service_data::GetReceivedInvitations(
+chat_service::ChatPreview *invitation_service::create_private_chat(int first_id, int second_id) {
+    grpc::ClientContext context;
+
+    chat_service::CreatePrivateChatRequest request;
+    request.set_firest_user_id(first_id);
+    request.set_second_user_id(second_id);
+
+    auto *response = new chat_service::ChatPreview;
+    grpc::Status status = chat_stub->CreatePrivateChat(&context, request, response);
+
+    return response;
+}
+
+grpc::Status invitation_data_service::GetReceivedInvitations(
     grpc::ServerContext *context,
     const invitation::RequestWithId *request,
     invitation::InvitesReceived *response
@@ -110,7 +129,7 @@ grpc::Status invitation_service_data::GetReceivedInvitations(
     return grpc::Status::OK;
 }
 
-grpc::Status invitation_service_data::GetSentInvitations(
+grpc::Status invitation_data_service::GetSentInvitations(
     grpc::ServerContext *context,
     const invitation::RequestWithId *request,
     invitation::InvitesSent *response

@@ -13,6 +13,8 @@ OtherPage::OtherPage(int id, Manager* managerPtr, QWidget *parent) :
 
     user = manager->new_client.get_user_full_page(id);
 
+    login = user->preview().login();
+
     assert(user != nullptr);
 
     build();
@@ -23,7 +25,7 @@ OtherPage::OtherPage(int id, Manager* managerPtr, QWidget *parent) :
 void OtherPage::sendInvite() 
 {
     assert(manager != nullptr);
-    manager->new_client.send_invite(manager->ID, id);
+    manager->new_client.send_invite(manager->ID, id, manager->username, login);
     qDebug() << "Invite sended";
 }
 
@@ -34,6 +36,8 @@ void OtherPage::updatePage(int newId)
     id = newId;
 
     user = manager->new_client.get_user_full_page(id);
+
+    login = user->preview().login();
 
     assert(user != nullptr);
 

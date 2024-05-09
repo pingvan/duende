@@ -52,9 +52,8 @@ public:
     void init_invite_stream(int user_id);
     void start_reading_invite_stream();
     void leave_invite_stream(int user_id);
-    void send_invite(int sender_id, int receiver_id);
-    void respond_invite(int invite_id, int receiver_id, bool accept);
-    void create_private_chat(int first_id, int second_id);
+    void send_invite(int sender_id, int receiver_id, std::string sender_login, std::string receiver_login);
+    void respond_invite(int invite_id, int sender_id, int receiver_id, bool accept);
 
     std::vector<invitation::Invite> get_sent_invites(int user_id);
     std::vector<invitation::Invite> get_received_invites(int user_id);
@@ -64,6 +63,7 @@ public:
     search_service::FilmSearchResponse *search_film_by_title(const std::string &film_title);
 
     common::UserFullPage *get_user_full_page(int user_id);
+    //TODO get_user_preview
 
     void change_username(int user_id, const std::string &new_username); 
     void change_quote(int user_id, const std::string &new_quote); 

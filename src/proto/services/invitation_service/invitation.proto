@@ -3,6 +3,7 @@ syntax = "proto3";
 package invitation;
 
 import "common/common.proto"; 
+import "services/chat_service/chat_service.proto"; 
 
 enum InviteStatus {
   SENT = 0;
@@ -69,9 +70,10 @@ message InvitationResponse {
 }
 
 message SendInvitationRequest {
-  Invite invite = 1;
-  int32 sender_id = 2;
-  int32 receiver_id = 3;
+  common.UserPreview sender = 1;
+  common.UserPreview receiver = 2;
+  string invite_text = 3;
+  int32 invite_id = 4;
 }
 
 message RespondToInvitationRequest {
@@ -82,9 +84,10 @@ message RespondToInvitationRequest {
 }
 
 message SendInvitationResponse {
-  Invite invite = 1;
-  int32 sender_id = 2;
-  int32 receiver_id = 3;
+  common.UserPreview sender = 1;
+  common.UserPreview receiver = 2;
+  string invite_text = 3;
+  int32 invite_id = 4;
 }
 
 message RespondToInvitationResponse {
@@ -92,6 +95,7 @@ message RespondToInvitationResponse {
   int32 sender_id = 2;
   int32 receiver_id = 3;
   InviteStatus status = 4;
+  optional chat_service.ChatPreview chat = 5;
 }
 
 message InitRequest {

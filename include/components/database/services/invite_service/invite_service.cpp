@@ -86,17 +86,17 @@ namespace database {
 
     std::string invite_service_database_api::enum_invite_status_to_string(const invite_status &status) {
         switch (status) {
-            case invite_status::sent: return "sent";
-            case invite_status::accepted: return "accepted";
-            case invite_status::declined: return "declined";
+            case invite_status::SENT: return "sent";
+            case invite_status::ACCEPTED: return "accepted";
+            case invite_status::DECLINED: return "declined";
         }
     }
 
     invite_status invite_service_database_api::string_to_invite_status(const std::string &status) {
         static const std::unordered_map<std::string, invite_status> status_map = {
-        {"sent", invite_status::sent},
-        {"accepted", invite_status::accepted},
-        {"declined", invite_status::declined}
+        {"sent", invite_status::SENT},
+        {"accepted", invite_status::ACCEPTED},
+        {"declined", invite_status::DECLINED}
         };
         if (auto it = status_map.find(status); it != status_map.end()) {
             return it->second;
