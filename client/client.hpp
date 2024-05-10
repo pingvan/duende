@@ -5,6 +5,7 @@
 #include <string>
 #include <QtConcurrent/QtConcurrent>
 #include <QDebug>
+#include <iostream>
 
 #include "common/common.grpc.pb.h"
 #include "common/common.pb.h"
@@ -32,6 +33,7 @@ private:
     std::unique_ptr<search_service::SerachService::Stub> search_stub;
     std::unique_ptr<invitation::InvitationService::Stub> invite_stub;
     std::unique_ptr<invitation::InvitationDataService::Stub> invite_data_stub;
+    std::unique_ptr<users_interaction::UsersInteractionService::Stub> users_interaction_stub;
 
     std::unique_ptr<grpc::ClientReaderWriter<chat_service::ChatRequests, chat_service::ChatResponses>> chat_stream;
     std::unique_ptr<grpc::ClientReaderWriter<invitation::InvitationRequest, invitation::InvitationResponse>> invite_stream;
@@ -88,4 +90,10 @@ public:
         const std::string &password_confirmation
     );
 
+    void subscribe(int subscriber_id, int subscribie_id);
+    void unsubscribe(int subscriber_id, int subscribie_id);
+    std::vector<uint32_t> get_subscriptions(uint32_t subscriber_id);
+    std::vector<uint32_t> get_subscribers(uint32_t subscribie_id);
+    void block(int blocker_id, int blockie_id);
+    std::vector<uint32_t> get_blocked(uint32_t blockie_id);
 };
