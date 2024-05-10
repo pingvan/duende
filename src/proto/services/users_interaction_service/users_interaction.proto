@@ -10,6 +10,7 @@ service UsersInteractionService {
   rpc Block(BlockRequest) returns (BlockResponse) {}
   rpc Unblock(UnblockRequest) returns (UnblockResponse) {}
   rpc ShowAllBlocked(ShowAllBlockedRequest) returns (ShowAllBlockedResponse) {}
+  rpc CheckIsMutual(CheckIsMutualRequest) returns (CheckIsMutualResponse) {}
 }
 
 message BlockRequest {
@@ -70,4 +71,13 @@ message ShowAllSubscriptionsResponse {
 
 message ShowAllSubscribersResponse {
     repeated int32 subscriber_id = 1;
+}
+
+message CheckIsMutualRequest {
+    int32 subscriber_id = 1;
+    int32 subscribie_id = 2;
+}
+
+message CheckIsMutualResponse {
+    bool is_mutual = 1;
 }

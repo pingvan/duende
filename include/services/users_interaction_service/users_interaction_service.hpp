@@ -1,7 +1,8 @@
 #pragma once
 
 #include <grpcpp/grpcpp.h>
-#include "components/database/services/users_interaction_service/users_interaction_service.hpp"
+#include "components/database/services/block_service/block_service.hpp"
+#include "components/database/services/subscription_service/subscription_service.hpp"
 #include "services/users_interaction_service/users_interaction.grpc.pb.h"
 #include "services/users_interaction_service/users_interaction.pb.h"
 #include <vector>
@@ -24,9 +25,12 @@ using users_interaction::ShowAllSubscriptionsRequest;
 using users_interaction::ShowAllSubscriptionsResponse;
 using users_interaction::ShowAllSubscribersRequest;
 using users_interaction::ShowAllSubscribersResponse;
-
+using users_interaction::CheckIsMutualRequest;
+using users_interaction::CheckIsMutualResponse;
 
 class UsersInteractionServiceImpl final : public users_interaction::UsersInteractionService::Service {
+    database::subscription_service_database_api subscription_db_api;
+    database::block_service_database_api block_db_api;
     Status Block(
         ServerContext *context,
         const BlockRequest *request,
@@ -67,5 +71,11 @@ class UsersInteractionServiceImpl final : public users_interaction::UsersInterac
         ServerContext *context,
         const ShowAllSubscribersRequest *request,
         ShowAllSubscribersResponse *response
+    ) override;
+
+    Status CheckIsMutual(
+        ServerContext *context,
+        const CheckIsMutualRequest *request,
+        CheckIsMutualResponse *response
     ) override;
 };
