@@ -3,9 +3,13 @@
 #include "components/database/services/authservice/authservice.hpp"
 
 
+#include <array>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
+
+//treat to enums as int in psql??
 
 
 namespace database {
@@ -59,7 +63,7 @@ namespace database {
             new_invite.invite_id = row[0].as<uint>();
             new_invite.invite_text = row[1].as<std::string>();
             new_invite.status = string_to_invite_status(row[2].as<std::string>());
-            new_invite.sender = authservice_database_api::get_user_preview(row[3].as<int>()); //const reference extends the lifetime, right???
+            new_invite.sender = authservice_database_api::get_user_preview(row[3].as<int>()); //const reference extends the lifetime, right??? //FIXME
             received.invites.push_back(new_invite);
         }
         connection.txn->commit(); 
@@ -77,7 +81,7 @@ namespace database {
             new_invite.invite_id = row[0].as<uint>();
             new_invite.invite_text = row[1].as<std::string>();
             new_invite.status = string_to_invite_status(row[2].as<std::string>());
-            new_invite.sender = authservice_database_api::get_user_preview(row[3].as<int>()); //not sender, but...
+            new_invite.sender = authservice_database_api::get_user_preview(row[3].as<int>()); //not sender, but... //FIXME
             sended.invites.push_back(new_invite);
         }
         connection.txn->commit(); 
@@ -85,11 +89,27 @@ namespace database {
     }
 
     std::string invite_service_database_api::enum_invite_status_to_string(const invite_status &status) {
+        std::string status_string;
         switch (status) {
-            case invite_status::SENT: return "sent";
-            case invite_status::ACCEPTED: return "accepted";
-            case invite_status::DECLINED: return "declined";
+            case invite_status::SENT:
+                status_string = "sent";
+                break;
+            case invite_status::ACCEPTED: 
+                status_string = "accepted";
+                break;
+            case invite_status::DECLINED:
+                status_string = "declined";
+                break;
         }
+        return status_string;
+
+
+        // static const std::array<std::string, 3> status_strings = {"sent", "accepted", "declined"};
+        // if (status >= invite_status::SENT && status <= invite_status::DECLINED) {
+        //     return status_strings[static_cast<int>(status)];
+        // } else {
+        //     return "unknown"; 
+        // }
     }
 
     invite_status invite_service_database_api::string_to_invite_status(const std::string &status) {
@@ -98,11 +118,12 @@ namespace database {
         {"accepted", invite_status::ACCEPTED},
         {"declined", invite_status::DECLINED}
         };
-        if (auto it = status_map.find(status); it != status_map.end()) {
-            return it->second;
-        } else {
-            throw std::exception{};
-        }
+        return status_map.find(status)->second;
+        // if (auto it = status_map.find(status); it != status_map.end()) {
+        //     return it->second;
+        // } else {
+        //     throw std::exception{};
+        // }
     }
 
 } //namespace database
