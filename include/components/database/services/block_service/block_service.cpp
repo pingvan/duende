@@ -6,14 +6,14 @@
 #include <vector>
 
 namespace database {
-    std::vector<uint> block_service_database_api::get_blocked_users(const int &user_id) {
+    std::vector<uint32_t> block_service_database_api::get_blocked_users(const int &user_id) {
         const connector connection;
         static constexpr std::string_view query = "SELECT blocked_user_id FROM black_list WHERE user_id = $1";
         const auto result = connection.txn->exec_params(pqxx::zview(query), user_id);
-        std::vector<uint> blocked_users;
+        std::vector<uint32_t> blocked_users;
         blocked_users.reserve(result.size());
         for (const auto &row : result) {
-            blocked_users.push_back(row[0].as<uint>());
+            blocked_users.push_back(row[0].as<uint32_t>());
         }
         connection.txn->commit();
         return blocked_users;

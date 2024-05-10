@@ -41,9 +41,9 @@ enum class genre {
 
     struct actor_preview  {
         actor_preview() = default;
-        actor_preview(const uint &id_, const std::string &full_name_) : id(id_), full_name(full_name_) {}
+        actor_preview(const uint32_t &id_, const std::string &full_name_) : id(id_), full_name(full_name_) {}
 
-        uint id;
+        uint32_t id;
         std::string full_name;
 
         void convert_to_proto(common::ActorPreview *proto) const {
@@ -55,9 +55,9 @@ enum class genre {
 
     struct film_preview  {
         film_preview() = default;
-        film_preview(const uint &id_, const std::string &title_) : id(id_), title(title_) {}
+        film_preview(const uint32_t &id_, const std::string &title_) : id(id_), title(title_) {}
 
-        uint id;
+        uint32_t id;
         std::string title;
         // std::vector<unsigned char> cover;
 
@@ -85,7 +85,7 @@ enum class genre {
 
     struct film_on_user_page  {
         film_full_page full_page;
-        uint ratio;
+        uint32_t ratio;
 
         void convert_to_proto(common::FilmOnUserPage *proto)  const {
             auto *film_full_page_proto = new common::FilmFullPage;
@@ -99,7 +99,7 @@ enum class genre {
         user_preview() = default;
         user_preview(const int &id_, const std::string &login_) : id(id_), login(login_) {}
         
-        uint id;
+        uint32_t id;
         std::string login;
         // std::vector<unsigned char> photo;
 
@@ -159,7 +159,7 @@ enum class genre {
     };
 
     struct chat_preview  { 
-        uint chat_id;
+        uint32_t chat_id;
         bool is_group_chat;
         std::string name;
         std::string description;
@@ -207,7 +207,7 @@ enum class genre {
     };
 
     struct invite  {
-        uint invite_id;
+        uint32_t invite_id;
         user_preview sender;
         std::string invite_text;
 

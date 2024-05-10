@@ -17,7 +17,7 @@
 
 grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests> *stream) {
     chat_service::ChatRequests request;
-    uint user_id = 0;
+    uint32_t user_id = 0;
     while (stream->Read(&request)) {
         if (request.has_init()) {
             user_id = request.init().user_id();
@@ -78,7 +78,7 @@ chat_service::ChatResponses chat_service_::send_to_chat(const chat_service::Mess
                 Unhandled:
                 database::chat_service_database_api::add_unhandle_message(member_id, id_timestamp.first);
             } else {
-                uint cnt = 0;
+                uint32_t cnt = 0;
                 bool success = ptr->second->Write(response);
                 while (!success && cnt != 10) {
                     success = ptr->second->Write(response);

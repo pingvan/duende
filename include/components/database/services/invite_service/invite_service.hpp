@@ -11,7 +11,7 @@
 
 namespace database {
     struct invite_service_database_api {
-        [[nodiscard]] static std::pair<uint, std::string> add_invite(const std::string &invite_text, const int &invite_from, const int &invite_to);
+        [[nodiscard]] static std::pair<uint32_t, std::string> add_invite(const std::string &invite_text, const int &invite_from, const int &invite_to);
         static void change_invite_status(const int &invite_id);
         static void add_unhandled_invite(const int &invite_to, const int &invite_id);
 
