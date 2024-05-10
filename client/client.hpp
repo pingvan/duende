@@ -18,6 +18,8 @@
 #include "services/search_service/search_service.pb.h"
 #include "services/invitation_service/invitation.grpc.pb.h"
 #include "services/invitation_service/invitation.pb.h"
+#include "services/users_interaction_service/users_interaction.grpc.pb.h"
+#include "services/users_interaction_service/users_interaction.pb.h"
 
 struct client {
 private:
