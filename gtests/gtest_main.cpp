@@ -4,6 +4,10 @@
 #include <concepts>
 #include <chrono>
 #include <condition_variable>
+#include <cstddef>
+#include <cstdlib>
+#include <filesystem>
+#include <ios>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -11,6 +15,7 @@
 #include <string_view>
 #include <thread>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <grpcpp/grpcpp.h>
 
@@ -279,10 +284,88 @@ TEST_F(ProtosAndPlaceholdersTesting, UserFullPage) {
     check_user_full_page(user_full_page_proto, this->user_full_page_placeholder);
 }
 
+// TEST(Functional, TestImageReading) {
+//     auto path = std::filesystem::current_path();
+//     std::cerr << "path: " << path << "\n";
+//     std::ifstream image_file;
+//     try {
+//         image_file.open("../gtests/test_in.jpg", std::ios_base::binary | std::ios_base::in);
+//     } catch(std::exception &e) {
+//         std::cerr << "Failed to open file: " << e.what() << '\n';
+//         std::exit(1);
+//     }
+//     if (image_file.is_open()) {
+//         std::cerr << "file opened\n";
+//     } else {
+//         std::cerr << "file not opened\n";
+//         std::exit(1);
+//     }
+//     std::vector<char> buffer((std::istreambuf_iterator<char>(image_file)), std::istreambuf_iterator<char>());    
+//     image_file.close();
+//     std::cerr << "read: " << buffer.size() << " bytes\n";
+//     std::ofstream out("test_out.jpg", std::ios_base::binary | std::ios_base::out);
+//     out.write(reinterpret_cast<char*>(buffer.data()), static_cast<int>(buffer.size()));
+//     out.close();
+//     // std::exit(0);
+//     // std::vector<unsigned char> image;
+// }
+
 
 TEST_F(databaseTesting, TestConnection) {
     ASSERT_NE(connector.con, nullptr);
     ASSERT_TRUE(connector.con->is_open()) << "Connection to database failed"; 
+}
+
+// TEST_F(databaseTesting, PutAndGetPhoto) {
+//     static const std::string name = "name";
+//     std::ifstream image_file;
+//     image_file.open("../gtests/test_in.jpg", std::ios_base::binary | std::ios_base::in);
+//     std::vector<char> buffer((std::istreambuf_iterator<char>(image_file)), std::istreambuf_iterator<char>());
+//     std::cerr << "writted size: " << buffer.size() << " bytes\n";
+//     image_file.close();
+//     static constexpr std::string_view put_query = "INSERT INTO photo_testing (film_name, photo_bytes) VALUES ($1, $2)";
+//     pqxx::binarystring bs(buffer.data(), buffer.size());
+//     std::cerr << "size of binarystring: " << bs.size() << std::endl;
+//     std::basic_string<std::byte> binary_std;
+//     for (const auto& byte : buffer) {
+//         binary_std.push_back(static_cast<std::byte>(byte));
+//     }
+//     std::cerr << "size of binary string std: " << binary_std.size() << std::endl;
+//     // const auto result_first = connector.txn->exec_params(pqxx::zview(put_query), name, bs);
+//     const auto result_first = connector.txn->exec_params(pqxx::zview(put_query), name, binary_std);
+//     static constexpr std::string_view get_query = "SELECT photo_bytes FROM photo_testing WHERE film_name = $1";
+//     const auto result_second = connector.txn->exec_params(pqxx::zview(get_query), name);
+//     for (const auto& row : result_second) {
+//         // auto bytes_std = row[0].as<std::byte*>();
+//         auto bytes_pqxx = row[0].as<pqxx::binarystring>();
+//         auto bytes = row[0].as<std::string>();
+//         std::cerr << "read in bs: " << bytes_pqxx.size() << " bytes\n";
+//         std::cerr << "read in string: " << bytes.size() << " bytes\n";
+//         // std::cerr << "read in std::byte: " << bytes_std << " bytes\n";
+//         // std::cerr << bytes << std::endl;
+//         std::ofstream out("mem.jpg", std::ios_base::binary | std::ios_base::out);
+//         out.write(bytes_pqxx.get(), bytes_pqxx.size());
+//         // out.write(reinterpret_cast<char*>(bytes.data()), static_cast<int>(bytes.size()));
+//         out.close();
+//     }
+//     // connector.txn->commit();
+//     // std::exit(0);
+// }
+
+TEST_F(databaseTesting, TestPhotoCreationFromBytea) {
+    static const std::string film_name = "John Carter";
+    static constexpr std::string_view quer = "SELECT cover FROM films WHERE title = $1";
+    const auto result = connector.txn->exec_params(pqxx::zview(quer), film_name);
+    for (const auto& row : result) {
+        // auto bytes = row[0].as<char*>();
+        // auto bytes = row[0].as<std::string>();
+        auto bytes = row[0].as<std::basic_string<std::byte>>(); 
+        std::ofstream out(film_name + ".jpg", std::ios_base::binary | std::ios_base::out);
+        std::cerr << "size: " << sizeof(std::byte) * bytes.size() << std::endl;
+        out.write(reinterpret_cast<char*>(bytes.data()), bytes.size());
+        out.close();
+        std::exit(0);
+    }
 }
 
 TEST_F(databaseTesting, TestTimestamps) {

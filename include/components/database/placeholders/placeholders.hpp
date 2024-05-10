@@ -37,7 +37,7 @@ enum class genre {
     TV_MOVIE
 };
 
-enum class invite_status { SENT, ACCEPTED, DECLINED };
+// enum class invite_status { SENT, ACCEPTED, DECLINED };
 
     struct actor_preview  {
         actor_preview() = default;
@@ -210,7 +210,6 @@ enum class invite_status { SENT, ACCEPTED, DECLINED };
         uint invite_id;
         user_preview sender;
         std::string invite_text;
-        invite_status status;
 
         void convert_to_proto(invitation::Invite *proto) const {
             proto->set_invite_id(invite_id);
@@ -218,7 +217,6 @@ enum class invite_status { SENT, ACCEPTED, DECLINED };
             auto *prewiew_proto = new common::UserPreview;
             sender.convert_to_proto(prewiew_proto);
             proto->set_allocated_sender(prewiew_proto);
-            proto->set_status(static_cast<invitation::InviteStatus>(status));
         }
     };
 

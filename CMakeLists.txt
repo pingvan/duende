@@ -27,16 +27,16 @@ pkg_check_modules(LIBPQXX REQUIRED libpqxx)
 
 #if error occurs visit https://cmake.org/cmake/help/latest/module/FindPkgConfig.html
 
-# add_executable(gtests
-#         gtests/gtest_main.cpp
+add_executable(gtests
+        gtests/gtest_main.cpp
 
-#         # ${TESTS_SRCS}
+        # ${TESTS_SRCS}
 
-#         ${COMPONENTS_SRCS}
-#         ${SERVICES_SRCS}
+        ${COMPONENTS_SRCS}
+        ${SERVICES_SRCS}
 
-#         ${generated_proto_models_srcs}
-# )
+        ${generated_proto_models_srcs}
+)
 
 add_executable(main
     src/main.cpp
@@ -82,15 +82,15 @@ target_link_libraries(gtests
         GTest::gmock_main
 )
 
-# target_include_directories(gtests PUBLIC
-#         ./include
-#         ./libs
-#         ${CMAKE_CURRENT_BINARY_DIR}
-#         ${LIBPQXX_INCLUDE_DIRS}
-# )
+target_include_directories(gtests PUBLIC
+        ./include
+        ./libs
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${LIBPQXX_INCLUDE_DIRS}
+)
 
-# target_link_options(gtests PUBLIC
-#         -lpqxx)
+target_link_options(gtests PUBLIC
+        -lpqxx)
 
-# target_link_options(gtests PUBLIC
-#         ${LIBPQXX_LDFLAGS})
+target_link_options(gtests PUBLIC
+        ${LIBPQXX_LDFLAGS})

@@ -12,11 +12,11 @@ struct chat_service_database_api {
 
     [[nodiscard]] static std::vector<int> get_members_ids(const int &chat_id);
 
-    static user_chats get_user_chats(const int &user_id);
-    static last_messages get_chats_messages(const int &chat_id);
+    [[nodiscard]] static user_chats get_user_chats(const int &user_id);
+    [[nodiscard]] static last_messages get_chats_messages(const int &chat_id);
 
-    static bool check_user_in_chat(const int &user_id, const int &chat_id);
+    [[nodiscard]] static bool check_user_in_chat(const int &user_id, const int &chat_id);
 
-    static int create_private_chat(const std::pair<int, int> &users_ids, const std::string &timestamp); //change
+    [[nodiscard]] static std::pair<uint, std::string> create_private_chat(const std::pair<int, int> &users_ids); 
 };
 }

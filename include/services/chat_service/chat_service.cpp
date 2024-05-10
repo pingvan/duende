@@ -96,8 +96,8 @@ chat_service::ChatResponses chat_service_::send_to_chat(const chat_service::Mess
 
 //make interseptors which check that this fucntion can be called only form other invite service
 grpc::Status chat_service_::CreatePrivateChat(grpc::ServerContext *context, const chat_service::CreatePrivateChatRequest *request, chat_service::ChatPreview *response) {
-        auto chat_id = database::chat_service_database_api::create_private_chat({request->firest_user_id(), request->second_user_id()}, make_timestamp());
-        response->set_chat_id(chat_id);
+        auto id_timestamp = database::chat_service_database_api::create_private_chat({request->firest_user_id(), request->second_user_id()});
+        response->set_chat_id(id_timestamp.first);
         response->set_is_group_chat(false);
         auto first_user_preview = database::authservice_database_api::get_user_preview(request->firest_user_id()); 
         auto second_user_preview = database::authservice_database_api::get_user_preview(request->second_user_id());

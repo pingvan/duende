@@ -1,4 +1,4 @@
--- SET TIME ZONE 'Europe/Moscow';
+SET TIME ZONE 'Europe/Moscow';
 
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
@@ -32,8 +32,10 @@ CREATE TABLE IF NOT EXISTS forms (
 CREATE TABLE IF NOT EXISTS films (
     id SERIAL PRIMARY KEY,
     title text NOT NULL,
+    release_date TIMESTAMP NOT NULL,
     description text NOT NULL,
-    genres genre[]
+    genres genre[],
+    cover BYTEA
 );
 
 CREATE TABLE IF NOT EXISTS views (
@@ -111,7 +113,6 @@ CREATE TABLE IF NOT EXISTS messages (
 CREATE TABLE IF NOT EXISTS invites (
     id SERIAL PRIMARY KEY,
     invite_text VARCHAR(300),
-    invite_status invite_status NOT NULL,
     invite_from_user INT NOT NULL,
     invite_to_user INT NOT NULL,
     sended_at TIMESTAMP default NOW(),
