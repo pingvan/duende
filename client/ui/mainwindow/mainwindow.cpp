@@ -86,6 +86,7 @@ MainWindow::MainWindow(Manager* managerPtr, QWidget *parent)
     connect(chats_button, &QPushButton::clicked, this, [this]() { pages->setCurrentIndex(0); });
     connect(rec_button, &QPushButton::clicked, this, [this]() { pages->setCurrentIndex(1); });
     connect(search_button, &QPushButton::clicked, this, [this]() { pages->setCurrentIndex(2); });
+    connect(followsPage, &Follows::userClicked, this, &MainWindow::openOtherPage);
 
     qDebug() << "Main window end\n";
 }
