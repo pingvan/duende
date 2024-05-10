@@ -1,3 +1,4 @@
+#include <_types/_uint32_t32_t.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <cassert>
@@ -40,22 +41,22 @@ struct databaseTesting : ::testing::Test {
 
     static const std::vector<std::string_view> tables;
 
-    static constexpr uint tablesCNT = 17;  //should be 17 if unhandeled tables are added to the database
-    static constexpr uint usersCOLUMNS = 3;
-    static constexpr uint passwordsCOLUMNS = 3;
-    static constexpr uint tokensCOLUMNS = 2;
-    static constexpr uint formsCOLUMNS = 6;
-    static constexpr uint viewsCOLUMNS = 4;
-    static constexpr uint filmsCOLUMNS = 4;
-    static constexpr uint producersCOLUMNS = 3;  //i think will be 2 in future
-    static constexpr uint producers_by_filmCOLUMNS = 2;
-    static constexpr uint invitesCOLUMNS = 5;
-    static constexpr uint actorsCOLUMNS = 2;
-    static constexpr uint actors_to_formCOLUMNS = 2;
-    static constexpr uint actors_to_filmCOLUMNS = 2;
-    static constexpr uint messagesCOLUMNS = 5;
-    static constexpr uint chatsCOLUMNS = 6;
-    static constexpr uint chat_membershipCOLUMNS = 3;
+    static constexpr uint32_t tablesCNT = 17;  //should be 17 if unhandeled tables are added to the database
+    static constexpr uint32_t usersCOLUMNS = 3;
+    static constexpr uint32_t passwordsCOLUMNS = 3;
+    static constexpr uint32_t tokensCOLUMNS = 2;
+    static constexpr uint32_t formsCOLUMNS = 6;
+    static constexpr uint32_t viewsCOLUMNS = 4;
+    static constexpr uint32_t filmsCOLUMNS = 4;
+    static constexpr uint32_t producersCOLUMNS = 3;  //i think will be 2 in future
+    static constexpr uint32_t producers_by_filmCOLUMNS = 2;
+    static constexpr uint32_t invitesCOLUMNS = 5;
+    static constexpr uint32_t actorsCOLUMNS = 2;
+    static constexpr uint32_t actors_to_formCOLUMNS = 2;
+    static constexpr uint32_t actors_to_filmCOLUMNS = 2;
+    static constexpr uint32_t messagesCOLUMNS = 5;
+    static constexpr uint32_t chatsCOLUMNS = 6;
+    static constexpr uint32_t chat_membershipCOLUMNS = 3;
 };
 
 const database::connector databaseTesting::connector {};
@@ -82,45 +83,45 @@ const std::vector<std::string_view> databaseTesting::tables = {
 };
 struct ProtosAndPlaceholdersTesting : ::testing::Test {
 
-    static constexpr uint actor_preview_proto_fields = 2;
-    static constexpr uint actor_id = 21; 
+    static constexpr uint32_t actor_preview_proto_fields = 2;
+    static constexpr uint32_t actor_id = 21; 
     static constexpr std::string_view actor_full_name = "FirstName LastName ThirdName";
 
-    static constexpr uint user_preview_proto_fields = 2;
-    static constexpr uint user_id = 21;
+    static constexpr uint32_t user_preview_proto_fields = 2;
+    static constexpr uint32_t user_id = 21;
     static constexpr std::string_view user_login = "Login";
 
-    static constexpr uint film_preview_proto_fields = 2;
-    static constexpr uint film_id = 21;
+    static constexpr uint32_t film_preview_proto_fields = 2;
+    static constexpr uint32_t film_id = 21;
     static constexpr std::string_view film_title = "Title";
 
-    static constexpr uint film_full_page_proto_fields = 3;
+    static constexpr uint32_t film_full_page_proto_fields = 3;
     static constexpr std::string_view film_description = "Description";
     static const std::vector<genre> genres;
 
-    static constexpr uint film_on_user_page_proto_fields = 2;
-    static constexpr uint film_ratio = 5;
+    static constexpr uint32_t film_on_user_page_proto_fields = 2;
+    static constexpr uint32_t film_ratio = 5;
 
-    static constexpr uint user_full_page_proto_fields = 6;
+    static constexpr uint32_t user_full_page_proto_fields = 6;
     static constexpr std::string_view quoete = "Quoete";
     static constexpr std::string_view about = "About";
     static const std::vector<genre> favourite_genres;
     static const std::vector<actor_preview> favourite_actors;
     static const std::vector<film_on_user_page> watched_films;
 
-    static constexpr uint message_proto_fields = 3;
+    static constexpr uint32_t message_proto_fields = 3;
     static constexpr std::string_view message_text = "Text";
     static constexpr std::string_view time_stamp = "12-12-2021 12:12:12";
 
-    static constexpr uint chat_preview_proto_fields = 7;
-    static constexpr uint chat_id = 21;
+    static constexpr uint32_t chat_preview_proto_fields = 7;
+    static constexpr uint32_t chat_id = 21;
     static constexpr bool is_group_chat = true;
     static constexpr std::string_view chat_name = "Name";
     static constexpr std::string_view chat_description = "Description";
     static constexpr std::string_view chat_time_stamp = "12-12-2021 12:12:12";
     static const std::vector<user_preview> chat_members;
 
-    static constexpr uint user_chats_proto_fields = 1;
+    static constexpr uint32_t user_chats_proto_fields = 1;
     static const std::vector<chat_preview> user_chats_;
 
     static actor_preview actor_preview_placeholder;
@@ -170,7 +171,7 @@ concept WithDescriptor = requires(T proto) { proto.GetDescriptor(); };
 
 
 template<WithDescriptor T>
-[[nodiscard]] uint getFieldsCount(T &proto) {
+[[nodiscard]] uint32_t getFieldsCount(T &proto) {
             const google::protobuf::Descriptor *desc = proto.GetDescriptor();
             return desc->field_count();
 }
@@ -218,7 +219,7 @@ void check_user_full_page(const common::UserFullPage &proto, const user_full_pag
 TEST_F(ProtosAndPlaceholdersTesting, ActorPreview) {
     common::ActorPreview preview_proto;
 
-    const uint proto_fields_by_desc = getFieldsCount(preview_proto);
+    const uint32_t proto_fields_by_desc = getFieldsCount(preview_proto);
     auto pl = this->actor_preview_placeholder;
     (this->actor_preview_placeholder).convert_to_proto(&preview_proto);
 
@@ -229,7 +230,7 @@ TEST_F(ProtosAndPlaceholdersTesting, ActorPreview) {
 TEST_F(ProtosAndPlaceholdersTesting, UserPreview) {
     common::UserPreview preview_proto;
 
-    const uint proto_fields_by_desc = getFieldsCount(preview_proto);
+    const uint32_t proto_fields_by_desc = getFieldsCount(preview_proto);
     auto pl = this->user_preview_placeholder;
     (this->user_preview_placeholder).convert_to_proto(&preview_proto);
 
@@ -240,7 +241,7 @@ TEST_F(ProtosAndPlaceholdersTesting, UserPreview) {
 TEST_F(ProtosAndPlaceholdersTesting, FilmPreview) {
     common::FilmPreview preview_proto;;
 
-    const uint proto_fields_by_desc = getFieldsCount(preview_proto);
+    const uint32_t proto_fields_by_desc = getFieldsCount(preview_proto);
     auto pl = this->film_preview_placeholder;
     (this->film_preview_placeholder).convert_to_proto(&preview_proto);
 
@@ -251,7 +252,7 @@ TEST_F(ProtosAndPlaceholdersTesting, FilmPreview) {
 TEST_F(ProtosAndPlaceholdersTesting, FilmFullPage) {
     common::FilmFullPage film_full_page_proto;
 
-    const uint proto_fields_by_desc = getFieldsCount(film_full_page_proto);
+    const uint32_t proto_fields_by_desc = getFieldsCount(film_full_page_proto);
     auto pl = this->film_full_page_placeholder;
     (this->film_full_page_placeholder).convert_to_proto(&film_full_page_proto);
 
@@ -262,7 +263,7 @@ TEST_F(ProtosAndPlaceholdersTesting, FilmFullPage) {
 TEST_F(ProtosAndPlaceholdersTesting, FilmOnUserPage) {
     common::FilmOnUserPage film_on_user_page_proto;
 
-    const uint proto_fields_by_desc = getFieldsCount(film_on_user_page_proto);
+    const uint32_t proto_fields_by_desc = getFieldsCount(film_on_user_page_proto);
     auto pl = this->film_on_user_page_placeholder;
     auto pl1 = this->user_full_page_placeholder;
     auto favavec = this->favourite_actors;
@@ -276,7 +277,7 @@ TEST_F(ProtosAndPlaceholdersTesting, FilmOnUserPage) {
 TEST_F(ProtosAndPlaceholdersTesting, UserFullPage) {
     common::UserFullPage user_full_page_proto;
 
-    const uint proto_fields_by_desc = getFieldsCount(user_full_page_proto);
+    const uint32_t proto_fields_by_desc = getFieldsCount(user_full_page_proto);
     auto pl = this->user_full_page_placeholder;
     (this->user_full_page_placeholder).convert_to_proto(&user_full_page_proto);
 
@@ -360,6 +361,7 @@ TEST_F(databaseTesting, TestPhotoCreationFromBytea) {
         // auto bytes = row[0].as<char*>();
         // auto bytes = row[0].as<std::string>();
         auto bytes = row[0].as<std::basic_string<std::byte>>(); 
+        
         std::ofstream out(film_name + ".jpg", std::ios_base::binary | std::ios_base::out);
         std::cerr << "size: " << sizeof(std::byte) * bytes.size() << std::endl;
         out.write(reinterpret_cast<char*>(bytes.data()), bytes.size());

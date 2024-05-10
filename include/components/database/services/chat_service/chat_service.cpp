@@ -5,12 +5,12 @@
 #include "components/database/services/authservice/authservice.hpp"
 
 namespace database {
-std::pair<uint, std::string> chat_service_database_api::add_message(const int &sender_id, const int &chat_id, const std::string &message_text) {
+std::pair<uint32_t, std::string> chat_service_database_api::add_message(const int &sender_id, const int &chat_id, const std::string &message_text) {
     const connector connection;
     const auto result = connection.txn->exec_params("INSERT INTO messages (sender_id, chat_id, message_text_data) VALUES ($1, $2, $3) RETURNING id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS')", sender_id, chat_id, message_text);
-    std::pair<uint, std::string> id_timestamp;
+    std::pair<uint32_t, std::string> id_timestamp;
     for (auto row : result) {
-        id_timestamp = std::make_pair(row[0].as<uint>(), row[1].as<std::string>());
+        id_timestamp = std::make_pair(row[0].as<uint32_t>(), row[1].as<std::string>());
     }
     connection.txn->commit();
     return id_timestamp;
@@ -39,7 +39,7 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
     const connector connection;
     static std::string quer = "SELECT chat_id FROM chat_membership WHERE user_id = $1"; 
     const auto result = connection.txn->exec_params(quer, user_id);
-    std::vector<uint> chat_ids;
+    std::vector<uint32_t> chat_ids;
     chat_ids.reserve(result.size());
     for (const auto &row : result) {
         chat_ids.push_back(row[0].as<int>());
@@ -103,11 +103,11 @@ bool chat_service_database_api::check_user_in_chat(const int &user_id, const int
     return is_user_in_chat;
 }
 
-std::pair<uint, std::string> chat_service_database_api::create_private_chat(const std::pair<int, int> &users_ids)  {
+std::pair<uint32_t, std::string> chat_service_database_api::create_private_chat(const std::pair<int, int> &users_ids)  {
         const connector connection;
         static std::string quer = "INSERT INTO chats (is_group_chat, users_count) VALUES (false, 2) RETURNING id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS')";
         const auto result = connection.txn->exec_params(quer);
-        std::pair<uint, std::string> id_timestamp;
+        std::pair<uint32_t, std::string> id_timestamp;
         for (const auto &row : result) {
             id_timestamp = std::make_pair(row[0].as<int>(), row[1].as<std::string>());
         }

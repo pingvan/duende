@@ -13,27 +13,27 @@
 
 namespace database {
     //get is mutual????
-    std::vector<uint> subscription_service_database_api::get_subscribers(const int &user_id) {
+    std::vector<uint32_t> subscription_service_database_api::get_subscribers(const int &user_id) {
         const connector connection;
         static constexpr std::string_view query = "SELECT subscription_from FROM subscriptions WHERE subscription_to = $1";
         const auto result = connection.txn->exec_params(pqxx::zview(query), user_id);
-        std::vector<uint> subscribers_ids;
+        std::vector<uint32_t> subscribers_ids;
         subscribers_ids.reserve(result.size());
         for (const auto &row : result) {
-            subscribers_ids.push_back(row[0].as<uint>()); //maybe change to int
+            subscribers_ids.push_back(row[0].as<uint32_t>()); //maybe change to int
         }
         connection.txn->commit();
         return subscribers_ids;
     }
 
-    std::vector<uint> subscription_service_database_api::get_subscriptions(const int &user_id) {
+    std::vector<uint32_t> subscription_service_database_api::get_subscriptions(const int &user_id) {
         const connector connection;
         static constexpr std::string_view query = "SELECT subscription_to FROM subscriptions WHERE subscription_from = $1";
         const auto result = connection.txn->exec_params(pqxx::zview(query), user_id);
-        std::vector<uint> subscriptions_ids;
+        std::vector<uint32_t> subscriptions_ids;
         subscriptions_ids.reserve(result.size());
         for (const auto &row : result) {
-            subscriptions_ids.push_back(row[0].as<uint>()); //maybe change to int
+            subscriptions_ids.push_back(row[0].as<uint32_t>()); //maybe change to int
         }
         connection.txn->commit();
         return subscriptions_ids;

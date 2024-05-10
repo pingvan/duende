@@ -223,8 +223,8 @@ genre authservice_database_api::enum_from_string(const std::string &ss) {
 }
 
 std::vector<genre> authservice_database_api::array_parser(const std::string &json_string) {
-    constexpr uint max_size = 13;
-    constexpr uint max_genres_amount = 22;
+    constexpr uint32_t max_size = 13;
+    constexpr uint32_t max_genres_amount = 22;
     static_assert(max_size == 13, "");
     static_assert(max_genres_amount == 22, "");
     

@@ -16,13 +16,13 @@
 
 namespace database {
     
-    std::pair<uint, std::string> invite_service_database_api::add_invite(const std::string &invite_text, const int &invite_from, const int &invite_to) {
+    std::pair<uint32_t, std::string> invite_service_database_api::add_invite(const std::string &invite_text, const int &invite_from, const int &invite_to) {
         const connector connection;
         static std::string quer = "INSERT INTO invites (invite_text, invite_from_user, invite_to_user) VALUES ($1, $2, $3) RETURNING id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS')";
         const auto result = connection.txn->exec_params(quer, invite_text, invite_from, invite_to);
-        std::pair<uint, std::string> id_timestamp;
+        std::pair<uint32_t, std::string> id_timestamp;
         for (const auto &row : result) {
-            id_timestamp = std::make_pair(row[0].as<uint>(), row[1].as<std::string>());
+            id_timestamp = std::make_pair(row[0].as<uint32_t>(), row[1].as<std::string>());
         }
         connection.txn->commit();
         return id_timestamp;
@@ -62,7 +62,7 @@ namespace database {
         received.invites.reserve(result.size());
         for (const auto &row : result) {
             invite new_invite;
-            new_invite.invite_id = row[0].as<uint>();
+            new_invite.invite_id = row[0].as<uint32_t>();
             new_invite.invite_text = row[1].as<std::string>();
             new_invite.sender = authservice_database_api::get_user_preview(row[2].as<int>()); //const reference extends the lifetime, right??? //FIXME
             received.invites.push_back(new_invite);
@@ -79,7 +79,7 @@ namespace database {
         sended.invites.reserve(result.size());
         for (const auto &row : result) {
             invite new_invite;
-            new_invite.invite_id = row[0].as<uint>();
+            new_invite.invite_id = row[0].as<uint32_t>();
             new_invite.invite_text = row[1].as<std::string>();
             new_invite.sender = authservice_database_api::get_user_preview(row[2].as<int>()); //not sender, but... //FIXME
             sended.invites.push_back(new_invite);
