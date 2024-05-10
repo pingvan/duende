@@ -27,24 +27,17 @@ class Follows : public QWidget
 
 public:
     explicit Follows(Manager* managerPtr, QWidget *parent = nullptr);
-    QStringList searchUsers(const QString &input);
     ~Follows();
 
 signals:
     void userClicked(int id);
 
 private slots:
-    void updateUserList(const QString &input);
-    void onUserClicked(const QString &username);
     // void toggleLists();
 
 private:
     Ui::Follows *ui;
     Manager *manager;
-    QLineEdit *search_line;
-    QStringListModel *model;
-    QCompleter *completer;
-    QMap<QString, int> users_id;
     QListWidget *subscribersList;
     QListWidget *subscriptionsList;
     QPushButton *toggleButton;

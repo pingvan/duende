@@ -1,4 +1,5 @@
 #include "invite_service.hpp"
+#include <sys/types.h>
 #include "components/database/connection/database-connector.hpp"
 #include "components/database/services/authservice/authservice.hpp"
 
@@ -8,28 +9,29 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <utility>
 
 //treat to enums as int in psql??
 
 
 namespace database {
     
-    int invite_service_database_api::add_invite(const std::string &invite_text, const invite_status &status, const int &invite_from, const int &invite_to) {
+    std::pair<uint, std::string> invite_service_database_api::add_invite(const std::string &invite_text, const int &invite_from, const int &invite_to) {
         const connector connection;
-        static std::string quer = "INSERT INTO invites (invite_text, invite_status, invite_from_user, invite_to_user) VALUES ($1, $2, $3, $4) RETURNING id";
-        const auto result = connection.txn->exec_params(quer, invite_text, enum_invite_status_to_string(status), invite_from, invite_to);
-        int invite_id = -1;
+        static std::string quer = "INSERT INTO invites (invite_text, invite_from_user, invite_to_user) VALUES ($1, $2, $3) RETURNING id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS')";
+        const auto result = connection.txn->exec_params(quer, invite_text, invite_from, invite_to);
+        std::pair<uint, std::string> id_timestamp;
         for (const auto &row : result) {
-            invite_id = row[0].as<int>();
+            id_timestamp = std::make_pair(row[0].as<uint>(), row[1].as<std::string>());
         }
         connection.txn->commit();
-        return invite_id;
+        return id_timestamp;
     }
 
-    void invite_service_database_api::change_invite_status(const int &invite_id, const invite_status &new_status) {
+    void invite_service_database_api::change_invite_status(const int &invite_id) {
         const connector connection;
-        static std::string quer = "UPDATE invites SET invite_status = $2 WHERE id = $1";
-        const auto result = connection.txn->exec_params(quer, invite_id, enum_invite_status_to_string(new_status));
+        static std::string quer = "DELETE FORM invites WHERE id = $1";
+        const auto result = connection.txn->exec_params(quer, invite_id);
         connection.txn->commit();
     }
 
@@ -54,7 +56,7 @@ namespace database {
 
     invites_recivie invite_service_database_api::get_received_invites(const int &user_id) {
         const connector connection;
-        static std::string quer = "SELECT id, invite_text, invite_status, invite_from_user FROM invites WHERE invite_to_user = $1";
+        static std::string quer = "SELECT id, invite_text, invite_from_user FROM invites WHERE invite_to_user = $1";
         const auto result = connection.txn->exec_params(quer, user_id);
         invites_recivie received;
         received.invites.reserve(result.size());
@@ -62,8 +64,7 @@ namespace database {
             invite new_invite;
             new_invite.invite_id = row[0].as<uint>();
             new_invite.invite_text = row[1].as<std::string>();
-            new_invite.status = string_to_invite_status(row[2].as<std::string>());
-            new_invite.sender = authservice_database_api::get_user_preview(row[3].as<int>()); //const reference extends the lifetime, right??? //FIXME
+            new_invite.sender = authservice_database_api::get_user_preview(row[2].as<int>()); //const reference extends the lifetime, right??? //FIXME
             received.invites.push_back(new_invite);
         }
         connection.txn->commit(); 
@@ -72,7 +73,7 @@ namespace database {
 
     invites_sent invite_service_database_api::get_sended_invites(const int &user_id) {
         const connector connection;
-        static std::string quer = "SELECT id, invite_text, invite_status, invite_to_user FROM invites WHERE invite_from_user = $1";
+        static std::string quer = "SELECT id, invite_text, invite_to_user FROM invites WHERE invite_from_user = $1";
         const auto result = connection.txn->exec_params(quer, user_id);
         invites_sent sended;
         sended.invites.reserve(result.size());
@@ -80,50 +81,11 @@ namespace database {
             invite new_invite;
             new_invite.invite_id = row[0].as<uint>();
             new_invite.invite_text = row[1].as<std::string>();
-            new_invite.status = string_to_invite_status(row[2].as<std::string>());
-            new_invite.sender = authservice_database_api::get_user_preview(row[3].as<int>()); //not sender, but... //FIXME
+            new_invite.sender = authservice_database_api::get_user_preview(row[2].as<int>()); //not sender, but... //FIXME
             sended.invites.push_back(new_invite);
         }
         connection.txn->commit(); 
         return sended;
-    }
-
-    std::string invite_service_database_api::enum_invite_status_to_string(const invite_status &status) {
-        std::string status_string;
-        switch (status) {
-            case invite_status::SENT:
-                status_string = "sent";
-                break;
-            case invite_status::ACCEPTED: 
-                status_string = "accepted";
-                break;
-            case invite_status::DECLINED:
-                status_string = "declined";
-                break;
-        }
-        return status_string;
-
-
-        // static const std::array<std::string, 3> status_strings = {"sent", "accepted", "declined"};
-        // if (status >= invite_status::SENT && status <= invite_status::DECLINED) {
-        //     return status_strings[static_cast<int>(status)];
-        // } else {
-        //     return "unknown"; 
-        // }
-    }
-
-    invite_status invite_service_database_api::string_to_invite_status(const std::string &status) {
-        static const std::unordered_map<std::string, invite_status> status_map = {
-        {"sent", invite_status::SENT},
-        {"accepted", invite_status::ACCEPTED},
-        {"declined", invite_status::DECLINED}
-        };
-        return status_map.find(status)->second;
-        // if (auto it = status_map.find(status); it != status_map.end()) {
-        //     return it->second;
-        // } else {
-        //     throw std::exception{};
-        // }
     }
 
 } //namespace database

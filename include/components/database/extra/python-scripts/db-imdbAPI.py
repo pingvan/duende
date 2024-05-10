@@ -1,25 +1,24 @@
 import requests
 import imdb
+import psycopg2
+
+from tqdm import tqdm
+
+
 
 ia = imdb.IMDb()
 
-def get_movie_cover(movie_name):
+conn = psycopg2.connect("postgres://root:strongpassword@localhost:5432/duende")
+cursor = conn.cursor()
+
+def get_movie_cover(movie_name, filmed_year):
     search_results = ia.search_movie(movie_name)
 
-    print(search_results)
-
-    if search_results:
-        movie = search_results[0]
-
-        ia.update(movie)
-
-        print(movie.keys())
-        if 'cover url' in movie.keys():
-            return movie['cover url']
-        else:
-            return "Cover image not found for {}".format(movie_name)
-    else:
-        return "Movie not found: {}".format(movie_name)
+    for movie in search_results:
+        if movie.get('year') == filmed_year:
+            ia.update(movie)
+            cover_url = movie.get_fullsizeURL()
+            return cover_url
     
 
 def download_image_as_bytes(image_url):
@@ -36,17 +35,30 @@ def download_image_as_bytes(image_url):
         return None
 
 
+get_films_query = "SELECT title, release_date FROM films LIMIT 8"
+insert_film_cover_query = "UPDATE films SET cover = %s WHERE title = %s"
 
-movie_name = "Titanic"
-cover_url = get_movie_cover(movie_name)
-print("Cover URL for '{}': {}".format(movie_name, cover_url))
+cursor.execute(get_films_query)
+films = cursor.fetchall()
 
+pbar = tqdm(len(films), desc="Downloading covers")
 
-image_url = cover_url
-image_bytes = download_image_as_bytes(image_url)
+for film in films:
+    title = film[0]
+    release_date = film[1]
 
-if image_bytes:
-    print("Image downloaded as bytes successfully!")
-    # print(image_bytes)
-else:
-    print("Failed to download image as bytes.")
+    cover_url = get_movie_cover(title, release_date.year)
+
+    if cover_url:
+        image_bytes = download_image_as_bytes(cover_url)
+        cursor.execute(insert_film_cover_query, (image_bytes, title))
+        print("Cover downloaded for", title)
+    else:
+        print("No cover found for", title)
+
+    pbar.update(1)    
+
+conn.commit()
+conn.close()
+
+        

@@ -41,13 +41,13 @@ pkg_check_modules(LIBPQXX REQUIRED libpqxx)
 # add_executable(gtests
 #         gtests/gtest_main.cpp
 
-#         # ${TESTS_SRCS}
+        # ${TESTS_SRCS}
 
-#         ${COMPONENTS_SRCS}
-#         ${SERVICES_SRCS}
+        ${COMPONENTS_SRCS}
+        ${SERVICES_SRCS}
 
-#         ${generated_proto_models_srcs}
-# )
+        ${generated_proto_models_srcs}
+)
 
 add_executable(main
     src/main.cpp
@@ -119,8 +119,8 @@ target_link_options(main PUBLIC
 #         ${LIBPQXX_INCLUDE_DIRS}
 # )
 
-# target_link_options(gtests PUBLIC
-#         -lpqxx)
+target_link_options(gtests PUBLIC
+        -lpqxx)
 
-# target_link_options(gtests PUBLIC
-#         ${LIBPQXX_LDFLAGS})
+target_link_options(gtests PUBLIC
+        ${LIBPQXX_LDFLAGS})

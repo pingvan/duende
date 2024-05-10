@@ -7,7 +7,7 @@
 namespace database {
 std::pair<uint, std::string> chat_service_database_api::add_message(const int &sender_id, const int &chat_id, const std::string &message_text) {
     const connector connection;
-    const auto result = connection.txn->exec_params("INSERT INTO messages (sender_id, chat_id, message_text_data) VALUES ($1, $2, $3) RETURNING id, sended_at", sender_id, chat_id, message_text);
+    const auto result = connection.txn->exec_params("INSERT INTO messages (sender_id, chat_id, message_text_data) VALUES ($1, $2, $3) RETURNING id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS')", sender_id, chat_id, message_text);
     std::pair<uint, std::string> id_timestamp;
     for (auto row : result) {
         id_timestamp = std::make_pair(row[0].as<uint>(), row[1].as<std::string>());
@@ -103,18 +103,18 @@ bool chat_service_database_api::check_user_in_chat(const int &user_id, const int
     return is_user_in_chat;
 }
 
-int chat_service_database_api::create_private_chat(const std::pair<int, int> &users_ids, const std::string &timestamp)  {
+std::pair<uint, std::string> chat_service_database_api::create_private_chat(const std::pair<int, int> &users_ids)  {
         const connector connection;
-        static std::string quer = "INSERT INTO chats (created_at, is_group_chat, users_count) VALUES ($1, false, 2) RETURNING id";
-        const auto result = connection.txn->exec_params(quer, timestamp);
-        int chat_id = 0;
+        static std::string quer = "INSERT INTO chats (is_group_chat, users_count) VALUES (false, 2) RETURNING id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS')";
+        const auto result = connection.txn->exec_params(quer);
+        std::pair<uint, std::string> id_timestamp;
         for (const auto &row : result) {
-            chat_id = row[0].as<int>();
+            id_timestamp = std::make_pair(row[0].as<int>(), row[1].as<std::string>());
         }
         static std::string quer_sec = "INSERT INTO chat_membership (user_id, chat_id) VALUES ($1, $2)";
-        connection.txn->exec_params(quer_sec, users_ids.first, chat_id);
-        connection.txn->exec_params(quer_sec, users_ids.second, chat_id);
+        connection.txn->exec_params(quer_sec, users_ids.first, id_timestamp.first);
+        connection.txn->exec_params(quer_sec, users_ids.second, id_timestamp.first);
         connection.txn->commit();
-        return chat_id;
+        return id_timestamp;
 }
 }

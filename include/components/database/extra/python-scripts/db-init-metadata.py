@@ -9,9 +9,10 @@ connection = psycopg2.connect(
 cursor = connection.cursor()
 
 class film:
-    def __init__(self, id, title, description, genres):
+    def __init__(self, id, title, release_date, description, genres):
         self.id = id
         self.title = title
+        self.release_date = release_date
         self.description = description
         self.genres = genres
 
@@ -27,7 +28,7 @@ movies_credits = pd.read_csv('../metadata/movie_credits.csv')
 movies_credits = movies_credits.rename(columns={'movie_id' : 'id'})
 
 
-merged_data = pd.merge(movies_data, movies_credits, on='id', how='inner')
+merged_data = pd.merge(movies_data, movies_credits, on='id', how='inner').dropna(subset=['release_date'])
 
 # merged_data.to_csv('created.csv', index=False)
 
@@ -47,11 +48,11 @@ for tup in merged_data.itertuples():
         actorss.append(en['name'])
         actor_to_film[tup.id].append(en['id'])
         actors_to_id[en['id']] = en['name']
-    new_film = film(tup.id, tup.original_title, tup.overview, genreee)
+    new_film = film(tup.id, tup.original_title, tup.release_date, tup.overview, genreee)
     films.append(new_film)
 
 insert_film = """
-INSERT INTO films (id, title, description, genres) VALUES (%s, %s, %s, %s)
+INSERT INTO films (id, title, release_date, description, genres) VALUES (%s, %s, %s, %s, %s)
 """
 
 insert_actors="""
@@ -67,7 +68,7 @@ for film in films:
         if v == 'science fiction':
             film.genres[i] = 'sci-fi'    
     genres_array = "{" + ",".join(film.genres) + "}"
-    cursor.execute(insert_film, (film.id, film.title, film.description, genres_array))
+    cursor.execute(insert_film, (film.id, film.title, film.release_date, film.description, genres_array))
     
 for id, name in actors_to_id.items():
     cursor.execute(insert_actors, (id, name))
