@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package users_interaction;
+
+service UsersInteractionService {
+  rpc Subscribe(SubscribeRequest) returns (SubscribeResponse) {}
+  rpc Unsubscribe(UnsubscribeRequest) returns (UnsubscribeResponse) {}
+  rpc ShowAllSubscriptions(ShowAllSubscriptionsRequest) returns (ShowAllSubscriptionsResponse) {}
+  rpc ShowAllSubscribers(ShowAllSubscribersRequest) returns (ShowAllSubscribersResponse) {}
+  rpc Block(BlockRequest) returns (BlockResponse) {}
+  rpc Unblock(UnblockRequest) returns (UnblockResponse) {}
+  rpc ShowAllBlocked(ShowAllBlockedRequest) returns (ShowAllBlockedResponse) {}
+}
+
+message BlockRequest {
+    int32 blocker_id = 1;
+    int32 blockie_id = 2;
+}
+
+message UnblockRequest {
+    int32 blocker_id = 1;
+    int32 blockie_id = 2;
+}
+
+message ShowAllBlockedRequest {
+    int32 blockie_id = 1;
+}
+
+message BlockResponse {
+  string message = 1;
+}
+
+message UnblockResponse {
+  string message = 1;
+}
+
+message ShowAllBlockedResponse {
+    repeated int32 blockie_id = 1;
+}
+
+message SubscribeRequest {
+    int32 subscriber_id = 1;
+    int32 subscribie_id = 2;
+}
+
+message UnsubscribeRequest {
+    int32 subscriber_id = 1;
+    int32 subscribie_id = 2;
+}
+
+message ShowAllSubscriptionsRequest {
+    int32 subscriber_id = 1;
+}
+
+message ShowAllSubscribersRequest {
+    int32 subscribie_id = 1;
+}
+
+message SubscribeResponse {
+  string message = 1;
+}
+
+message UnsubscribeResponse {
+  string message = 1;
+}
+
+message ShowAllSubscriptionsResponse {
+    repeated int32 subscribie_id = 1;
+}
+
+message ShowAllSubscribersResponse {
+    repeated int32 subscriber_id = 1;
+}
