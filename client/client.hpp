@@ -45,6 +45,9 @@ public:
     std::function<void(const chat_service::MessageReceived&)> onNewMessageReceived;
     std::function<void(const invitation::SendInvitationResponse&)> onNewInviteReceived;
     std::function<void(const invitation::RespondToInvitationResponse&)> onInviteRespondReceived;
+    std::function<void(const users_interaction::SubscribeResponse&)> onSubscribersChanged;
+    std::function<void(const users_interaction::SubscribeResponse&)> onSubscriptionsChanged;
+    std::function<void(const users_interaction::BlockResponse&)> onBlockedChanged;
 
     explicit client(const std::shared_ptr<grpc::Channel> &new_channel); 
 

@@ -26,6 +26,15 @@ public:
             new_client.onInviteRespondReceived = [this](const invitation::RespondToInvitationResponse& response) {
                 emit InviteRespondReceived(response);
             };
+            new_client.onSubscribersChanged = [this](const users_interaction::SubscribeResponse& response) {
+                emit subscribersChanged();
+            };
+            new_client.onSubscriptionsChanged = [this](const users_interaction::SubscribeResponse& response) {
+                emit subscriptionsChanged();
+            };
+            new_client.onBlockedChanged = [this](const users_interaction::BlockResponse& response) {
+                emit subscriptionsChanged();
+            };
     }
 
     void logout() {
@@ -43,7 +52,8 @@ signals:
     void newMessageReceived(const chat_service::MessageReceived& message);
     void NewInviteReceived(const invitation::SendInvitationResponse& response);
     void InviteRespondReceived(const invitation::RespondToInvitationResponse& response);
-    
+    void subscribersChanged();
+    void subscriptionsChanged();
 };
 
 #endif // MANAGER_H

@@ -3,12 +3,36 @@
 
 Follows::Follows(Manager *managerPtr, QWidget *parent)
     : QWidget(parent), ui(new Ui::Follows), manager(managerPtr) {
+    std::vector<uint32_t> subscribers =
+        manager->new_client.get_subscribers(manager->ID);
+    std::vector<uint32_t> subscriptions =
+        manager->new_client.get_subscriptions(manager->ID);
+    std::vector<uint32_t> blocked =
+        manager->new_client.get_blocked(manager->ID);
+
+    connect(
+        manager, &Manager::subscribersChanged, this, &Follows::populateLists
+    );
+    connect(
+        manager, &Manager::subscriptionsChanged, this, &Follows::populateLists
+    );
+    connect(
+        manager, &Manager::subscriptionsChanged, this, &Follows::populateLists
+    );
+
     ui->setupUi(this);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     setLayout(layout);
 
-    QHBoxLayout *topLayout = new QHBoxLayout;
+    search_line = new QLineEdit;
+    search_line->setPlaceholderText("Search users...");
+
+    model = new QStringListModel(searchUsers(""), search_line);
+
+    completer = new QCompleter(model);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    search_line->setCompleter(completer);
 
     subscribersList = new QListWidget;
     subscribersList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -16,47 +40,67 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
     subscriptionsList = new QListWidget;
     subscriptionsList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
+    blockedList = new QListWidget;
+    blockedList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    populateLists();
+
     QScrollArea *scrollArea = new QScrollArea;
-    scrollArea->setWidgetResizable(true); 
-    scrollArea->setFrameShape(QFrame::NoFrame); 
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setFrameShape(QFrame::NoFrame);
 
     QWidget *listWidget = new QWidget;
     QVBoxLayout *listLayout = new QVBoxLayout(listWidget);
     listLayout->addWidget(subscribersList);
     listLayout->addWidget(subscriptionsList);
+    listLayout->addWidget(blockedList);
     scrollArea->setWidget(listWidget);
 
     QHBoxLayout *buttonsLayout = new QHBoxLayout;
 
     QPushButton *subscribersButton = new QPushButton("Subscribers");
     QPushButton *subscriptionsButton = new QPushButton("Subscriptions");
+    QPushButton *blockedButton = new QPushButton("Blocked");
+
+    blockedButton->setFixedWidth(this->width() * 0.1);
 
     QButtonGroup *buttonGroup = new QButtonGroup(this);
 
     buttonGroup->addButton(subscriptionsButton);
     buttonGroup->addButton(subscribersButton);
+    buttonGroup->addButton(blockedButton);
 
     subscribersButton->setCheckable(true);
     subscriptionsButton->setCheckable(true);
+    blockedButton->setCheckable(true);
 
     subscriptionsButton->setChecked(true);
 
     buttonsLayout->addWidget(subscriptionsButton);
     buttonsLayout->addWidget(subscribersButton);
+    buttonsLayout->addWidget(blockedButton);
 
     layout->addLayout(buttonsLayout);
+    layout->addWidget(search_line);
     layout->addWidget(scrollArea);
-    layout->addStretch(1);
-    // layout->addStretch();
 
     subscribersList->hide();
+    blockedList->hide();
     connect(subscriptionsButton, &QPushButton::clicked, [this]() {
         subscriptionsList->show();
         subscribersList->hide();
+        blockedList->hide();
     });
 
     connect(subscribersButton, &QPushButton::clicked, [this]() {
         subscribersList->show();
+        subscriptionsList->hide();
+        blockedList->hide();
+    });
+
+    connect(blockedButton, &QPushButton::clicked, [this]() {
+        blockedList->show();
+        subscribersList->hide();
         subscriptionsList->hide();
     });
 
@@ -68,3 +112,66 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
 Follows::~Follows() {
     delete ui;
 }
+
+QStringList Follows::searchUsers(const QString &input) {
+    QStringList users;
+
+    auto response =
+        manager->new_client.search_user_by_credentials(input.toStdString());
+
+    for (int i = 0; i < response->users_size(); i++) {
+        if (response->users(i).user_id() == manager->ID) {
+            continue;
+        }
+        users.append(QString::fromStdString(response->users(i).login()));
+        users_id[QString::fromStdString(response->users(i).login())] =
+            response->users(i).user_id();
+    }
+    return users;
+}
+
+void Follows::updateUserList(const QString &input) {
+    model->setStringList(searchUsers(input));
+}
+
+void Follows::onUserClicked(const QString &username) {
+    int id = users_id[username];
+    emit userClicked(id);
+}
+
+// cringe?
+void Follows::populateLists() {
+    subscribersList->clear();
+    subscriptionsList->clear();
+    blockedList->clear();
+
+    std::vector<uint32_t> subscribers =
+        manager->new_client.get_subscribers(manager->ID);
+    std::vector<uint32_t> subscriptions =
+        manager->new_client.get_subscriptions(manager->ID);
+    std::vector<uint32_t> blocked =
+        manager->new_client.get_blocked(manager->ID);
+
+    for (const auto &subscriber : subscribers) {
+        QListWidgetItem *item = new QListWidgetItem;
+        item->setText(QString::number(subscriber));
+        subscribersList->addItem(item);
+    }
+
+    for (const auto &subscription : subscriptions) {
+        QListWidgetItem *item = new QListWidgetItem;
+        item->setText(QString::number(subscription));
+        subscriptionsList->addItem(item);
+    }
+
+    for (const auto &block : blocked) {
+        QListWidgetItem *item = new QListWidgetItem;
+        item->setText(QString::number(block));
+        blockedList->addItem(item);
+    }
+}
+
+// void Follows::resizeEvent(QResizeEvent *event) {
+//     QSize newSize = event->size();
+//     blockedButton->setFixedSize(newSize.width() * 0.2, subscriptionsButton->height());
+// }
