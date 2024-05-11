@@ -37,9 +37,11 @@ public:
 
 signals:
     void inviteSent(const invitation::Invite&);
+    void subscriptionMade(const common::UserPreview&);
 
 public slots:
     void sendInvite();
+    void Subscribe();
 
 private:
     Ui::OtherPage *ui;

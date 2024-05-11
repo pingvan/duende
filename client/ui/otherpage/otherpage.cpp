@@ -29,6 +29,13 @@ void OtherPage::sendInvite()
     qDebug() << "Invite sended";
 }
 
+void OtherPage::Subscribe() 
+{
+    assert(manager != nullptr);
+    manager->new_client.subscribe(manager->ID, id);
+    qDebug() << "Subscription made";
+}
+
 void OtherPage::updatePage(int newId)
 {
     qDebug() << "Update page start";
@@ -197,6 +204,7 @@ void OtherPage::build()
     build_scenes();
    
     connect(inviteButton, &QPushButton::clicked, this, &OtherPage::sendInvite);
+    connect(subscribeButton, &QPushButton::clicked, this, &OtherPage::Subscribe);
 }
 
 OtherPage::~OtherPage()

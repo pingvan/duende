@@ -12,5 +12,6 @@
         <file>img/logout.png</file>
         <file>img/cross.png</file>
         <file>img/follows.png</file>
+        <file>img/person-add.png</file>
     </qresource>
 </RCC>

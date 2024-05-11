@@ -50,6 +50,7 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
     scrollArea->setFrameShape(QFrame::NoFrame);
 
     QWidget *listWidget = new QWidget;
+    listWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     QVBoxLayout *listLayout = new QVBoxLayout(listWidget);
     listLayout->addWidget(subscribersList);
     listLayout->addWidget(subscriptionsList);
@@ -103,6 +104,13 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
         subscribersList->hide();
         subscriptionsList->hide();
     });
+
+    connect(search_line, &QLineEdit::textChanged, this, &Follows::updateUserList);
+
+    connect(
+        completer, QOverload<const QString &>::of(&QCompleter::activated), this,
+        &Follows::onUserClicked
+    );
 
     layout->addItem(
         new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding)
@@ -173,5 +181,6 @@ void Follows::populateLists() {
 
 // void Follows::resizeEvent(QResizeEvent *event) {
 //     QSize newSize = event->size();
-//     blockedButton->setFixedSize(newSize.width() * 0.2, subscriptionsButton->height());
+//     blockedButton->setFixedSize(newSize.width() * 0.2,
+//     subscriptionsButton->height());
 // }
