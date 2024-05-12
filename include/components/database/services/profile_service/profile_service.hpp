@@ -11,7 +11,7 @@ struct profile_service_database_api {
     static void change_nickname(const int &user_id, const std::string &new_user_nickname);
 
     static void
-    change_photo(const int &user_id, const std::vector<unsigned char> &bytes);
+    change_photo(const int &user_id, const std::basic_string<std::byte> &photo_binary);
     static void change_quotation(const int &user_id, const std::string &quotation);
     static void change_about(const int &user_id, const std::string &about);
 

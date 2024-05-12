@@ -75,6 +75,7 @@ message ChatPreview {
   string time_stamp = 5;
   MessageReceived last_message = 6;
   repeated common.UserPreview chat_members = 7;
+  optional bytes chat_cover = 8;
 }
 
 message GetChatsRequest {

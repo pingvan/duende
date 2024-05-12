@@ -126,5 +126,6 @@ target_link_options(main PUBLIC
 # target_link_options(gtests PUBLIC
 #         -lpqxx)
 
-# target_link_options(gtests PUBLIC
-#         ${LIBPQXX_LDFLAGS})
+target_link_options(gtests PUBLIC
+        ${LIBPQXX_LDFLAGS})
+

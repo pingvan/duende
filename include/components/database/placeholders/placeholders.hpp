@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cassert>
 #include <vector>
 #include <string>
@@ -56,14 +57,16 @@ enum class genre {
     struct film_preview  {
         film_preview() = default;
         film_preview(const uint32_t &id_, const std::string &title_) : id(id_), title(title_) {}
+        film_preview(const uint32_t &id_, const std::string &title_, const std::string &preview_cover_url_) : id(id_), title(title_), preview_cover_url(preview_cover_url_) {}
 
         uint32_t id;
         std::string title;
-        // std::vector<unsigned char> cover;
+        std::string preview_cover_url;
 
         void convert_to_proto(common::FilmPreview *proto) const {
             proto->set_film_id(id);
             proto->set_title(title);
+            proto->set_preview_cover_url(preview_cover_url);
         }
     };
 
@@ -71,6 +74,7 @@ enum class genre {
         film_preview preview;
         std::string description;
         std::vector<genre> genres;
+        std::string full_page_cover_url{};
 
         void convert_to_proto(common::FilmFullPage *proto) const {
             auto prewiew_proto = new common::FilmPreview;
@@ -80,6 +84,7 @@ enum class genre {
             for (const auto& genre : this->genres) {
                 proto->add_genres(static_cast<common::Genre>(genre));
             }
+            proto->set_full_page_cover_url(full_page_cover_url);
         }
     };
 
@@ -101,11 +106,14 @@ enum class genre {
         
         uint32_t id;
         std::string login;
-        // std::vector<unsigned char> photo;
+        std::basic_string<std::byte> photo;
 
         void convert_to_proto(common::UserPreview *response) const  {
             response->set_user_id(id);
             response->set_login(login);
+            std::string string_photo;
+            std::transform(photo.begin(), photo.end(), std::back_inserter(string_photo), [](std::byte byte_) { return static_cast<char>(byte_); });
+            response->set_photo(string_photo);
         }
     };
 
@@ -166,7 +174,7 @@ enum class genre {
         std::string time_stamp;
         message last_message;
         std::vector<user_preview> chat_members;
-        // std::vector<unsigned char> cover;
+        std::basic_string<std::byte> chat_cover;
 
         void convert_to_proto(chat_service::ChatPreview *proto) const  {
             proto->set_chat_id(chat_id);
@@ -181,6 +189,9 @@ enum class genre {
                 user_preview_.convert_to_proto(user_preview_proto);
             }
             proto->set_is_group_chat(is_group_chat);
+            std::string string_chat_cover;
+            std::transform(chat_cover.begin(), chat_cover.end(), std::back_inserter(string_chat_cover), [](std::byte byte_) { return static_cast<char>(byte_); });
+            proto->set_chat_cover(string_chat_cover);
         }
     };
 
