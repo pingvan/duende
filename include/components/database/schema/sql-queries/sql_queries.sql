@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS chat_admins (
 
 CREATE TABLE IF NOT EXISTS events (
     id SERIAL PRIMARY KEY,
-    event_type events NOT NULL,
+    event_type event_types NOT NULL,
     user_id INT,
     new_name VARCHAR(50)
     -- event_name VARCHAR(50) NOT NULL --strore json with event data

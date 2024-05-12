@@ -1,4 +1,5 @@
 #include "search_service.hpp"
+#include <exception>
 #include <string>
 #include <string_view>
 #include "components/database/placeholders/placeholders.hpp"
@@ -7,11 +8,12 @@
 namespace database {
 
 std::vector<user_preview> search_service_database_api::search_user_by_credentials(const std::string &user_credentials) {
+    try {
     const connector connection;
     static constexpr auto querry = "SELECT u.id, u.email, u.login, f.photo "
-                                                    "FROM users u"
-                                                    "JOIN forms f ON u.id = f.user_id"
-                                                    "WHERE u.login ILIKE '%a%' OR u.email ILIKE '%a%' LIMIT 50";
+                                                    "FROM users u "
+                                                    "JOIN forms f ON u.id = f.user_id "
+                                                    "WHERE u.login ILIKE '%' || $1 || '%' OR u.email ILIKE '%' || $1 || '%' LIMIT 50";
     const auto result = connection.txn->exec_params(querry, user_credentials);
     std::vector<user_preview> users;
     users.reserve(result.size());
@@ -26,6 +28,10 @@ std::vector<user_preview> search_service_database_api::search_user_by_credential
         }
     }
     return users;
+    } catch (std::exception &e) {
+        std::cerr << "SQL error: " << e.what() << std::endl;
+        return {};
+    }
 }
 
 std::vector<film_preview> search_service_database_api::search_film_by_title(const std::string &title) {

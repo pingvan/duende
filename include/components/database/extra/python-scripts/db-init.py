@@ -28,8 +28,8 @@ END $$
 
 create_event_types = """DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'events') THEN
-        CREATE TYPE events AS ENUM ('change_name', 'change_description', 'change_cover', 'user_entered', 'user_left', 'user_removed');
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'event_types') THEN
+        CREATE TYPE event_types AS ENUM ('change_name', 'change_description', 'change_cover', 'user_entered', 'user_left', 'user_removed');
     END IF;
 END $$
 """

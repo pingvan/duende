@@ -19,7 +19,6 @@ bool authservice_database_api::is_email_used(const std::string &user_email) {
         exists = row[0].as<bool>();
     }
     return exists;
-
 }
 
 bool authservice_database_api::is_nickname_used(const std::string &user_nickname) {
