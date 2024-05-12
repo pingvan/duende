@@ -26,9 +26,18 @@ BEGIN
 END $$
 """
 
+create_event_types = """DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'events') THEN
+        CREATE TYPE events AS ENUM ('change_name', 'change_description', 'change_cover', 'user_entered', 'user_left', 'user_removed');
+    END IF;
+END $$
+"""
+
 # Execute SQL statements to create tables
 cursor.execute(create_genre_type)
 cursor.execute(create_invite_status_type)
+cursor.execute(create_event_types)
 
 f = open('../../schema/sql-queries/sql_queries.sql', 'r')
 sql = f.read()

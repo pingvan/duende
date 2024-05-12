@@ -35,12 +35,14 @@ message ActorPreview {
 message FilmPreview {
     int32 film_id = 1;
   string title = 2;
+  string preview_cover_url = 3;
 }
 
 message FilmFullPage {
   FilmPreview preview = 1;
   string description = 2;
   repeated Genre genres = 3;
+  string full_page_cover_url = 4;
 }
 
 message FilmOnUserPage {
@@ -51,6 +53,7 @@ message FilmOnUserPage {
 message UserPreview {
   int32 user_id = 1;
   string login = 2;
+  bytes photo = 3;
 }
 
 message UserFullPage {

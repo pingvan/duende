@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS passwords (
 
 CREATE TABLE IF NOT EXISTS forms (
     id SERIAL PRIMARY KEY,
-    -- photo BYTEA,
+    photo BYTEA,
     quotation VARCHAR(50), 
     about VARCHAR(250),
     user_id INT NOT NULL,
@@ -35,7 +35,9 @@ CREATE TABLE IF NOT EXISTS films (
     release_date TIMESTAMP NOT NULL,
     description text NOT NULL,
     genres genre[],
-    cover BYTEA
+    cover BYTEA,
+    cover_preview_url text,
+    cover_full_size_url text
 );
 
 CREATE TABLE IF NOT EXISTS views (
@@ -86,10 +88,9 @@ CREATE TABLE IF NOT EXISTS chats (
     created_at TIMESTAMP default NOW(),
     is_group_chat BOOLEAN NOT NULL,
     chat_name VARCHAR(50),
-    -- cover BYTEA,
+    cover BYTEA,
     description text,
-    users_count INT NOT NULL
-    --admin_ids INT[] NOT NULL
+    users_count INT
 );
 
 CREATE TABLE IF NOT EXISTS chat_membership (
@@ -97,6 +98,31 @@ CREATE TABLE IF NOT EXISTS chat_membership (
     chat_id INT NOT NULL,
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(chat_id) REFERENCES chats(id)
+);
+
+CREATE TABLE IF NOT EXISTS chat_admins (
+    user_id INT NOT NULL, 
+    chat_id INT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(chat_id) REFERENCES chats(id)
+);
+
+CREATE TABLE IF NOT EXISTS events (
+    id SERIAL PRIMARY KEY,
+    event_type events NOT NULL,
+    user_id INT,
+    new_name VARCHAR(50)
+    -- event_name VARCHAR(50) NOT NULL --strore json with event data
+);
+
+CREATE TABLE IF NOT EXISTS chat_events (
+    user_id INT NOT NULL,
+    chat_id INT NOT NULL,
+    event_id INT NOT NULL,
+    time_stamp TIMESTAMP default NOW(),
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(chat_id) REFERENCES chats(id), 
+    FOREIGN KEY(event_id) REFERENCES events(id)
 );
 
 CREATE TABLE IF NOT EXISTS messages (

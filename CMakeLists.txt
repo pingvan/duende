@@ -94,3 +94,4 @@ target_link_options(gtests PUBLIC
 
 target_link_options(gtests PUBLIC
         ${LIBPQXX_LDFLAGS})
+

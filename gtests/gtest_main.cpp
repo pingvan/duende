@@ -1,4 +1,3 @@
-#include <_types/_uint32_t32_t.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <cassert>

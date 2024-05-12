@@ -1,5 +1,6 @@
 #include "profile_service.hpp"
 #include <components/database/connection/database-connector.hpp>
+#include <string_view>
 
 namespace database {
 int profile_service_database_api::get_form_id(const int &user_id) {
@@ -26,9 +27,9 @@ void profile_service_database_api::change_nickname(const int &user_id, const std
 }
 
 void profile_service_database_api::change_photo(const int &user_id,
-                             const std::vector<unsigned char> &bytes) {
+                             const std::basic_string<std::byte> &photo_binary) {
     const connector connection;
-    const auto result = connection.txn->exec_params("UPDATE forms SET photo = $1 WHERE user_id = $2", pqxx::binarystring(bytes.data(), bytes.size()), user_id);
+    const auto result = connection.txn->exec_params("UPDATE forms SET photo = $1 WHERE user_id = $2", photo_binary, user_id);
     connection.txn->commit();
 }
 

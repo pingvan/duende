@@ -33,5 +33,12 @@ namespace database {
         const auto result = connection.txn->exec_params(pqxx::zview(query), blocker_id, blocked_id);
         connection.txn->commit();
     }
+
+    void block_service_database_api::unblock_user(const int &blocker_id, const int &blocked_id) {
+        const connector connection;
+        static constexpr std::string_view query = "DELETE FROM black_list WHERE user_id = $1 AND blocked_user_id = $2";
+        const auto result = connection.txn->exec_params(pqxx::zview(query), blocker_id, blocked_id);
+        connection.txn->commit();
+    }
 }
 
