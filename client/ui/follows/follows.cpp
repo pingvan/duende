@@ -11,13 +11,13 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
         manager->new_client.get_blocked(manager->ID);
 
     connect(
-        manager, &Manager::subscribersChanged, this, &Follows::populateLists
+        manager, &Manager::subscribersChanged, this, &Follows::UpdateSubscribers
     );
     connect(
-        manager, &Manager::subscriptionsChanged, this, &Follows::populateLists
+        manager, &Manager::subscriptionsChanged, this, &Follows::UpdateSubscriptions
     );
     connect(
-        manager, &Manager::subscriptionsChanged, this, &Follows::populateLists
+        manager, &Manager::blockedChanged, this, &Follows::UpdateBlocked
     );
 
     ui->setupUi(this);
@@ -42,8 +42,6 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
 
     blockedList = new QListWidget;
     blockedList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    populateLists();
 
     QScrollArea *scrollArea = new QScrollArea;
     scrollArea->setWidgetResizable(true);
@@ -147,40 +145,36 @@ void Follows::onUserClicked(const QString &username) {
     emit userClicked(id);
 }
 
-// cringe?
-void Follows::populateLists() {
-    subscribersList->clear();
-    subscriptionsList->clear();
-    blockedList->clear();
 
+void Follows::UpdateSubscribers() {
+    subscribersList->clear();
     std::vector<uint32_t> subscribers =
         manager->new_client.get_subscribers(manager->ID);
-    std::vector<uint32_t> subscriptions =
-        manager->new_client.get_subscriptions(manager->ID);
-    std::vector<uint32_t> blocked =
-        manager->new_client.get_blocked(manager->ID);
-
     for (const auto &subscriber : subscribers) {
         QListWidgetItem *item = new QListWidgetItem;
         item->setText(QString::number(subscriber));
         subscribersList->addItem(item);
     }
+}
 
+void Follows::UpdateSubscriptions() {
+    subscriptionsList->clear();
+    std::vector<uint32_t> subscriptions =
+        manager->new_client.get_subscriptions(manager->ID);
     for (const auto &subscription : subscriptions) {
         QListWidgetItem *item = new QListWidgetItem;
         item->setText(QString::number(subscription));
         subscriptionsList->addItem(item);
     }
+}
 
+void Follows::UpdateBlocked() {
+    blockedList->clear();
+    std::vector<uint32_t> blocked =
+        manager->new_client.get_blocked(manager->ID);
     for (const auto &block : blocked) {
         QListWidgetItem *item = new QListWidgetItem;
         item->setText(QString::number(block));
         blockedList->addItem(item);
     }
 }
-
-// void Follows::resizeEvent(QResizeEvent *event) {
-//     QSize newSize = event->size();
-//     blockedButton->setFixedSize(newSize.width() * 0.2,
-//     subscriptionsButton->height());
-// }

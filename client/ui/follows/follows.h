@@ -30,14 +30,18 @@ public:
     QStringList searchUsers(const QString &input);
     ~Follows();
 
-    void populateLists();
-
 signals:
     void userClicked(int id);
+    void subscribersChanged();
+    void subscriptionsChanged();
+    void blockedChanged();
 
 private slots:
     void updateUserList(const QString &input);
     void onUserClicked(const QString &username);
+    void UpdateSubscribers();
+    void UpdateSubscriptions();
+    void UpdateBlocked();
 
 private:
     Ui::Follows *ui;

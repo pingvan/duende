@@ -35,8 +35,8 @@ void run_server() {
     chat_service_ chat_service;
     chat_data_service chat_data_service;
     SearchService search_service;
-    // invitation_service invitation_service(chat_channel);
-    // invitation_data_service invitation_data_service;
+    invitation_service invitation_service(chat_channel);
+    invitation_data_service invitation_data_service;
     UsersInteractionServiceImpl users_interaction_service;
 
     // std::string key;
@@ -76,8 +76,8 @@ void run_server() {
     builder.RegisterService(&auth_service_data);
     builder.RegisterService(&chat_data_service);
     builder.RegisterService(&search_service);
-    // builder.RegisterService(&invitation_service);
-    // builder.RegisterService(&invitation_data_service);
+    builder.RegisterService(&invitation_service);
+    builder.RegisterService(&invitation_data_service);
     builder.RegisterService(&users_interaction_service);
 
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
