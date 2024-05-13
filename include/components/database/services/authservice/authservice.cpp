@@ -4,6 +4,7 @@
 #include <components/database/connection/database-connector.hpp>
 #include <exception>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <iostream>
 #include <unordered_map>
@@ -18,7 +19,6 @@ bool authservice_database_api::is_email_used(const std::string &user_email) {
         exists = row[0].as<bool>();
     }
     return exists;
-
 }
 
 bool authservice_database_api::is_nickname_used(const std::string &user_nickname) {
@@ -120,16 +120,26 @@ void authservice_database_api::remove_refresh_token(const int &user_id) {
 }
 
 user_preview authservice_database_api::get_user_preview(const int &user_id) {
+    try {
     const connector connection;
-    static std::string querr = "SELECT login FROM users WHERE id = $1";
-    const auto result = connection.txn->exec_params(querr, user_id);
+    static constexpr std::string_view query = "SELECT u.login, f.photo "
+                                              "FROM users u "
+                                                "JOIN forms f ON u.id = f.user_id "
+                                                "WHERE u.id = $1";
+    const auto result = connection.txn->exec_params(pqxx::zview(query), user_id);
     user_preview prewiew;
     prewiew.id = user_id;
     for (const auto &row : result) {
         prewiew.login = row[0].as<std::string>();
+        if (!row[1].is_null()) {
+            prewiew.photo = row[1].as<std::basic_string<std::byte>>();
+        }
     }
     connection.txn->commit();
     return prewiew;
+    } catch(std::exception &e) {
+        std::cerr << e.what() << '\n';
+    }
 }
 
 
@@ -145,20 +155,16 @@ user_full_page authservice_database_api::get_user_full_page(const int &user_id) 
     int form_id = -1;
     for (const auto &row : result) {
         form_id = row[0].as<int>();
-        //row[1].is_null()
         if (!row[1].is_null()) {
             full_page.quote = row[1].as<std::string>();
         }
-        //here
         if (!row[2].is_null()) {
             full_page.about = row[2].as<std::string>();
         }
         if (!row[3].is_null()) {
             full_page.fauvorite_genres = array_parser(row[3].as<std::string>());
-        }
-        
+        }   
     }
-    // assert(false);
     static std::string get_views = "SELECT ratio, title, description, genres "
                         "FROM VIEWS "
                         "INNER JOIN films ON views.film_id = films.id "

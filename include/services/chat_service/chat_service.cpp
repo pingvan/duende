@@ -20,22 +20,19 @@ grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::Serve
     uint32_t user_id = 0;
     while (stream->Read(&request)) {
         if (request.has_init()) {
+            std::cerr << "initing\n";
             user_id = request.init().user_id();
             users_online.insert({request.init().user_id(), std::make_shared<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>(*stream)});
             chat_service::ChatResponses response;
             const auto init_response = new chat_service::OperationStatusResponse;
             init_response->set_status(chat_service::Status::SUCCESS);
             response.set_allocated_response_with_status(init_response);
-
-            std::this_thread::sleep_for(std::chrono::seconds(5));
-
-            std::cerr << "context status: " << context->IsCancelled() << '\n';
-
-            bool res = stream->Write(response);
-            std::cerr << "result of stream->Write(response): " << res << "\n";
+            stream->Write(response);
         } else if (request.has_send_message()) {
-            auto a = request.send_message().msg();
-            stream->Write(send_to_chat(request.send_message().msg()));
+            std::cerr << "sending\n";
+            // auto a = request.send_message().msg();
+            // stream->Write(send_to_chat(request.send_message().msg()));
+            send_to_chat(request.send_message().msg()); 
         } else { 
             users_online.erase(request.leave().user_id());
             chat_service::ChatResponses response;
@@ -45,7 +42,6 @@ grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::Serve
             stream->Write(response);
         }
     }
-    std::cerr << "cycle is broken by: " << user_id << '\n';
     if (auto it = users_online.find(user_id); it != users_online.end()) {
         users_online.erase(it);
     }
@@ -56,7 +52,9 @@ chat_service::AcceptMessageResponse* chat_service_::make_accept_message_response
     auto *accept_message = new chat_service::AcceptMessageResponse;
     auto *message_received = new chat_service::MessageReceived;
     auto *user_preview_proto = new common::UserPreview;
+    std::cerr << "before preview\n";
     database::authservice_database_api::get_user_preview(msg.sender_id()).convert_to_proto(user_preview_proto);
+    std::cerr << "get preview\n";
     message_received->set_allocated_sender(user_preview_proto);
     message_received->set_chat_id(msg.chat_id());
     message_received->set_message_text(msg.message_text());
@@ -67,27 +65,31 @@ chat_service::AcceptMessageResponse* chat_service_::make_accept_message_response
 
 
 chat_service::ChatResponses chat_service_::send_to_chat(const chat_service::MessageSend& msg) {
+    std::cerr << "first line\n";
     auto id_timestamp = database::chat_service_database_api::add_message(msg.sender_id(), msg.chat_id(), msg.message_text());
+    std::cerr << "get members\n";
     auto members_ids = database::chat_service_database_api::get_members_ids(msg.chat_id());
-
+    std::cerr << "before making response\n";
     chat_service::ChatResponses response;
     response.set_allocated_accept_message(make_accept_message_response(msg, id_timestamp.second));
+    std::cerr << "msg created\n";
 
     for (auto member_id : members_ids) {
-            if (auto ptr = users_online.find(member_id); ptr == users_online.end()) {
-                Unhandled:
-                database::chat_service_database_api::add_unhandle_message(member_id, id_timestamp.first);
-            } else {
+            if (auto ptr = users_online.find(member_id); ptr != users_online.end()) {
                 uint32_t cnt = 0;
+                std::cerr << "writing to: " << ptr->first << std::endl;
                 bool success = ptr->second->Write(response);
                 while (!success && cnt != 10) {
                     success = ptr->second->Write(response);
                     cnt++;
                 }
-                if (!success) { //if not successfull - considering that stream is closed;
+                if (!success) {
                     users_online.erase(ptr->first);
                     goto Unhandled;
                 }
+            } else {
+                Unhandled:
+                database::chat_service_database_api::add_unhandle_message(member_id, id_timestamp.first);
             }
     }
 
