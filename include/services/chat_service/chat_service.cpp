@@ -110,6 +110,61 @@ grpc::Status chat_service_::CreatePrivateChat(grpc::ServerContext *context, cons
         return grpc::Status::OK;
 }
 
+grpc::Status chat_service_::CreateGroupChat(grpc::ServerContext* context, const chat_service::CreateGroupChatRequest* request, chat_service::ChatPreview* response) {
+    const auto &chat_members_proto = request->chat_members();
+    std::vector<uint32_t> chat_members(chat_members_proto.begin(), chat_members_proto.end());
+    chat_members.push_back(request->creator_id());
+    auto id_timestamp = database::chat_service_database_api::create_group_chat(request->creator_id(), request->chat_name(), request->description(), chat_members);
+    response->set_chat_id(id_timestamp.first);
+    response->set_is_group_chat(true);
+    response->set_name(request->chat_name());
+    response->set_description(request->description());
+    response->set_time_stamp(id_timestamp.second);
+    for (auto member_id : chat_members) {
+        auto member_preview = database::authservice_database_api::get_user_preview(member_id); 
+        auto member_preview_proto = response->add_chat_members();
+        member_preview.convert_to_proto(member_preview_proto);
+    }
+    return grpc::Status::OK;
+}
+
+grpc::Status chat_service_::CheckUserPrivileges(grpc::ServerContext* context, const chat_service::CheckUserPrivilegesRequest* request, chat_service::UserPrivilegeResponse* response) {
+    bool is_user_admin = database::chat_service_database_api::check_user_privileges(request->user_id(), request->chat_id());
+    chat_service::UserPrivilege privilege = is_user_admin ? chat_service::UserPrivilege::ADMIN : chat_service::UserPrivilege::DEFAULT;
+    response->set_privilege(privilege);
+    return grpc::Status::OK;
+}
+
+// static void add_user_to_chat(const int &chat_id, const int &user_id);
+// static void remove_user_from_chat(const int &chat_id, const int &user_id);
+
+grpc::Status chat_service_::ChangeChatName(grpc::ServerContext* context, const chat_service::ChangeChatNameRequest* request, chat_service::ChangeChatNameResponse* response) {
+    database::chat_service_database_api::change_chat_name(request->chat_id(), request->new_chat_name());
+    return grpc::Status::OK;
+}
+
+grpc::Status chat_service_::ChangeChatDescription(grpc::ServerContext* context, const chat_service::ChangeChatDescriptionRequest* request, chat_service::ChangeChatDescriptionResponse* response) {
+    database::chat_service_database_api::change_chat_description(request->chat_id(), request->new_description());
+    return grpc::Status::OK;
+}
+
+grpc::Status chat_service_::ChangeChatCover(grpc::ServerContext* context, const chat_service::ChangeChatCoverRequest* request, chat_service::ChangeChatCoverResponse* response) {
+    // TODO
+    // database::chat_service_database_api::change_chat_cover(request->chat_id(), request->new_cover());
+    return grpc::Status::OK;
+}
+
+grpc::Status chat_service_::AddPrivilegesToUser(grpc::ServerContext* context, const chat_service::AddPrivilegesToUserRequest* request, chat_service::AddPrivilegesToUserResponse* response) {
+    database::chat_service_database_api::add_privileges_to_user(request->chat_id(), request->user_id());
+    return grpc::Status::OK;
+}
+
+grpc::Status chat_service_::RemovePrivilegesFromUser(grpc::ServerContext* context, const chat_service::RemovePrivilegesFromUserRequest* request, chat_service::RemovePrivilegesFromUserResponse* response) {
+    database::chat_service_database_api::remove_privileges_from_user(request->chat_id(), request->user_id());
+    return grpc::Status::OK;
+}
+
+
 grpc::Status chat_data_service::GetUserChats(grpc::ServerContext *context, const chat_service::GetChatsRequest *request, chat_service::UserChats *response) {
         auto chats = database::chat_service_database_api::get_user_chats(request->user_id());
         chats.convert_to_proto(response);
