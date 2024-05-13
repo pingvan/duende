@@ -74,6 +74,7 @@ message SendInvitationRequest {
   common.UserPreview receiver = 2;
   string invite_text = 3;
   int32 invite_id = 4;
+  string timestamp = 5;
 }
 
 message RespondToInvitationRequest {
@@ -88,6 +89,7 @@ message SendInvitationResponse {
   common.UserPreview receiver = 2;
   string invite_text = 3;
   int32 invite_id = 4;
+  string timestamp = 5;
 }
 
 message RespondToInvitationResponse {
