@@ -35,7 +35,6 @@ CREATE TABLE IF NOT EXISTS films (
     release_date TIMESTAMP NOT NULL,
     description text NOT NULL,
     genres genre[],
-    cover BYTEA,
     cover_preview_url text,
     cover_full_size_url text
 );
