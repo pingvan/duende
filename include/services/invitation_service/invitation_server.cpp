@@ -35,7 +35,7 @@ grpc::Status invitation_service::InvitationStream(
                 const auto send_response = new invitation::SendInvitationResponse;
                 send_response->set_allocated_sender(sender);
                 send_response->set_allocated_receiver(receiver);
-                send_response->set_invite_id(invite_id);
+                send_response->set_invite_id(invite_id.first);
                 send_response->set_invite_text(invite_text);
                 send_response->set_timestamp(invite_timestamp);
 
@@ -45,7 +45,7 @@ grpc::Status invitation_service::InvitationStream(
                     users_online[receiver_id]->Write(response);
                 } else {
                     invite_db_api.add_unhandled_invite(
-                        receiver_id, invite_id
+                        receiver_id, invite_id.first
                     );
                 }
 

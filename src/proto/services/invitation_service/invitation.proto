@@ -29,7 +29,8 @@ message Invite {
   uint32 invite_id = 1;
   common.UserPreview sender = 2;
   string invite_text = 3;
-  InviteStatus status = 4;
+  string time_stamp = 4;
+  InviteStatus status = 5;
 }
 
 message InvitesReceived {
