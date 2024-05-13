@@ -45,7 +45,7 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
     for (const auto &row : result) {
         chat_ids.push_back(row[0].as<int>());
     }
-    static std::string quer_sec = "SELECT id, created_at, is_group_chat, chat_name, description, users_count FROM chats WHERE id = $1";
+    static std::string quer_sec = "SELECT id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS'), is_group_chat, chat_name, description, users_count FROM chats WHERE id = $1";
     /*
     SELECT c.chat_id, c.chat_info, m.message_id, m.time_sent
     FROM chats c
@@ -62,7 +62,7 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
             prewiew.time_stamp = row[1].as<std::string>();
             prewiew.name = row[3].as<std::string>();
             prewiew.description = row[4].as<std::string>();
-            static std::string quer_third = "SELECT sender_id, sended_at, message_text_data FROM messages WHERE chat_id = $1 ORDER BY sended_at DESC LIMIT 1";
+            static std::string quer_third = "SELECT sender_id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS'), message_text_data FROM messages WHERE chat_id = $1 ORDER BY sended_at DESC LIMIT 1";
             const auto last_message = connection.txn->exec_params(quer_third, chat_id);
             for (const auto &row : last_message) {
                 prewiew.last_message.sender = authservice_database_api::get_user_preview(row[0].as<int>());
@@ -78,7 +78,7 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
 
 last_messages chat_service_database_api::get_chats_messages(const int &chat_id) {
     const connector connection;
-    static std::string quer = "SELECT sender_id, sended_at, message_text_data FROM messages WHERE chat_id = $1";
+    static std::string quer = "SELECT sender_id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS'), message_text_data FROM messages WHERE chat_id = $1";
     const auto result = connection.txn->exec_params(quer, chat_id);
     last_messages messages;
     messages.messages.reserve(result.size());

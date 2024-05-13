@@ -17,8 +17,8 @@ grpc::Status invitation_service::InvitationStream(
                 std::string sender_login = request.send_invitation_request().sender().login();
                 std::string receiver_login = request.send_invitation_request().receiver().login();
                 std::string invite_text = request.send_invitation_request().invite_text();
-                int invite_id = invite_db_api.add_invite(
-                    invite_text, invite_status::SENT,
+                auto invite_id = invite_db_api.add_invite(
+                    invite_text,
                     sender_id, receiver_id
                 );
 
@@ -34,7 +34,7 @@ grpc::Status invitation_service::InvitationStream(
                 const auto send_response = new invitation::SendInvitationResponse;
                 send_response->set_allocated_sender(sender);
                 send_response->set_allocated_receiver(receiver);
-                send_response->set_invite_id(invite_id);
+                send_response->set_invite_id(invite_id.first);
                 send_response->set_invite_text(invite_text);
 
                 response.set_allocated_send_invitation_response(send_response);
@@ -43,7 +43,7 @@ grpc::Status invitation_service::InvitationStream(
                     users_online[receiver_id]->Write(response);
                 } else {
                     invite_db_api.add_unhandled_invite(
-                        receiver_id, invite_id
+                        receiver_id, invite_id.first
                     );
                 }
 
@@ -59,13 +59,13 @@ grpc::Status invitation_service::InvitationStream(
 
             if (status == invitation::InviteStatus::ACCEPTED) {
                 invite_db_api.change_invite_status(
-                    invite_id, invite_status::ACCEPTED
+                    invite_id
                 );
 
                 respond_response->set_allocated_chat(create_private_chat(sender_id, receiver_id));
             } else {
                 invite_db_api.change_invite_status(
-                    invite_id, invite_status::DECLINED
+                    invite_id
                 );
             }
 
