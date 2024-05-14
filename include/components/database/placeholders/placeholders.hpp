@@ -103,6 +103,7 @@ enum class genre {
     struct user_preview  {
         user_preview() = default;
         user_preview(const int &id_, const std::string &login_) : id(id_), login(login_) {}
+        user_preview(const int &id_, const std::string &login_, const std::basic_string<std::byte> &photo_) : id(id_), login(login_), photo(photo_) {}
         
         uint32_t id;
         std::string login;
@@ -221,6 +222,7 @@ enum class genre {
         uint32_t invite_id;
         user_preview sender;
         std::string invite_text;
+        std::string time_stamp;
 
         void convert_to_proto(invitation::Invite *proto) const {
             proto->set_invite_id(invite_id);
@@ -228,6 +230,7 @@ enum class genre {
             auto *prewiew_proto = new common::UserPreview;
             sender.convert_to_proto(prewiew_proto);
             proto->set_allocated_sender(prewiew_proto);
+            proto->set_time_stamp(time_stamp);
         }
     };
 

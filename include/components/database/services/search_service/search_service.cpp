@@ -8,7 +8,6 @@
 namespace database {
 
 std::vector<user_preview> search_service_database_api::search_user_by_credentials(const std::string &user_credentials) {
-    try {
     const connector connection;
     static constexpr auto querry = "SELECT u.id, u.email, u.login, f.photo "
                                                     "FROM users u "
@@ -24,14 +23,10 @@ std::vector<user_preview> search_service_database_api::search_user_by_credential
             users.emplace_back(row[0].as<int>(), row[1].as<std::string>());
         }
         if (!row[3].is_null()) {
-            users.back().photo = row[3].as<std::basic_string<std::byte>>();
+            // users.back().photo = row[3].as<std::basic_string<std::byte>>();
         }
     }
     return users;
-    } catch (std::exception &e) {
-        std::cerr << "SQL error: " << e.what() << std::endl;
-        return {};
-    }
 }
 
 std::vector<film_preview> search_service_database_api::search_film_by_title(const std::string &title) {

@@ -15,7 +15,8 @@ DROP TABLE IF EXISTS users, passwords,
 tokens, forms, producers, views, films, 
 producers_by_film, actors, actors_to_form, 
 actors_to_film, chats, messages, chat_membership, 
-invites, unhandled_messages, unhandled_invites CASCADE
+invites, unhandled_messages, unhandled_invites,
+subscriptions, black_list, chat_events, events, chat_admins  CASCADE
 """
 
 drop_types = """

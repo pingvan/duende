@@ -17,10 +17,11 @@ grpc::Status invitation_service::InvitationStream(
                 std::string sender_login = request.send_invitation_request().sender().login();
                 std::string receiver_login = request.send_invitation_request().receiver().login();
                 std::string invite_text = request.send_invitation_request().invite_text();
-                int invite_id = invite_db_api.add_invite(
-                    invite_text, invite_status::SENT,
-                    sender_id, receiver_id
+                auto invite_data = invite_db_api.add_invite(
+                    invite_text, sender_id, receiver_id
                 );
+                int invite_id = invite_data.first;
+                std::string invite_timestamp = invite_data.second;
 
                 invitation::InvitationResponse response;
 
@@ -36,6 +37,7 @@ grpc::Status invitation_service::InvitationStream(
                 send_response->set_allocated_receiver(receiver);
                 send_response->set_invite_id(invite_id);
                 send_response->set_invite_text(invite_text);
+                send_response->set_timestamp(invite_timestamp);
 
                 response.set_allocated_send_invitation_response(send_response);
                 
@@ -58,15 +60,11 @@ grpc::Status invitation_service::InvitationStream(
             auto status = request.respond_to_invitation_request().status();
 
             if (status == invitation::InviteStatus::ACCEPTED) {
-                invite_db_api.change_invite_status(
-                    invite_id, invite_status::ACCEPTED
-                );
+                invite_db_api.change_invite_status(invite_id);
 
                 respond_response->set_allocated_chat(create_private_chat(sender_id, receiver_id));
             } else {
-                invite_db_api.change_invite_status(
-                    invite_id, invite_status::DECLINED
-                );
+                invite_db_api.change_invite_status(invite_id);
             }
 
             respond_response->set_invite_id(invite_id);

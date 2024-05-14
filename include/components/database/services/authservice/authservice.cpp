@@ -120,26 +120,22 @@ void authservice_database_api::remove_refresh_token(const int &user_id) {
 }
 
 user_preview authservice_database_api::get_user_preview(const int &user_id) {
-    try {
     const connector connection;
-    static constexpr std::string_view query = "SELECT u.login, f.photo "
+    static  std::string query = "SELECT u.login, f.photo "
                                               "FROM users u "
                                                 "JOIN forms f ON u.id = f.user_id "
                                                 "WHERE u.id = $1";
-    const auto result = connection.txn->exec_params(pqxx::zview(query), user_id);
+    const auto result = connection.txn->exec_params( (query), user_id);
     user_preview prewiew;
     prewiew.id = user_id;
     for (const auto &row : result) {
         prewiew.login = row[0].as<std::string>();
         if (!row[1].is_null()) {
-            prewiew.photo = row[1].as<std::basic_string<std::byte>>();
+            // prewiew.photo = row[1].as<std::basic_string<std::byte>>(); //вот это уже ни на что не поменять надо либу обновлять
         }
     }
     connection.txn->commit();
     return prewiew;
-    } catch(std::exception &e) {
-        std::cerr << e.what() << '\n';
-    }
 }
 
 

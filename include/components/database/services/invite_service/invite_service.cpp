@@ -1,4 +1,5 @@
 #include "invite_service.hpp"
+#include <grpcpp/support/status.h>
 #include <sys/types.h>
 #include "components/database/connection/database-connector.hpp"
 #include "components/database/services/authservice/authservice.hpp"
@@ -30,7 +31,7 @@ namespace database {
 
     void invite_service_database_api::change_invite_status(const int &invite_id) {
         const connector connection;
-        static std::string quer = "DELETE FORM invites WHERE id = $1";
+        static std::string quer = "DELETE FROM invites WHERE id = $1";
         const auto result = connection.txn->exec_params(quer, invite_id);
         connection.txn->commit();
     }
@@ -56,7 +57,7 @@ namespace database {
 
     invites_recivie invite_service_database_api::get_received_invites(const int &user_id) {
         const connector connection;
-        static std::string quer = "SELECT id, invite_text, invite_from_user FROM invites WHERE invite_to_user = $1";
+        static std::string quer = "SELECT id, invite_text, invite_from_user, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS') FROM invites WHERE invite_to_user = $1";
         const auto result = connection.txn->exec_params(quer, user_id);
         invites_recivie received;
         received.invites.reserve(result.size());
@@ -65,6 +66,7 @@ namespace database {
             new_invite.invite_id = row[0].as<uint32_t>();
             new_invite.invite_text = row[1].as<std::string>();
             new_invite.sender = authservice_database_api::get_user_preview(row[2].as<int>()); //const reference extends the lifetime, right??? //FIXME
+            new_invite.time_stamp = row[3].as<std::string>();
             received.invites.push_back(new_invite);
         }
         connection.txn->commit(); 
@@ -73,7 +75,7 @@ namespace database {
 
     invites_sent invite_service_database_api::get_sended_invites(const int &user_id) {
         const connector connection;
-        static std::string quer = "SELECT id, invite_text, invite_to_user FROM invites WHERE invite_from_user = $1";
+        static std::string quer = "SELECT id, invite_text, invite_to_user, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS') FROM invites WHERE invite_from_user = $1";
         const auto result = connection.txn->exec_params(quer, user_id);
         invites_sent sended;
         sended.invites.reserve(result.size());
@@ -82,6 +84,7 @@ namespace database {
             new_invite.invite_id = row[0].as<uint32_t>();
             new_invite.invite_text = row[1].as<std::string>();
             new_invite.sender = authservice_database_api::get_user_preview(row[2].as<int>()); //not sender, but... //FIXME
+            new_invite.time_stamp = row[3].as<std::string>();
             sended.invites.push_back(new_invite);
         }
         connection.txn->commit(); 
