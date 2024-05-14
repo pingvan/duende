@@ -6,9 +6,9 @@ import "common/common.proto";
 import "services/chat_service/chat_service.proto"; 
 
 enum InviteStatus {
-  SENT = 0;
-  ACCEPTED = 1;
-  DECLINED = 2;
+    SENT = 0;
+    ACCEPTED = 1;
+    DECLINED = 2;
 }
 
 enum Status {
@@ -45,37 +45,27 @@ message RequestWithId {
   int32 id = 1;
 }
 
-// message Notification {
-//     int32 sender_id = 1;
-//     int32 receiver_id = 2;
-//     string message = 3;
-// }
-
 message InvitationRequest {
-  oneof RequestEvent {
-    SendInvitationRequest send_invitation_request = 1;
-    RespondToInvitationRequest respond_to_invitation_request = 2;
-    InitRequest init_request = 3;
-    LeaveRequest leave_request = 4;
+  oneof request {
+    InitRequest init = 1;
+    SendInvitationRequest invite = 2;
+    RespondToInvitationRequest invite_respond = 3;
+    LeaveRequest leave = 4;
   }
 }
 
 message InvitationResponse {
-  oneof ResponseEvent {
-    SendInvitationResponse send_invitation_response = 1;
-    RespondToInvitationResponse respond_to_invitation_response = 2;
-    InitResponse init_response = 3;
-    LeaveResponse leave_response = 4;
+  oneof response {
+    InitResponse init = 1;
+    SendInvitationResponse invite = 2;
+    RespondToInvitationResponse invite_respond = 3;
+    LeaveResponse leave = 4;
   }
-  // Notification notification = 5;
 }
 
 message SendInvitationRequest {
   common.UserPreview sender = 1;
-  common.UserPreview receiver = 2;
-  string invite_text = 3;
-  int32 invite_id = 4;
-  string timestamp = 5;
+  Invite invite = 2;
 }
 
 message RespondToInvitationRequest {
@@ -86,11 +76,8 @@ message RespondToInvitationRequest {
 }
 
 message SendInvitationResponse {
-  common.UserPreview sender = 1;
-  common.UserPreview receiver = 2;
-  string invite_text = 3;
-  int32 invite_id = 4;
-  string timestamp = 5;
+  int32 sender_id = 1;
+  Invite invite = 2;
 }
 
 message RespondToInvitationResponse {

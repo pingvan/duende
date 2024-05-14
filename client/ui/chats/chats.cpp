@@ -72,12 +72,8 @@ void Chats::onInviteRespondReceived(const invitation::RespondToInvitationRespons
 
 void Chats::onNewInviteReceived(const invitation::SendInvitationResponse& invite_response) {
     // get invite data
-    bool am_i_sender = (invite_response.sender().user_id() == manager->ID);
-    invitation::Invite *invite = new invitation::Invite();
-    am_i_sender ? invite->set_allocated_sender(new common::UserPreview(invite_response.receiver())) : invite->set_allocated_sender(new common::UserPreview(invite_response.sender()));
-    invite->set_invite_id(invite_response.invite_id());
-    invite->set_invite_text(invite_response.invite_text());
-    make_invite_item(*invite, am_i_sender);
+    bool am_i_sender = (invite_response.sender_id() == manager->ID);
+    make_invite_item(invite_response.invite(), am_i_sender);
 }
 
 void Chats::onNewMessageReceived(const chat_service::MessageReceived& message) {
@@ -368,7 +364,7 @@ void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender)
     QString sender_name    = QString::fromStdString(invite.sender().login());
     int invite_id          = invite.invite_id();
     QString invite_text    = QString::fromStdString(invite.invite_text());
-    QString time_stamp     = "2024-04-24 15:00:00"; //TODO
+    QString time_stamp     = QString::fromStdString(invite.time_stamp());
     int sender_id          = am_i_sender ? manager->ID : invite.sender().user_id();
     int receiver_id        = am_i_sender ? invite.sender().user_id() : manager->ID;
 

@@ -26,7 +26,6 @@ void OtherPage::sendInvite()
 {
     assert(manager != nullptr);
     manager->new_client.send_invite(manager->ID, id, manager->username, login);
-    qDebug() << "Invite sended";
 }
 
 void OtherPage::Subscribe() 
