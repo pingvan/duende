@@ -6,13 +6,9 @@
 #include "components/database/connection/database-connector.hpp"
 #include "components/database/placeholders/placeholders.hpp"
 #include "components/database/connection/database-connector.hpp"
-// #include "pqxx/zview.hxx"
-
-//ask about another way to store subs -- in two different rows - how will be faster?
-//TODO::create benchmarks
 
 namespace database {
-    //get is mutual????
+    
     std::vector<uint32_t> subscription_service_database_api::get_subscribers(const int &user_id) {
         const connector connection;
         static  std::string query = "SELECT subscription_from FROM subscriptions WHERE subscription_to = $1";
@@ -20,7 +16,7 @@ namespace database {
         std::vector<uint32_t> subscribers_ids;
         subscribers_ids.reserve(result.size());
         for (const auto &row : result) {
-            subscribers_ids.push_back(row[0].as<uint32_t>()); //maybe change to int
+            subscribers_ids.push_back(row[0].as<uint32_t>()); 
         }
         connection.txn->commit();
         return subscribers_ids;
@@ -33,7 +29,7 @@ namespace database {
         std::vector<uint32_t> subscriptions_ids;
         subscriptions_ids.reserve(result.size());
         for (const auto &row : result) {
-            subscriptions_ids.push_back(row[0].as<uint32_t>()); //maybe change to int
+            subscriptions_ids.push_back(row[0].as<uint32_t>());
         }
         connection.txn->commit();
         return subscriptions_ids;
@@ -77,10 +73,10 @@ namespace database {
 
     void subscription_service_database_api::unsubscribe_from_user(const int &subscriber_id, const int &subscribe_to) {
         const connector connection;
-        bool is_subscribed = check_is_subscribed(subscriber_id, subscribe_to);
+        bool is_subscribed = check_is_subscribed(subscribe_to, subscriber_id);
         if (is_subscribed) {
-            static  std::string query = "UPDATE subscriptions SET is_mutual = false WHERE subscription_from = $1 AND subscription_to = $2";
-            const auto result_second = connection.txn->exec_params( (query), subscriber_id, subscribe_to);
+            static constexpr std::string_view query = "UPDATE subscriptions SET is_mutual = false WHERE subscription_to = $1 AND subscription_from = $2";
+            const auto result_second = connection.txn->exec_params(pqxx::zview(query), subscriber_id, subscribe_to);
         }
         static  std::string query = "DELETE FROM subscriptions WHERE subscription_from = $1 AND subscription_to = $2";
         const auto result = connection.txn->exec_params( (query), subscriber_id, subscribe_to);

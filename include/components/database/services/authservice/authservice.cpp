@@ -120,7 +120,6 @@ void authservice_database_api::remove_refresh_token(const int &user_id) {
 }
 
 user_preview authservice_database_api::get_user_preview(const int &user_id) {
-    try {
     const connector connection;
     static  std::string query = "SELECT u.login, f.photo "
                                               "FROM users u "
@@ -137,9 +136,6 @@ user_preview authservice_database_api::get_user_preview(const int &user_id) {
     }
     connection.txn->commit();
     return prewiew;
-    } catch(std::exception &e) {
-        std::cerr << e.what() << '\n';
-    }
 }
 
 

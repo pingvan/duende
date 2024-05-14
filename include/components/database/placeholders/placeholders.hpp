@@ -103,6 +103,7 @@ enum class genre {
     struct user_preview  {
         user_preview() = default;
         user_preview(const int &id_, const std::string &login_) : id(id_), login(login_) {}
+        user_preview(const int &id_, const std::string &login_, const std::basic_string<std::byte> &photo_) : id(id_), login(login_), photo(photo_) {}
         
         uint32_t id;
         std::string login;
