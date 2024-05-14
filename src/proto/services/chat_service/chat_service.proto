@@ -14,20 +14,23 @@ enum UserPrivilege {
     DEFAULT = 1;
 }
 
-service ChatHandler {
-    rpc HandleChat(stream ChatRequests) returns (stream ChatResponses);
-    rpc CreatePrivateChat(CreatePrivateChatRequest) returns (ChatPreview);
-    rpc CreateGroupChat(CreateGroupChatRequest) returns (ChatPreview);
-    rpc CheckUserPrivileges(CheckUserPrivilegesRequest) returns (UserPrivilegeResponse);
-    rpc ChangeChatName(ChangeChatNameRequest) returns (ChangeChatNameResponse);
-    rpc ChangeChatDescription(ChangeChatDescriptionRequest) returns (ChangeChatDescriptionResponse);
-    rpc ChangeChatCover(ChangeChatCoverRequest) returns (ChangeChatCoverResponse);
-    rpc AddPrivilegesToUser(AddPrivilegesToUserRequest) returns (AddPrivilegesToUserResponse);
-    rpc RemovePrivilegesFromUser(RemovePrivilegesFromUserRequest) returns (RemovePrivilegesFromUserResponse);
+enum InviteStatus {
+    ACCEPT = 0;
+    DECLINED = 1;
 }
 
-// static void add_user_to_chat(const int &chat_id, const int &user_id);
-// static void remove_user_from_chat(const int &chat_id, const int &user_id);
+service ChatHandler {
+    rpc HandleChat(stream ChatRequests) returns (stream ChatResponses);
+    rpc InvitesToChat(stream InvitesToChatRequests) returns (stream InvitesToChatResponses);
+    rpc CreatePrivateChat(CreatePrivateChatRequest) returns (ChatPreview);
+    rpc CreateGroupChat(CreateGroupChatRequest) returns (ChatPreview);
+    rpc CheckUserPrivileges(UserChat) returns (UserPrivilegeResponse);
+    rpc ChangeChatName(ChangeChatNameRequest) returns (OperationStatusResponse);
+    rpc ChangeChatDescription(ChangeChatDescriptionRequest) returns (OperationStatusResponse);
+    rpc ChangeChatCover(ChangeChatCoverRequest) returns (OperationStatusResponse);
+    rpc AddPrivilegesToUser(UserChat) returns (OperationStatusResponse);
+    rpc RemovePrivilegesFromUser(UserChat) returns (OperationStatusResponse);
+}
 
 service ChatDataService {
     rpc GetUserChats(GetChatsRequest) returns (UserChats);
@@ -115,16 +118,17 @@ message CreatePrivateChatRequest {
     int32 second_user_id = 2;
 }
 
+
+message UserChat {
+    int32 user_id = 1;
+    int32 chat_id = 2;
+}
+
 message CreateGroupChatRequest {
     int32 creator_id = 1;
     string chat_name = 2;
     string description = 3;
     repeated int32 chat_members = 4;
-}
-
-message CheckUserPrivilegesRequest {
-    int32 user_id = 1;
-    int32 chat_id = 2;
 }
 
 message UserPrivilegeResponse {
@@ -136,17 +140,9 @@ message ChangeChatNameRequest {
     string new_chat_name = 2;
 }
 
-message ChangeChatNameResponse {
-
-}
-
 message ChangeChatDescriptionRequest {
     int32 chat_id = 1;
     string new_description = 2;
-}
-
-message ChangeChatDescriptionResponse {
-
 }
 
 message ChangeChatCoverRequest {
@@ -154,24 +150,57 @@ message ChangeChatCoverRequest {
     bytes new_cover = 2;
 }
 
-message ChangeChatCoverResponse {
-
+message InvitesToChatRequests {
+    oneof request {
+        InitialRequest init = 1;
+        InviteRequest invite = 2;
+        RemoveRequest remove = 3;
+        RespondRequest respond = 4;
+        DisconnectRequest leave = 5;
+    }
 }
 
-message AddPrivilegesToUserRequest {
-    int32 user_id = 1;
+message InvitesToChatResponses {
+    oneof response {
+        OperationStatusResponse response_with_status = 1;
+        InviteResponse invite = 2;
+        RemoveResponse remove = 3;
+        RespondResponse respond = 4;
+    }
+}
+
+message InviteRequest {
+    int32 sender_id = 1;
+    int32 receiver_id = 2;
+    int32 chat_id = 3;
+}
+
+message InviteResponse {
+    common.UserPreview sender = 1;
     int32 chat_id = 2;
 }
 
-message AddPrivilegesToUserResponse {
-
+message RemoveRequest {
+    int32 sender_id = 1;
+    int32 receiver_id = 2;
+    int32 chat_id = 3;
 }
 
-message RemovePrivilegesFromUserRequest {
+message RemoveResponse {
+    common.UserPreview sender = 1;
+    common.UserPreview receiver = 2;
+    int32 chat_id = 3;
+}
+
+message RespondRequest {
     int32 user_id = 1;
     int32 chat_id = 2;
+    InviteStatus status = 3;
 }
 
-message RemovePrivilegesFromUserResponse {
-
+message RespondResponse {
+    optional chat_service.ChatPreview chat = 1;
+    common.UserPreview sender = 2;
+    int32 chat_id = 3;
+    InviteStatus status = 4;
 }
