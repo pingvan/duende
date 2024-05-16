@@ -10,15 +10,15 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
     std::vector<uint32_t> blocked =
         manager->new_client.get_blocked(manager->ID);
 
-    connect(
-        manager, &Manager::subscribersChanged, this, &Follows::UpdateSubscribers
-    );
-    connect(
-        manager, &Manager::subscriptionsChanged, this, &Follows::UpdateSubscriptions
-    );
-    connect(
-        manager, &Manager::blockedChanged, this, &Follows::UpdateBlocked
-    );
+    // connect(
+    //     manager, &Manager::subscribersChanged, this, &Follows::UpdateSubscribers
+    // );
+    // connect(
+    //     manager, &Manager::subscriptionsChanged, this, &Follows::UpdateSubscriptions
+    // );
+    // connect(
+    //     manager, &Manager::blockedChanged, this, &Follows::UpdateBlocked
+    // );
 
     ui->setupUi(this);
 
@@ -86,18 +86,21 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
     subscribersList->hide();
     blockedList->hide();
     connect(subscriptionsButton, &QPushButton::clicked, [this]() {
+        UpdateSubscriptions();
         subscriptionsList->show();
         subscribersList->hide();
         blockedList->hide();
     });
 
     connect(subscribersButton, &QPushButton::clicked, [this]() {
+        UpdateSubscribers();
         subscribersList->show();
         subscriptionsList->hide();
         blockedList->hide();
     });
 
     connect(blockedButton, &QPushButton::clicked, [this]() {
+        UpdateBlocked();
         blockedList->show();
         subscribersList->hide();
         subscriptionsList->hide();

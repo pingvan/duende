@@ -75,8 +75,8 @@ namespace database {
         const connector connection;
         bool is_subscribed = check_is_subscribed(subscribe_to, subscriber_id);
         if (is_subscribed) {
-            static constexpr std::string_view query = "UPDATE subscriptions SET is_mutual = false WHERE subscription_to = $1 AND subscription_from = $2";
-            const auto result_second = connection.txn->exec_params(pqxx::zview(query), subscriber_id, subscribe_to);
+            static std::string query = "UPDATE subscriptions SET is_mutual = false WHERE subscription_to = $1 AND subscription_from = $2";
+            const auto result_second = connection.txn->exec_params( (query), subscriber_id, subscribe_to);
         }
         static  std::string query = "DELETE FROM subscriptions WHERE subscription_from = $1 AND subscription_to = $2";
         const auto result = connection.txn->exec_params( (query), subscriber_id, subscribe_to);

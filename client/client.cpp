@@ -23,7 +23,7 @@ void client::init_invite_stream(int user_id) {
     invitation::InvitationRequest request;
     auto *init = new invitation::InitRequest;
     init->set_user_id(user_id);
-    request.set_allocated_init_request(init);
+    request.set_allocated_init(init);
     invite_stream->Write(request);
 
     start_reading_invite_stream();
@@ -37,27 +37,27 @@ void client::start_reading_invite_stream() {
             invitation::InvitationResponse response;
             while (invite_stream->Read(&response)) {
                 qDebug() << "Invite response received";
-                if (response.has_send_invitation_response()) {
+                if (response.has_invite()) {
                     if (onNewInviteReceived) {
-                        onNewInviteReceived(response.send_invitation_response()
+                        onNewInviteReceived(response.invite()
                         );
                     }
                 }
-                if (response.has_respond_to_invitation_response()) {
+                if (response.has_invite_respond()) {
                     if (onInviteRespondReceived) {
                         onInviteRespondReceived(
-                            response.respond_to_invitation_response()
+                            response.invite_respond()
                         );
                     }
                 }
-                if (response.has_init_response()) {
+                if (response.has_init()) {
                     qDebug()
-                        << (response.init_response().status() ==
+                        << (response.init().status() ==
                             invitation::Status::SUCCESS);
                 }
-                if (response.has_leave_response()) {
+                if (response.has_leave()) {
                     qDebug()
-                        << (response.leave_response().status() ==
+                        << (response.leave().status() ==
                             invitation::Status::SUCCESS);
                 }
             }
@@ -69,7 +69,7 @@ void client::leave_invite_stream(int user_id) {
     invitation::InvitationRequest request;
     auto *leave = new invitation::LeaveRequest;
     leave->set_user_id(user_id);
-    request.set_allocated_leave_request(leave);
+    request.set_allocated_leave(leave);
     invite_stream->Write(request);
 }
 
@@ -81,6 +81,7 @@ void client::send_invite(
 ) {
     common::UserPreview *sender = new common::UserPreview;
     common::UserPreview *receiver = new common::UserPreview;
+    invitation::Invite *invite = new invitation::Invite;
     sender->set_user_id(sender_id);
     receiver->set_user_id(receiver_id);
     sender->set_login(sender_login);
@@ -88,14 +89,14 @@ void client::send_invite(
 
     invitation::SendInvitationRequest request;
     request.set_allocated_sender(sender);
-    request.set_allocated_receiver(receiver);
-    request.set_invite_text("Invitation"
-    );  // TODO add invite text with purpose of invite
+    invite->set_allocated_sender(receiver);
+    invite->set_invite_text("Invitation");  // TODO add invite text with purpose of invite
+    request.set_allocated_invite(invite);
 
     std::cout << request.DebugString() << std::endl;
 
     invitation::InvitationRequest stream_request;
-    stream_request.mutable_send_invitation_request()->CopyFrom(request);
+    stream_request.mutable_invite()->CopyFrom(request);
 
     assert(invite_stream != nullptr);
 
@@ -123,7 +124,7 @@ void client::respond_invite(
     std::cout << request.DebugString() << std::endl;
 
     invitation::InvitationRequest stream_request;
-    stream_request.mutable_respond_to_invitation_request()->CopyFrom(request);
+    stream_request.mutable_invite_respond()->CopyFrom(request);
 
     assert(invite_stream != nullptr);
 
