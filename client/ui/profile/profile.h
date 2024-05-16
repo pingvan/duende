@@ -21,6 +21,7 @@
 #include <QGraphicsPixmapItem>
 #include <QApplication>
 #include <QScreen>
+#include <QGraphicsDropShadowEffect>
 
 
 namespace Ui {

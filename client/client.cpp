@@ -599,3 +599,8 @@ std::vector<uint32_t> client::get_blocked(uint32_t blockie_id) {
     }
     return result;
 }
+
+bool client::is_subscribed(uint32_t user_id, uint32_t subscribie_id) {
+    std::vector<uint32_t> subscribers = get_subscribers(subscribie_id);
+    return std::find(subscribers.begin(), subscribers.end(), user_id) != subscribers.end();
+}

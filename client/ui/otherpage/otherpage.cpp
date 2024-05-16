@@ -1,12 +1,8 @@
 #include "otherpage.h"
 #include "ui_otherpage.h"
 
-OtherPage::OtherPage(int id, Manager* managerPtr, QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::OtherPage),
-    id(id),
-    manager(managerPtr)
-{
+OtherPage::OtherPage(int id, Manager *managerPtr, QWidget *parent)
+    : QWidget(parent), ui(new Ui::OtherPage), id(id), manager(managerPtr) {
     ui->setupUi(this);
 
     qDebug() << "Other page start";
@@ -22,21 +18,29 @@ OtherPage::OtherPage(int id, Manager* managerPtr, QWidget *parent) :
     qDebug() << "Other page end";
 }
 
-void OtherPage::sendInvite() 
-{
+void OtherPage::sendInvite() {
     assert(manager != nullptr);
     manager->new_client.send_invite(manager->ID, id, manager->username, login);
 }
 
-void OtherPage::Subscribe() 
-{
+void OtherPage::toggleSubscription() {
     assert(manager != nullptr);
-    manager->new_client.subscribe(manager->ID, id);
-    qDebug() << "Subscription made";
+    QPushButton *button = qobject_cast<QPushButton *>(sender());
+    if (button) {
+        if (button->text() == "Subscribe") {
+            manager->new_client.subscribe(manager->ID, id);
+            qDebug() << "Subscribed";
+            button->setText("Unsubscribe");
+        } else {
+            manager->new_client.unsubscribe(manager->ID, id);
+            qDebug() << "Unsubscribed";
+            button->setText("Subscribe");
+        }
+    }
+    updatePage(id);
 }
 
-void OtherPage::updatePage(int newId)
-{
+void OtherPage::updatePage(int newId) {
     qDebug() << "Update page start";
 
     id = newId;
@@ -50,17 +54,19 @@ void OtherPage::updatePage(int newId)
     // update all labels
     label_status->setText(QString::fromStdString(user->quote().c_str()));
     label_about->setText(QString::fromStdString(user->about().c_str()));
-    label_username->setText(QString::fromStdString(user->preview().login().c_str()));
+    label_username->setText(
+        QString::fromStdString(user->preview().login().c_str())
+    );
 
     // update genres
     std::string genres_str = "Favorite genres: ";
 
     if (!user->favorite_genres().empty()) {
-        for (const auto& genre : user->favorite_genres()) {
+        for (const auto &genre : user->favorite_genres()) {
             std::string favorite_genres_str = common::Genre_Name(genre);
             genres_str += favorite_genres_str + ", ";
         }
-        genres_str = genres_str.substr(0, genres_str.size()-2);
+        genres_str = genres_str.substr(0, genres_str.size() - 2);
     }
 
     label_favorite_genres->setText(QString::fromStdString(genres_str));
@@ -71,8 +77,7 @@ void OtherPage::updatePage(int newId)
     qDebug() << "Update page end";
 }
 
-void OtherPage::build_scenes()
-{
+void OtherPage::build_scenes() {
     // delete if something
     if (view_favActors != nullptr) {
         delete view_favActors;
@@ -98,11 +103,15 @@ void OtherPage::build_scenes()
 
     // fav actors
     favActorsImages.clear();
-    favActorsImages << ":/img/tarantino.jpg" << ":/img/tarantino.jpg" << ":/img/tarantino.jpg";
+    favActorsImages << ":/img/tarantino.jpg" << ":/img/tarantino.jpg"
+                    << ":/img/tarantino.jpg";
     int x = 0;
-    for (auto it = favActorsImages.rbegin(); it != favActorsImages.rend(); ++it) {
+    for (auto it = favActorsImages.rbegin(); it != favActorsImages.rend();
+         ++it) {
         QPixmap pixmap(*it);
-        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap.scaledToHeight(view_favActors->height()));
+        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(
+            pixmap.scaledToHeight(view_favActors->height())
+        );
         item->setPos(x, 0);
         scene_favActors->addItem(item);
         x += item->boundingRect().width() + 10;
@@ -114,11 +123,15 @@ void OtherPage::build_scenes()
 
     // watchlist
     watchlistImages.clear();
-    watchlistImages << ":/img/titanik.jpeg" << ":/img/titanik.jpeg" << ":/img/titanik.jpeg";
+    watchlistImages << ":/img/titanik.jpeg" << ":/img/titanik.jpeg"
+                    << ":/img/titanik.jpeg";
     x = 0;
-    for (auto it = watchlistImages.rbegin(); it != watchlistImages.rend(); ++it) {
+    for (auto it = watchlistImages.rbegin(); it != watchlistImages.rend();
+         ++it) {
         QPixmap pixmap(*it);
-        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap.scaledToHeight(view_watchlist->height()));
+        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(
+            pixmap.scaledToHeight(view_watchlist->height())
+        );
         item->setPos(x, 0);
         scene_watchlist->addItem(item);
         x += item->boundingRect().width() + 10;
@@ -133,8 +146,7 @@ void OtherPage::build_scenes()
     rightBox->addWidget(view_watchlist);
 }
 
-void OtherPage::build()
-{
+void OtherPage::build() {
     // main layout
     leftBox = new QVBoxLayout;
     rightBox = new QVBoxLayout;
@@ -148,7 +160,9 @@ void OtherPage::build()
     // photo
     QLabel *label_photo = new QLabel();
     QPixmap pixmap(":/img/robertdeniro.jpg");
-    pixmap = pixmap.scaledToWidth(mainLayout->columnMinimumWidth(0), Qt::SmoothTransformation);
+    pixmap = pixmap.scaledToWidth(
+        mainLayout->columnMinimumWidth(0), Qt::SmoothTransformation
+    );
     label_photo->setPixmap(pixmap);
 
     // status
@@ -162,29 +176,37 @@ void OtherPage::build()
     label_about->setWordWrap(true);
 
     // username
-    label_username = new QLabel(QString::fromStdString(user->preview().login().c_str()));
+    label_username =
+        new QLabel(QString::fromStdString(user->preview().login().c_str()));
 
     // genres
     std::string genres_str = "Favorite genres: ";
 
     if (!user->favorite_genres().empty()) {
-        for (const auto& genre : user->favorite_genres()) {
+        for (const auto &genre : user->favorite_genres()) {
             std::string favorite_genres_str = common::Genre_Name(genre);
             genres_str += favorite_genres_str + ", ";
         }
-        genres_str = genres_str.substr(0, genres_str.size()-2);
+        genres_str = genres_str.substr(0, genres_str.size() - 2);
     }
 
     QHBoxLayout *genresLayout = new QHBoxLayout;
     label_favorite_genres = new QLabel(QString::fromStdString(genres_str));
     genresLayout->addWidget(label_favorite_genres);
-    
+
     // spacer
-    QSpacerItem* verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    
+    QSpacerItem *verticalSpacer =
+        new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
     // buttons
     QPushButton *inviteButton = new QPushButton("Send Invitation");
     QPushButton *subscribeButton = new QPushButton("Subscribe");
+    subscribeButton->setChecked(
+        manager->new_client.is_subscribed(manager->ID, id)
+    );
+    subscribeButton->setText(
+        subscribeButton->isChecked() ? "Unsubscribe" : "Subscribe"
+    );
     QHBoxLayout *buttonsLayout = new QHBoxLayout;
     buttonsLayout->addWidget(inviteButton);
     buttonsLayout->addWidget(subscribeButton);
@@ -201,12 +223,14 @@ void OtherPage::build()
     rightBox->addLayout(genresLayout);
 
     build_scenes();
-   
+
     connect(inviteButton, &QPushButton::clicked, this, &OtherPage::sendInvite);
-    connect(subscribeButton, &QPushButton::clicked, this, &OtherPage::Subscribe);
+    connect(
+        subscribeButton, &QPushButton::clicked, this,
+        &OtherPage::toggleSubscription
+    );
 }
 
-OtherPage::~OtherPage()
-{
+OtherPage::~OtherPage() {
     delete ui;
 }

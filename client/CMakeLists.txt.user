@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 12.0.83, 2024-05-15T09:52:48. -->
+<!-- Written by QtCreator 12.0.83, 2024-05-16T13:40:57. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -209,8 +209,7 @@
 -DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}
 -DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}
 -DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}
--DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}
-</value>
+-DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}</value>
     <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/Users/alina/duende/client/build/unknown-Debug</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">

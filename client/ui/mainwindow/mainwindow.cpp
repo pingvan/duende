@@ -42,6 +42,10 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
     search_button->setCursor(Qt::PointingHandCursor);
     search_button->setFlat(true);
 
+    chats_button->setObjectName("myButton");
+    rec_button->setObjectName("myButton");
+    search_button->setObjectName("myButton");
+
     sidebar_layout->addWidget(chats_button);
     sidebar_layout->addStretch();
     sidebar_layout->addWidget(rec_button);

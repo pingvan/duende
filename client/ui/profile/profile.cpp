@@ -1,12 +1,8 @@
 #include "profile.h"
 #include "ui_profile.h"
 
-
-Profile::Profile(Manager* managerPtr, QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::Profile)
-    , manager(managerPtr)
-{
+Profile::Profile(Manager *managerPtr, QWidget *parent)
+    : QWidget(parent), ui(new Ui::Profile), manager(managerPtr) {
     ui->setupUi(this);
 
     qDebug() << "Profile page start\n";
@@ -15,13 +11,12 @@ Profile::Profile(Manager* managerPtr, QWidget *parent)
 
     assert(user != nullptr);
 
-    build();   
-   
+    build();
+
     qDebug() << "Profile page end\n";
 }
 
-void Profile::button_edit_clicked()
-{
+void Profile::button_edit_clicked() {
     // replace labels with lineEdits
     lineEdit_status->setText(label_status->text());
     lineEdit_username->setText(label_username->text());
@@ -43,17 +38,22 @@ void Profile::button_edit_clicked()
     build_scenes(true);
 }
 
-void Profile::button_save_clicked()
-{   
+void Profile::button_save_clicked() {
     // update user
     user = manager->new_client.get_user_full_page(manager->ID);
 
     // change user data
-    manager->new_client.change_username(manager->ID, lineEdit_username->text().toStdString());
+    manager->new_client.change_username(
+        manager->ID, lineEdit_username->text().toStdString()
+    );
     manager->username = lineEdit_username->text().toStdString();
-    manager->new_client.change_quote(manager->ID, lineEdit_status->text().toStdString());
-    manager->new_client.change_bio(manager->ID, textEdit_about->toPlainText().toStdString());
-    
+    manager->new_client.change_quote(
+        manager->ID, lineEdit_status->text().toStdString()
+    );
+    manager->new_client.change_bio(
+        manager->ID, textEdit_about->toPlainText().toStdString()
+    );
+
     // replace lineEdits with labels
     label_status->setText(lineEdit_status->text());
     label_about->setText(textEdit_about->toPlainText());
@@ -75,55 +75,62 @@ void Profile::button_save_clicked()
     build_scenes();
 }
 
-void Profile::plusItem_favActors_clicked()
-{
+void Profile::plusItem_favActors_clicked() {
     // open search window
     Actors_SearchWindow *searchWindow = new Actors_SearchWindow(manager, this);
     searchWindow->setWindowModality(Qt::ApplicationModal);
     searchWindow->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
-    searchWindow->move(QGuiApplication::screens().at(0)->geometry().center() - searchWindow->rect().center());
+    searchWindow->move(
+        QGuiApplication::screens().at(0)->geometry().center() -
+        searchWindow->rect().center()
+    );
     searchWindow->show();
 }
 
-void Profile::plusItem_watchlist_clicked()
-{
+void Profile::plusItem_watchlist_clicked() {
     // open search window
     Movies_SearchWindow *searchWindow = new Movies_SearchWindow(manager, this);
     searchWindow->setWindowModality(Qt::ApplicationModal);
     searchWindow->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
-    searchWindow->move(QGuiApplication::screens().at(0)->geometry().center() - searchWindow->rect().center());
+    searchWindow->move(
+        QGuiApplication::screens().at(0)->geometry().center() -
+        searchWindow->rect().center()
+    );
     searchWindow->show();
 }
 
-void Profile::button_edit_genres_clicked()
-{
+void Profile::button_edit_genres_clicked() {
     // open search window
     genres_searchWindow = new Genres_SearchWindow(manager, this);
-    connect(genres_searchWindow, &Genres_SearchWindow::windowClosed, this, &Profile::update_favorite_genres);
+    connect(
+        genres_searchWindow, &Genres_SearchWindow::windowClosed, this,
+        &Profile::update_favorite_genres
+    );
     genres_searchWindow->setWindowModality(Qt::ApplicationModal);
     genres_searchWindow->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
-    genres_searchWindow->move(QGuiApplication::screens().at(0)->geometry().center() - genres_searchWindow->rect().center());
+    genres_searchWindow->move(
+        QGuiApplication::screens().at(0)->geometry().center() -
+        genres_searchWindow->rect().center()
+    );
     genres_searchWindow->show();
 }
 
-void Profile::update_favorite_genres()
-{
+void Profile::update_favorite_genres() {
     // update genres information
     std::string genres_str = "Favorite genres: ";
 
     if (!user->favorite_genres().empty()) {
-        for (const auto& genre : user->favorite_genres()) {
+        for (const auto &genre : user->favorite_genres()) {
             std::string favorite_genres_str = common::Genre_Name(genre);
             genres_str += favorite_genres_str + ", ";
         }
-        genres_str = genres_str.substr(0, genres_str.size()-2);
+        genres_str = genres_str.substr(0, genres_str.size() - 2);
     }
 
     label_favorite_genres->setText(QString::fromStdString(genres_str));
 }
 
-void Profile::build_scenes(bool edit_mode)
-{
+void Profile::build_scenes(bool edit_mode) {
     // delete if something
     if (view_favActors != nullptr) {
         delete view_favActors;
@@ -153,10 +160,20 @@ void Profile::build_scenes(bool edit_mode)
     // add plus item in edit mode
     if (edit_mode) {
         QPixmap plusPixmap(":/img/plus.png");
-        ClickablePixmapItem *plusItem_favActors = new ClickablePixmapItem(plusPixmap.scaledToHeight(view_favActors->height()));
-        ClickablePixmapItem *plusItem_watchlist = new ClickablePixmapItem(plusPixmap.scaledToHeight(view_watchlist->height()));
-        connect(plusItem_favActors, &ClickablePixmapItem::clicked, this, &Profile::plusItem_favActors_clicked);
-        connect(plusItem_watchlist, &ClickablePixmapItem::clicked, this, &Profile::plusItem_watchlist_clicked);
+        ClickablePixmapItem *plusItem_favActors = new ClickablePixmapItem(
+            plusPixmap.scaledToHeight(view_favActors->height())
+        );
+        ClickablePixmapItem *plusItem_watchlist = new ClickablePixmapItem(
+            plusPixmap.scaledToHeight(view_watchlist->height())
+        );
+        connect(
+            plusItem_favActors, &ClickablePixmapItem::clicked, this,
+            &Profile::plusItem_favActors_clicked
+        );
+        connect(
+            plusItem_watchlist, &ClickablePixmapItem::clicked, this,
+            &Profile::plusItem_watchlist_clicked
+        );
         plusItem_favActors->setPos(0, 0);
         plusItem_watchlist->setPos(0, 0);
         plusItem_favActors->setCursor(Qt::PointingHandCursor);
@@ -168,38 +185,49 @@ void Profile::build_scenes(bool edit_mode)
     }
 
     // build favorite actors
-    for (auto it = favActorsImages.rbegin(); it != favActorsImages.rend(); ++it) {
+    for (auto it = favActorsImages.rbegin(); it != favActorsImages.rend();
+         ++it) {
         QPixmap pixmap(*it);
-        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap.scaledToHeight(view_favActors->height()));
+        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(
+            pixmap.scaledToHeight(view_favActors->height())
+        );
         item->setPos(start_actors, 0);
         scene_favActors->addItem(item);
         start_actors += item->boundingRect().width() + 10;
     }
 
     view_favActors->setScene(scene_favActors);
-    view_favActors->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view_favActors->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     view_favActors->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     // build watch list
     for (auto it = watchlistImages.rbegin(); it != watchlistImages.rend(); ++it) {
-        QPixmap pixmap(*it);
-        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap.scaledToHeight(view_watchlist->height()));
-        item->setPos(start_films, 0);
-        scene_watchlist->addItem(item);
-        start_films += item->boundingRect().width() + 10;
-    }
+    QPixmap pixmap(*it);
+    QGraphicsPixmapItem *item = new QGraphicsPixmapItem(
+        pixmap.scaledToHeight(view_watchlist->height())
+    );
 
-    view_watchlist->setScene(scene_watchlist);
-    view_watchlist->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view_watchlist->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect();
+    effect->setBlurRadius(10);
+    effect->setOffset(0);
+    item->setGraphicsEffect(effect);
+
+    item->setPos(start_films, 0);
+    scene_watchlist->addItem(item);
+
+    start_films += item->boundingRect().width() + 20; // Увеличено до 20
+}
+
+view_watchlist->setScene(scene_watchlist);
+view_watchlist->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+view_watchlist->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     // right layout
     rightBox->addWidget(view_favActors);
     rightBox->addWidget(view_watchlist);
 }
 
-void Profile::build()
-{
+void Profile::build() {
     // main layout
     leftBox = new QVBoxLayout;
     rightBox = new QVBoxLayout;
@@ -210,11 +238,37 @@ void Profile::build()
     mainLayout->setColumnStretch(0, 0);
     this->setLayout(mainLayout);
 
+    QLabel *greeting = new QLabel();
+    greeting->setText("Hello, " + QString::fromStdString(user->preview().login().c_str()) + "!");
+    greeting->setStyleSheet("font-size: 50px; color: #4E0368;");
+
     // photo
+    // QLabel *label_photo = new QLabel();
+    // QPixmap pixmap(":/img/robertdeniro.jpg");
+    // pixmap = pixmap.scaledToWidth(
+    //     mainLayout->columnMinimumWidth(0), Qt::SmoothTransformation
+    // );
+    // label_photo->setPixmap(pixmap);
     QLabel *label_photo = new QLabel();
     QPixmap pixmap(":/img/robertdeniro.jpg");
-    pixmap = pixmap.scaledToWidth(mainLayout->columnMinimumWidth(0), Qt::SmoothTransformation);
-    label_photo->setPixmap(pixmap);
+
+    int size = qMin(pixmap.width(), pixmap.height());
+    QPixmap squarePixmap = pixmap.copy(0, 0, size, size);
+
+    QPixmap scaledPixmap = squarePixmap.scaled(
+        300, 300, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation
+    );
+
+    QPixmap rounded = QPixmap(scaledPixmap.size());
+    rounded.fill(Qt::transparent);
+
+    QPainter painter(&rounded);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setBrush(QBrush(scaledPixmap));
+    painter.setPen(Qt::NoPen);
+    painter.drawEllipse(rounded.rect());
+
+    label_photo->setPixmap(rounded);
 
     // status
     label_status = new QLabel(QString::fromStdString(user->quote().c_str()));
@@ -233,7 +287,8 @@ void Profile::build()
     textEdit_about->hide();
 
     // username
-    label_username = new QLabel(QString::fromStdString(user->preview().login().c_str()));
+    label_username =
+        new QLabel(QString::fromStdString(user->preview().login().c_str()));
     lineEdit_username = new QLineEdit();
     lineEdit_username->hide();
 
@@ -241,11 +296,11 @@ void Profile::build()
     std::string genres_str = "Favorite genres: ";
 
     if (!user->favorite_genres().empty()) {
-        for (const auto& genre : user->favorite_genres()) {
+        for (const auto &genre : user->favorite_genres()) {
             std::string favorite_genres_str = common::Genre_Name(genre);
             genres_str += favorite_genres_str + ", ";
         }
-        genres_str = genres_str.substr(0, genres_str.size()-2);
+        genres_str = genres_str.substr(0, genres_str.size() - 2);
     }
 
     QHBoxLayout *genresLayout = new QHBoxLayout;
@@ -256,23 +311,43 @@ void Profile::build()
     button_edit_genres->hide();
     genresLayout->addWidget(label_favorite_genres);
     genresLayout->addWidget(button_edit_genres);
-    connect(button_edit_genres, &QPushButton::clicked, this, &Profile::button_edit_genres_clicked);
+    connect(
+        button_edit_genres, &QPushButton::clicked, this,
+        &Profile::button_edit_genres_clicked
+    );
+    label_status->setStyleSheet("border: 2px solid #4E0368; border-radius: 5px;"
+    );
+    label_about->setStyleSheet("border: 2px solid #4E0368; border-radius: 5px;"
+    );
+    label_username->setStyleSheet(
+        "border: 2px solid #4E0368; border-radius: 5px;"
+    );
+    label_username->setFixedWidth(150);
+    label_favorite_genres->setStyleSheet(
+        "border: 2px solid #4E0368; border-radius: 10px;"
+    );
 
     // edit button
     button_edit = new QPushButton("Edit");
     button_edit->setCursor(Qt::PointingHandCursor);
-    connect(button_edit, &QPushButton::clicked, this, &Profile::button_edit_clicked);
+    connect(
+        button_edit, &QPushButton::clicked, this, &Profile::button_edit_clicked
+    );
 
     // save button
     button_save = new QPushButton("Save");
     button_save->setCursor(Qt::PointingHandCursor);
-    connect(button_save, &QPushButton::clicked, this, &Profile::button_save_clicked);
+    connect(
+        button_save, &QPushButton::clicked, this, &Profile::button_save_clicked
+    );
     button_save->setVisible(false);
 
     // spacer
-    QSpacerItem* verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    QSpacerItem *verticalSpacer =
+        new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
     // left layout
+    leftBox->addWidget(greeting);
     leftBox->addWidget(label_photo);
     leftBox->addWidget(label_status);
     leftBox->addWidget(label_about);
@@ -286,14 +361,15 @@ void Profile::build()
     rightBox->addLayout(genresLayout);
 
     // gallery
-    favActorsImages << ":/img/tarantino.jpg" << ":/img/tarantino.jpg" << ":/img/tarantino.jpg";
-    watchlistImages << ":/img/titanik.jpeg" << ":/img/titanik.jpeg" << ":/img/titanik.jpeg";
+    favActorsImages << ":/img/tarantino.jpg" << ":/img/tarantino.jpg"
+                    << ":/img/tarantino.jpg";
+    watchlistImages << ":/img/titanik.jpeg" << ":/img/titanik.jpeg"
+                    << ":/img/titanik.jpeg";
 
     // scenes
     build_scenes();
 }
 
-Profile::~Profile()
-{
+Profile::~Profile() {
     delete ui;
 }

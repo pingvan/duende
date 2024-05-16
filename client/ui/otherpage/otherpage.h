@@ -41,7 +41,7 @@ signals:
 
 public slots:
     void sendInvite();
-    void Subscribe();
+    void toggleSubscription();
 
 private:
     Ui::OtherPage *ui;
@@ -57,6 +57,7 @@ private:
     QLabel *label_about;
     QLabel *label_username;
     QLabel *label_favorite_genres;
+    QPushButton* subscribeButton;
 
     QGraphicsView *view_favActors = nullptr;
     QGraphicsView *view_watchlist = nullptr;
