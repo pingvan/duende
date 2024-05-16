@@ -103,3 +103,17 @@ Status UsersInteractionServiceImpl::CheckIsMutual(
     response->set_is_mutual(is_mutual);
     return Status::OK;
 }
+
+Status UsersInteractionServiceImpl::GetMutualSubscriptions(
+    ServerContext *context,
+    const GetMutualSubscriptionsRequest *request,
+    GetMutualSubscriptionsResponse *response
+) {
+    std::vector<int> subscriptions = subscription_db_api.get_subscriptions(request->user_id());
+    for (int subscription_id : subscriptions) {
+        if (subscription_db_api.check_is_mutual(request->user_id(), subscription_id)) {
+            response->add_mutual_subscription_id(subscription_id);
+        }
+    }
+    return Status::OK;
+}

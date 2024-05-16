@@ -78,4 +78,10 @@ class UsersInteractionServiceImpl final : public users_interaction::UsersInterac
         const CheckIsMutualRequest *request,
         CheckIsMutualResponse *response
     ) override;
+
+    Status GetMutualSubscriptions(
+        ServerContext *context,
+        const GetMutualSubscriptionsRequest *request,
+        GetMutualSubscriptionsResponse *response
+    ) override;
 };
