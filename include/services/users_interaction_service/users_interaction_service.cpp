@@ -109,10 +109,10 @@ Status UsersInteractionServiceImpl::GetMutualSubscriptions(
     const GetMutualSubscriptionsRequest *request,
     GetMutualSubscriptionsResponse *response
 ) {
-    std::vector<int> subscriptions = subscription_db_api.get_subscriptions(request->user_id());
+    std::vector<uint32_t> subscriptions = subscription_db_api.get_subscriptions(request->subscriber_id());
     for (int subscription_id : subscriptions) {
-        if (subscription_db_api.check_is_mutual(request->user_id(), subscription_id)) {
-            response->add_mutual_subscription_id(subscription_id);
+        if (subscription_db_api.check_is_mutual(request->subscriber_id(), subscription_id)) {
+            response->add_subscribie_id(subscription_id);
         }
     }
     return Status::OK;
