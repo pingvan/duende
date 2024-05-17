@@ -120,6 +120,9 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
         followsPage, &Follows::userClicked, this, &MainWindow::openOtherPage
     );
     connect(
+        followsPage, &Follows::userFromListClicked, this, &MainWindow::openOtherPage
+    );
+    connect(
         recommendationsPage, &Recommendations::userClicked, this,
         &MainWindow::openOtherPage
     );
