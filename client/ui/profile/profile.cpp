@@ -14,9 +14,20 @@ Profile::Profile(Manager *managerPtr, QWidget *parent)
     build();
 
     qDebug() << "Profile page end\n";
+
+    genresList = new QListWidget;
+    genresList->setStyleSheet("border: none;");
+    genresList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    genresList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    genresList->setViewMode(QListView::IconMode);
+    genresList->setFlow(QListView::LeftToRight);
+    genresLayout->addWidget(genresList);
+    update_favorite_genres();
 }
 
 void Profile::button_edit_clicked() {
+    editMode = true;
+    update_favorite_genres();
     // replace labels with lineEdits
     lineEdit_status->setText(label_status->text());
     lineEdit_username->setText(label_username->text());
@@ -39,6 +50,8 @@ void Profile::button_edit_clicked() {
 }
 
 void Profile::button_save_clicked() {
+    editMode = false;
+    update_favorite_genres();
     // update user
     user = manager->new_client.get_user_full_page(manager->ID);
 
@@ -116,18 +129,35 @@ void Profile::button_edit_genres_clicked() {
 }
 
 void Profile::update_favorite_genres() {
-    // update genres information
-    std::string genres_str = "Favorite genres: ";
+    genresList->clear();
+    genresList->setSpacing(10);
 
-    if (!user->favorite_genres().empty()) {
-        for (const auto &genre : user->favorite_genres()) {
-            std::string favorite_genres_str = common::Genre_Name(genre);
-            genres_str += favorite_genres_str + ", ";
-        }
-        genres_str = genres_str.substr(0, genres_str.size() - 2);
+    disconnect(genresList, &QListWidget::itemDoubleClicked, this, nullptr);
+
+    for (const auto &genre : user->favorite_genres()) {
+        QListWidgetItem *item =
+            new QListWidgetItem(common::Genre_Name(genre).c_str());
+        item->setTextAlignment(Qt::AlignCenter);
+        QFont font;
+        font.setPointSize(20);
+        // font.setBold(true);
+        item->setFont(font);
+        item->setForeground(Qt::white);
+        item->setBackground(QBrush(QColor("#8023a8")));
+        genresList->addItem(item);
     }
-
-    label_favorite_genres->setText(QString::fromStdString(genres_str));
+    if (editMode) {
+        connect(
+            genresList, &QListWidget::itemDoubleClicked,
+            [this](QListWidgetItem *item) {
+                int row = genresList->row(item);
+                std::string genre_name = item->text().toStdString();
+                manager->new_client.remove_genre(manager->ID, genre_name);
+                genresList->takeItem(row);
+                delete item;
+            }
+        );
+    }
 }
 
 void Profile::build_scenes(bool edit_mode) {
@@ -153,6 +183,25 @@ void Profile::build_scenes(bool edit_mode) {
     scene_favActors = new QGraphicsScene();
     view_watchlist = new QGraphicsView();
     scene_watchlist = new QGraphicsScene();
+
+    if (actors_text != nullptr) {
+        rightBox->removeWidget(actors_text);
+        delete actors_text;
+        actors_text = nullptr;
+    }
+    if (movies_text != nullptr) {
+        rightBox->removeWidget(movies_text);
+        delete movies_text;
+        movies_text = nullptr;
+    }
+
+    actors_text = new QLabel();
+    actors_text->setText("Your favourite actors");
+    actors_text->setStyleSheet("font-size: 14px; color: #8023a8;");
+
+    movies_text = new QLabel();
+    movies_text->setText("Your favourite movies");
+    movies_text->setStyleSheet("font-size: 14px; color: #8023a8;");
 
     int start_actors = 0;
     int start_films = 0;
@@ -197,33 +246,36 @@ void Profile::build_scenes(bool edit_mode) {
     }
 
     view_favActors->setScene(scene_favActors);
-    view_favActors->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    view_favActors->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view_favActors->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     // build watch list
-    for (auto it = watchlistImages.rbegin(); it != watchlistImages.rend(); ++it) {
-    QPixmap pixmap(*it);
-    QGraphicsPixmapItem *item = new QGraphicsPixmapItem(
-        pixmap.scaledToHeight(view_watchlist->height())
-    );
+    for (auto it = watchlistImages.rbegin(); it != watchlistImages.rend();
+         ++it) {
+        QPixmap pixmap(*it);
+        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(
+            pixmap.scaledToHeight(view_watchlist->height())
+        );
 
-    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect();
-    effect->setBlurRadius(10);
-    effect->setOffset(0);
-    item->setGraphicsEffect(effect);
+        QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect();
+        effect->setBlurRadius(10);
+        effect->setOffset(0);
+        item->setGraphicsEffect(effect);
 
-    item->setPos(start_films, 0);
-    scene_watchlist->addItem(item);
+        item->setPos(start_films, 0);
+        scene_watchlist->addItem(item);
 
-    start_films += item->boundingRect().width() + 20; // Увеличено до 20
-}
+        start_films += item->boundingRect().width() + 20;  // Увеличено до 20
+    }
 
-view_watchlist->setScene(scene_watchlist);
-view_watchlist->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-view_watchlist->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view_watchlist->setScene(scene_watchlist);
+    view_watchlist->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view_watchlist->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     // right layout
+    rightBox->addWidget(actors_text);
     rightBox->addWidget(view_favActors);
+    rightBox->addWidget(movies_text);
     rightBox->addWidget(view_watchlist);
 }
 
@@ -239,16 +291,11 @@ void Profile::build() {
     this->setLayout(mainLayout);
 
     QLabel *greeting = new QLabel();
-    greeting->setText("Hello, " + QString::fromStdString(user->preview().login().c_str()) + "!");
-    greeting->setStyleSheet("font-size: 50px; color: #4E0368;");
-
-    // photo
-    // QLabel *label_photo = new QLabel();
-    // QPixmap pixmap(":/img/robertdeniro.jpg");
-    // pixmap = pixmap.scaledToWidth(
-    //     mainLayout->columnMinimumWidth(0), Qt::SmoothTransformation
-    // );
-    // label_photo->setPixmap(pixmap);
+    greeting->setText(
+        "Hello, " + QString::fromStdString(user->preview().login().c_str()) +
+        "!"
+    );
+    greeting->setStyleSheet("font-size: 50px; color: #8023a8;");
     QLabel *label_photo = new QLabel();
     QPixmap pixmap(":/img/robertdeniro.jpg");
 
@@ -273,6 +320,10 @@ void Profile::build() {
     // status
     label_status = new QLabel(QString::fromStdString(user->quote().c_str()));
     label_status->setMaximumWidth(500);
+    label_status->setStyleSheet(
+        "color: #8023a8; border-radius: 5px; border: 1px solid #8023a8; "
+        "font-size: 14px;"
+    );
     lineEdit_status = new QLineEdit();
     lineEdit_status->setMaximumWidth(500);
     lineEdit_status->hide();
@@ -280,52 +331,50 @@ void Profile::build() {
     // about
     label_about = new QLabel(QString::fromStdString(user->about().c_str()));
     label_about->setMaximumWidth(500);
+    label_about->setMaximumHeight(500);
     label_about->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    label_about->setStyleSheet(
+        "color: #8023a8; border-radius: 5px; border: 1px solid #8023a8; "
+        "font-size: 14px;"
+    );
     label_about->setWordWrap(true);
     textEdit_about = new QTextEdit();
     textEdit_about->setMaximumWidth(500);
     textEdit_about->hide();
 
+    lineEdit_status->setPlaceholderText("My favourite quote");
+    textEdit_about->setPlaceholderText("About me");
+
     // username
     label_username =
         new QLabel(QString::fromStdString(user->preview().login().c_str()));
+
     lineEdit_username = new QLineEdit();
     lineEdit_username->hide();
 
     // genres
     std::string genres_str = "Favorite genres: ";
 
-    if (!user->favorite_genres().empty()) {
-        for (const auto &genre : user->favorite_genres()) {
-            std::string favorite_genres_str = common::Genre_Name(genre);
-            genres_str += favorite_genres_str + ", ";
-        }
-        genres_str = genres_str.substr(0, genres_str.size() - 2);
-    }
+    genresLayout = new QHBoxLayout;
 
-    QHBoxLayout *genresLayout = new QHBoxLayout;
-    label_favorite_genres = new QLabel(QString::fromStdString(genres_str));
     button_edit_genres = new QPushButton("Add");
     button_edit_genres->setFixedWidth(100);
     button_edit_genres->setCursor(Qt::PointingHandCursor);
     button_edit_genres->hide();
-    genresLayout->addWidget(label_favorite_genres);
+    genresLayout->addWidget(genresList);
     genresLayout->addWidget(button_edit_genres);
+
     connect(
         button_edit_genres, &QPushButton::clicked, this,
         &Profile::button_edit_genres_clicked
     );
-    label_status->setStyleSheet("border: 2px solid #4E0368; border-radius: 5px;"
-    );
-    label_about->setStyleSheet("border: 2px solid #4E0368; border-radius: 5px;"
-    );
     label_username->setStyleSheet(
-        "border: 2px solid #4E0368; border-radius: 5px;"
+        "background-color: #8023a8; color: white; border-radius: 5px; "
+        "font-size: 16px;"
     );
     label_username->setFixedWidth(150);
-    label_favorite_genres->setStyleSheet(
-        "border: 2px solid #4E0368; border-radius: 10px;"
-    );
+    label_username->setFixedHeight(30);
+    label_username->setAlignment(Qt::AlignCenter);
 
     // edit button
     button_edit = new QPushButton("Edit");
@@ -355,9 +404,14 @@ void Profile::build() {
     leftBox->addWidget(button_edit);
     leftBox->addWidget(button_save);
 
+    genres_text = new QLabel();
+    genres_text->setText("Your favourite genres");
+    genres_text->setStyleSheet("font-size: 14px; color: #8023a8;");
+
     // right layout
     rightBox->addWidget(label_username);
     rightBox->addWidget(lineEdit_username);
+    rightBox->addWidget(genres_text);
     rightBox->addLayout(genresLayout);
 
     // gallery

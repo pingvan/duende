@@ -226,13 +226,13 @@ void Follows::UpdateList(QListWidget &list, const std::vector<uint32_t> &ids) {
         common::UserFullPage *user = manager->new_client.get_user_full_page(id);
         if (user) {
             QString username = QString::fromStdString(user->preview().login());
-            QString quote = QString::fromStdString(user->quote());
+            // QString quote = QString::fromStdString(user->quote());
             QListWidgetItem *item = new QListWidgetItem;
-            if (quote.isEmpty()) {
-                item->setText(username);
-            } else {
-                item->setText(username + ": \" " + quote + "\"");
-            }
+            // if (quote.isEmpty()) {
+            item->setText(username);
+            // } else {
+            //     item->setText(username + ": \" " + quote + "\"");
+            // }
             item->setData(Qt::UserRole, id);
             item->setSizeHint(QSize(item->sizeHint().width(), 45));
             QFont font = item->font();

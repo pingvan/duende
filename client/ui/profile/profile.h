@@ -22,6 +22,7 @@
 #include <QApplication>
 #include <QScreen>
 #include <QGraphicsDropShadowEffect>
+#include <QListWidget>
 
 
 namespace Ui {
@@ -45,6 +46,9 @@ private slots:
     void plusItem_favActors_clicked();
     void plusItem_watchlist_clicked();
     void update_favorite_genres();
+    void onEditButtonClicked() {
+        editMode = !editMode;
+    }
 
 private:
     Ui::Profile *ui;
@@ -58,6 +62,9 @@ private:
     QLabel *label_about;
     QLabel *label_username;
     QLabel *label_favorite_genres;
+    QLabel *actors_text;
+    QLabel *movies_text;
+    QLabel *genres_text;
 
     QLineEdit *lineEdit_status;
     QTextEdit *textEdit_about;
@@ -78,6 +85,10 @@ private:
     QStringList watchlistImages;
 
     Genres_SearchWindow *genres_searchWindow;
+
+    QHBoxLayout *genresLayout;
+    QListWidget *genresList;
+    bool editMode = false;
 };
 
 class ClickablePixmapItem : public QObject, public QGraphicsPixmapItem
