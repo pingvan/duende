@@ -311,8 +311,12 @@ void client::remove_genre(int user_id, const std::string &genre_name) {
     request.set_id(user_id);
     profile::Genre *genre = request.add_genres();
     genre->set_name(genre_name);
+    qDebug() << "Sending remove genre request to server: " << genre_name.c_str();
     grpc::Status status =
         profile_stub->RemoveFromListOfGenres(&context, request, response);
+    if (!status.ok()) {
+        qDebug() << status.error_message().c_str();
+    }
 }
 
 void client::add_movie(int user_id, int movie_id, int rating) {

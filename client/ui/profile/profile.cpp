@@ -26,8 +26,8 @@ Profile::Profile(Manager *managerPtr, QWidget *parent)
 }
 
 void Profile::button_edit_clicked() {
-    editMode = true;
-    update_favorite_genres();
+    // editMode = true;
+    // update_favorite_genres();
     // replace labels with lineEdits
     lineEdit_status->setText(label_status->text());
     lineEdit_username->setText(label_username->text());
@@ -44,6 +44,17 @@ void Profile::button_edit_clicked() {
     leftBox->replaceWidget(label_status, lineEdit_status);
     leftBox->replaceWidget(label_about, textEdit_about);
     rightBox->replaceWidget(label_username, lineEdit_username);
+    connection = connect(
+        genresList, &QListWidget::itemDoubleClicked,
+        [this](QListWidgetItem *item) {
+            int row = genresList->row(item);
+            std::string genre_name = item->text().toStdString();
+            manager->new_client.remove_genre(manager->ID, genre_name);
+            genresList->takeItem(row);
+            delete item;
+            // update_favorite_genres();
+        }
+    );
 
     // update scenes
     build_scenes(true);
@@ -51,7 +62,7 @@ void Profile::button_edit_clicked() {
 
 void Profile::button_save_clicked() {
     editMode = false;
-    update_favorite_genres();
+    disconnect(connection);
     // update user
     user = manager->new_client.get_user_full_page(manager->ID);
 
@@ -66,6 +77,7 @@ void Profile::button_save_clicked() {
     manager->new_client.change_bio(
         manager->ID, textEdit_about->toPlainText().toStdString()
     );
+    update_favorite_genres();
 
     // replace lineEdits with labels
     label_status->setText(lineEdit_status->text());
@@ -132,7 +144,7 @@ void Profile::update_favorite_genres() {
     genresList->clear();
     genresList->setSpacing(10);
 
-    disconnect(genresList, &QListWidget::itemDoubleClicked, this, nullptr);
+    // disconnect(genresList, &QListWidget::itemDoubleClicked, this, nullptr);
 
     for (const auto &genre : user->favorite_genres()) {
         QListWidgetItem *item =
@@ -146,18 +158,18 @@ void Profile::update_favorite_genres() {
         item->setBackground(QBrush(QColor("#8023a8")));
         genresList->addItem(item);
     }
-    if (editMode) {
-        connect(
-            genresList, &QListWidget::itemDoubleClicked,
-            [this](QListWidgetItem *item) {
-                int row = genresList->row(item);
-                std::string genre_name = item->text().toStdString();
-                manager->new_client.remove_genre(manager->ID, genre_name);
-                genresList->takeItem(row);
-                delete item;
-            }
-        );
-    }
+    // if (editMode) {
+    //     connect(
+    //         genresList, &QListWidget::itemDoubleClicked,
+    //         [this](QListWidgetItem *item) {
+    //             int row = genresList->row(item);
+    //             std::string genre_name = item->text().toStdString();
+    //             manager->new_client.remove_genre(manager->ID, genre_name);
+    //             genresList->takeItem(row);
+    //             delete item;
+    //         }
+    //     );
+    // }
 }
 
 void Profile::build_scenes(bool edit_mode) {

@@ -1,6 +1,7 @@
 #include "profile_server.hpp"
 #include "components/database/services/authservice/authservice.hpp"
 #include "components/database/services/profile_service/profile_service.hpp"
+#include <iostream>
 
 Status ProfileServiceImpl::ChangeUsername(
     ServerContext *context,
@@ -145,6 +146,7 @@ Status ProfileServiceImpl::RemoveFromListOfGenres(
 ) {
     GenreRequest current_profile = *request;
     for (const auto &genre : current_profile.genres()) {
+        std::cout << "Removing genre on server: " << genre.name().c_str(); 
         database::profile_service_database_api::remove_favourite_genre(
             current_profile.id(), genre.name()
         );

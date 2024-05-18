@@ -89,6 +89,7 @@ private:
     QHBoxLayout *genresLayout;
     QListWidget *genresList;
     bool editMode = false;
+    QMetaObject::Connection connection;
 };
 
 class ClickablePixmapItem : public QObject, public QGraphicsPixmapItem
