@@ -1,5 +1,4 @@
 #include "genres_searchwindow.h"
-#include <iostream>
 #include "ui_genres_searchwindow.h"
 
 Genres_SearchWindow::Genres_SearchWindow(Manager *managerPtr, QWidget *parent)
@@ -64,6 +63,8 @@ void Genres_SearchWindow::saveChanges() {
             manager->new_client.add_genre(
                 manager->ID, selectedGenre.toStdString()
             );
+            qDebug() << "Sending genreAdded signal";
+            emit genreAdded();
         }
     }
     emit windowClosed();

@@ -37,7 +37,7 @@ void Profile::button_edit_clicked() {
         genresList, &QListWidget::itemDoubleClicked,
         [this](QListWidgetItem *item) {
             int row = genresList->row(item);
-            std::string genre_name = item->text().toStdString();
+            std::string genre_name = item->text().toLower().toStdString();
             manager->new_client.remove_genre(manager->ID, genre_name);
             genresList->takeItem(row);
             delete item;
@@ -118,10 +118,11 @@ void Profile::plusItem_watchlist_clicked() {
 void Profile::button_edit_genres_clicked() {
     // open search window
     genres_searchWindow = new Genres_SearchWindow(manager, this);
-    connect(
-        genres_searchWindow, &Genres_SearchWindow::windowClosed, this,
-        &Profile::update_favorite_genres
-    );
+    // connect(
+    //     genres_searchWindow, &Genres_SearchWindow::windowClosed, this,
+    //     &Profile::update_favorite_genres
+    // );
+    connect(genres_searchWindow, &Genres_SearchWindow::genreAdded, this, &Profile::update_favorite_genres);
     genres_searchWindow->setWindowModality(Qt::ApplicationModal);
     genres_searchWindow->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     genres_searchWindow->move(
