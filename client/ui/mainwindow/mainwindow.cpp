@@ -142,6 +142,9 @@ void MainWindow::openProfilePage() {
 }
 
 void MainWindow::openOtherPage(int id) {
+    if (manager->new_client.is_blocked(manager->ID, id)) {
+        QMessageBox::information(this, "Blocked User", "You can't view this page :(");
+    }
     qDebug() << "openOtherPage called with id:" << id;
     otherPage->updatePage(id);
     pages->setCurrentWidget(otherPage);

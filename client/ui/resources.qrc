@@ -13,5 +13,6 @@
         <file>img/cross.png</file>
         <file>img/follows.png</file>
         <file>img/person-add.png</file>
+        <file>img/ban.png</file>
     </qresource>
 </RCC>

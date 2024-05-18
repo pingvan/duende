@@ -65,6 +65,7 @@ private:
     QLabel *actors_text;
     QLabel *movies_text;
     QLabel *genres_text;
+    QLabel *greeting;
 
     QLineEdit *lineEdit_status;
     QTextEdit *textEdit_about;

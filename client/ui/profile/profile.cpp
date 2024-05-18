@@ -77,6 +77,11 @@ void Profile::button_save_clicked() {
     manager->new_client.change_bio(
         manager->ID, textEdit_about->toPlainText().toStdString()
     );
+    greeting->clear();
+    greeting->setText(
+        "Hello, " + QString::fromStdString(user->preview().login().c_str()) +
+        "!"
+    );
     update_favorite_genres();
 
     // replace lineEdits with labels
@@ -158,18 +163,6 @@ void Profile::update_favorite_genres() {
         item->setBackground(QBrush(QColor("#8023a8")));
         genresList->addItem(item);
     }
-    // if (editMode) {
-    //     connect(
-    //         genresList, &QListWidget::itemDoubleClicked,
-    //         [this](QListWidgetItem *item) {
-    //             int row = genresList->row(item);
-    //             std::string genre_name = item->text().toStdString();
-    //             manager->new_client.remove_genre(manager->ID, genre_name);
-    //             genresList->takeItem(row);
-    //             delete item;
-    //         }
-    //     );
-    // }
 }
 
 void Profile::build_scenes(bool edit_mode) {
@@ -302,7 +295,7 @@ void Profile::build() {
     mainLayout->setColumnStretch(0, 0);
     this->setLayout(mainLayout);
 
-    QLabel *greeting = new QLabel();
+    greeting = new QLabel();
     greeting->setText(
         "Hello, " + QString::fromStdString(user->preview().login().c_str()) +
         "!"

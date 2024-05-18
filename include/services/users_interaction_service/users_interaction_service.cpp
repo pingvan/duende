@@ -23,10 +23,10 @@ Status UsersInteractionServiceImpl::Unblock(
     if (!block_db_api.check_is_blocked(request->blocker_id(), request->blockie_id())) {
         return Status(grpc::NOT_FOUND, "User is not blocked");
     } 
-    // else {
-    //     db_connector.unblock_user(request->blocker_id(), request->blockie_id());
-    //     response->set_message("User unblocked");
-    // }
+    else {
+        block_db_api.unblock_user(request->blocker_id(), request->blockie_id());
+        response->set_message("User unblocked");
+    }
     return Status::OK;
 }
 
