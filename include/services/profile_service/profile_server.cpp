@@ -146,7 +146,6 @@ Status ProfileServiceImpl::RemoveFromListOfGenres(
 ) {
     GenreRequest current_profile = *request;
     for (const auto &genre : current_profile.genres()) {
-        std::cout << "Removing genre on server: " << genre.name().c_str(); 
         database::profile_service_database_api::remove_favourite_genre(
             current_profile.id(), genre.name()
         );

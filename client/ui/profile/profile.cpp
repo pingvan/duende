@@ -14,20 +14,9 @@ Profile::Profile(Manager *managerPtr, QWidget *parent)
     build();
 
     qDebug() << "Profile page end\n";
-
-    genresList = new QListWidget;
-    genresList->setStyleSheet("border: none;");
-    genresList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    genresList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    genresList->setViewMode(QListView::IconMode);
-    genresList->setFlow(QListView::LeftToRight);
-    genresLayout->addWidget(genresList);
-    update_favorite_genres();
 }
 
 void Profile::button_edit_clicked() {
-    // editMode = true;
-    // update_favorite_genres();
     // replace labels with lineEdits
     lineEdit_status->setText(label_status->text());
     lineEdit_username->setText(label_username->text());
@@ -78,10 +67,7 @@ void Profile::button_save_clicked() {
         manager->ID, textEdit_about->toPlainText().toStdString()
     );
     greeting->clear();
-    greeting->setText(
-        "Hello, " + QString::fromStdString(user->preview().login().c_str()) +
-        "!"
-    );
+    greeting->setText(QString("Hello, %1!").arg(lineEdit_username->text()));
     update_favorite_genres();
 
     // replace lineEdits with labels
@@ -361,6 +347,13 @@ void Profile::build() {
     std::string genres_str = "Favorite genres: ";
 
     genresLayout = new QHBoxLayout;
+    genresList = new QListWidget;
+    genresList->setStyleSheet("border: none;");
+    genresList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    genresList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    genresList->setViewMode(QListView::IconMode);
+    genresList->setFlow(QListView::LeftToRight);
+    update_favorite_genres();
 
     button_edit_genres = new QPushButton("Add");
     button_edit_genres->setFixedWidth(100);

@@ -42,7 +42,7 @@ void OtherPage::showBlockDialog(QPushButton *blockButton) {
     if (manager->new_client.is_blocked(id, manager->ID)) {
         reply = QMessageBox::question(
             this, "Unblock User", "Are you sure you want to unblock this user?",
-            QMessageBox::No | QMessageBox::Yes
+            QMessageBox::Yes | QMessageBox::No
         );
         if (reply == QMessageBox::Yes) {
             manager->new_client.unblock(manager->ID, id);
@@ -54,7 +54,7 @@ void OtherPage::showBlockDialog(QPushButton *blockButton) {
     } else {
         reply = QMessageBox::question(
             this, "Block User", "Are you sure you want to block this user?",
-            QMessageBox::No | QMessageBox::Yes
+            QMessageBox::Yes | QMessageBox::No
         );
         if (reply == QMessageBox::Yes) {
             manager->new_client.block(manager->ID, id);
