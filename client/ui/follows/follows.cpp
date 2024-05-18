@@ -20,7 +20,7 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
     // search_line->setCompleter(completer);
     search_line->setMinimumHeight(50);
     search_line->setStyleSheet(
-        "font-size: 16px; color: #5a1e71; border: 1px solid #8023a8; "
+        "font-size: 18px; color: #5a1e71; border: 1px solid #8023a8; "
         "border-radius: 5px; padding: 5px; text-color: #8023a8;"
     );
 

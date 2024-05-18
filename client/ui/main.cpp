@@ -17,16 +17,16 @@ int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
     QFont font = a.font();
-    font.setPointSize(font.pointSize() + 1);
+    font.setPointSize(16);
     a.setFont(font);
 
     a.setStyleSheet(
         "QWidget { background-color: #e9e9e9; }"
-        "QPushButton { min-width: 100px; min-height: 30px; font-size: 16px; "
+        "QPushButton { min-width: 100px; min-height: 40px; font-size: 24px; "
         "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #b24ee7, stop: 1 #982ecb); "
         "color: white; border-radius: 5px;}"
         "QPushButton:pressed, QPushButton:checked { background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #8023A8, stop: 1 #691e8a); }" 
-        "QLineEdit { font-size: 14px; color: #8023a8; min-height: 25px;}"
+        "QLineEdit { font-size: 18px; color: #8023a8; min-height: 40px;}"
         "QPushButton#myButton { background-color: #e9e9e9; }"
     );
 

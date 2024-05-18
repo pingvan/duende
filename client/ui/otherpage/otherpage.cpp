@@ -343,7 +343,7 @@ void OtherPage::build() {
     QPushButton *blockButton = new QPushButton();
     blockButton->setIcon(QIcon(":/img/ban.png"));
     blockButton->setIconSize(QSize(24, 24));
-    blockButton->setFixedSize(30, 30);
+    blockButton->setFixedSize(40, 40);
     if (manager->new_client.is_blocked(id, manager->ID)) {
         blockButton->setStyleSheet(
             "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 "

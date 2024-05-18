@@ -1,14 +1,24 @@
 #include "questionnaire.h"
 #include "ui_questionnaire.h"
 
-Questionnaire::Questionnaire(Manager* managerPtr, QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::Questionnaire)
-    , manager(managerPtr)
-{
+Questionnaire::Questionnaire(Manager *managerPtr, QWidget *parent)
+    : QWidget(parent), ui(new Ui::Questionnaire), manager(managerPtr) {
     ui->setupUi(this);
     qDebug() << "Questionnaire page start\n";
-    connect(this, &Questionnaire::questionnaireFilled, this, &Questionnaire::onQuestionnaireFilled);
+    this->setStyleSheet(
+        "QLineEdit { font-size: 16px; color: #8023a8; min-height: 40px; }"
+        "QPushButton { min-width: 100px; min-height: 40px; font-size: 20px; "
+        "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 "
+        "#b24ee7, stop: 1 #982ecb); "
+        "color: white; border-radius: 5px;}"
+        "QPushButton:pressed, QPushButton:checked { background: "
+        "qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #8023A8, stop: 1 "
+        "#691e8a); }"
+    );
+    connect(
+        this, &Questionnaire::questionnaireFilled, this,
+        &Questionnaire::onQuestionnaireFilled
+    );
 
     QGridLayout *gridLayout = new QGridLayout;
     QFormLayout *formLayout = new QFormLayout;
@@ -90,40 +100,73 @@ Questionnaire::Questionnaire(Manager* managerPtr, QWidget *parent)
     QPushButton *saveButton = new QPushButton(tr("Save"));
     formLayout->addWidget(saveButton);
 
-    connect(saveButton, &QPushButton::clicked, this, &Questionnaire::on_pushButton_save_questionnaire_clicked);
+    connect(
+        saveButton, &QPushButton::clicked, this,
+        &Questionnaire::on_pushButton_save_questionnaire_clicked
+    );
 
-    gridLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding), 0, 0, 1, 1);
-    gridLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding), 0, 1, 1, 1);
+    gridLayout->addItem(
+        new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding),
+        0, 0, 1, 1
+    );
+    gridLayout->addItem(
+        new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding),
+        0, 1, 1, 1
+    );
     gridLayout->addLayout(formLayout, 1, 1);
-    gridLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding), 0, 2, 1, 1);
-    gridLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding), 2, 1, 1, 1);
+    gridLayout->addItem(
+        new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding),
+        0, 2, 1, 1
+    );
+    gridLayout->addItem(
+        new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding),
+        2, 1, 1, 1
+    );
 
     this->setLayout(gridLayout);
 
-    connect(lineEditActors, &QLineEdit::textChanged, this, &Questionnaire::updateActorsList);
-    connect(lineEditMovies, &QLineEdit::textChanged, this, &Questionnaire::updateMoviesList);
-    connect(lineEditGenres, &QLineEdit::textChanged, this, &Questionnaire::updateGenresList);
+    connect(
+        lineEditActors, &QLineEdit::textChanged, this,
+        &Questionnaire::updateActorsList
+    );
+    connect(
+        lineEditMovies, &QLineEdit::textChanged, this,
+        &Questionnaire::updateMoviesList
+    );
+    connect(
+        lineEditGenres, &QLineEdit::textChanged, this,
+        &Questionnaire::updateGenresList
+    );
 
-    connect(addActorButton, &QPushButton::clicked, this, &Questionnaire::onAddActorClicked);
-    connect(addMovieButton, &QPushButton::clicked, this, &Questionnaire::onAddMovieClicked);
-    connect(addGenreButton, &QPushButton::clicked, this, &Questionnaire::onAddGenreClicked);
+    connect(
+        addActorButton, &QPushButton::clicked, this,
+        &Questionnaire::onAddActorClicked
+    );
+    connect(
+        addMovieButton, &QPushButton::clicked, this,
+        &Questionnaire::onAddMovieClicked
+    );
+    connect(
+        addGenreButton, &QPushButton::clicked, this,
+        &Questionnaire::onAddGenreClicked
+    );
 
     qDebug() << "Questionnaire page end\n";
 }
 
-Questionnaire::~Questionnaire()
-{
+Questionnaire::~Questionnaire() {
     delete ui;
 }
 
-void Questionnaire::on_pushButton_save_questionnaire_clicked()
-{
+void Questionnaire::on_pushButton_save_questionnaire_clicked() {
     for (int actorId : selectedActorsIds) {
         manager->new_client.add_actor(manager->ID, actorId);
     }
 
     for (int i = 0; i < selectedMoviesIds.size(); i++) {
-        manager->new_client.add_movie(manager->ID, selectedMoviesIds[i], selectedMoviesRatings[i]);
+        manager->new_client.add_movie(
+            manager->ID, selectedMoviesIds[i], selectedMoviesRatings[i]
+        );
     }
 
     for (const QString &genre : selectedGenresLabel->text().split(", ")) {
@@ -138,82 +181,69 @@ void Questionnaire::on_pushButton_save_questionnaire_clicked()
 void Questionnaire::onQuestionnaireFilled() {
 }
 
-QStringList Questionnaire::searchActors(const QString &input)
-{
+QStringList Questionnaire::searchActors(const QString &input) {
     QStringList actors;
 
-    auto response = manager->new_client.search_actor_by_name(input.toStdString());
+    auto response =
+        manager->new_client.search_actor_by_name(input.toStdString());
 
     for (int i = 0; i < response->actors_size(); i++) {
         actors.append(QString::fromStdString(response->actors(i).full_name()));
-        actors_map.insert(QString::fromStdString(response->actors(i).full_name()), response->actors(i).actor_id());
+        actors_map.insert(
+            QString::fromStdString(response->actors(i).full_name()),
+            response->actors(i).actor_id()
+        );
     }
     return actors;
 }
 
-QStringList Questionnaire::searchMovies(const QString &input)
-{
+QStringList Questionnaire::searchMovies(const QString &input) {
     QStringList films;
 
-    auto response = manager->new_client.search_film_by_title(input.toStdString());
+    auto response =
+        manager->new_client.search_film_by_title(input.toStdString());
 
     for (int i = 0; i < response->films_size(); i++) {
         films.append(QString::fromStdString(response->films(i).title()));
-        movies_map.insert(QString::fromStdString(response->films(i).title()), response->films(i).film_id());
+        movies_map.insert(
+            QString::fromStdString(response->films(i).title()),
+            response->films(i).film_id()
+        );
     }
     return films;
 }
 
-QStringList Questionnaire::searchGenres(const QString &input)
-{
+QStringList Questionnaire::searchGenres(const QString &input) {
     QStringList genres;
-    genres << "action"
-       << "adventure"
-       << "comedy"
-       << "drama"
-       << "horror"
-       << "sci_fi"
-       << "fantasy"
-       << "thriller"
-       << "mystery"
-       << "romance"
-       << "animation"
-       << "documentary"
-       << "crime"
-       << "western"
-       << "music"
-       << "history"
-       << "war"
-       << "biographical"
-       << "sports"
-       << "family"
-       << "foreign"
-       << "tv_movie";
+    genres << "action" << "adventure" << "comedy" << "drama" << "horror"
+           << "sci_fi" << "fantasy" << "thriller" << "mystery" << "romance"
+           << "animation" << "documentary" << "crime" << "western" << "music"
+           << "history" << "war" << "biographical" << "sports" << "family"
+           << "foreign" << "tv_movie";
 
     return genres;
 }
 
-void Questionnaire::updateActorsList(const QString &input)
-{
+void Questionnaire::updateActorsList(const QString &input) {
     actors_model->setStringList(searchActors(input));
 }
 
-void Questionnaire::updateMoviesList(const QString &input)
-{
+void Questionnaire::updateMoviesList(const QString &input) {
     movies_model->setStringList(searchMovies(input));
 }
 
-void Questionnaire::updateGenresList(const QString &input)
-{
+void Questionnaire::updateGenresList(const QString &input) {
     genres_model->setStringList(searchGenres(input));
 }
 
-void Questionnaire::onAddActorClicked()
-{
+void Questionnaire::onAddActorClicked() {
     QString selectedActor = lineEditActors->text();
-    if (!selectedActor.isEmpty() && !selectedActorsLabel->text().contains(selectedActor)) {
+    if (!selectedActor.isEmpty() &&
+        !selectedActorsLabel->text().contains(selectedActor)) {
         if (!selectedActorsLabel->text().isEmpty()) {
-            selectedActorsLabel->setText(selectedActorsLabel->text() + ", " + selectedActor);
+            selectedActorsLabel->setText(
+                selectedActorsLabel->text() + ", " + selectedActor
+            );
         } else {
             selectedActorsLabel->setText(selectedActor);
         }
@@ -222,18 +252,24 @@ void Questionnaire::onAddActorClicked()
     }
 }
 
-void Questionnaire::onAddMovieClicked()
-{
+void Questionnaire::onAddMovieClicked() {
     QString selectedMovie = lineEditMovies->text();
-    if (!selectedMovie.isEmpty() && !selectedMoviesLabel->text().contains(selectedMovie)) {
+    if (!selectedMovie.isEmpty() &&
+        !selectedMoviesLabel->text().contains(selectedMovie)) {
         bool ok;
-        int rating = QInputDialog::getInt(this, tr("Rate the movie"),
-                                          tr("Rating:"), 5, 0, 10, 1, &ok);
+        int rating = QInputDialog::getInt(
+            this, tr("Rate the movie"), tr("Rating:"), 5, 0, 10, 1, &ok
+        );
         if (ok) {
             if (!selectedMoviesLabel->text().isEmpty()) {
-                selectedMoviesLabel->setText(selectedMoviesLabel->text() + ", " + selectedMovie + " (" + QString::number(rating) + ")");
+                selectedMoviesLabel->setText(
+                    selectedMoviesLabel->text() + ", " + selectedMovie + " (" +
+                    QString::number(rating) + ")"
+                );
             } else {
-                selectedMoviesLabel->setText(selectedMovie + " (" + QString::number(rating) + ")");
+                selectedMoviesLabel->setText(
+                    selectedMovie + " (" + QString::number(rating) + ")"
+                );
             }
             selectedMoviesIds.append(movies_map.value(selectedMovie));
             selectedMoviesRatings.append(rating);
@@ -242,12 +278,14 @@ void Questionnaire::onAddMovieClicked()
     }
 }
 
-void Questionnaire::onAddGenreClicked()
-{
+void Questionnaire::onAddGenreClicked() {
     QString selectedGenre = lineEditGenres->text();
-    if (!selectedGenre.isEmpty() && !selectedGenresLabel->text().contains(selectedGenre)) {
+    if (!selectedGenre.isEmpty() &&
+        !selectedGenresLabel->text().contains(selectedGenre)) {
         if (!selectedGenresLabel->text().isEmpty()) {
-            selectedGenresLabel->setText(selectedGenresLabel->text() + ", " + selectedGenre);
+            selectedGenresLabel->setText(
+                selectedGenresLabel->text() + ", " + selectedGenre
+            );
         } else {
             selectedGenresLabel->setText(selectedGenre);
         }
