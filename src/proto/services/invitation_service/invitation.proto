@@ -66,6 +66,7 @@ message InvitationResponse {
 message SendInvitationRequest {
   common.UserPreview sender = 1;
   Invite invite = 2;
+  optional int32 chat_id = 3;
 }
 
 message RespondToInvitationRequest {
@@ -78,6 +79,7 @@ message RespondToInvitationRequest {
 message SendInvitationResponse {
   int32 sender_id = 1;
   Invite invite = 2;
+  optional int32 chat_id = 3;
 }
 
 message RespondToInvitationResponse {

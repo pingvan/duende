@@ -128,6 +128,7 @@ MainWindow::~MainWindow() {
     qDebug() << "Main window deleted\n";
     manager->new_client.leave_chat_stream(manager->ID);
     manager->new_client.leave_invite_stream(manager->ID);
+    manager->new_client.leave_invite_chat_stream(manager->ID);
 }
 
 void MainWindow::openProfilePage() {

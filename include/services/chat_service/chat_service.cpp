@@ -111,9 +111,7 @@ grpc::Status chat_service_::CreatePrivateChat(grpc::ServerContext *context, cons
 }
 
 grpc::Status chat_service_::CreateGroupChat(grpc::ServerContext* context, const chat_service::CreateGroupChatRequest* request, chat_service::ChatPreview* response) {
-    const auto &chat_members_proto = request->chat_members();
-    std::vector<uint32_t> chat_members(chat_members_proto.begin(), chat_members_proto.end());
-    chat_members.push_back(request->creator_id());
+    std::vector<uint32_t> chat_members = {request->creator_id()};
     auto id_timestamp = database::chat_service_database_api::create_group_chat(request->creator_id(), request->chat_name(), request->description(), chat_members);
     response->set_chat_id(id_timestamp.first);
     response->set_is_group_chat(true);
@@ -187,40 +185,6 @@ grpc::Status chat_service_::InvitesToChat(grpc::ServerContext* context, grpc::Se
             stream->Write(response);
 
             std::cout << users_invites_online.size() << '\n';
-        }
-        else if (request.has_invite()) {
-            int sender_id = request.invite().sender_id();
-            int receiver_id = request.invite().receiver_id();
-            int chat_id = request.invite().chat_id();
-
-            auto sender_preview = database::authservice_database_api::get_user_preview(sender_id);
-            auto receiver_preview = database::authservice_database_api::get_user_preview(receiver_id);
-
-            auto sender_preview_proto = new common::UserPreview();
-            auto receiver_preview_proto = new common::UserPreview();
-
-            sender_preview.convert_to_proto(sender_preview_proto);
-            receiver_preview.convert_to_proto(receiver_preview_proto);
-
-            std::string sender_login = sender_preview_proto->login();
-            std::string receiver_login = receiver_preview_proto->login();
-
-            chat_service::InvitesToChatResponses receiver_response;
-            const auto invite_receiver_response = new chat_service::InviteResponse;
-
-            const auto sender = new common::UserPreview;
-            sender->set_login(sender_login);
-            sender->set_user_id(sender_id);
-
-            invite_receiver_response->set_allocated_sender(sender);
-            invite_receiver_response->set_chat_id(chat_id);
-
-            receiver_response.set_allocated_invite(invite_receiver_response);
-
-            if (users_invites_online.count(receiver_id)) {
-                users_invites_online[receiver_id]->Write(receiver_response);
-            }
-            // unhandled invites?
 
         } else if (request.has_remove()) {
             int sender_id = request.remove().sender_id();

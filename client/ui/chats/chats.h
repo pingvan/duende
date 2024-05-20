@@ -20,6 +20,7 @@
 #include <QThread>
 #include <QScrollArea>
 #include <QScrollBar> 
+#include <QDialog>
 #include <QGraphicsDropShadowEffect>
 
 
@@ -48,12 +49,16 @@ private slots:
     void onNewInviteReceived(const invitation::SendInvitationResponse& invite_response);
     void onInviteRespond(bool accept);
     void onInviteRespondReceived(const invitation::RespondToInvitationResponse&);
+    void onRemoveFromChatReceived(const chat_service::RemoveResponse&);
+    void onRespondToChatInviteReceived(const chat_service::RespondResponse&);
     void make_chat_item(const chat_service::ChatPreview& chat, int chat_page_index, int item_index);
     void make_message_item(const chat_service::MessageReceived& message);
-    void make_invite_item(const invitation::Invite& invite, bool am_i_sender);
+    void make_invite_item(const invitation::Invite& invite, bool am_i_sender, int chat_id = -1);
     void delete_invite_item(int invite_id);
+    void delete_chat_item(int chat_id);
     void updateChatList(const QString &input);
     void updateInviteList(const QString &input);
+    void onAddChatButtonClicked();
 
 private:
     Ui::Chats *ui;
@@ -72,6 +77,7 @@ private:
     QLabel *chatTitle;
     QLabel *inviteTitle;
     QPushButton* toggleButton;
+    QPushButton* addChatButton;
 
     QVBoxLayout *chatPageLayout;
     QVBoxLayout *invitePageLayout;
@@ -88,10 +94,6 @@ private:
 
     QLineEdit *search_line_chats;
     QLineEdit *search_line_invites;
-    QStringListModel *model_chats;
-    QStringListModel *model_invites;
-    QCompleter *completer_chats;
-    QCompleter *completer_invites;
 };
 
 #endif // CHATS_H

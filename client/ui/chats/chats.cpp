@@ -44,14 +44,138 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     qDebug() << "Chats page end\n";
 }
 
+void Chats::onAddChatButtonClicked()
+{
+    QDialog dialog;
+    dialog.setWindowTitle("Create new chat");
+
+    QLabel nameLabel("Chat name:");
+    QLineEdit nameLineEdit;
+    QLabel descLabel("Description:");
+    QLineEdit descLineEdit;
+
+    QLabel membersLabel("Add members to your chat:");
+    QListWidget membersList;
+    QMap<QString, uint32_t> userMap;
+    std::vector<uint32_t> members = manager->new_client.get_subscriptions(manager->ID);
+    std::vector<uint32_t> chose_members;
+
+    for (uint32_t member : members) {
+        // QString memberName = QString::fromStdString(manager->new_client.get_user_full_page(member)->preview().login());
+        QString memberName = QString::number(member);
+        QListWidgetItem *item = new QListWidgetItem(memberName);
+        membersList.addItem(item);
+        userMap.insert(memberName, member);
+    }
+
+    QPushButton createButton("Save");
+
+    QVBoxLayout layout(&dialog);
+    layout.addWidget(&nameLabel);
+    layout.addWidget(&nameLineEdit);
+    layout.addWidget(&descLabel);
+    layout.addWidget(&descLineEdit);
+    layout.addWidget(&membersLabel);
+    layout.addWidget(&membersList);
+    layout.addWidget(&createButton);
+
+    QObject::connect(&membersList, &QListWidget::itemClicked, [&](QListWidgetItem *item) {
+        QString selectedItemText = item->text();
+        uint32_t userId = userMap.value(selectedItemText);
+        chose_members.push_back(userId);
+        qDebug() << "Selected user ID: " << userId;
+    });
+
+    QObject::connect(&createButton, &QPushButton::clicked, [&]() {
+        QString name = nameLineEdit.text();
+        QString description = descLineEdit.text();
+        
+        chat_service::ChatPreview *chat = manager->new_client.create_group_chat(manager->ID, name.toStdString(), description.toStdString());
+
+        for (auto member : chose_members) {
+            // manager->new_client.send_invite(manager->ID, member, manager->username, manager->new_client.get_user_full_page(member)->preview().login(), chat->chat_id);
+        }
+
+        auto *chatPage = new QWidget();
+        int index = chatPages->addWidget(chatPage);
+        make_chat_item(*chat, index, -1);
+
+        dialog.close();
+    });
+
+    dialog.exec();
+}
+
+void Chats::onRemoveFromChatReceived(const chat_service::RemoveResponse& response) {
+    // get remove data
+    int chat_id = response.chat_id();
+    int sender_id = response.sender().user_id();
+    std::string sender_login = response.sender().login();
+    int receiver_id = response.receiver().user_id();
+    std::string receiver_login = response.receiver().login();
+
+    qDebug() << "Remove from chat received: " << chat_id << " " << sender_id << " " << receiver_id;
+
+    if (receiver_id == manager->ID) {
+        delete_chat_item(chat_id);
+    }
+    else {
+        chat_service::MessageReceived *message = new chat_service::MessageReceived;
+        common::UserPreview *sender = new common::UserPreview;
+        sender->set_user_id(-1);
+        message->set_allocated_sender(sender);
+        message->set_chat_id(chat_id);
+        std::string message_text = sender_login + " removed " + receiver_login + " from chat.";
+        message->set_message_text(message_text);
+        make_message_item(*message);
+    }
+}
+
+void Chats::onRespondToChatInviteReceived(const chat_service::RespondResponse& response) {
+    // get response data
+    int sender_id = response.sender().user_id();
+    std::string sender_login = response.sender().login();
+    int chat_id = response.chat_id();
+    bool accept = (response.status() == chat_service::InviteStatus::ACCEPT);
+
+    qDebug() << "Respond to chat invite received: " << sender_id << " " << chat_id << " " << accept;
+
+    if (sender_id == manager->ID) {
+        if (accept) {
+            // chat_service::ChatPreview *chat = manager->new_client.get_chat_preview(chat_id);
+            // auto *chatPage = new QWidget();
+            // int index = chatPages->addWidget(chatPage);
+            // make_chat_item(chat, index, -1);
+        }
+        else {
+            // delete invite
+        }
+    }
+    else {
+        if (accept) {
+            // make message (somebody added to chat)
+        }
+        else {
+            // if i sent invite to him???
+        }
+    }
+}
+
 void Chats::onInviteRespond(bool accept)
 {
     // get current invite
     QListWidgetItem* current_item = inviteList->currentItem();
     int receiver_id               = current_item->data(Qt::UserRole + 3).toInt();
     int invite_id                 = current_item->data(Qt::UserRole).toInt();
+    int chat_id                   = current_item->data(Qt::UserRole + 5).toInt();
 
-    manager->new_client.respond_invite(invite_id, manager->ID, receiver_id, accept);
+    if (chat_id == -1) {
+        manager->new_client.respond_invite(invite_id, manager->ID, receiver_id, accept);
+    }
+    else {
+        manager->new_client.respond_invite_chat(manager->ID, chat_id, accept);
+    }
+
 }
 
 void Chats::onInviteRespondReceived(const invitation::RespondToInvitationResponse& response) {
@@ -263,19 +387,19 @@ void Chats::onInviteClicked(QListWidgetItem* item)
 void Chats::make_message_item(const chat_service::MessageReceived& message)
 {
     // get message data
+    int sender_id           = message.sender().user_id();
     QString sender_username = QString::fromStdString(message.sender().login());
-    QString my_username     = QString::fromStdString(manager->username);
     QString message_text    = QString::fromStdString(message.message_text());
     QString time_stamp      = QString::fromStdString(message.time_stamp());
 
-    bool am_i_sender = (sender_username == my_username);
+    bool am_i_sender = (sender_id == manager->ID);
 
     // make message widget
     messageWidget = new QWidget();
     messageLayout = new QVBoxLayout();
 
     QLabel *senderLabel = am_i_sender
-        ? new QLabel(my_username + " (You)")
+        ? new QLabel(QString::fromStdString(manager->username) + " (You)")
         : new QLabel(sender_username);
 
     QLabel *textLabel      = new QLabel(message_text);
@@ -289,9 +413,14 @@ void Chats::make_message_item(const chat_service::MessageReceived& message)
     messageWidget->setLayout(messageLayout);
     messageWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-    am_i_sender
-        ? scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignRight)
-        : scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignLeft);
+    if (sender_id == -1) {
+        scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignCenter);
+    }
+    else {
+        am_i_sender
+            ? scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignRight)
+            : scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignLeft);
+    }
 
     scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -358,7 +487,7 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     chatWidget->setCursor(Qt::PointingHandCursor);
 }
 
-void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender)
+void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender, int chat_id)
 {
     // get invite data
     QString sender_name    = QString::fromStdString(invite.sender().login());
@@ -371,9 +500,6 @@ void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender)
     if (am_i_sender) {
         invite_text = "(You) " + invite_text;
     }
-
-    qDebug() << sender_name;
-    qDebug() << invite_text;
 
     // make invite widget
     QWidget *inviteWidget     = new QWidget();
@@ -409,6 +535,7 @@ void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender)
     item->setData(Qt::UserRole + 2, senderNameLabel->text());
     item->setData(Qt::UserRole + 3, sender_id);
     item->setData(Qt::UserRole + 4, receiver_id);
+    item->setData(Qt::UserRole + 5, chat_id);
 
     inviteWidget->setCursor(Qt::PointingHandCursor);
 }
@@ -450,6 +577,46 @@ void Chats::delete_invite_item(int invite_id)
         }
 
         inviteTitle->setText("");
+    }
+    
+}
+
+void Chats::delete_chat_item(int chat_id)
+{
+    // get current invite
+    QListWidgetItem* current_item;
+    for(int i = 0; i < chatList->count(); ++i) {
+        QListWidgetItem* item = chatList->item(i);
+        if(item->data(Qt::UserRole).toInt() == chat_id) {
+            current_item = item;
+            break;
+        }
+    }
+
+    int item_index                = chatList->row(current_item);
+    QString chat_name             = current_item->data(Qt::UserRole + 2).toString();
+    int page_index                = current_item->data(Qt::UserRole + 1).toInt();
+
+    // delete invite from list
+    QListWidgetItem* item         = chatList->takeItem(item_index);
+    delete item;
+
+    // delete corresponding page
+    QWidget* page = chatPages->widget(page_index);
+    chatPages->removeWidget(page);
+
+    if (currentChatId == chat_id) {
+        currentChatId = -1;
+
+        if (chatPageLayout != nullptr) {
+            while (chatPageLayout->count() != 0) {
+                auto item = chatPageLayout->takeAt(0);
+                delete item->widget();
+                delete item;
+            }
+        }
+
+        chatTitle->setText("");
     }
     
 }
@@ -520,6 +687,9 @@ void Chats::build()
     toggleButton = new QPushButton();
     toggleButton->setText("Check invites");
 
+    addChatButton = new QPushButton();
+    addChatButton->setText("+");
+
     QHBoxLayout *inputLayout = new QHBoxLayout();
     inputLayout->addWidget(messageInput);
     inputLayout->addWidget(sendButton);
@@ -531,10 +701,14 @@ void Chats::build()
     rightLayout->addWidget(invitePages);
     rightLayout->addLayout(inputLayout);
 
+    QHBoxLayout *chatButtonsLayout = new QHBoxLayout();
+    chatButtonsLayout->addWidget(toggleButton);
+    chatButtonsLayout->addWidget(addChatButton);
+
     QVBoxLayout *leftLayout = new QVBoxLayout();
     leftLayout->addWidget(search_line_chats);
     leftLayout->addWidget(search_line_invites);
-    leftLayout->addWidget(toggleButton);
+    leftLayout->addLayout(chatButtonsLayout);
     leftLayout->addWidget(chatList);
     leftLayout->addWidget(inviteList);
 
@@ -569,10 +743,13 @@ void Chats::connect_slots()
     connect(manager, &Manager::newMessageReceived, this, &Chats::onNewMessageReceived);
     connect(manager, &Manager::NewInviteReceived, this, &Chats::onNewInviteReceived);
     connect(manager, &Manager::InviteRespondReceived, this, &Chats::onInviteRespondReceived);
+    connect(manager, &Manager::RemoveFromChatReceived, this, &Chats::onRemoveFromChatReceived);
+    connect(manager, &Manager::RespondToChatInviteReceived, this, &Chats::onRespondToChatInviteReceived);
     connect(acceptButton, &QPushButton::clicked, this, [this]() { onInviteRespond(true); });
     connect(declineButton, &QPushButton::clicked, this, [this]() { onInviteRespond(false); });
     connect(search_line_chats, &QLineEdit::textChanged, this, &Chats::updateChatList);
     connect(search_line_invites, &QLineEdit::textChanged, this, &Chats::updateInviteList);
+    connect(addChatButton, &QPushButton::clicked, this, &Chats::onAddChatButtonClicked);
     connect(toggleButton, &QPushButton::clicked, [this]() {
         bool isChatsVisible = chatList->isVisible();
         chatList->setVisible(!isChatsVisible);

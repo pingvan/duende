@@ -17,6 +17,202 @@ client::client(const std::shared_ptr<grpc::Channel> &new_channel)
       {
 }
 
+void client::init_invite_chat_stream(int user_id) {
+    invite_chat_stream = chat_stub->InvitesToChat(&invite_chat_context);
+
+    chat_service::InvitesToChatRequests request;
+    auto *init = new chat_service::InitialRequest;
+    init->set_user_id(user_id);
+    request.set_allocated_init(init);
+    invite_chat_stream->Write(request);
+
+    start_reading_invite_chat_stream();
+}
+
+void client::start_reading_invite_chat_stream() {
+    qDebug() << "start_reading_invite_chat_stream started";
+    QFuture<void> future =
+        QtConcurrent::run([this] {
+            qDebug() << "QtConcurrent invite chat stream running";
+            chat_service::InvitesToChatResponses response;
+            while (invite_chat_stream->Read(&response)) {
+                qDebug() << "Invite chat response received";
+                if (response.has_remove()) {
+                    if (onRemoveFromChatReceived) {
+                        onRemoveFromChatReceived(
+                            response.remove()
+                        );
+                    }
+                } else if (response.has_respond()) {
+                    if (onRespondToChatInviteReceived) {
+                        onRespondToChatInviteReceived(
+                            response.respond()
+                        );
+                    }
+                } else if (response.has_response_with_status()) {
+                    qDebug()
+                        << (response.response_with_status().status() ==
+                            chat_service::Status::SUCCESS);
+                }
+            }
+            qDebug() << "Invite chat stream ended";
+        });
+}
+
+void client::leave_invite_chat_stream(int user_id) {
+    chat_service::InvitesToChatRequests request;
+    auto *leave = new chat_service::DisconnectRequest;
+    leave->set_user_id(user_id);
+    request.set_allocated_leave(leave);
+    invite_chat_stream->Write(request);
+}
+
+chat_service::ChatPreview *client::create_group_chat(int creator_id, std::string chat_name, std::string description) {
+    grpc::ClientContext context;
+
+    chat_service::CreateGroupChatRequest request;
+    auto *response = new chat_service::ChatPreview;
+    request.set_creator_id(creator_id);
+    request.set_chat_name(chat_name);
+    request.set_description(description);
+
+    grpc::Status status = chat_stub->CreateGroupChat(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << '\n';
+    }
+
+    return response;
+}
+
+bool client::check_user_privileges(int user_id, int chat_id) {
+    grpc::ClientContext context;
+
+    chat_service::UserChat request;
+    auto *response = new chat_service::UserPrivilegeResponse;
+    request.set_user_id(user_id);
+    request.set_chat_id(chat_id);
+
+    grpc::Status status = chat_stub->CheckUserPrivileges(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << '\n';
+    }
+    return (response->privilege() == chat_service::UserPrivilege::ADMIN);
+}
+
+void client::change_chat_name(int chat_id, std::string new_chat_name) {
+    grpc::ClientContext context;
+
+    chat_service::ChangeChatNameRequest request;
+    auto *response = new chat_service::OperationStatusResponse;
+    request.set_chat_id(chat_id);
+    request.set_new_chat_name(new_chat_name);
+
+    grpc::Status status = chat_stub->ChangeChatName(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << '\n';
+    }
+}
+
+void client::change_description(int chat_id, std::string new_description) {
+    grpc::ClientContext context;
+
+    chat_service::ChangeChatDescriptionRequest request;
+    auto *response = new chat_service::OperationStatusResponse;
+    request.set_chat_id(chat_id);
+    request.set_new_description(new_description);
+
+    grpc::Status status = chat_stub->ChangeChatDescription(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << '\n';
+    }
+}
+
+// void client::change_cover(int chat_id, std::string new_cover) {
+    // grpc::ClientContext context;
+
+    // chat_service::ChangeChatCoverRequest request;
+    // auto *response = new chat_service::OperationStatusResponse;
+    // request.set_chat_id(chat_id);
+    // request.set_new_cover(new_cover);
+
+    // grpc::Status status = chat_stub->ChangeChatCover(&context, request, response);
+    // if (!status.ok()) {
+    //     std::cout << status.error_message() << '\n';
+    // }
+// }
+
+void client::add_privileges_to_user(int sender_id, int receiver_id, int chat_id) {
+    if (!check_user_privileges(sender_id, chat_id)) {
+        return; // TODO add errors
+    }
+
+    grpc::ClientContext context;
+
+    chat_service::UserChat request;
+    auto *response = new chat_service::OperationStatusResponse;
+    request.set_user_id(receiver_id);
+    request.set_chat_id(chat_id);
+
+    grpc::Status status = chat_stub->AddPrivilegesToUser(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << '\n';
+    }
+}
+
+void client::remove_privileges_from_user(int sender_id, int receiver_id, int chat_id) {
+    if (!check_user_privileges(sender_id, chat_id)) {
+        return; // TODO add errors
+    }
+
+    grpc::ClientContext context;
+
+    chat_service::UserChat request;
+    auto *response = new chat_service::OperationStatusResponse;
+    request.set_user_id(receiver_id);
+    request.set_chat_id(chat_id);
+
+    grpc::Status status = chat_stub->RemovePrivilegesFromUser(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << '\n';
+    }
+}
+
+void client::remove_user_from_chat(int sender_id, int receiver_id, int chat_id) {
+    if (!check_user_privileges(sender_id, chat_id)) {
+        return; // TODO add errors
+    }
+
+    chat_service::RemoveRequest request;
+    request.set_sender_id(sender_id);
+    request.set_receiver_id(receiver_id);
+    request.set_chat_id(chat_id);
+
+    chat_service::InvitesToChatRequests inviteChatRequest;
+    inviteChatRequest.mutable_remove()->CopyFrom(request);
+
+    std::cout << inviteChatRequest.DebugString() << std::endl;
+    bool status = invite_chat_stream->Write(inviteChatRequest);
+    if (!status) {
+        std::cerr << "Error" << std::endl;
+    }
+}
+
+void client::respond_invite_chat(int sender_id, int chat_id, bool accept) {
+    chat_service::RespondRequest request;
+    request.set_user_id(sender_id);
+    request.set_chat_id(chat_id);
+    request.set_status(accept ? chat_service::InviteStatus::ACCEPT : chat_service::InviteStatus::DECLINED);
+
+    chat_service::InvitesToChatRequests inviteChatRequest;
+    inviteChatRequest.mutable_respond()->CopyFrom(request);
+
+    std::cout << inviteChatRequest.DebugString() << std::endl;
+    bool status = invite_chat_stream->Write(inviteChatRequest);
+    if (!status) {
+        std::cerr << "Error" << std::endl;
+    }
+}
+
 void client::init_invite_stream(int user_id) {
     invite_stream = invite_stub->InvitationStream(&invite_context);
 
@@ -77,7 +273,8 @@ void client::send_invite(
     int sender_id,
     int receiver_id,
     std::string sender_login,
-    std::string receiver_login
+    std::string receiver_login,
+    int chat_id
 ) {
     common::UserPreview *sender = new common::UserPreview;
     common::UserPreview *receiver = new common::UserPreview;
@@ -92,6 +289,7 @@ void client::send_invite(
     invite->set_allocated_sender(receiver);
     invite->set_invite_text("Invitation");  // TODO add invite text with purpose of invite
     request.set_allocated_invite(invite);
+    if (chat_id != -1) request.set_chat_id(chat_id);
 
     std::cout << request.DebugString() << std::endl;
 

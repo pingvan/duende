@@ -22,6 +22,7 @@ grpc::Status invitation_service::InvitationStream(
                 );
                 int invite_id = invite_data.first;
                 std::string invite_timestamp = invite_data.second;
+                int chat_id = (request.invite().has_chat_id()) ? request.invite().chat_id() : -1;
 
                 invitation::InvitationResponse sender_response;
                 invitation::InvitationResponse receiver_response;
@@ -51,8 +52,10 @@ grpc::Status invitation_service::InvitationStream(
 
                 invite_sender_response->set_sender_id(sender_id);
                 invite_sender_response->set_allocated_invite(sender_invite);
+                if (chat_id != -1) invite_sender_response->set_chat_id(chat_id);
                 invite_receiver_response->set_sender_id(sender_id);
                 invite_receiver_response->set_allocated_invite(receiver_invite);
+                if (chat_id != -1) invite_receiver_response->set_chat_id(chat_id);
 
                 sender_response.set_allocated_invite(invite_sender_response);
                 receiver_response.set_allocated_invite(invite_receiver_response);

@@ -128,7 +128,6 @@ message CreateGroupChatRequest {
     int32 creator_id = 1;
     string chat_name = 2;
     string description = 3;
-    repeated int32 chat_members = 4;
 }
 
 message UserPrivilegeResponse {
@@ -153,7 +152,6 @@ message ChangeChatCoverRequest {
 message InvitesToChatRequests {
     oneof request {
         InitialRequest init = 1;
-        InviteRequest invite = 2;
         RemoveRequest remove = 3;
         RespondRequest respond = 4;
         DisconnectRequest leave = 5;
@@ -163,21 +161,9 @@ message InvitesToChatRequests {
 message InvitesToChatResponses {
     oneof response {
         OperationStatusResponse response_with_status = 1;
-        InviteResponse invite = 2;
         RemoveResponse remove = 3;
         RespondResponse respond = 4;
     }
-}
-
-message InviteRequest {
-    int32 sender_id = 1;
-    int32 receiver_id = 2;
-    int32 chat_id = 3;
-}
-
-message InviteResponse {
-    common.UserPreview sender = 1;
-    int32 chat_id = 2;
 }
 
 message RemoveRequest {
