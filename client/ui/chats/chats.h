@@ -34,6 +34,7 @@ class Chats : public QWidget
 
 public:
     explicit Chats(Manager* managerPtr, QWidget *parent = nullptr);
+    void showChatInfo(bool editMode);
     ~Chats();
 
 signals:
@@ -50,7 +51,6 @@ private slots:
     void onInviteRespond(bool accept);
     void onInviteRespondReceived(const invitation::RespondToInvitationResponse&);
     void onRemoveFromChatReceived(const chat_service::RemoveResponse&);
-    void onRespondToChatInviteReceived(const chat_service::RespondResponse&);
     void make_chat_item(const chat_service::ChatPreview& chat, int chat_page_index, int item_index);
     void make_message_item(const chat_service::MessageReceived& message);
     void make_invite_item(const invitation::Invite& invite, bool am_i_sender, int chat_id = -1);
@@ -78,6 +78,7 @@ private:
     QLabel *inviteTitle;
     QPushButton* toggleButton;
     QPushButton* addChatButton;
+    QPushButton* chatInfoButton;
 
     QVBoxLayout *chatPageLayout;
     QVBoxLayout *invitePageLayout;

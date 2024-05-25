@@ -43,12 +43,6 @@ void client::start_reading_invite_chat_stream() {
                             response.remove()
                         );
                     }
-                } else if (response.has_respond()) {
-                    if (onRespondToChatInviteReceived) {
-                        onRespondToChatInviteReceived(
-                            response.respond()
-                        );
-                    }
                 } else if (response.has_response_with_status()) {
                     qDebug()
                         << (response.response_with_status().status() ==
@@ -197,22 +191,6 @@ void client::remove_user_from_chat(int sender_id, int receiver_id, int chat_id) 
     }
 }
 
-void client::respond_invite_chat(int sender_id, int chat_id, bool accept) {
-    chat_service::RespondRequest request;
-    request.set_user_id(sender_id);
-    request.set_chat_id(chat_id);
-    request.set_status(accept ? chat_service::InviteStatus::ACCEPT : chat_service::InviteStatus::DECLINED);
-
-    chat_service::InvitesToChatRequests inviteChatRequest;
-    inviteChatRequest.mutable_respond()->CopyFrom(request);
-
-    std::cout << inviteChatRequest.DebugString() << std::endl;
-    bool status = invite_chat_stream->Write(inviteChatRequest);
-    if (!status) {
-        std::cerr << "Error" << std::endl;
-    }
-}
-
 void client::init_invite_stream(int user_id) {
     invite_stream = invite_stub->InvitationStream(&invite_context);
 
@@ -276,20 +254,17 @@ void client::send_invite(
     std::string receiver_login,
     int chat_id
 ) {
-    common::UserPreview *sender = new common::UserPreview;
     common::UserPreview *receiver = new common::UserPreview;
     invitation::Invite *invite = new invitation::Invite;
-    sender->set_user_id(sender_id);
     receiver->set_user_id(receiver_id);
-    sender->set_login(sender_login);
     receiver->set_login(receiver_login);
 
     invitation::SendInvitationRequest request;
-    request.set_allocated_sender(sender);
+    request.set_sender_id(sender_id);
     invite->set_allocated_sender(receiver);
     invite->set_invite_text("Invitation");  // TODO add invite text with purpose of invite
+    invite->set_chat_id(chat_id);
     request.set_allocated_invite(invite);
-    if (chat_id != -1) request.set_chat_id(chat_id);
 
     std::cout << request.DebugString() << std::endl;
 
@@ -308,16 +283,22 @@ void client::respond_invite(
     int invite_id,
     int sender_id,
     int receiver_id,
+    int chat_id,
     bool accept
 ) {
     invitation::RespondToInvitationRequest request;
-    request.set_invite_id(invite_id);
+    common::UserPreview *receiver = new common::UserPreview;
+    invitation::Invite *invite = new invitation::Invite;
+    receiver->set_user_id(receiver_id);
+    invite->set_invite_id(invite_id);
     request.set_sender_id(sender_id);
-    request.set_receiver_id(receiver_id);
-    request.set_status(
+    invite->set_status(
         accept ? invitation::InviteStatus::ACCEPTED
                : invitation::InviteStatus::DECLINED
     );
+    invite->set_chat_id(chat_id);
+    invite->set_allocated_sender(receiver);
+    request.set_allocated_invite(invite);
 
     std::cout << request.DebugString() << std::endl;
 
@@ -602,6 +583,7 @@ std::vector<chat_service::ChatPreview> client::get_user_chats(int user_id) {
     auto *response = new chat_service::UserChats;
     request.set_user_id(user_id);
 
+    std::cout << "GetUserChats called from client\n";
     grpc::Status status =
         chat_data_stub->GetUserChats(&context, request, response);
     if (!status.ok()) {
@@ -634,6 +616,25 @@ client::get_last_messages(int user_id, int chat_id) {
         messages.push_back(response->messages(i));
     }
     return messages;
+}
+
+std::vector<common::UserPreview> client::get_chat_members(int chat_id) {
+    grpc::ClientContext context;
+
+    chat_service::UserChat request;
+    auto *response = new chat_service::GetChatMembersResponse;
+    request.set_chat_id(chat_id);
+    grpc::Status status =
+        chat_data_stub->GetChatMembers(&context, request, response);
+    if (!status.ok()) {
+        return {};
+    }
+
+    std::vector<common::UserPreview> members;
+    for (int i = 0; i < response->members_size(); i++) {
+        members.push_back(response->members(i));
+    }
+    return members;
 }
 
 authservice::LoginResponse *

@@ -29,9 +29,6 @@ public:
             new_client.onRemoveFromChatReceived = [this](const chat_service::RemoveResponse& response) {
                 emit RemoveFromChatReceived(response);
             };
-            new_client.onRespondToChatInviteReceived = [this](const chat_service::RespondResponse& response) {
-                emit RespondToChatInviteReceived(response);
-            };
             new_client.onSubscribersChanged = [this](const users_interaction::SubscribeResponse& response) {
                 qDebug() << "Subscribers changed, emitting signal";
                 emit subscribersChanged();
@@ -61,7 +58,6 @@ signals:
     void NewInviteReceived(const invitation::SendInvitationResponse& response);
     void InviteRespondReceived(const invitation::RespondToInvitationResponse& response);
     void RemoveFromChatReceived(const chat_service::RemoveResponse& response);
-    void RespondToChatInviteReceived(const chat_service::RespondResponse& response);
     void subscribersChanged();
     void subscriptionsChanged();
     void blockedChanged();

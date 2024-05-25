@@ -77,6 +77,7 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
 
 last_messages chat_service_database_api::get_chats_messages(const int &chat_id) {
     const connector connection;
+    aes::encryptor encryptor;
     static std::string quer = "SELECT sender_id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS'), message_text_data FROM messages WHERE chat_id = $1";
     const auto result = connection.txn->exec_params(quer, chat_id);
     last_messages messages;
@@ -85,7 +86,7 @@ last_messages chat_service_database_api::get_chats_messages(const int &chat_id) 
         message new_message;
         new_message.sender = authservice_database_api::get_user_preview(row[0].as<int>());
         new_message.time_stamp = row[1].as<std::string>();
-        new_message.message_text = row[2].as<std::string>();
+        new_message.message_text = encryptor.decrypt(row[2].as<std::string>());
         messages.messages.push_back(new_message);
     }
     connection.txn->commit();

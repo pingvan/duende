@@ -21,6 +21,7 @@ find_package(PkgConfig REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 find_package(GTest REQUIRED)
+find_package(OpenSSL REQUIRED)
 # find_package(GMock REQUIRED)
 
 pkg_check_modules(LIBPQXX REQUIRED libpqxx)
@@ -58,6 +59,8 @@ target_link_libraries(main
         protobuf::libprotobuf
         Threads::Threads
         pqxx
+        OpenSSL::SSL
+        OpenSSL::Crypto
 )
 
 target_include_directories(main PUBLIC

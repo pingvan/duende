@@ -30,11 +30,13 @@ service ChatHandler {
     rpc ChangeChatCover(ChangeChatCoverRequest) returns (OperationStatusResponse);
     rpc AddPrivilegesToUser(UserChat) returns (OperationStatusResponse);
     rpc RemovePrivilegesFromUser(UserChat) returns (OperationStatusResponse);
+    rpc AddUserToChat(UserChat) returns (OperationStatusResponse);
 }
 
 service ChatDataService {
     rpc GetUserChats(GetChatsRequest) returns (UserChats);
     rpc GetLastMessages(GetChatMessagesRequest) returns (LastMessages);
+    rpc GetChatMembers(UserChat) returns (GetChatMembersResponse);
 }
 
 message ChatRequests {
@@ -153,7 +155,6 @@ message InvitesToChatRequests {
     oneof request {
         InitialRequest init = 1;
         RemoveRequest remove = 3;
-        RespondRequest respond = 4;
         DisconnectRequest leave = 5;
     }
 }
@@ -162,7 +163,6 @@ message InvitesToChatResponses {
     oneof response {
         OperationStatusResponse response_with_status = 1;
         RemoveResponse remove = 3;
-        RespondResponse respond = 4;
     }
 }
 
@@ -178,15 +178,6 @@ message RemoveResponse {
     int32 chat_id = 3;
 }
 
-message RespondRequest {
-    int32 user_id = 1;
-    int32 chat_id = 2;
-    InviteStatus status = 3;
-}
-
-message RespondResponse {
-    optional chat_service.ChatPreview chat = 1;
-    common.UserPreview sender = 2;
-    int32 chat_id = 3;
-    InviteStatus status = 4;
+message GetChatMembersResponse {
+    repeated common.UserPreview members = 1;
 }

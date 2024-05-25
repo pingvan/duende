@@ -48,7 +48,6 @@ public:
     std::function<void(const invitation::SendInvitationResponse&)> onNewInviteReceived;
     std::function<void(const invitation::RespondToInvitationResponse&)> onInviteRespondReceived;
     std::function<void(const chat_service::RemoveResponse&)> onRemoveFromChatReceived;
-    std::function<void(const chat_service::RespondResponse&)> onRespondToChatInviteReceived;
     std::function<void(const users_interaction::SubscribeResponse&)> onSubscribersChanged;
     std::function<void(const users_interaction::SubscribeResponse&)> onSubscriptionsChanged;
     std::function<void(const users_interaction::BlockResponse&)> onBlockedChanged;
@@ -66,7 +65,6 @@ public:
     void add_privileges_to_user(int sender_id, int receiver_id, int chat_id);
     void remove_privileges_from_user(int sender_id, int receiver_id, int chat_id);
     void remove_user_from_chat(int sender_id, int receiver_id, int chat_id);
-    void respond_invite_chat(int sender_id, int chat_id, bool accept);
 
     void init_chat_stream(int user_id);  
     void start_reading_chat_stream();
@@ -77,7 +75,7 @@ public:
     void start_reading_invite_stream();
     void leave_invite_stream(int user_id);
     void send_invite(int sender_id, int receiver_id, std::string sender_login, std::string receiver_login, int chat_id = -1);
-    void respond_invite(int invite_id, int sender_id, int receiver_id, bool accept);
+    void respond_invite(int invite_id, int sender_id, int receiver_id, int chat_id, bool accept);
 
     std::vector<invitation::Invite> get_sent_invites(int user_id);
     std::vector<invitation::Invite> get_received_invites(int user_id);
@@ -101,6 +99,7 @@ public:
 
     std::vector<chat_service::ChatPreview> get_user_chats(int user_id);
     std::vector<chat_service::MessageReceived> get_last_messages(int user_id, int chat_id);
+    std::vector<common::UserPreview> get_chat_members(int chat_id);
 
     authservice::LoginResponse *login(const std::string &client_login, const std::string &password);
     authservice::SignupResponse *registration(
