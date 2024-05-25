@@ -23,10 +23,10 @@ Status UsersInteractionServiceImpl::Unblock(
     if (!block_db_api.check_is_blocked(request->blocker_id(), request->blockie_id())) {
         return Status(grpc::NOT_FOUND, "User is not blocked");
     } 
-    // else {
-    //     db_connector.unblock_user(request->blocker_id(), request->blockie_id());
-    //     response->set_message("User unblocked");
-    // }
+    else {
+        block_db_api.unblock_user(request->blocker_id(), request->blockie_id());
+        response->set_message("User unblocked");
+    }
     return Status::OK;
 }
 
@@ -101,5 +101,19 @@ Status UsersInteractionServiceImpl::CheckIsMutual(
 ) {
     bool is_mutual = subscription_db_api.check_is_mutual(request->subscriber_id(), request->subscribie_id());
     response->set_is_mutual(is_mutual);
+    return Status::OK;
+}
+
+Status UsersInteractionServiceImpl::GetMutualSubscriptions(
+    ServerContext *context,
+    const GetMutualSubscriptionsRequest *request,
+    GetMutualSubscriptionsResponse *response
+) {
+    std::vector<uint32_t> subscriptions = subscription_db_api.get_subscriptions(request->subscriber_id());
+    for (int subscription_id : subscriptions) {
+        if (subscription_db_api.check_is_mutual(request->subscriber_id(), subscription_id)) {
+            response->add_subscribie_id(subscription_id);
+        }
+    }
     return Status::OK;
 }

@@ -36,6 +36,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(Manager* managerPtr, QWidget *parent = nullptr);
     ~MainWindow();
+    QIcon createIcon(const QString &path1, const QString &path2);
 
 private slots:
     void openProfilePage();

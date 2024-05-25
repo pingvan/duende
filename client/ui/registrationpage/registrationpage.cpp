@@ -10,6 +10,12 @@ RegistrationPage::RegistrationPage(Manager* managerPtr, QWidget *parent)
     ui->setupUi(this);
 
     qDebug() << "Registration page start\n";
+    // this->setStyleSheet("QWidget { background-color: #8023a8; }");
+    this->setStyleSheet("QLineEdit { font-size: 16px; color: #8023a8; min-height: 40px; }"
+                    "QPushButton { min-width: 100px; min-height: 40px; font-size: 20px; "
+                    "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #b24ee7, stop: 1 #982ecb); "
+                    "color: white; border-radius: 5px;}"
+                    "QPushButton:pressed, QPushButton:checked { background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #8023A8, stop: 1 #691e8a); }");
     
     connect(this, &RegistrationPage::registrationSuccessful, this, &RegistrationPage::onRegistrationSuccess);
 

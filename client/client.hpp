@@ -114,5 +114,9 @@ public:
     std::vector<uint32_t> get_subscriptions(uint32_t subscriber_id);
     std::vector<uint32_t> get_subscribers(uint32_t subscribie_id);
     void block(int blocker_id, int blockie_id);
+    void unblock(int blocker_id, int blockie_id);
     std::vector<uint32_t> get_blocked(uint32_t blockie_id);
+    bool is_subscribed(uint32_t user_id, uint32_t subscribie_id);
+    bool is_blocked(uint32_t user_id, uint32_t blockie_id);
+    bool invite_already_sent(uint32_t sender_id, uint32_t receiver_id);
 };

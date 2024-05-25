@@ -490,8 +490,12 @@ void client::remove_genre(int user_id, const std::string &genre_name) {
     request.set_id(user_id);
     profile::Genre *genre = request.add_genres();
     genre->set_name(genre_name);
+    qDebug() << "Sending remove genre request to server: " << genre_name.c_str();
     grpc::Status status =
         profile_stub->RemoveFromListOfGenres(&context, request, response);
+    if (!status.ok()) {
+        qDebug() << status.error_message().c_str();
+    }
 }
 
 void client::add_movie(int user_id, int movie_id, int rating) {
@@ -778,6 +782,23 @@ void client::block(int blocker_id, int blockie_id) {
     }
 }
 
+void client::unblock(int blocker_id, int blockie_id) {
+    grpc::ClientContext context;
+
+    users_interaction::UnblockRequest request;
+    request.set_blocker_id(blocker_id);
+    request.set_blockie_id(blockie_id);
+
+    users_interaction::UnblockResponse response;
+
+    grpc::Status status =
+        users_interaction_stub->Unblock(&context, request, &response);
+
+    if (!status.ok()) {
+        std::cout << status.error_message() << std::endl;
+    }
+}
+
 std::vector<uint32_t> client::get_blocked(uint32_t blockie_id) {
     users_interaction::ShowAllBlockedRequest request;
     request.set_blockie_id(blockie_id);
@@ -797,4 +818,24 @@ std::vector<uint32_t> client::get_blocked(uint32_t blockie_id) {
         std::cout << status.error_message() << std::endl;
     }
     return result;
+}
+
+bool client::is_subscribed(uint32_t user_id, uint32_t subscribie_id) {
+    std::vector<uint32_t> subscribers = get_subscribers(subscribie_id);
+    return std::find(subscribers.begin(), subscribers.end(), user_id) != subscribers.end();
+}
+
+bool client::is_blocked(uint32_t user_id, uint32_t blockie_id) {
+    std::vector<uint32_t> blocked = get_blocked(blockie_id);
+    return std::find(blocked.begin(), blocked.end(), user_id) != blocked.end();
+}
+
+bool client::invite_already_sent(uint32_t user_id, uint32_t receiver_id) {
+    auto invites = get_sent_invites(user_id);
+    for (const auto& invite : invites) {
+        if (invite.sender().user_id() == receiver_id) {
+            return true;
+        }
+    }
+    return false;
 }

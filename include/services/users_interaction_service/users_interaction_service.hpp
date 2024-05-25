@@ -27,6 +27,8 @@ using users_interaction::ShowAllSubscribersRequest;
 using users_interaction::ShowAllSubscribersResponse;
 using users_interaction::CheckIsMutualRequest;
 using users_interaction::CheckIsMutualResponse;
+using users_interaction::GetMutualSubscriptionsRequest;
+using users_interaction::GetMutualSubscriptionsResponse;
 
 class UsersInteractionServiceImpl final : public users_interaction::UsersInteractionService::Service {
     database::subscription_service_database_api subscription_db_api;
@@ -77,5 +79,11 @@ class UsersInteractionServiceImpl final : public users_interaction::UsersInterac
         ServerContext *context,
         const CheckIsMutualRequest *request,
         CheckIsMutualResponse *response
+    ) override;
+
+    Status GetMutualSubscriptions(
+        ServerContext *context,
+        const GetMutualSubscriptionsRequest *request,
+        GetMutualSubscriptionsResponse *response
     ) override;
 };
