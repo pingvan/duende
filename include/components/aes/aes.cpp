@@ -93,17 +93,18 @@ std::string encryptor::encrypt(const std::string& message_text) {
     OpenSSL_add_all_algorithms();
     ERR_load_crypto_strings();
 
-    std::vector<unsigned char> key = {
-        0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
-        0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff,
-        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-        0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
-    };
+    const char* key_env = std::getenv("KEY");
+    const char* iv_env = std::getenv("IV");
 
-    std::vector<unsigned char> iv = {
-        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-        0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
-    };
+    if (key_env == nullptr || iv_env == nullptr) {
+        std::cerr << "Environment variables KEY and IV are not set." << std::endl;
+    }
+
+    std::string key_str(key_env);
+    std::string iv_str(iv_env);
+
+    std::vector<unsigned char> key = hex_to_bytes(key_str);
+    std::vector<unsigned char> iv = hex_to_bytes(iv_str);
 
     std::vector<unsigned char> plaintext(message_text.begin(), message_text.end());
     std::vector<unsigned char> ciphertext = aes::encrypt(plaintext, key, iv);
@@ -117,17 +118,18 @@ std::string encryptor::decrypt(const std::string& encrypted_string) {
     OpenSSL_add_all_algorithms();
     ERR_load_crypto_strings();
 
-    std::vector<unsigned char> key = {
-        0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
-        0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff,
-        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-        0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
-    };
+    const char* key_env = std::getenv("KEY");
+    const char* iv_env = std::getenv("IV");
 
-    std::vector<unsigned char> iv = {
-        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-        0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
-    };
+    if (key_env == nullptr || iv_env == nullptr) {
+        std::cerr << "Environment variables KEY and IV are not set." << std::endl;
+    }
+
+    std::string key_str(key_env);
+    std::string iv_str(iv_env);
+
+    std::vector<unsigned char> key = hex_to_bytes(key_str);
+    std::vector<unsigned char> iv = hex_to_bytes(iv_str);
 
     std::vector<unsigned char> ciphertext = hex_to_bytes(encrypted_string);
     std::vector<unsigned char> decryptedtext = aes::decrypt(ciphertext, key, iv);

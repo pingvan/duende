@@ -11,4 +11,5 @@ struct jwt_tokens {
     authservice::RefreshToken *
     create_refresh_token(authservice::Payload info, std::chrono::seconds time);
     authservice::Payload decode_token(const std::string &token);
+    std::string get_env_var(const std::string &key);
 };

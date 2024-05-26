@@ -50,3 +50,6 @@ venv
 *.exe
 *.out
 *.app
+
+# Environment variables
+.env

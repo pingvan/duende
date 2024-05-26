@@ -37,6 +37,7 @@ std::vector<int> chat_service_database_api::get_members_ids(const int &chat_id) 
 
 user_chats chat_service_database_api::get_user_chats(const int &user_id) {
     const connector connection;
+    aes::encryptor encryptor;
     static std::string quer = "SELECT chat_id FROM chat_membership WHERE user_id = $1"; 
     const auto result = connection.txn->exec_params(quer, user_id);
     std::vector<uint32_t> chat_ids;
@@ -66,7 +67,7 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
             for (const auto &row : last_message) {
                 prewiew.last_message.sender = authservice_database_api::get_user_preview(row[0].as<int>());
                 prewiew.last_message.time_stamp = row[1].as<std::string>();
-                prewiew.last_message.message_text = row[2].as<std::string>();
+                prewiew.last_message.message_text = encryptor.decrypt(row[2].as<std::string>());
             }
         }
         chats.user_chats.push_back(prewiew);
