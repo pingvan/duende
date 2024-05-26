@@ -106,28 +106,36 @@ void OtherPage::updatePage(int newId) {
     // update all labels
     label_status->setText(QString::fromStdString(user->quote().c_str()));
     label_status->setMaximumWidth(500);
+    // label_status->setStyleSheet(
+    //     "color: #8023a8; border-radius: 5px; border: 1px solid #8023a8; "
+    //     "font-size: 14px;"
+    // );
     label_status->setStyleSheet(
-        "color: #8023a8; border-radius: 5px; border: 1px solid #8023a8; "
-        "font-size: 14px;"
+        "color: black;"
+        "font-size: 20px;"
     );
     label_about->setText(QString::fromStdString(user->about().c_str()));
     label_about->setMaximumWidth(500);
     label_about->setMaximumHeight(500);
     label_about->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    // label_about->setStyleSheet(
+    //     "color: #8023a8; border-radius: 5px; border: 1px solid #8023a8; "
+    //     "font-size: 14px;"
+    // );
     label_about->setStyleSheet(
-        "color: #8023a8; border-radius: 5px; border: 1px solid #8023a8; "
-        "font-size: 14px;"
+        "color: #8023a8; "
+        "font-size: 20px;"
     );
     label_username->setText(
         QString::fromStdString(user->preview().login().c_str())
     );
     label_username->setStyleSheet(
-        "background-color: #8023a8; color: white; border-radius: 5px; "
-        "font-size: 16px;"
+        "color: #8023a8; "
+        "font-size: 24px;"
     );
     label_username->setFixedWidth(150);
     label_username->setFixedHeight(30);
-    label_username->setAlignment(Qt::AlignCenter);
+    // label_username->setAlignment(Qt::AlignCenter);
 
     // update genres
     genresList->clear();
@@ -137,7 +145,7 @@ void OtherPage::updatePage(int newId) {
             new QListWidgetItem(common::Genre_Name(genre).c_str());
         item->setTextAlignment(Qt::AlignCenter);
         QFont font;
-        font.setPointSize(20);
+        font.setPointSize(30);
         // font.setBold(true);
         item->setFont(font);
         item->setForeground(Qt::white);
@@ -179,6 +187,15 @@ void OtherPage::build_scenes() {
     favActorsImages.clear();
     favActorsImages << ":/img/tarantino.jpg" << ":/img/tarantino.jpg"
                     << ":/img/tarantino.jpg";
+    view_favActors->setScene(scene_favActors);
+    view_favActors->setFixedHeight(250);
+    view_favActors->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view_favActors->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    view_watchlist->setScene(scene_watchlist);
+    view_watchlist->setFixedHeight(250);
+    view_watchlist->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view_watchlist->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     int x = 0;
     for (auto it = favActorsImages.rbegin(); it != favActorsImages.rend();
          ++it) {
@@ -190,10 +207,6 @@ void OtherPage::build_scenes() {
         scene_favActors->addItem(item);
         x += item->boundingRect().width() + 10;
     }
-
-    view_favActors->setScene(scene_favActors);
-    view_favActors->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view_favActors->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     if (actors_text != nullptr) {
         rightBox->removeWidget(actors_text);
@@ -227,18 +240,14 @@ void OtherPage::build_scenes() {
         QString::fromStdString(user->preview().login().c_str()) +
         "'s favourite actors"
     );
-    actors_text->setStyleSheet("font-size: 14px; color: #8023a8;");
+    actors_text->setStyleSheet("font-size: 20px; color: black;");
 
     movies_text = new QLabel();
     movies_text->setText(
         QString::fromStdString(user->preview().login().c_str()) +
         "'s favourite movies"
     );
-    movies_text->setStyleSheet("font-size: 14px; color: #8023a8;");
-
-    view_watchlist->setScene(scene_watchlist);
-    view_watchlist->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view_watchlist->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    movies_text->setStyleSheet("font-size: 20px; color: black;");
 
     // add to layout
     rightBox->addWidget(actors_text);
@@ -328,7 +337,7 @@ void OtherPage::build() {
         QString::fromStdString(user->preview().login().c_str()) +
         "'s favourite genres"
     );
-    genres_text->setStyleSheet("font-size: 14px; color: #8023a8;");
+    genres_text->setStyleSheet("font-size: 20px; color: black;");
     QHBoxLayout *genresLayout = new QHBoxLayout;
     genresLayout->addWidget(genresList);
     genresList->show();

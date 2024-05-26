@@ -122,7 +122,10 @@ void Profile::button_edit_genres_clicked() {
     //     genres_searchWindow, &Genres_SearchWindow::windowClosed, this,
     //     &Profile::update_favorite_genres
     // );
-    connect(genres_searchWindow, &Genres_SearchWindow::genreAdded, this, &Profile::update_favorite_genres);
+    connect(
+        genres_searchWindow, &Genres_SearchWindow::genreAdded, this,
+        &Profile::update_favorite_genres
+    );
     genres_searchWindow->setWindowModality(Qt::ApplicationModal);
     genres_searchWindow->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     genres_searchWindow->move(
@@ -143,7 +146,7 @@ void Profile::update_favorite_genres() {
             new QListWidgetItem(common::Genre_Name(genre).c_str());
         item->setTextAlignment(Qt::AlignCenter);
         QFont font;
-        font.setPointSize(20);
+        font.setPointSize(30);
         // font.setBold(true);
         item->setFont(font);
         item->setForeground(Qt::white);
@@ -189,14 +192,24 @@ void Profile::build_scenes(bool edit_mode) {
 
     actors_text = new QLabel();
     actors_text->setText("Your favourite actors");
-    actors_text->setStyleSheet("font-size: 14px; color: #8023a8;");
+    actors_text->setStyleSheet("font-size: 20px; color: black;");
 
     movies_text = new QLabel();
     movies_text->setText("Your favourite movies");
-    movies_text->setStyleSheet("font-size: 14px; color: #8023a8;");
+    movies_text->setStyleSheet("font-size: 20px; color: black;");
 
     int start_actors = 0;
     int start_films = 0;
+
+    view_favActors->setScene(scene_favActors);
+    view_favActors->setFixedHeight(250);
+    view_favActors->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view_favActors->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    view_watchlist->setScene(scene_watchlist);
+    view_watchlist->setFixedHeight(250);
+    view_watchlist->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view_watchlist->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     // add plus item in edit mode
     if (edit_mode) {
@@ -235,13 +248,20 @@ void Profile::build_scenes(bool edit_mode) {
         item->setPos(start_actors, 0);
         scene_favActors->addItem(item);
         start_actors += item->boundingRect().width() + 10;
+
+        //     // Создаем текстовый элемент с именем актера
+        //     QGraphicsTextItem *text = new QGraphicsTextItem(it->first
+        //     );  // Предполагая, что it->first содержит имя актера
+        //     text->setPos(
+        //         item->pos().x(), item->pos().y() -
+        //         text->boundingRect().height()
+        //     );  // Размещаем текст над изображением
+        //     scene_favActors->addItem(text);
+        //
     }
 
-    view_favActors->setScene(scene_favActors);
-    view_favActors->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view_favActors->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
     // build watch list
+
     for (auto it = watchlistImages.rbegin(); it != watchlistImages.rend();
          ++it) {
         QPixmap pixmap(*it);
@@ -249,20 +269,16 @@ void Profile::build_scenes(bool edit_mode) {
             pixmap.scaledToHeight(view_watchlist->height())
         );
 
-        QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect();
-        effect->setBlurRadius(10);
-        effect->setOffset(0);
-        item->setGraphicsEffect(effect);
+        // QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect();
+        // effect->setBlurRadius(10);
+        // effect->setOffset(0);
+        // item->setGraphicsEffect(effect);
 
         item->setPos(start_films, 0);
         scene_watchlist->addItem(item);
 
-        start_films += item->boundingRect().width() + 20;  // Увеличено до 20
+        start_films += item->boundingRect().width() + 10;  // Увеличено до 20
     }
-
-    view_watchlist->setScene(scene_watchlist);
-    view_watchlist->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view_watchlist->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     // right layout
     rightBox->addWidget(actors_text);
@@ -312,9 +328,14 @@ void Profile::build() {
     // status
     label_status = new QLabel(QString::fromStdString(user->quote().c_str()));
     label_status->setMaximumWidth(500);
-    label_status->setStyleSheet(
-        "color: #8023a8; border-radius: 5px; border: 1px solid #8023a8; "
-        "font-size: 14px;"
+    label_status->setMinimumHeight(40);
+    // label_status->setStyleSheet(
+    //     "color: #8023a8; border-radius: 5px; border: 0.5px solid #8023a8; "
+    //     "font-size: 20px;"
+    // );
+        label_status->setStyleSheet(
+        "color: black;"
+        "font-size: 20px;"
     );
     lineEdit_status = new QLineEdit();
     lineEdit_status->setMaximumWidth(500);
@@ -323,11 +344,12 @@ void Profile::build() {
     // about
     label_about = new QLabel(QString::fromStdString(user->about().c_str()));
     label_about->setMaximumWidth(500);
-    label_about->setMaximumHeight(500);
+    // label_about->setMinimumHeight(40);
+    label_about->setMaximumHeight(300);
     label_about->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     label_about->setStyleSheet(
-        "color: #8023a8; border-radius: 5px; border: 1px solid #8023a8; "
-        "font-size: 14px;"
+        "color: #8023a8; "
+        "font-size: 20px;"
     );
     label_about->setWordWrap(true);
     textEdit_about = new QTextEdit();
@@ -336,6 +358,9 @@ void Profile::build() {
 
     lineEdit_status->setPlaceholderText("My favourite quote");
     textEdit_about->setPlaceholderText("About me");
+    textEdit_about->setStyleSheet(
+        "color: #8023a8;"
+    );
 
     // username
     label_username =
@@ -367,13 +392,17 @@ void Profile::build() {
         button_edit_genres, &QPushButton::clicked, this,
         &Profile::button_edit_genres_clicked
     );
+    // label_username->setStyleSheet(
+    //     "background-color: #8023a8; color: white; border-radius: 5px; "
+    //     "font-size: 20px;"
+    // );
     label_username->setStyleSheet(
-        "background-color: #8023a8; color: white; border-radius: 5px; "
-        "font-size: 16px;"
+        "color: #8023a8;"
+        "font-size: 24px;"
     );
     label_username->setFixedWidth(150);
-    label_username->setFixedHeight(30);
-    label_username->setAlignment(Qt::AlignCenter);
+    label_username->setFixedHeight(40);
+    // label_username->setAlignment(Qt::AlignCenter);
 
     // edit button
     button_edit = new QPushButton("Edit");
@@ -405,7 +434,7 @@ void Profile::build() {
 
     genres_text = new QLabel();
     genres_text->setText("Your favourite genres");
-    genres_text->setStyleSheet("font-size: 14px; color: #8023a8;");
+    genres_text->setStyleSheet("font-size: 20px; color: black;");
 
     // right layout
     rightBox->addWidget(label_username);
