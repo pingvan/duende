@@ -49,8 +49,69 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     qDebug() << "Chats page end\n";
 }
 
+void Chats::onLeaveChatButtonClicked()
+{
+    manager->new_client.remove_user_from_chat(manager->ID, manager->ID, currentChatId);
+}
+
+void Chats::onAddMemberToChatButtonClicked()
+{
+    int chat_id = currentChatId;
+
+    QDialog dialog;
+    dialog.setWindowTitle("Add members");
+
+    QLabel membersLabel("Add members to your chat:");
+    QListWidget membersList;
+    QMap<QString, uint32_t> userMap;
+    std::vector<uint32_t> members = manager->new_client.get_subscriptions(manager->ID); // TODO
+    std::vector<uint32_t> chose_members;
+
+    for (uint32_t member : members) {
+        QString memberName = QString::fromStdString(manager->new_client.get_user_full_page(member)->preview().login());
+        // QString memberName = QString::number(member);
+        QListWidgetItem *item = new QListWidgetItem(memberName);
+        membersList.addItem(item);
+        userMap.insert(memberName, member);
+    }
+
+    QPushButton createButton("Save");
+
+    QVBoxLayout layout(&dialog);
+    layout.addWidget(&membersLabel);
+    layout.addWidget(&membersList);
+    layout.addWidget(&createButton);
+
+    QObject::connect(&membersList, &QListWidget::itemClicked, [&](QListWidgetItem *item) {
+        QString selectedItemText = item->text();
+        uint32_t userId = userMap.value(selectedItemText);
+
+        if (manager->new_client.check_user_in_chat(userId, chat_id)) {
+            QMessageBox::critical(this, "Error", "User is already a member of the chat");
+        }
+        else {
+            chose_members.push_back(userId);
+        }
+
+    });
+
+    QObject::connect(&createButton, &QPushButton::clicked, [&]() {
+        
+        for (auto member : chose_members) {
+            manager->new_client.send_invite(manager->ID, member, manager->username, manager->new_client.get_user_full_page(member)->preview().login(), chat_id);
+        }
+
+        dialog.close();
+    });
+
+    dialog.exec();
+}
+
 void Chats::showChatInfo(bool editMode)
 {
+    int chat_id     = currentChatId;
+    bool am_i_admin = manager->new_client.check_user_privileges(manager->ID, chat_id);
+
     QDialog dialog;
     dialog.setWindowTitle(chatTitle->text());
 
@@ -63,6 +124,7 @@ void Chats::showChatInfo(bool editMode)
     QLineEdit nameLineEdit;
     QLabel nameText;
     if (editMode) {
+        nameLineEdit.setText(chatTitle->text());
         layout.addWidget(&nameLineEdit);
     } else {
         if (nameLineEdit.text().isEmpty()) {
@@ -80,6 +142,7 @@ void Chats::showChatInfo(bool editMode)
     QLineEdit descLineEdit;
     QLabel descText; // TODO
     if (editMode) {
+        descLineEdit.setText(descText.text());
         layout.addWidget(&descLineEdit);
     } else {
         if (descLineEdit.text().isEmpty()) {
@@ -93,14 +156,64 @@ void Chats::showChatInfo(bool editMode)
 
     QListWidget membersList;
     QMap<QString, uint32_t> userMap;
-    std::vector<common::UserPreview> members = manager->new_client.get_chat_members(currentChatId);
+    std::vector<common::UserPreview> members = manager->new_client.get_chat_members(chat_id);
+
+    if (editMode) {
+        membersList.setContextMenuPolicy(Qt::CustomContextMenu);
+
+        QObject::connect(&membersList, &QListWidget::customContextMenuRequested, [&](const QPoint &pos) {
+            if (!am_i_admin) {
+                return;
+            }
+
+            QListWidgetItem *item = membersList.itemAt(pos);
+            if (item) {
+                QString selectedItemText = item->text();
+                uint32_t userId = userMap.value(selectedItemText);
+                bool is_member_admin = manager->new_client.check_user_privileges(userId, chat_id);
+
+                QMenu contextMenu;
+                QAction *toggleAdminAction;
+
+                if (is_member_admin) {
+                    toggleAdminAction = contextMenu.addAction("Remove admin role");
+                } else {
+                    toggleAdminAction = contextMenu.addAction("Add admin role");
+                }
+
+                QAction *selectedAction = contextMenu.exec(membersList.mapToGlobal(pos));
+                if (selectedAction == toggleAdminAction) {
+                    if (is_member_admin) {
+                        qDebug() << "Remove admin role for user ID: " << userId;
+                        manager->new_client.remove_privileges_from_user(manager->ID, userId, chat_id);
+                        item->setText(item->text().remove(" (admin)"));
+                        if (userId == manager->ID) {
+                            am_i_admin = false;
+                        }
+                        is_member_admin = false;
+                    } else {
+                        qDebug() << "Add admin role for user ID: " << userId;
+                        manager->new_client.add_privileges_to_user(manager->ID, userId, chat_id);
+                        item->setText(item->text() + " (admin)");
+                        is_member_admin = true;
+                    }
+                    dialog.accept();
+                }
+            }
+        });
+    }
+    
 
     for (auto member : members) {
-        // QString memberName = QString::fromStdString(member.login());
-        QString memberName = QString::number(member.user_id());
+        int member_id = member.user_id();
+        bool is_member_admin = manager->new_client.check_user_privileges(member_id, chat_id);
+        QString memberName = QString::fromStdString(member.login());
+        if (is_member_admin) {
+            memberName += " (admin)";
+        }
         QListWidgetItem *item = new QListWidgetItem(memberName);
         membersList.addItem(item);
-        userMap.insert(memberName, member.user_id());
+        userMap.insert(memberName, member_id);
     }
 
     layout.addWidget(&membersList);
@@ -112,34 +225,41 @@ void Chats::showChatInfo(bool editMode)
         qDebug() << "Selected user ID: " << userId;
     });
 
+    QPushButton *saveButton = nullptr;
+    QPushButton *editButton = nullptr;
+
     if (editMode) {
-        QPushButton *saveButton = new QPushButton("Save", &dialog);
+        saveButton = new QPushButton("Save", &dialog);
         layout.addWidget(saveButton);
+    }
+    else {
+        editButton = new QPushButton("Edit", &dialog);
+        layout.addWidget(editButton);
+    }
+
+    if (saveButton) {
         QObject::connect(saveButton, &QPushButton::clicked, [&]() {
             QString new_chat_name = nameLineEdit.text();
             QString new_chat_desc = descLineEdit.text();
             if (new_chat_name != chatTitle->text()) {
-                manager->new_client.change_chat_name(currentChatId, new_chat_name.toStdString());
+                manager->new_client.change_chat_name(chat_id, new_chat_name.toStdString());
 
-                chat_service::MessageReceived *message = new chat_service::MessageReceived;
-                common::UserPreview *sender = new common::UserPreview;
-                sender->set_user_id(-1);
-                message->set_allocated_sender(sender);
-                message->set_chat_id(currentChatId);
                 std::string message_text = manager->username + " changed chat name to " + new_chat_name.toStdString();
-                message->set_message_text(message_text);
-                manager->new_client.send_message(manager->ID, currentChatId, message_text);
+                manager->new_client.send_message(manager->ID, chat_id, message_text);
+
+                chatTitle->setText(new_chat_name);
+
+                chatList->currentItem()->setData(Qt::UserRole + 2, new_chat_name);
 
             }
             if (new_chat_desc != descText.text()) {
-                manager->new_client.change_description(currentChatId, new_chat_desc.toStdString());
+                manager->new_client.change_description(chat_id, new_chat_desc.toStdString());
             }
             dialog.accept();
         });
     }
-    else {
-        QPushButton *editButton = new QPushButton("Edit", &dialog);
-        layout.addWidget(editButton);
+
+    if (editButton) {
         QObject::connect(editButton, &QPushButton::clicked, [&]() {
             showChatInfo(true);
             dialog.accept();
@@ -167,8 +287,8 @@ void Chats::onAddChatButtonClicked()
     std::vector<uint32_t> chose_members;
 
     for (uint32_t member : members) {
-        // QString memberName = QString::fromStdString(manager->new_client.get_user_full_page(member)->preview().login());
-        QString memberName = QString::number(member);
+        QString memberName = QString::fromStdString(manager->new_client.get_user_full_page(member)->preview().login());
+        // QString memberName = QString::number(member);
         QListWidgetItem *item = new QListWidgetItem(memberName);
         membersList.addItem(item);
         userMap.insert(memberName, member);
@@ -222,16 +342,18 @@ void Chats::onRemoveFromChatReceived(const chat_service::RemoveResponse& respons
 
     qDebug() << "Remove from chat received: " << chat_id << " " << sender_id << " " << receiver_id;
 
-    chat_service::MessageReceived *message = new chat_service::MessageReceived;
-    common::UserPreview *sender = new common::UserPreview;
-    sender->set_user_id(-1);
-    message->set_allocated_sender(sender);
-    message->set_chat_id(chat_id);
-    std::string message_text = sender_login + " removed " + receiver_login + " from chat.";
-    message->set_message_text(message_text);
+    std::string message_text;
+    if (sender_id == receiver_id) {
+        message_text = sender_login + " left chat.";
+    }
+    else {
+        message_text = sender_login + " removed " + receiver_login + " from chat.";
+    }
     manager->new_client.send_message(manager->ID, chat_id, message_text);
 
-    // TODO if i am removed
+    if (receiver_id == manager->ID) {
+        delete_chat_item(chat_id);
+    }
 }
 
 void Chats::onInviteRespond(bool accept)
@@ -266,13 +388,7 @@ void Chats::onInviteRespondReceived(const invitation::RespondToInvitationRespons
     else {
         if (sender_id == manager->ID) {
             if (accept) {
-                chat_service::MessageReceived *message = new chat_service::MessageReceived;
-                common::UserPreview *sender = new common::UserPreview;
-                sender->set_user_id(response.invite().sender().user_id());
-                message->set_allocated_sender(sender);
-                message->set_chat_id(chat_id);
                 std::string message_text = response.invite().sender().login() + " added " + manager->username + " to chat.";
-                message->set_message_text(message_text);
                 manager->new_client.send_message(manager->ID, chat_id, message_text);
 
                 auto *chatPage = new QWidget();
@@ -283,13 +399,7 @@ void Chats::onInviteRespondReceived(const invitation::RespondToInvitationRespons
         }
         else {
             if (accept) {
-                chat_service::MessageReceived *message = new chat_service::MessageReceived;
-                common::UserPreview *sender = new common::UserPreview;
-                sender->set_user_id(manager->ID);
-                message->set_allocated_sender(sender);
-                message->set_chat_id(chat_id);
                 std::string message_text = manager->username + " added " + response.invite().sender().login() + " to chat.";
-                message->set_message_text(message_text);
                 manager->new_client.send_message(manager->ID, chat_id, message_text);
             }
         }
@@ -363,12 +473,14 @@ void Chats::sendMessage() {
 void Chats::onChatClicked(QListWidgetItem* item)
 {
     // get chat data
-    currentChatId = item->data(Qt::UserRole).toInt();
+    currentChatId     = item->data(Qt::UserRole).toInt();
     chatPages->setCurrentIndex(item->data(Qt::UserRole + 1).toInt());
     chatTitle->setText(item->data(Qt::UserRole + 2).toString());
-    bool isGroupChat = (currentChatId != -1);
+    bool isGroupChat  = (currentChatId != -1); // TODO
 
     chatInfoButton->setVisible(isGroupChat);
+    addMemberToChatButton->setVisible(isGroupChat);
+    leaveChatButton->setVisible(isGroupChat);
 
     // get messages
     if (chatMessagesData[currentChatId].empty()) {
@@ -692,7 +804,7 @@ void Chats::delete_invite_item(int invite_id)
 
 void Chats::delete_chat_item(int chat_id)
 {
-    // get current invite
+    // get current chat
     QListWidgetItem* current_item;
     for(int i = 0; i < chatList->count(); ++i) {
         QListWidgetItem* item = chatList->item(i);
@@ -705,8 +817,9 @@ void Chats::delete_chat_item(int chat_id)
     int item_index                = chatList->row(current_item);
     QString chat_name             = current_item->data(Qt::UserRole + 2).toString();
     int page_index                = current_item->data(Qt::UserRole + 1).toInt();
+    bool is_group_chat            = (currentChatId != -1); // TODO
 
-    // delete invite from list
+    // delete chat from list
     QListWidgetItem* item         = chatList->takeItem(item_index);
     delete item;
 
@@ -726,6 +839,13 @@ void Chats::delete_chat_item(int chat_id)
         }
 
         chatTitle->setText("");
+        
+        if (is_group_chat) {
+            chatInfoButton->hide();
+            addMemberToChatButton->hide();
+            leaveChatButton->hide();
+        }
+
     }
     
 }
@@ -804,9 +924,21 @@ void Chats::build()
     chatInfoButton->hide();
     chatInfoButton->setFixedWidth(50);
 
+    addMemberToChatButton = new QPushButton();
+    addMemberToChatButton->setText("+");
+    addMemberToChatButton->hide();
+    addMemberToChatButton->setFixedWidth(50);
+
+    leaveChatButton = new QPushButton();
+    leaveChatButton->setText("X");
+    leaveChatButton->hide();
+    leaveChatButton->setFixedWidth(50);
+
     QHBoxLayout *toolBarLayout = new QHBoxLayout();
     toolBarLayout->addWidget(chatTitle);
     toolBarLayout->addWidget(chatInfoButton);
+    toolBarLayout->addWidget(addMemberToChatButton);
+    toolBarLayout->addWidget(leaveChatButton);
 
     QHBoxLayout *inputLayout = new QHBoxLayout();
     inputLayout->addWidget(messageInput);
@@ -868,6 +1000,8 @@ void Chats::connect_slots()
     connect(search_line_invites, &QLineEdit::textChanged, this, &Chats::updateInviteList);
     connect(addChatButton, &QPushButton::clicked, this, &Chats::onAddChatButtonClicked);
     connect(chatInfoButton, &QPushButton::clicked, this, [this]() { showChatInfo(false); });
+    connect(addMemberToChatButton, &QPushButton::clicked, this, &Chats::onAddMemberToChatButtonClicked);
+    connect(leaveChatButton, &QPushButton::clicked, this, &Chats::onLeaveChatButtonClicked);
     connect(toggleButton, &QPushButton::clicked, [this]() {
         bool isChatsVisible = chatList->isVisible();
         chatList->setVisible(!isChatsVisible);

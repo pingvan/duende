@@ -62,9 +62,9 @@ private:
     QLabel *label_about;
     QLabel *label_username;
     QLabel *label_favorite_genres;
-    QLabel *actors_text;
-    QLabel *movies_text;
-    QLabel *genres_text;
+    QLabel *actors_text = nullptr;
+    QLabel *movies_text = nullptr;
+    QLabel *genres_text = nullptr;
     QLabel *greeting;
 
     QLineEdit *lineEdit_status;

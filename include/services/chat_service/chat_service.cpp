@@ -281,3 +281,9 @@ grpc::Status chat_data_service::GetChatMembers(grpc::ServerContext *context, con
     }
     return grpc::Status::OK;
 }
+
+grpc::Status chat_data_service::CheckUserInChat(grpc::ServerContext *context, const chat_service::UserChat *request, chat_service::BoolResponse *response) {
+    bool is_user_in_chat = database::chat_service_database_api::check_user_in_chat(request->user_id(), request->chat_id());
+    response->set_response(is_user_in_chat);
+    return grpc::Status::OK;
+}

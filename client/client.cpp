@@ -172,7 +172,7 @@ void client::remove_privileges_from_user(int sender_id, int receiver_id, int cha
 }
 
 void client::remove_user_from_chat(int sender_id, int receiver_id, int chat_id) {
-    if (!check_user_privileges(sender_id, chat_id)) {
+    if (!check_user_privileges(sender_id, chat_id) && sender_id != receiver_id) {
         return; // TODO add errors
     }
 
@@ -639,6 +639,22 @@ std::vector<common::UserPreview> client::get_chat_members(int chat_id) {
         members.push_back(response->members(i));
     }
     return members;
+}
+
+bool client::check_user_in_chat(int user_id, int chat_id) {
+    grpc::ClientContext context;
+
+    chat_service::UserChat request;
+    auto *response = new chat_service::BoolResponse;
+    request.set_user_id(user_id);
+    request.set_chat_id(chat_id);
+
+    grpc::Status status = chat_data_stub->CheckUserInChat(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << '\n';
+    }
+
+    return response->response();
 }
 
 authservice::LoginResponse *

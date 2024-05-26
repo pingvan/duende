@@ -100,6 +100,7 @@ public:
     std::vector<chat_service::ChatPreview> get_user_chats(int user_id);
     std::vector<chat_service::MessageReceived> get_last_messages(int user_id, int chat_id);
     std::vector<common::UserPreview> get_chat_members(int chat_id);
+    bool check_user_in_chat(int user_id, int chat_id);
 
     authservice::LoginResponse *login(const std::string &client_login, const std::string &password);
     authservice::SignupResponse *registration(

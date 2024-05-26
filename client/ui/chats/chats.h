@@ -22,6 +22,7 @@
 #include <QScrollBar> 
 #include <QDialog>
 #include <QGraphicsDropShadowEffect>
+#include <QMenu>
 
 
 namespace Ui {
@@ -59,6 +60,8 @@ private slots:
     void updateChatList(const QString &input);
     void updateInviteList(const QString &input);
     void onAddChatButtonClicked();
+    void onLeaveChatButtonClicked();
+    void onAddMemberToChatButtonClicked();
 
 private:
     Ui::Chats *ui;
@@ -79,6 +82,8 @@ private:
     QPushButton* toggleButton;
     QPushButton* addChatButton;
     QPushButton* chatInfoButton;
+    QPushButton* addMemberToChatButton;
+    QPushButton* leaveChatButton;
 
     QVBoxLayout *chatPageLayout;
     QVBoxLayout *invitePageLayout;

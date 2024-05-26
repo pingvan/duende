@@ -37,6 +37,7 @@ service ChatDataService {
     rpc GetUserChats(GetChatsRequest) returns (UserChats);
     rpc GetLastMessages(GetChatMessagesRequest) returns (LastMessages);
     rpc GetChatMembers(UserChat) returns (GetChatMembersResponse);
+    rpc CheckUserInChat(UserChat) returns (BoolResponse);
 }
 
 message ChatRequests {
@@ -180,4 +181,8 @@ message RemoveResponse {
 
 message GetChatMembersResponse {
     repeated common.UserPreview members = 1;
+}
+
+message BoolResponse {
+    bool response = 1;
 }
