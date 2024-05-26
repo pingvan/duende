@@ -11,5 +11,6 @@ set(SERVICES_SRCS
 		${CMAKE_CURRENT_SOURCE_DIR}/chat_service/chat_service.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/invitation_service/invitation_server.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/search_service/search_service.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/recommendation_service/recommendation_service.cpp
 	PARENT_SCOPE
 )
