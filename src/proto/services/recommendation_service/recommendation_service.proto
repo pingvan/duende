@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package recommendation_service;
+
+import "common/common.proto";
+
+service RecommendationService {
+    rpc GetUsersRecommendations(UserId) returns (GetUsersRecommendationsResponse);
+    rpc GetFilmsRecommendations(UserId) returns (GetFilmsRecommendationsResponse);
+}
+
+message UserId {
+    int32 id = 1;
+}
+
+message GetUsersRecommendationsResponse {
+    repeated common.UserPreview user = 1;
+}
+
+message GetFilmsRecommendationsResponse {
+    repeated common.FilmPreview film = 1;
+}

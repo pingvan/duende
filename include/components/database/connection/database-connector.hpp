@@ -4,6 +4,7 @@
 #include <memory>
 #include <pqxx/pqxx>
 #include <string>
+#include <iostream>
 
 
 namespace database {
@@ -20,15 +21,17 @@ struct databaseTesting;
 
 struct connector {
     connector() {
-        static std::string connection_string {"postgres://root:strongpassword@localhost:5432/duende"};
         con = std::make_unique<pqxx::connection>(connection_string);
         txn = std::make_unique<pqxx::work>(*con);
     }
 
-    // ~connector() {
-    //     txn->commit();
-    // }
-public:
+    #ifdef TESTING
+    connector(const std::string &connection_string_) {
+        connection_string = connection_string_;
+        con = std::make_unique<pqxx::connection>(connection_string);
+        txn = std::make_unique<pqxx::work>(*con);
+    }
+    #endif
 
     friend struct authservice_database_api;
     friend struct profile_service_database_api;
@@ -37,11 +40,11 @@ public:
     friend struct invite_service_database_api;
     friend struct search_service_database_api;
     friend struct subscription_service_database_api;
-
     friend struct databaseTesting;
-
+    
     std::unique_ptr<pqxx::connection> con;
     std::unique_ptr<pqxx::work> txn;
+    static inline std::string connection_string {"postgres://root:strongpassword@localhost:5432/duende"};
 };
 
 }  // namespace database

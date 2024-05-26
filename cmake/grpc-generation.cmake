@@ -19,7 +19,7 @@ set(proto_filepaths
          "src/proto/services/invitation_service/invitation.proto"
         "src/proto/services/chat_service/chat_service.proto"
         "src/proto/services/search_service/search_service.proto"
-        "src/proto/services/users_interaction_service/users_interaction.proto"
+        "src/proto/services/recommendation_service/recommendation_service.proto"
 )
 
 # list of the generated sources of the proto models

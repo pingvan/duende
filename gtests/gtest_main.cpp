@@ -1,3 +1,5 @@
+#define TESTING
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <algorithm>
@@ -36,11 +38,13 @@
 #include "components/database/connection/database-connector.hpp"
 #include "components/database/placeholders/placeholders.hpp"
 #include "components/database/services/subscription_service/subscription_service.hpp"
+#include "components/database/services/profile_service/profile_service.hpp"
+#include "components/database/services/authservice/authservice.hpp"
 
 struct databaseTesting : ::testing::Test {
-    static const database::connector connector;
+    static const std::string host;
 
-    static const std::vector<std::string_view> tables;
+    static const database::connector connector;
 
     static constexpr uint32_t tablesCNT = 17;  
     static constexpr uint32_t usersCOLUMNS = 3;
@@ -60,28 +64,29 @@ struct databaseTesting : ::testing::Test {
     static constexpr uint32_t chat_membershipCOLUMNS = 2;
 };
 
-const database::connector databaseTesting::connector {};
+const std::string databaseTesting::host = "postgres://root:strongpassword@localhost:5432/duende_test";
+const database::connector databaseTesting::connector {host};
 
 //think about creating this vecs to any table (not using contains)
-const std::vector<std::string_view> databaseTesting::tables = {
-        "actors",
-        "actors_to_film",
-        "actors_to_form",
-        "chat_membership",
-        "chats",
-        "films",
-        "forms",
-        "invites",
-        "messages",
-        "passwords",
-        "producers",
-        "producers_by_film",
-        "tokens",
-        "unhandled_invites",
-        "unhandled_messages",
-        "users",
-        "views"
-};
+// const std::vector<std::string_view> databaseTesting::tables = {
+//         "actors",
+//         "actors_to_film",
+//         "actors_to_form",
+//         "chat_membership",
+//         "chats",
+//         "films",
+//         "forms",
+//         "invites",
+//         "messages",
+//         "passwords",
+//         "producers",
+//         "producers_by_film",
+//         "tokens",
+//         "unhandled_invites",
+//         "unhandled_messages",
+//         "users",
+//         "views"
+// };
 struct ProtosAndPlaceholdersTesting : ::testing::Test {
     static const std::basic_string<std::byte> some_image;
 
@@ -374,7 +379,6 @@ TEST_F(databaseTesting, TestTablesExistence) {
     EXPECT_THAT(tables, ::testing::Contains("chat_events"));
     EXPECT_THAT(tables, ::testing::Contains("subscriptions"));
     EXPECT_THAT(tables, ::testing::Contains("black_list"));
-
 }
 
 
@@ -599,11 +603,45 @@ TEST_F(databaseTesting, TestColumnsUnhandledInvites) {
     EXPECT_THAT(column_names, ::testing::Contains("user_id"));
 }
 
+// struct testingUserActions : ::testing::Test {
+//     static uint32_t user_id;
+// };
+
+// uint32_t testingUserActions::user_id{};
+
+// TEST_F(testingUserActions, TestAuthService) {
+//     static std::string login = "login";
+//     static std::string password = "password";
+//     static std::string email = "email";
+//     static std::string token = "token";
+//     static std::string hash = "hash";
+//     static std::string salt = "salt";
+
+//     this->user_id = database::authservice_database_api::add_user(email, login, token, hash, salt);
+// }
+
+// TEST_F(testingUserActions, TestProfileService) {
+//     // genre new_genre = genre::ACTION;
+//     std::string new_genre = "action";
+//     constexpr uint32_t new_actor_id = 8691;
+//     constexpr uint32_t new_film_id = 19995;
+//     constexpr uint32_t film_ration = 5;
+//     // static constexpr std::string_view new_photo = "new_photo";
+//     // database::profile_service_database_api::change_email(user_id, new_email);
+//     // database::profile_service_database_api::change_nickname(user_id, new_nickname);
+//     // database::profile_service_database_api::change_quotation(user_id, new_quotation);
+//     // database::profile_service_database_api::change_about(user_id, new_about);
+//     // database::profile_service_database_api::add_favourite_genre(this->user_id, new_genre);
+//     // database::profile_service_database_api::remove_favourite_genre(this->user_id, new_genre);
+//     // database::profile_service_database_api::add_favourite_actor(user_id, new_actor_id);
+//     // database::profile_service_database_api::remove_favourite_actor(8, new_actor_id);
+//     // database::profile_service_database_api::add_watched(user_id, new_film_id, film_ration);
+//     database::profile_service_database_api::remove_watched(10, new_film_id);
+    
+// }
+
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
-    // ::testing::InitGoogleMock(&argc, argv);
-
-    // ::testing::GTEST_FLAG(filter) = "MyTestCase.*";
     return RUN_ALL_TESTS();
 }
