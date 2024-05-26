@@ -34,11 +34,12 @@ struct authservice_database_api {
 
     static void remove_refresh_token(const int &user_id);
 
-    static user_preview get_user_preview(const int &user_id);
-    static user_full_page get_user_full_page(const int &user_id);
-private:
-    static std::vector<genre> array_parser(const std::string &json_string);
-    static genre enum_from_string(const std::string &ss);
+    [[nodiscard]] static user_preview get_user_preview(const int &user_id);
+    [[nodiscard]] static user_full_page get_user_full_page(const int &user_id);
+// private:
+    //TODO::move into common functions
+    [[nodiscard]] static std::vector<genre> array_parser(const std::string &json_string);
+    [[nodiscard]] static genre enum_from_string(const std::string &ss);
 
 };
 }

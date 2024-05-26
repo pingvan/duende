@@ -4,7 +4,6 @@ project(duende)
 
 include(./cmake/grpc-generation.cmake)
 
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -26,8 +25,6 @@ find_package(OpenSSL REQUIRED)
 
 pkg_check_modules(LIBPQXX REQUIRED libpqxx)
 
-#if error occurs visit https://cmake.org/cmake/help/latest/module/FindPkgConfig.html
-
 # add_executable(gtests
 #         gtests/gtest_main.cpp
 
@@ -48,12 +45,10 @@ add_executable(main
     ${generated_proto_models_srcs}
 )
 
-
 add_dependencies(main generate_proto_models)
 # add_dependencies(gtests generate_proto_models)
 
-
-target_link_libraries(main
+target_link_libraries(main PRIVATE
         absl::flags_parse
         gRPC::grpc++
         protobuf::libprotobuf

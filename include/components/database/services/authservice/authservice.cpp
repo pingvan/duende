@@ -1,5 +1,4 @@
 #include "authservice.hpp"
-// #include <sys/types.h>
 #include <cassert>
 #include <components/database/connection/database-connector.hpp>
 #include <exception>
@@ -167,6 +166,7 @@ user_full_page authservice_database_api::get_user_full_page(const int &user_id) 
                         "WHERE user_id = $1";
     const auto result_second = connection.txn->exec_params(get_views, user_id);
     full_page.watched_films.reserve(result_second.size());
+    //TODO::maybe rewrite to get film preview 
     for (const auto &row : result_second) {
         film_on_user_page film;
         film.ratio = row[0].as<int>();

@@ -8,6 +8,7 @@
 #include "services/chat_service/chat_service.hpp"
 #include "services/search_service/search_service.hpp"
 #include "services/users_interaction_service/users_interaction_service.hpp"
+#include "services/recommendation_service/recommendation_service.hpp"
 
 static const std::string server_address("0.0.0.0:50051");
 
@@ -38,6 +39,10 @@ void run_server() {
     invitation_service invitation_service(chat_channel);
     invitation_data_service invitation_data_service;
     UsersInteractionServiceImpl users_interaction_service;
+    RecommendationServiceImpl recommendation_service;
+    recommendation_service.Init();
+    // recommendation_service.computed = true;
+    // recommendation_service.recomputeSimularity();
 
     // std::string key;
     // std::string cert;
@@ -79,6 +84,7 @@ void run_server() {
     builder.RegisterService(&invitation_service);
     builder.RegisterService(&invitation_data_service);
     builder.RegisterService(&users_interaction_service);
+    builder.RegisterService(&recommendation_service);
 
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << '\n';

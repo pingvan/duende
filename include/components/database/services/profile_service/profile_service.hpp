@@ -2,10 +2,11 @@
 
 #include <vector>
 #include <string>
+#include "components/database/placeholders/placeholders.hpp"
 
 namespace database {
 struct profile_service_database_api {
-    static int get_form_id(const int &user_id);
+    [[nodiscard]] static int get_form_id(const int &user_id);
 
     static void change_email(const int &user_id, const std::string &new_user_email);
     static void change_nickname(const int &user_id, const std::string &new_user_nickname);
@@ -17,10 +18,14 @@ struct profile_service_database_api {
 
     static void
     add_favourite_genre(const int &user_id, const std::string &genre);
+    [[nodiscard]] static bool 
+    check_is_favourite_genre(const int &user_id, const std::string &genre);
     static void
     remove_favourite_genre(const int &user_id, const std::string &genre);
 
     static void add_favourite_actor(const int &user_id, const int &actor_id);
+    [[nodiscard]] static bool 
+    check_is_favourite_actor(const int &user_id, const int &actor_id);
     static void
     remove_favourite_actor(const int &user_id, const int &actor_id);
 
@@ -29,7 +34,9 @@ struct profile_service_database_api {
         const int &film_id,
         const int &user_ratio
     );
-
+    [[nodiscard]] static bool check_is_watched(const int &user_id, const int &film_id);
     static void remove_watched(const int &user_id, const int &film_id);
+    [[nodiscard]] static film_preview get_film_preview(const int &film_id);
+    [[nodiscard]] static film_full_page get_film_full_page(const int &film_id);
 };
 }
