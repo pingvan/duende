@@ -855,3 +855,39 @@ bool client::invite_already_sent(uint32_t user_id, uint32_t receiver_id) {
     }
     return false;
 }
+
+std::vector<uint32_t> client::get_mutual_subscriptions(uint32_t user_id) {
+    users_interaction::GetMutualSubscriptionsRequest request;
+    request.set_subscriber_id(user_id);
+    users_interaction::GetMutualSubscriptionsResponse response;
+    grpc::ClientContext context;
+    grpc::Status status = users_interaction_stub->GetMutualSubscriptions(&context, request, &response);
+    if (!status.ok()) {
+        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+        return {};
+    }
+    std::vector<uint32_t> mutual_subscriptions(response.subscribie_id().begin(), response.subscribie_id().end());
+    return mutual_subscriptions;
+}
+
+void client::change_photo(uint32_t user_id, const std::string& photo_path) {
+    profile::ProfilePhotoRequest request;
+
+    std::ifstream file(photo_path, std::ios::binary);
+    if (!file) {
+        std::cerr << "Cannot open file: " << photo_path << std::endl;
+        return;
+    }
+    std::string photo_data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    request.set_user_id(user_id);
+    request.set_photo(photo_data);
+
+    profile::ProfileReply response;
+    grpc::ClientContext context;
+    grpc::Status status = profile_stub->ChangeProfilePhoto(&context, request, &response);
+
+    if (!status.ok()) {
+        std::cerr << status.error_code() << ": " << status.error_message() << std::endl;
+        return;
+    }
+}

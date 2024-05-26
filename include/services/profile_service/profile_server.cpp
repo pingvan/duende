@@ -1,7 +1,7 @@
 #include "profile_server.hpp"
+#include <iostream>
 #include "components/database/services/authservice/authservice.hpp"
 #include "components/database/services/profile_service/profile_service.hpp"
-#include <iostream>
 
 Status ProfileServiceImpl::ChangeUsername(
     ServerContext *context,
@@ -20,17 +20,6 @@ Status ProfileServiceImpl::ChangeUsername(
     reply->set_message("Username changed");
     return Status::OK;
 }
-
-// Status ProfileServiceImpl::ChangePhoto(
-//     ServerContext *context,
-//     const ProfileRequest *request,
-//     ProfileReply *reply
-// ) {
-//     ProfileRequest current_profile = *request;
-//     profiles[current_profile.id()].set_photo(current_profile.photo());
-//     reply->set_message("Photo changed");
-//     return Status::OK;
-// }
 
 Status ProfileServiceImpl::ChangeQuote(
     ServerContext *context,
@@ -151,5 +140,24 @@ Status ProfileServiceImpl::RemoveFromListOfGenres(
         );
     }
     reply->set_message("List of genres changed");
+    return Status::OK;
+}
+
+Status ProfileServiceImpl::ChangeProfilePhoto(
+    ServerContext *context,
+    const ProfilePhotoRequest *request,
+    ProfileReply *reply
+) {
+    int user_id = request->user_id();
+
+    std::string photo_data = request->photo();
+    std::basic_string<std::byte> photo_binary(
+        reinterpret_cast<const std::byte *>(photo_data.data()),
+        photo_data.size()
+    );
+
+    database::profile_service_database_api::change_photo(user_id, photo_binary);
+
+    reply->set_message("Profile photo changed");
     return Status::OK;
 }

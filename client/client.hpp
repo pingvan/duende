@@ -6,6 +6,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QDebug>
 #include <iostream>
+#include <fstream>
 
 #include "common/common.grpc.pb.h"
 #include "common/common.pb.h"
@@ -120,4 +121,6 @@ public:
     bool is_subscribed(uint32_t user_id, uint32_t subscribie_id);
     bool is_blocked(uint32_t user_id, uint32_t blockie_id);
     bool invite_already_sent(uint32_t sender_id, uint32_t receiver_id);
+    std::vector <uint32_t> get_mutual_subscriptions(uint32_t user_id);
+    void change_photo(uint32_t user_id, const std::string &photo_path);
 };

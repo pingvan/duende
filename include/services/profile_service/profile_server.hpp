@@ -26,15 +26,13 @@ using profile::GenreRequest;
 using profile::BioRequest;
 using profile::QuoteRequest;
 using profile::ProfileService;
+using profile::ProfilePhotoRequest;
 
 class ProfileServiceImpl final : public ProfileService::Service
 {
 
   Status ChangeUsername(ServerContext *context, const UsernameRequest *request,
                          ProfileReply *reply) override;
-
-  // Status ChangePhoto(ServerContext *context, const ProfileRequest *request,
-  //                    ProfileReply *reply) override;
 
   Status ChangeQuote(ServerContext *context, const QuoteRequest *request,
                      ProfileReply *reply) override;
@@ -60,6 +58,6 @@ class ProfileServiceImpl final : public ProfileService::Service
   Status RemoveFromListOfGenres(ServerContext *context, const GenreRequest *request,
                                 ProfileReply *reply) override;
 
-  // Status GetProfile(ServerContext *context, const GetProfileRequest *request,
-  //                               GetProfileReply *reply) override;
+  Status ChangeProfilePhoto(ServerContext *context, const ProfilePhotoRequest *request,
+                            ProfileReply *reply) override; 
 };

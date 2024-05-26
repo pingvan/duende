@@ -12,6 +12,7 @@ service ProfileService {
   rpc RemoveFromListOfActors (ActorRequest) returns (ProfileReply) {}
   rpc AddToListOfGenres (GenreRequest) returns (ProfileReply) {}
   rpc RemoveFromListOfGenres (GenreRequest) returns (ProfileReply) {}
+  rpc ChangeProfilePhoto (ProfilePhotoRequest) returns (ProfileReply) {}
 }
 
 service ProfileServiceData {
@@ -63,4 +64,9 @@ message GenreRequest{
 
 message ProfileReply {
   string message = 1;
+}
+
+message ProfilePhotoRequest {
+  int32 user_id = 1;
+  bytes photo = 2;
 }

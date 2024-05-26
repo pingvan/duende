@@ -133,7 +133,6 @@ void OtherPage::updatePage(int newId) {
         "color: #8023a8; "
         "font-size: 24px;"
     );
-    label_username->setFixedWidth(150);
     label_username->setFixedHeight(30);
     // label_username->setAlignment(Qt::AlignCenter);
 
