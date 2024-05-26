@@ -62,6 +62,7 @@ private slots:
     void onAddChatButtonClicked();
     void onLeaveChatButtonClicked();
     void onAddMemberToChatButtonClicked();
+    void onGenerateFilmButtonClicked();
 
 private:
     Ui::Chats *ui;
@@ -81,6 +82,7 @@ private:
     QLabel *inviteTitle;
     QPushButton* toggleButton;
     QPushButton* addChatButton;
+    QPushButton* generateFilmButton;
     QPushButton* chatInfoButton;
     QPushButton* addMemberToChatButton;
     QPushButton* leaveChatButton;

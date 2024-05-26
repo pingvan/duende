@@ -49,6 +49,26 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     qDebug() << "Chats page end\n";
 }
 
+void Chats::onGenerateFilmButtonClicked() {
+    int chat_id = currentChatId;
+
+    QDialog filmDialog;
+    filmDialog.setWindowTitle("Recommended Film");
+
+    QVBoxLayout layout(&filmDialog);
+    filmDialog.setLayout(&layout);
+
+    QLabel *textLabel = new QLabel("We recommend that you watch this film:");
+    layout.addWidget(textLabel);
+
+    QLabel *imageLabel = new QLabel;
+    QPixmap pixmap(":/img/titanik.jpeg");
+    imageLabel->setPixmap(pixmap);
+    layout.addWidget(imageLabel);
+
+    filmDialog.exec();
+}
+
 void Chats::onLeaveChatButtonClicked()
 {
     manager->new_client.remove_user_from_chat(manager->ID, manager->ID, currentChatId);
@@ -481,6 +501,9 @@ void Chats::onChatClicked(QListWidgetItem* item)
     chatInfoButton->setVisible(isGroupChat);
     addMemberToChatButton->setVisible(isGroupChat);
     leaveChatButton->setVisible(isGroupChat);
+    generateFilmButton->setVisible(true);
+    messageInput->setVisible(true);
+    sendButton->setVisible(true);
 
     // get messages
     if (chatMessagesData[currentChatId].empty()) {
@@ -846,6 +869,10 @@ void Chats::delete_chat_item(int chat_id)
             leaveChatButton->hide();
         }
 
+        generateFilmButton->hide();
+        messageInput->hide();
+        sendButton->hide();
+
     }
     
 }
@@ -900,7 +927,9 @@ void Chats::build()
 
     // input layout
     messageInput = new QLineEdit();
+    messageInput->hide();
     sendButton   = new QPushButton("Send");
+    sendButton->hide();
     messageInput->setFixedHeight(50);
     sendButton->setFixedHeight(50);
     sendButton->setCursor(Qt::PointingHandCursor);
@@ -934,11 +963,17 @@ void Chats::build()
     leaveChatButton->hide();
     leaveChatButton->setFixedWidth(50);
 
+    generateFilmButton = new QPushButton();
+    generateFilmButton->setText("F");
+    generateFilmButton->hide();
+    generateFilmButton->setFixedWidth(50);
+
     QHBoxLayout *toolBarLayout = new QHBoxLayout();
     toolBarLayout->addWidget(chatTitle);
     toolBarLayout->addWidget(chatInfoButton);
     toolBarLayout->addWidget(addMemberToChatButton);
     toolBarLayout->addWidget(leaveChatButton);
+    toolBarLayout->addWidget(generateFilmButton);
 
     QHBoxLayout *inputLayout = new QHBoxLayout();
     inputLayout->addWidget(messageInput);
@@ -1002,6 +1037,7 @@ void Chats::connect_slots()
     connect(chatInfoButton, &QPushButton::clicked, this, [this]() { showChatInfo(false); });
     connect(addMemberToChatButton, &QPushButton::clicked, this, &Chats::onAddMemberToChatButtonClicked);
     connect(leaveChatButton, &QPushButton::clicked, this, &Chats::onLeaveChatButtonClicked);
+    connect(generateFilmButton, &QPushButton::clicked, this, &Chats::onGenerateFilmButtonClicked);
     connect(toggleButton, &QPushButton::clicked, [this]() {
         bool isChatsVisible = chatList->isVisible();
         chatList->setVisible(!isChatsVisible);

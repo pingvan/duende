@@ -112,7 +112,7 @@ grpc::Status chat_service_::CreatePrivateChat(grpc::ServerContext *context, cons
 }
 
 grpc::Status chat_service_::CreateGroupChat(grpc::ServerContext* context, const chat_service::CreateGroupChatRequest* request, chat_service::ChatPreview* response) {
-    std::vector<uint32_t> chat_members = {request->creator_id()};
+    std::vector<uint32_t> chat_members = {static_cast<unsigned int>(request->creator_id())};
     auto id_timestamp = database::chat_service_database_api::create_group_chat(request->creator_id(), request->chat_name(), request->description(), chat_members);
     response->set_chat_id(id_timestamp.first);
     response->set_is_group_chat(true);

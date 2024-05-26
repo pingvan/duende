@@ -63,10 +63,10 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
 
     otherPage = new OtherPage(0, manager, this);
 
+    pages->addWidget(profilePage);
     pages->addWidget(chatsPage);
     pages->addWidget(recommendationsPage);
     pages->addWidget(followsPage);
-    pages->addWidget(profilePage);
     pages->addWidget(otherPage);
 
     setCentralWidget(centralWidget);
@@ -120,13 +120,13 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
     // );
 
     connect(chats_button, &QPushButton::clicked, this, [this]() {
-        pages->setCurrentIndex(0);
-    });
-    connect(rec_button, &QPushButton::clicked, this, [this]() {
         pages->setCurrentIndex(1);
     });
-    connect(search_button, &QPushButton::clicked, this, [this]() {
+    connect(rec_button, &QPushButton::clicked, this, [this]() {
         pages->setCurrentIndex(2);
+    });
+    connect(search_button, &QPushButton::clicked, this, [this]() {
+        pages->setCurrentIndex(3);
     });
     connect(
         followsPage, &Follows::userClicked, this, &MainWindow::openOtherPage
@@ -152,7 +152,7 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::openProfilePage() {
-    pages->setCurrentIndex(3);
+    pages->setCurrentIndex(0);
 }
 
 void MainWindow::openOtherPage(int id) {
