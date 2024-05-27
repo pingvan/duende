@@ -139,6 +139,10 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
         recommendationsPage, &Recommendations::userClicked, this,
         &MainWindow::openOtherPage
     );
+    connect(
+        recommendationsPage, &Recommendations::userFromListClicked, this,
+        &MainWindow::openOtherPage
+    );
 
     qDebug() << "Main window end\n";
 }

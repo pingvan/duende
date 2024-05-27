@@ -13,7 +13,8 @@ client::client(const std::shared_ptr<grpc::Channel> &new_channel)
       invite_data_stub(invitation::InvitationDataService::NewStub(new_channel)),
       users_interaction_stub(
           users_interaction::UsersInteractionService::NewStub(new_channel)
-      ) 
+      ), recommendation_stub(
+          recommendation_service::RecommendationService::NewStub(new_channel)) 
       {
 }
 
@@ -875,7 +876,7 @@ void client::change_photo(uint32_t user_id, const std::string& photo_path) {
 
     std::ifstream file(photo_path, std::ios::binary);
     if (!file) {
-        std::cerr << "Cannot open file: " << photo_path << std::endl;
+        std::cout << "Cannot open file: " << photo_path << std::endl;
         return;
     }
     std::string photo_data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
@@ -887,7 +888,47 @@ void client::change_photo(uint32_t user_id, const std::string& photo_path) {
     grpc::Status status = profile_stub->ChangeProfilePhoto(&context, request, &response);
 
     if (!status.ok()) {
-        std::cerr << status.error_code() << ": " << status.error_message() << std::endl;
+        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
         return;
     }
+}
+
+std::vector<common::UserPreview> client::get_user_recommendations(uint32_t user_id) {
+    recommendation_service::UserId request;
+    request.set_id(user_id);
+
+    recommendation_service::GetUsersRecommendationsResponse response;
+    grpc::ClientContext context;
+    grpc::Status status = recommendation_stub->GetUsersRecommendations(&context, request, &response);
+
+    std::vector<common::UserPreview> user_recommendations;
+    if (status.ok()) {
+        for (const auto& user : response.user()) {
+            user_recommendations.push_back(user);
+        }
+    } else {
+        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+    }
+
+    return user_recommendations;
+}
+
+std::vector<common::FilmPreview> client::get_film_recommendations(uint32_t user_id) {
+    recommendation_service::UserId request;
+    request.set_id(user_id);
+
+    recommendation_service::GetFilmsRecommendationsResponse response;
+    grpc::ClientContext context;
+    grpc::Status status = recommendation_stub->GetFilmsRecommendations(&context, request, &response);
+
+    std::vector<common::FilmPreview> film_recommendations;
+    if (status.ok()) {
+        for (const auto& film : response.film()) {
+            film_recommendations.push_back(film);
+        }
+    } else {
+        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+    }
+
+    return film_recommendations;
 }

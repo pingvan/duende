@@ -32,7 +32,7 @@ void profile_service_database_api::change_nickname(const int &user_id, const std
 void profile_service_database_api::change_photo(const int &user_id,
                              const std::basic_string<std::byte> &photo_binary) {
     const connector connection;
-    // const auto result = connection.txn->exec_params("UPDATE forms SET photo = $1 WHERE user_id = $2", photo_binary, user_id);
+    const auto result = connection.txn->exec_params("UPDATE forms SET photo = $1 WHERE user_id = $2", photo_binary, user_id);
     connection.txn->commit();
 }
 

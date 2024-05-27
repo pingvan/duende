@@ -1,4 +1,6 @@
 #include "chat_service.hpp"
+#include <_types/_uint32_t.h>
+#include <components/aes/aes.hpp>
 #include <components/database/connection/database-connector.hpp>
 #include <vector>
 #include "components/database/placeholders/placeholders.hpp"
@@ -38,6 +40,7 @@ std::vector<int> chat_service_database_api::get_members_ids(const int &chat_id) 
 
 user_chats chat_service_database_api::get_user_chats(const int &user_id) {
     const connector connection;
+    aes::encryptor encryptor;
     static std::string query = "SELECT chat_id FROM chat_membership WHERE user_id = $1"; 
     const auto result = connection.txn->exec_params(query, user_id);
     std::vector<uint32_t> chat_ids;
@@ -81,6 +84,7 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
 
 last_messages chat_service_database_api::get_chats_messages(const int &chat_id) {
     const connector connection;
+    aes::encryptor encryptor;
     static std::string query = "SELECT sender_id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS'), message_text_data FROM messages WHERE chat_id = $1";
     const auto result = connection.txn->exec_params(query, chat_id);
     last_messages messages;
