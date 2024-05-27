@@ -112,6 +112,7 @@ void Recommendations::updateRecommendations() {
         auto *userItem = new QListWidgetItem(
             userIcon, QString::fromStdString(user.login().c_str())
         );
+        userItem->setData(Qt::UserRole, user.user_id());
         userItem->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
         QFont font = userItem->font();
         font.setPointSize(18);

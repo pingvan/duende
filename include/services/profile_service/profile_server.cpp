@@ -74,13 +74,21 @@ Status ProfileServiceImpl::RemoveFromWatchlist(
     ProfileReply *reply
 ) {
     MovieRequest current_profile = *request;
-    for (const auto &movie : current_profile.movies()) {
-        database::profile_service_database_api::remove_watched(
-            current_profile.id(), movie.id()
-        );
+    try {
+        for (const auto &movie : current_profile.movies()) {
+            database::profile_service_database_api::remove_watched(
+                current_profile.id(), movie.id()
+            );
+        }
+        reply->set_message("Watchlist changed");
+        return Status::OK;
+    } catch (const std::exception &e) {
+        std::string error_message = "Failed to change watchlist: ";
+        error_message += e.what();
+        std::cerr << error_message
+                  << std::endl;  // Выводим сообщение об ошибке в консоль
+        return Status(grpc::INTERNAL, error_message);
     }
-    reply->set_message("Watchlist changed");
-    return Status::OK;
 }
 
 Status ProfileServiceImpl::AddToListOfActors(

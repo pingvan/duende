@@ -75,6 +75,8 @@ private:
     QStringList watchlistImages;
 
     QListWidget *genresList;
+    QPushButton *inviteButton;
+    QPushButton *blockButton;
 
 };
 

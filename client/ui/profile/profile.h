@@ -24,6 +24,7 @@
 #include <QGraphicsDropShadowEffect>
 #include <QListWidget>
 #include <QFileDialog>
+#include <QGraphicsProxyWidget>
 
 
 namespace Ui {
@@ -47,6 +48,8 @@ private slots:
     void plusItem_favActors_clicked();
     void plusItem_watchlist_clicked();
     void update_favorite_genres();
+    void update_watchlist(int start_films, bool edit_mode);
+    void update_actors(int start_actors, bool edit_mode);
     void onEditButtonClicked() {
         editMode = !editMode;
     }

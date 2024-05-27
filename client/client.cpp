@@ -523,6 +523,9 @@ void client::remove_movie(int user_id, int movie_id, int rating) {
     movie->set_rating(rating);
     grpc::Status status =
         profile_stub->RemoveFromWatchlist(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << std::endl;
+    }
 }
 
 void client::add_actor(int user_id, int actor_id) {
