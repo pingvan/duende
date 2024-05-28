@@ -1,6 +1,102 @@
 #include "profile.h"
 #include "ui_profile.h"
 
+class MyGraphicsItem : public QGraphicsPixmapItem {
+public:
+    MyGraphicsItem(
+        const QPixmap &pixmap,
+        const std::string &title,
+        int rating,
+        int movieId,
+        Manager *manager,
+        QGraphicsItem *parent = nullptr
+    )
+        : QGraphicsPixmapItem(pixmap, parent),
+          movieId(movieId),
+          manager(manager),
+          isEditingMode(false) {
+        QGraphicsTextItem *titleItem =
+            new QGraphicsTextItem(QString::fromStdString(title), this);
+        titleItem->setPos(
+            0, pixmap.height()
+        );
+
+        QGraphicsSimpleTextItem *ratingItem =
+            new QGraphicsSimpleTextItem(QString::number(rating), this);
+        ratingItem->setPos(
+            0, pixmap.height() + titleItem->boundingRect().height()
+        );
+    }
+
+    void setEditingMode(bool mode) {
+        isEditingMode = mode;
+    }
+
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override {
+        if (!isEditingMode || !scene()) {
+            return;
+        }
+
+        int movieId = data(Qt::UserRole).toInt();
+        int rating = data(Qt::UserRole + 1).toInt();
+        QGraphicsProxyWidget *proxy =
+            data(Qt::UserRole + 2).value<QGraphicsProxyWidget *>();
+        qDebug() << "Double click detected. Removing movie with ID:" << movieId;
+        manager->new_client.remove_movie(manager->ID, movieId, rating);
+        qDebug() << "Movie removed successfully.";
+        scene()->removeItem(this);
+        delete this;
+    }
+
+private:
+    int movieId;
+    Manager *manager;
+    bool isEditingMode;
+};
+
+class MyGraphicsItem2 : public QGraphicsPixmapItem {
+public:
+    MyGraphicsItem2(
+        const QPixmap &pixmap,
+        const std::string &name,
+        int actorId,
+        Manager *manager,
+        QGraphicsItem *parent = nullptr
+    )
+        : QGraphicsPixmapItem(pixmap, parent),
+          actorId(actorId),
+          manager(manager),
+          isEditingMode(false) {
+        QGraphicsTextItem *nameItem =
+            new QGraphicsTextItem(QString::fromStdString(name), this);
+        nameItem->setPos(0, pixmap.height());
+    }
+
+    void setEditingMode(bool mode) {
+        isEditingMode = mode;
+    }
+
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override {
+        if (!isEditingMode || !scene()) {
+            return;
+        }
+
+        int actorId = data(Qt::UserRole).toInt();
+        QGraphicsProxyWidget *proxy =
+            data(Qt::UserRole + 1).value<QGraphicsProxyWidget *>();
+        qDebug() << "Double click detected. Removing actor with ID:" << actorId;
+        manager->new_client.remove_actor(manager->ID, actorId);
+        qDebug() << "Actor removed successfully.";
+        scene()->removeItem(this);
+        delete this;
+    }
+
+private:
+    int actorId;
+    Manager *manager;
+    bool isEditingMode;
+};
+
 Profile::Profile(Manager *managerPtr, QWidget *parent)
     : QWidget(parent), ui(new Ui::Profile), manager(managerPtr) {
     ui->setupUi(this);
@@ -18,6 +114,9 @@ Profile::Profile(Manager *managerPtr, QWidget *parent)
 
 void Profile::button_edit_clicked() {
     // replace labels with lineEdits
+    label_photo->setCursor(Qt::PointingHandCursor);
+    genresList->setCursor(Qt::PointingHandCursor);
+    editMode = true;
     lineEdit_status->setText(label_status->text());
     lineEdit_username->setText(label_username->text());
     textEdit_about->setText(label_about->text());
@@ -33,6 +132,8 @@ void Profile::button_edit_clicked() {
     leftBox->replaceWidget(label_status, lineEdit_status);
     leftBox->replaceWidget(label_about, textEdit_about);
     rightBox->replaceWidget(label_username, lineEdit_username);
+    label_photo->setToolTip(tr("Click to upload a new photo"));
+    genresList->setToolTip(tr("Double click to delete this genre"));
     connection = connect(
         genresList, &QListWidget::itemDoubleClicked,
         [this](QListWidgetItem *item) {
@@ -44,7 +145,6 @@ void Profile::button_edit_clicked() {
             // update_favorite_genres();
         }
     );
-
     // update scenes
     build_scenes(true);
 }
@@ -52,6 +152,8 @@ void Profile::button_edit_clicked() {
 void Profile::button_save_clicked() {
     editMode = false;
     disconnect(connection);
+    label_photo->setCursor(Qt::ArrowCursor);
+    genresList->setCursor(Qt::ArrowCursor);
     // update user
     user = manager->new_client.get_user_full_page(manager->ID);
 
@@ -69,6 +171,8 @@ void Profile::button_save_clicked() {
     greeting->clear();
     greeting->setText(QString("Hello, %1!").arg(lineEdit_username->text()));
     update_favorite_genres();
+    update_watchlist(0, false);
+    update_actors(0, false);
 
     // replace lineEdits with labels
     label_status->setText(lineEdit_status->text());
@@ -86,9 +190,50 @@ void Profile::button_save_clicked() {
     leftBox->replaceWidget(lineEdit_status, label_status);
     leftBox->replaceWidget(textEdit_about, label_about);
     rightBox->replaceWidget(lineEdit_username, label_username);
+    label_photo->setToolTip("");
+    genresList->setToolTip("");
 
     // update scenes
     build_scenes();
+}
+
+bool Profile::eventFilter(QObject *watched, QEvent *event) {
+    if (watched == label_photo && event->type() == QEvent::MouseButtonPress) {
+        uploadPhoto();
+        return true;
+    }
+    return false;
+}
+
+void Profile::uploadPhoto() {
+    if (!editMode) {
+        return;
+    }
+    QString fileName = QFileDialog::getOpenFileName(
+        this, tr("Open Image"), "", tr("Image Files (*.png *.jpg *.bmp)")
+    );
+    if (fileName != "") {
+        QPixmap pixmap(fileName);
+        manager->new_client.change_photo(manager->ID, fileName.toStdString());
+
+        int size = qMin(pixmap.width(), pixmap.height());
+        QPixmap squarePixmap = pixmap.copy(0, 0, size, size);
+
+        QPixmap scaledPixmap = squarePixmap.scaled(
+            300, 300, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation
+        );
+
+        QPixmap rounded = QPixmap(scaledPixmap.size());
+        rounded.fill(Qt::transparent);
+
+        QPainter painter(&rounded);
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setBrush(QBrush(scaledPixmap));
+        painter.setPen(Qt::NoPen);
+        painter.drawEllipse(rounded.rect());
+
+        label_photo->setPixmap(rounded);
+    }
 }
 
 void Profile::plusItem_favActors_clicked() {
@@ -113,6 +258,65 @@ void Profile::plusItem_watchlist_clicked() {
         searchWindow->rect().center()
     );
     searchWindow->show();
+}
+
+void Profile::update_watchlist(int start_films, bool edit_mode) {
+    for (const auto &movie : user->watched_films()) {
+        QPixmap pixmap;
+        pixmap.load(":/img/titanik.jpeg");
+        pixmap = pixmap.scaledToHeight(view_watchlist->height() - 50);
+
+        MyGraphicsItem *item = new MyGraphicsItem(
+            pixmap, movie.full_page().preview().title(), movie.ratio(),
+            movie.full_page().preview().film_id(), manager
+        );
+        int32_t movieId = movie.full_page().preview().film_id();
+        qDebug() << "Setting movieId:" << movieId;
+        item->setData(Qt::UserRole, movieId);
+        if (edit_mode) {
+            item->setToolTip(tr("Double click to delete this movie"));
+            item->setCursor(Qt::PointingHandCursor);
+            item->setEditingMode(true);
+        } else {
+            item->setToolTip("");
+            item->setCursor(Qt::ArrowCursor);
+            item->setEditingMode(false);
+        }
+        item->setPos(start_films, 0);
+        scene_watchlist->addItem(item);
+
+        start_films += item->boundingRect().width() +
+                       20; 
+    }
+}
+
+void Profile::update_actors(int start_actors, bool edit_mode) {
+    for (const auto &actor : user->favorite_actors()) {
+        QPixmap pixmap;
+        pixmap.load(":/img/tarantino.jpg");
+        pixmap = pixmap.scaledToHeight(view_favActors->height() - 50);
+
+        MyGraphicsItem2 *item = new MyGraphicsItem2(
+            pixmap, actor.full_name(), actor.actor_id(), manager
+        );
+        int32_t actorId = actor.actor_id();
+        qDebug() << "Setting actor:" << actorId;
+        item->setData(Qt::UserRole, actorId);
+        if (edit_mode) {
+            item->setToolTip(tr("Double click to delete this actor"));
+            item->setCursor(Qt::PointingHandCursor);
+            item->setEditingMode(true);
+        } else {
+            item->setToolTip("");
+            item->setCursor(Qt::ArrowCursor);
+            item->setEditingMode(false);
+        }
+        item->setPos(start_actors, 0);
+        scene_favActors->addItem(item);
+
+        start_actors += item->boundingRect().width() +
+                        20;
+    }
 }
 
 void Profile::button_edit_genres_clicked() {
@@ -175,8 +379,11 @@ void Profile::build_scenes(bool edit_mode) {
     }
 
     view_favActors = new QGraphicsView();
+    view_favActors->setFrameShape(QFrame::NoFrame);
     scene_favActors = new QGraphicsScene();
+
     view_watchlist = new QGraphicsView();
+    view_watchlist->setFrameShape(QFrame::NoFrame);
     scene_watchlist = new QGraphicsScene();
 
     if (actors_text != nullptr) {
@@ -238,47 +445,9 @@ void Profile::build_scenes(bool edit_mode) {
         start_films = plusItem_watchlist->boundingRect().width() + 10;
     }
 
-    // build favorite actors
-    for (auto it = favActorsImages.rbegin(); it != favActorsImages.rend();
-         ++it) {
-        QPixmap pixmap(*it);
-        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(
-            pixmap.scaledToHeight(view_favActors->height())
-        );
-        item->setPos(start_actors, 0);
-        scene_favActors->addItem(item);
-        start_actors += item->boundingRect().width() + 10;
+    update_actors(start_actors, edit_mode);
 
-        //     // Создаем текстовый элемент с именем актера
-        //     QGraphicsTextItem *text = new QGraphicsTextItem(it->first
-        //     );  // Предполагая, что it->first содержит имя актера
-        //     text->setPos(
-        //         item->pos().x(), item->pos().y() -
-        //         text->boundingRect().height()
-        //     );  // Размещаем текст над изображением
-        //     scene_favActors->addItem(text);
-        //
-    }
-
-    // build watch list
-
-    for (auto it = watchlistImages.rbegin(); it != watchlistImages.rend();
-         ++it) {
-        QPixmap pixmap(*it);
-        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(
-            pixmap.scaledToHeight(view_watchlist->height())
-        );
-
-        // QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect();
-        // effect->setBlurRadius(10);
-        // effect->setOffset(0);
-        // item->setGraphicsEffect(effect);
-
-        item->setPos(start_films, 0);
-        scene_watchlist->addItem(item);
-
-        start_films += item->boundingRect().width() + 10;  // Увеличено до 20
-    }
+    update_watchlist(start_films, edit_mode);
 
     // right layout
     rightBox->addWidget(actors_text);
@@ -304,8 +473,18 @@ void Profile::build() {
         "!"
     );
     greeting->setStyleSheet("font-size: 50px; color: #8023a8;");
-    QLabel *label_photo = new QLabel();
-    QPixmap pixmap(":/img/robertdeniro.jpg");
+    label_photo = new QLabel();
+    label_photo->installEventFilter(this);
+    std::string photo_data = user->preview().photo();
+    QPixmap pixmap;
+    if (photo_data.empty()) {
+        pixmap.load(":/img/person-circle2.png");
+    } else {
+        pixmap.loadFromData(
+            reinterpret_cast<const uchar *>(photo_data.data()),
+            photo_data.size()
+        );
+    }
 
     int size = qMin(pixmap.width(), pixmap.height());
     QPixmap squarePixmap = pixmap.copy(0, 0, size, size);
@@ -329,11 +508,7 @@ void Profile::build() {
     label_status = new QLabel(QString::fromStdString(user->quote().c_str()));
     label_status->setMaximumWidth(500);
     label_status->setMinimumHeight(40);
-    // label_status->setStyleSheet(
-    //     "color: #8023a8; border-radius: 5px; border: 0.5px solid #8023a8; "
-    //     "font-size: 20px;"
-    // );
-        label_status->setStyleSheet(
+    label_status->setStyleSheet(
         "color: black;"
         "font-size: 20px;"
     );
@@ -344,7 +519,6 @@ void Profile::build() {
     // about
     label_about = new QLabel(QString::fromStdString(user->about().c_str()));
     label_about->setMaximumWidth(500);
-    // label_about->setMinimumHeight(40);
     label_about->setMaximumHeight(300);
     label_about->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     label_about->setStyleSheet(
@@ -358,9 +532,8 @@ void Profile::build() {
 
     lineEdit_status->setPlaceholderText("My favourite quote");
     textEdit_about->setPlaceholderText("About me");
-    textEdit_about->setStyleSheet(
-        "color: #8023a8;"
-    );
+    textEdit_about->setStyleSheet("color: #8023a8;");
+    textEdit_about->setMaximumHeight(300);
 
     // username
     label_username =
@@ -392,17 +565,11 @@ void Profile::build() {
         button_edit_genres, &QPushButton::clicked, this,
         &Profile::button_edit_genres_clicked
     );
-    // label_username->setStyleSheet(
-    //     "background-color: #8023a8; color: white; border-radius: 5px; "
-    //     "font-size: 20px;"
-    // );
     label_username->setStyleSheet(
         "color: #8023a8;"
         "font-size: 24px;"
     );
-    label_username->setFixedWidth(150);
     label_username->setFixedHeight(40);
-    // label_username->setAlignment(Qt::AlignCenter);
 
     // edit button
     button_edit = new QPushButton("Edit");

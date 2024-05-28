@@ -4,6 +4,7 @@ project(duende)
 
 include(./cmake/grpc-generation.cmake)
 
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -45,10 +46,12 @@ add_executable(main
     ${generated_proto_models_srcs}
 )
 
+
 add_dependencies(main generate_proto_models)
 # add_dependencies(gtests generate_proto_models)
 
-target_link_libraries(main PRIVATE
+
+target_link_libraries(main
         absl::flags_parse
         gRPC::grpc++
         protobuf::libprotobuf
@@ -92,4 +95,3 @@ target_link_options(main PUBLIC
 
 # target_link_options(gtests PUBLIC
 #         ${LIBPQXX_LDFLAGS})
-

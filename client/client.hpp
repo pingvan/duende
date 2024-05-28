@@ -6,6 +6,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QDebug>
 #include <iostream>
+#include <fstream>
 
 #include "common/common.grpc.pb.h"
 #include "common/common.pb.h"
@@ -21,6 +22,8 @@
 #include "services/invitation_service/invitation.pb.h"
 #include "services/users_interaction_service/users_interaction.grpc.pb.h"
 #include "services/users_interaction_service/users_interaction.pb.h"
+#include "services/recommendation_service/recommendation_service.grpc.pb.h"
+#include "services/recommendation_service/recommendation_service.pb.h"
 
 struct client {
 private:
@@ -34,6 +37,7 @@ private:
     std::unique_ptr<invitation::InvitationService::Stub> invite_stub;
     std::unique_ptr<invitation::InvitationDataService::Stub> invite_data_stub;
     std::unique_ptr<users_interaction::UsersInteractionService::Stub> users_interaction_stub;
+    std::unique_ptr<recommendation_service::RecommendationService::Stub> recommendation_stub;
 
     std::unique_ptr<grpc::ClientReaderWriter<chat_service::ChatRequests, chat_service::ChatResponses>> chat_stream;
     std::unique_ptr<grpc::ClientReaderWriter<chat_service::InvitesToChatRequests, chat_service::InvitesToChatResponses>> invite_chat_stream;
@@ -120,4 +124,8 @@ public:
     bool is_subscribed(uint32_t user_id, uint32_t subscribie_id);
     bool is_blocked(uint32_t user_id, uint32_t blockie_id);
     bool invite_already_sent(uint32_t sender_id, uint32_t receiver_id);
+    std::vector <uint32_t> get_mutual_subscriptions(uint32_t user_id);
+    void change_photo(uint32_t user_id, const std::string &photo_path);
+    std::vector<common::UserPreview> get_user_recommendations(uint32_t user_id);
+    std::vector<common::FilmPreview> get_film_recommendations(uint32_t user_id);
 };

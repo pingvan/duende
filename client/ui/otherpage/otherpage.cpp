@@ -65,6 +65,7 @@ void OtherPage::showBlockDialog(QPushButton *blockButton) {
                 "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: "
                 "0 #8023A8, stop: 1 #691e8a); "
             );
+            subscribeButton->setText("Subscribe");
         }
     }
 }
@@ -133,9 +134,12 @@ void OtherPage::updatePage(int newId) {
         "color: #8023a8; "
         "font-size: 24px;"
     );
-    label_username->setFixedWidth(150);
     label_username->setFixedHeight(30);
     // label_username->setAlignment(Qt::AlignCenter);
+    genres_text->setText(
+        QString::fromStdString(user->preview().login().c_str()) +
+        "'s favourite genres"
+    );
 
     // update genres
     genresList->clear();
@@ -152,6 +156,29 @@ void OtherPage::updatePage(int newId) {
         item->setBackground(QBrush(QColor("#8023a8")));
         genresList->addItem(item);
     }
+
+    if (manager->new_client.is_blocked(id, manager->ID)) {
+        blockButton->setStyleSheet(
+            "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 "
+            "#8023A8, stop: 1 #691e8a); "
+        );
+    } else {
+        blockButton->setStyleSheet(
+            "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 "
+            "#b24ee7, stop: 1 #982ecb); "
+        );
+    }
+    if (manager->new_client.is_subscribed(manager->ID, id)) {
+        subscribeButton->setText("Unsubscribe");
+    } else {
+        subscribeButton->setText("Subscribe");
+    }
+    // subscribeButton->setChecked(
+    //     manager->new_client.is_subscribed(manager->ID, id)
+    // );
+    // subscribeButton->setText(
+    //     subscribeButton->isChecked() ? "Unsubscribe" : "Subscribe"
+    // );
 
     // update scenes
     build_scenes();
@@ -282,7 +309,16 @@ void OtherPage::build() {
 
     // photo
     QLabel *label_photo = new QLabel();
-    QPixmap pixmap(":/img/robertdeniro.jpg");
+    std::string photo_data = user->preview().photo();
+    QPixmap pixmap;
+    if (photo_data.empty()) {
+        pixmap.load(":/img/person-circle2.png");
+    } else {
+        pixmap.loadFromData(
+            reinterpret_cast<const uchar *>(photo_data.data()),
+            photo_data.size()
+        );
+    }
 
     int size = qMin(pixmap.width(), pixmap.height());
     QPixmap squarePixmap = pixmap.copy(0, 0, size, size);
@@ -347,9 +383,9 @@ void OtherPage::build() {
         new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
     // buttons
-    QPushButton *inviteButton = new QPushButton("Send Invitation");
-    QPushButton *subscribeButton = new QPushButton("Subscribe");
-    QPushButton *blockButton = new QPushButton();
+    inviteButton = new QPushButton("Send Invitation");
+    subscribeButton = new QPushButton("Subscribe");
+    blockButton = new QPushButton();
     blockButton->setIcon(QIcon(":/img/ban.png"));
     blockButton->setIconSize(QSize(24, 24));
     blockButton->setFixedSize(40, 40);
@@ -394,7 +430,7 @@ void OtherPage::build() {
         subscribeButton, &QPushButton::clicked, this,
         &OtherPage::toggleSubscription
     );
-    connect(blockButton, &QPushButton::clicked, this, [this, blockButton]() {
+    connect(blockButton, &QPushButton::clicked, this, [this]() {
         showBlockDialog(blockButton);
     });
 }

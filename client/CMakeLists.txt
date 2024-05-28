@@ -25,7 +25,8 @@ set(PROFILE_SERVICE_PROTO ../build/services/profile_service/profile.grpc.pb.cc .
 set(SEARCH_SERVICE_PROTO ../build/services/search_service/search_service.grpc.pb.cc ../build/services/search_service/search_service.pb.cc)
 set(INVITE_SERVICE_PROTO ../build/services/invitation_service/invitation.grpc.pb.cc ../build/services/invitation_service/invitation.pb.cc)
 set(USERS_INTERACTION_SERVICE_PROTO ../build/services/users_interaction_service/users_interaction.grpc.pb.cc ../build/services/users_interaction_service/users_interaction.pb.cc)
-set(PROTOS ${COMMON_PROTO} ${AUTHSERVICE_PROTO} ${CHAT_SERVICE_PROTO} ${PROFILE_SERVICE_PROTO} ${SEARCH_SERVICE_PROTO} ${INVITE_SERVICE_PROTO} ${USERS_INTERACTION_SERVICE_PROTO})
+set(RECOMMENDATIONS_SERVICE_PROTO ../build/services/recommendation_service/recommendation_service.grpc.pb.cc ../build/services/recommendation_service/recommendation_service.pb.cc)
+set(PROTOS ${COMMON_PROTO} ${AUTHSERVICE_PROTO} ${CHAT_SERVICE_PROTO} ${PROFILE_SERVICE_PROTO} ${SEARCH_SERVICE_PROTO} ${INVITE_SERVICE_PROTO} ${USERS_INTERACTION_SERVICE_PROTO} ${RECOMMENDATIONS_SERVICE_PROTO})
 
 set(MAINWINDOW ui/mainwindow/mainwindow.ui ui/mainwindow/mainwindow.h ui/mainwindow/mainwindow.cpp)
 set(REGISTRATIONPAGE ui/registrationpage/registrationpage.ui ui/registrationpage/registrationpage.h ui/registrationpage/registrationpage.cpp)

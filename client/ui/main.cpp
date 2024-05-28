@@ -5,6 +5,7 @@
 #include <QSplashScreen>
 #include <QStackedWidget>
 #include <QTimer>
+#include <QToolTip>
 #include "../client.hpp"
 #include "mainwindow/mainwindow.h"
 #include "manager.h"
@@ -28,6 +29,7 @@ int main(int argc, char *argv[]) {
         "QPushButton:pressed, QPushButton:checked { background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #8023A8, stop: 1 #691e8a); }" 
         "QLineEdit { font-size: 18px; color: #8023a8; min-height: 40px;}"
         "QPushButton#myButton { background-color: #e9e9e9; }"
+        "QToolTip { font-size: 16px; color: black;}"
     );
 
     // Splash screen
