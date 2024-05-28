@@ -194,6 +194,7 @@ void Chats::showChatInfo(bool editMode)
 
                 QMenu contextMenu;
                 QAction *toggleAdminAction;
+                QAction *removeMemberAction;
 
                 if (is_member_admin) {
                     toggleAdminAction = contextMenu.addAction("Remove admin role");
@@ -201,7 +202,17 @@ void Chats::showChatInfo(bool editMode)
                     toggleAdminAction = contextMenu.addAction("Add admin role");
                 }
 
+                removeMemberAction = contextMenu.addAction("Remove member");
+
                 QAction *selectedAction = contextMenu.exec(membersList.mapToGlobal(pos));
+
+                if (selectedAction == removeMemberAction) {
+                    qDebug() << "Remove user ID: " << userId;
+                    manager->new_client.remove_user_from_chat(manager->ID, userId, chat_id);
+                    delete item;
+                    dialog.accept();
+                }
+                
                 if (selectedAction == toggleAdminAction) {
                     if (is_member_admin) {
                         qDebug() << "Remove admin role for user ID: " << userId;
