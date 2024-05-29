@@ -2,82 +2,100 @@ import pandas as pd
 import psycopg2
 import json
 
+# Establishing the connection to the database
 connection = psycopg2.connect(
     "postgres://root:strongpassword@localhost:5432/duende"
 )
 
 cursor = connection.cursor()
 
-class film:
-    def __init__(self, id, title, description, genres):
-        self.id = id
+# Defining classes for film and actor
+class Film:
+    def __init__(self, title, release_date, description, genres):
         self.title = title
+        self.release_date = release_date
         self.description = description
         self.genres = genres
 
-class actor:
-    def __init__(self, first_name, last_name):
-        self.first_name = first_name
-        self.last_name = last_name
+class Actor:
+    def __init__(self, full_name):
+        self.full_name = full_name
 
-
+# Reading metadata files
 movies_data = pd.read_csv('../metadata/movie_data.csv')
 movies_credits = pd.read_csv('../metadata/movie_credits.csv')
 
-movies_credits = movies_credits.rename(columns={'movie_id' : 'id'})
+# Renaming column for merging
+movies_credits = movies_credits.rename(columns={'movie_id': 'id'})
 
+# Merging data on the 'id' column
+merged_data = pd.merge(movies_data, movies_credits, on='id', how='inner').dropna(subset=['release_date'])
 
-merged_data = pd.merge(movies_data, movies_credits, on='id', how='inner')
-
-# merged_data.to_csv('created.csv', index=False)
-
+# Initialize lists and dictionaries
 films = []
+actors_set = set()
 actor_to_film = dict()
-actors_to_id = dict()
 
+# Parsing merged data
 for tup in merged_data.itertuples():
-    genreee = []
-    actorss = []
+    genres_list = []
+    actors_list = []
     genres_json = json.loads(tup.genres)
     for en in genres_json:
-        genreee.append(en['name'].lower())
+        genres_list.append(en['name'].lower())
+    
     cast_json = json.loads(tup.cast)
     actor_to_film[tup.id] = []
     for en in cast_json:
-        actorss.append(en['name'])
-        actor_to_film[tup.id].append(en['id'])
-        actors_to_id[en['id']] = en['name']
-    new_film = film(tup.id, tup.original_title, tup.overview, genreee)
+        actors_set.add(en['name'])
+        actors_list.append(en['name'])
+        actor_to_film[tup.id].append(en['name'])
+    
+    new_film = Film(tup.original_title, tup.release_date, tup.overview, genres_list)
     films.append(new_film)
 
+# SQL statements with RETURNING clause
 insert_film = """
-INSERT INTO films (id, title, description, genres) VALUES (%s, %s, %s, %s)
+INSERT INTO films (title, release_date, description, genres) 
+VALUES (%s, %s, %s, %s) RETURNING id
 """
 
-insert_actors="""
-INSERT INTO actors (id, full_name) VALUES (%s, %s)
+insert_actor = """
+INSERT INTO actors (full_name) 
+VALUES (%s) RETURNING id
 """
 
-insert_film_to_actor="""
-INSERT INTO actors_to_film (film_id, actor_id) VALUES (%s,  %s)
+insert_film_to_actor = """
+INSERT INTO actors_to_film (film_id, actor_id) 
+VALUES (%s, %s)
 """
 
+# Insert films and get their generated IDs
+film_id_map = {}
 for film in films:
     for i, v in enumerate(film.genres):
         if v == 'science fiction':
-            film.genres[i] = 'sci-fi'    
+            film.genres[i] = 'sci-fi'
     genres_array = "{" + ",".join(film.genres) + "}"
-    cursor.execute(insert_film, (film.id, film.title, film.description, genres_array))
-    
-for id, name in actors_to_id.items():
-    cursor.execute(insert_actors, (id, name))
+    cursor.execute(insert_film, (film.title, film.release_date, film.description, genres_array))
+    film_id = cursor.fetchone()[0]
+    film_id_map[film.title] = film_id
 
+# Insert actors and get their generated IDs
+actor_id_map = {}
+for actor_name in actors_set:
+    cursor.execute(insert_actor, (actor_name,))
+    actor_id = cursor.fetchone()[0]
+    actor_id_map[actor_name] = actor_id
 
-for film_id, actors_id in actor_to_film.items():
-    for actor_id in actors_id:
+# Insert into actors_to_film using generated IDs
+for movie_id, actor_names in actor_to_film.items():
+    film_id = film_id_map[movies_data.loc[movies_data['id'] == movie_id]['original_title'].values[0]]
+    for actor_name in actor_names:
+        actor_id = actor_id_map[actor_name]
         cursor.execute(insert_film_to_actor, (film_id, actor_id))
 
-
+# Commit changes and close the connection
 connection.commit()
 cursor.close()
 connection.close()

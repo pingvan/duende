@@ -1,5 +1,16 @@
 <RCC>
     <qresource prefix="/">
         <file>img/logo.jpg</file>
+        <file>img/tarantino.jpg</file>
+        <file>img/titanik.jpeg</file>
+        <file>img/robertdeniro.jpg</file>
+        <file>img/plus.png</file>
+        <file>img/people.png</file>
+        <file>img/search.png</file>
+        <file>img/person.png</file>
+        <file>img/chat.png</file>
+        <file>img/logout.png</file>
+        <file>img/cross.png</file>
+        <file>img/follows.png</file>
     </qresource>
 </RCC>

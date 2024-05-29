@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package authservice;
 
+import "common/common.proto";
+
 message User {
     string username = 1;
     string email = 2;
@@ -60,6 +62,8 @@ message SignupRequest {
 
 message SignupResponse {
     Tokens tokens = 1;
+    int32 id = 2;
+    string message = 3;
 };
 
 message LogoutRequest {
@@ -71,69 +75,10 @@ message LogoutResponse {
 };
 
 service AuthServiceData {
-    rpc GetUserPrewiew(RequestWithUserId) returns (UserPreview);
-    rpc GetUserFullPage(RequestWithUserId) returns (UserFullPage);
+    rpc GetUserPrewiew(RequestWithUserId) returns (common.UserPreview);
+    rpc GetUserFullPage(RequestWithUserId) returns (common.UserFullPage);
 };
 
 message RequestWithUserId {
     int32 user_id = 1;
-}
-
-enum Genre {
-  ACTION = 0;
-  ADVENTURE = 1;
-  COMEDY = 2;
-  DRAMA = 3;
-  HORROR = 4;
-  SCI_FI = 5;
-  FANTASY = 6;
-  THRILLER = 7;
-  MYSTERY = 8;
-  ROMANCE = 9;
-  ANIMATION = 10;
-  DOCUMENTARY = 11;
-  CRIME = 12;
-  WESTERN = 13;
-  MUSIC = 14;
-  HISTORY = 15;
-  WAR = 16;
-  BIOGRAPHICAL = 17;
-  SPORTS = 18;
-  FAMILY = 19;
-  FOREIGN = 20;
-  TV_MOVIE = 21;
-}
-
-
-
-message ActorPreview {
-  string full_name = 1;
-}
-
-message FilmPreview {
-  string title = 1;
-}
-
-message FilmFullPage {
-  FilmPreview preview = 1;
-  string description = 2;
-  repeated Genre genres = 3;
-}
-
-message FilmOnUserPage {
-  FilmFullPage full_page = 1;
-  int32 ratio = 2;
-}
-
-message UserPreview {
-  string login = 1;
-}
-
-message UserFullPage {
-  UserPreview preview = 1;
-  string quote = 2;
-  string about = 3;
-  repeated Genre favorite_genres = 4;
-  repeated ActorPreview favorite_actors = 5;
-  repeated FilmOnUserPage watched_films = 6;
 }

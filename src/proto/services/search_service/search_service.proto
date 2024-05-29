@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package search_service;
 
+import "common/common.proto";
+
 service SerachService {
     rpc SearchUserByCredentials(UserSearchRequest) returns (UserSearchResponse) {}
     rpc SearchFilmByTitle(FilmSearchRequest) returns (FilmSearchResponse) {}
@@ -21,32 +23,15 @@ message ActorSearchRequest {
 }
 
 message UserSearchResponse {
-    repeated User users = 1;
+    repeated common.UserPreview users = 1;
 }
 
 message FilmSearchResponse {
-    repeated Film films = 1;
+    repeated common.FilmPreview films = 1;
 }
 
 message ActorSearchResponse {
-    repeated Actor actors = 1;
-}
-
-//photos everywhere in future
-
-message User {
-    int32 user_id = 1;
-    string login = 2; //is it okey
-}
-
-message Actor {
-    int32 actor_id = 1;
-    string full_name = 2;
-}
-
-message Film {
-    int32 film_id = 1;
-    string title = 2;
+    repeated common.ActorPreview actors = 1;
 }
 
 

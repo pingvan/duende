@@ -1,52 +1,36 @@
-import requests
 import imdb
+import psycopg2
 
 ia = imdb.IMDb()
 
-def get_movie_cover(movie_name):
+conn = psycopg2.connect("postgres://root:strongpassword@localhost:5432/duende")
+cursor = conn.cursor()
+
+def get_movie_cover(movie_name, filmed_year):
     search_results = ia.search_movie(movie_name)
-
-    print(search_results)
-
-    if search_results:
-        movie = search_results[0]
-
-        ia.update(movie)
-
-        print(movie.keys())
-        if 'cover url' in movie.keys():
-            return movie['cover url']
-        else:
-            return "Cover image not found for {}".format(movie_name)
-    else:
-        return "Movie not found: {}".format(movie_name)
     
-
-def download_image_as_bytes(image_url):
-    try:
-        response = requests.get(image_url)
-
-        if response.status_code == 200:
-            return response.content
-        else:
-            print("Failed to download image. Status code:", response.status_code)
-            return None
-    except Exception as e:
-        print("An error occurred:", str(e))
-        return None
+    for movie in search_results:
+        if movie.get('year') == filmed_year:
+            ia.update(movie)
+            cover_url = movie.get_fullsizeURL()
+            return movie['cover url'], cover_url
 
 
 
-movie_name = "Titanic"
-cover_url = get_movie_cover(movie_name)
-print("Cover URL for '{}': {}".format(movie_name, cover_url))
+get_films_query = "SELECT title, release_date FROM films WHERE cover IS NULL"
+insert_image_urls_query = "UPDATE films SET cover_preview_url = %s, cover_full_size_url = %s WHERE title = %s"
 
+cursor.execute(get_films_query)
+films = cursor.fetchall()
 
-image_url = cover_url
-image_bytes = download_image_as_bytes(image_url)
+for film in films:
+    title = film[0]
+    release_date = film[1]
+    cover_url, cover_full_size_url = get_movie_cover(title, release_date.year)
+    print(cover_url, cover_full_size_url, title)
+    cursor.execute(insert_image_urls_query, (cover_url, cover_full_size_url, title))
 
-if image_bytes:
-    print("Image downloaded as bytes successfully!")
-    # print(image_bytes)
-else:
-    print("Failed to download image as bytes.")
+conn.commit()
+conn.close()
+
+        

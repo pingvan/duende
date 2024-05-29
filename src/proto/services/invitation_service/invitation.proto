@@ -2,28 +2,35 @@ syntax = "proto3";
 
 package invitation;
 
-import "services/authservice/authservice.proto";
+import "common/common.proto"; 
+import "services/chat_service/chat_service.proto"; 
 
 enum InviteStatus {
-  SENDED = 0;
+  SENT = 0;
   ACCEPTED = 1;
   DECLINED = 2;
 }
 
-service InvitationService {
-  rpc InvitationStream(stream StreamRequest) returns (stream StreamResponse) {}
+enum Status {
+    SUCCESS = 0;
+    ERROR = 1;
 }
 
-service InvitionDataService {
+service InvitationService {
+  rpc InvitationStream(stream InvitationRequest) returns (stream InvitationResponse) {}
+}
+
+service InvitationDataService {
   rpc GetReceivedInvitations(RequestWithId) returns (InvitesReceived) {}
   rpc GetSentInvitations(RequestWithId) returns (InvitesSent) {} 
 }
 
 message Invite {
   uint32 invite_id = 1;
-  authservice.UserPreview sender = 2;
+  common.UserPreview sender = 2;
   string invite_text = 3;
-  InviteStatus status = 4;
+  string time_stamp = 4;
+  InviteStatus status = 5;
 }
 
 message InvitesReceived {
@@ -38,44 +45,72 @@ message RequestWithId {
   int32 id = 1;
 }
 
-message Notification {
-    int32 sender_id = 1;
-    int32 receiver_id = 2;
-    string message = 3;
-}
+// message Notification {
+//     int32 sender_id = 1;
+//     int32 receiver_id = 2;
+//     string message = 3;
+// }
 
-message StreamRequest {
+message InvitationRequest {
   oneof RequestEvent {
     SendInvitationRequest send_invitation_request = 1;
     RespondToInvitationRequest respond_to_invitation_request = 2;
+    InitRequest init_request = 3;
+    LeaveRequest leave_request = 4;
   }
 }
 
-message StreamResponse {
+message InvitationResponse {
   oneof ResponseEvent {
     SendInvitationResponse send_invitation_response = 1;
     RespondToInvitationResponse respond_to_invitation_response = 2;
+    InitResponse init_response = 3;
+    LeaveResponse leave_response = 4;
   }
-  Notification notification = 3;
+  // Notification notification = 5;
 }
 
 message SendInvitationRequest {
-  int32 sender_id = 1;
-  int32 receiver_id = 2;
+  common.UserPreview sender = 1;
+  common.UserPreview receiver = 2;
   string invite_text = 3;
-  InviteStatus status = 4;
-
+  int32 invite_id = 4;
 }
 
 message RespondToInvitationRequest {
-  int32 receiver_id = 1;
-  bool accept = 2;
+  uint32 invite_id = 1;
+  int32 sender_id = 2;
+  int32 receiver_id = 3;
+  InviteStatus status = 4;
 }
 
 message SendInvitationResponse {
-  string message = 1;
+  common.UserPreview sender = 1;
+  common.UserPreview receiver = 2;
+  string invite_text = 3;
+  int32 invite_id = 4;
 }
 
 message RespondToInvitationResponse {
-  string message = 1;
+  uint32 invite_id = 1;
+  int32 sender_id = 2;
+  int32 receiver_id = 3;
+  InviteStatus status = 4;
+  optional chat_service.ChatPreview chat = 5;
+}
+
+message InitRequest {
+  int32 user_id = 1;
+}
+
+message InitResponse {
+  Status status = 1;
+}
+
+message LeaveRequest {
+  int32 user_id = 1;
+}
+
+message LeaveResponse {
+  Status status = 1;
 }

@@ -1,83 +1,113 @@
 #include "chat_service.hpp"
 #include <grpcpp/support/status.h>
 
+#include <algorithm>
+#include <cassert>
 #include <chrono>
-#include <iostream>
+#include <cassert>
+#include "components/database/placeholders/placeholders.hpp"
 #include "components/database/services/chat_service/chat_service.hpp"
+#include "components/database/services/authservice/authservice.hpp"
+#include "services/chat_service/chat_service.pb.h"
 #include <iostream>
+#include <memory>
+#include <vector>
+#include <thread>
 
 
 grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests> *stream) {
     chat_service::ChatRequests request;
-    grpc::ClientContext client_context;
-    auto deadline = client_context.deadline();
-    client_context.set_deadline(std::chrono::system_clock::now() + std::chrono::milliseconds(10));
+    uint32_t user_id = 0;
     while (stream->Read(&request)) {
         if (request.has_init()) {
+            std::cerr << "initing\n";
+            user_id = request.init().user_id();
             users_online.insert({request.init().user_id(), std::make_shared<grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests>>(*stream)});
             chat_service::ChatResponses response;
-            const auto init_response= new chat_service::InitialResponse;
+            const auto init_response = new chat_service::OperationStatusResponse;
             init_response->set_status(chat_service::Status::SUCCESS);
-            response.set_allocated_init(init_response);
+            response.set_allocated_response_with_status(init_response);
             stream->Write(response);
         } else if (request.has_send_message()) {
-            send_to_chat(request.send_message().msg());
-        } else if (request.has_leave()) {
+            std::cerr << "sending\n";
+            // auto a = request.send_message().msg();
+            // stream->Write(send_to_chat(request.send_message().msg()));
+            send_to_chat(request.send_message().msg()); 
+        } else { 
             users_online.erase(request.leave().user_id());
             chat_service::ChatResponses response;
-            const auto disconnect_response= new chat_service::DisconnectResponse;
+            const auto disconnect_response = new chat_service::OperationStatusResponse;
             disconnect_response->set_status(chat_service::Status::SUCCESS);
-            response.set_allocated_leave(disconnect_response);
+            response.set_allocated_response_with_status(disconnect_response);
             stream->Write(response);
-        } else {
         }
+    }
+    if (auto it = users_online.find(user_id); it != users_online.end()) {
+        users_online.erase(it);
     }
     return grpc::Status::OK;
 }
 
-std::string chat_service_::make_timestamp() {
-    const auto now = std::chrono::system_clock::now();
-    const auto now_c = std::chrono::system_clock::to_time_t(now);
-    const std::tm now_tm = *std::gmtime(&now_c);
-    char buffer[64];
-    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &now_tm);
-    std::string timestamp_str(buffer);
-    return timestamp_str;
+chat_service::AcceptMessageResponse* chat_service_::make_accept_message_response(const chat_service::MessageSend& msg, const std::string &timestamp) {
+    auto *accept_message = new chat_service::AcceptMessageResponse;
+    auto *message_received = new chat_service::MessageReceived;
+    auto *user_preview_proto = new common::UserPreview;
+    std::cerr << "before preview\n";
+    database::authservice_database_api::get_user_preview(msg.sender_id()).convert_to_proto(user_preview_proto);
+    std::cerr << "get preview\n";
+    message_received->set_allocated_sender(user_preview_proto);
+    message_received->set_chat_id(msg.chat_id());
+    message_received->set_message_text(msg.message_text());
+    message_received->set_time_stamp(timestamp);
+    accept_message->set_allocated_msg(message_received);
+    return accept_message;
 }
 
 
-void chat_service_::send_to_chat(const chat_service::Message& msg) {
-    chat_service::ChatResponses response;
-    auto *accept_message = new chat_service::AcceptMessage;
-    auto *allocated_msg = new chat_service::Message(msg);
-    accept_message->set_allocated_msg(allocated_msg);
-    response.set_allocated_accept_message(accept_message);
-
-
-    auto timestamp = make_timestamp();
-    auto message_id = database::chat_service_database_api::add_message(msg.sender_id(), msg.chat_id(), timestamp, msg.message_text());
+chat_service::ChatResponses chat_service_::send_to_chat(const chat_service::MessageSend& msg) {
+    std::cerr << "first line\n";
+    auto id_timestamp = database::chat_service_database_api::add_message(msg.sender_id(), msg.chat_id(), msg.message_text());
+    std::cerr << "get members\n";
     auto members_ids = database::chat_service_database_api::get_members_ids(msg.chat_id());
+    std::cerr << "before making response\n";
+    chat_service::ChatResponses response;
+    response.set_allocated_accept_message(make_accept_message_response(msg, id_timestamp.second));
+    std::cerr << "msg created\n";
+
     for (auto member_id : members_ids) {
-        if (member_id != msg.sender_id()) {
-            if (auto ptr = users_online.find(member_id); ptr == users_online.end()) {
-                Unhandled:
-                database::chat_service_database_api::add_unhandle_message(member_id, message_id);
-            } else {
-                uint cnt = 0;
-                std::cout << "writing\n";
+            if (auto ptr = users_online.find(member_id); ptr != users_online.end()) {
+                uint32_t cnt = 0;
+                std::cerr << "writing to: " << ptr->first << std::endl;
                 bool success = ptr->second->Write(response);
-                std::cout << "status: " << success << '\n';
                 while (!success && cnt != 10) {
                     success = ptr->second->Write(response);
                     cnt++;
                 }
-                if (!success) { //if not successfull - considering that stream is closed;
+                if (!success) {
                     users_online.erase(ptr->first);
                     goto Unhandled;
                 }
+            } else {
+                Unhandled:
+                database::chat_service_database_api::add_unhandle_message(member_id, id_timestamp.first);
             }
-        }
     }
+
+    return response;
+}
+
+//make interseptors which check that this fucntion can be called only form other invite service
+grpc::Status chat_service_::CreatePrivateChat(grpc::ServerContext *context, const chat_service::CreatePrivateChatRequest *request, chat_service::ChatPreview *response) {
+        auto id_timestamp = database::chat_service_database_api::create_private_chat({request->firest_user_id(), request->second_user_id()});
+        response->set_chat_id(id_timestamp.first);
+        response->set_is_group_chat(false);
+        auto first_user_preview = database::authservice_database_api::get_user_preview(request->firest_user_id()); 
+        auto second_user_preview = database::authservice_database_api::get_user_preview(request->second_user_id());
+        auto first_user_preview_proto = response->add_chat_members();
+        auto second_user_preview_proto = response->add_chat_members();
+        first_user_preview.convert_to_proto(first_user_preview_proto);
+        second_user_preview.convert_to_proto(second_user_preview_proto);
+        return grpc::Status::OK;
 }
 
 grpc::Status chat_data_service::GetUserChats(grpc::ServerContext *context, const chat_service::GetChatsRequest *request, chat_service::UserChats *response) {

@@ -1,81 +1,144 @@
 #include "invitation_server.hpp"
 #include <unordered_map>
 
-std::unordered_map<int, ServerReaderWriter<StreamResponse, StreamRequest> *>
-    online_users;
-
-Status InvitationServiceImpl::InvitationStream(
-    ServerContext *context,
-    ServerReaderWriter<StreamResponse, StreamRequest> *stream
+grpc::Status invitation_service::InvitationStream(
+    grpc::ServerContext *context,
+    grpc::ServerReaderWriter<invitation::InvitationResponse, invitation::InvitationRequest> *stream
 ) {
-    StreamRequest request;
-    database::connector db_connector;
-    int user_id = -1;
+    invitation::InvitationRequest request;
+    database::invite_service_database_api invite_db_api;
     while (stream->Read(&request)) {
-        StreamResponse response;
         if (request.has_send_invitation_request()) {
-            const SendInvitationRequest &send_request =
-                request.send_invitation_request();
-            user_id = send_request.sender_id();
-            online_users[user_id] = stream;
-            if (db_connector.is_invitation_sent(
-                    send_request.sender_id(), send_request.receiver_id()
+            if (!invite_db_api.is_invite_already_sended(
+                    request.send_invitation_request().sender().user_id(), request.send_invitation_request().receiver().user_id()
                 )) {
-                return grpc::Status(
-                    grpc::ALREADY_EXISTS, "Invitation already sent"
+                int sender_id = request.send_invitation_request().sender().user_id();
+                int receiver_id = request.send_invitation_request().receiver().user_id();
+                std::string sender_login = request.send_invitation_request().sender().login();
+                std::string receiver_login = request.send_invitation_request().receiver().login();
+                std::string invite_text = request.send_invitation_request().invite_text();
+                auto invite_id = invite_db_api.add_invite(
+                    invite_text,
+                    sender_id, receiver_id
                 );
-            } else {
-                db_connector.send_invitation(
-                    send_request.sender_id(), send_request.receiver_id()
-                );
-                response.mutable_send_invitation_response()->set_message(
-                    "Invitation sent"
-                );
-                Notification *notification = response.mutable_notification();
-                notification->set_sender_id(send_request.sender_id());
-                notification->set_receiver_id(send_request.receiver_id());
-                notification->set_message("You have a new invitation");
-                if (online_users.count(send_request.receiver_id())) {
-                    online_users[send_request.receiver_id()]->Write(response);
-                }
-            }
-        } else if (request.has_respond_to_invitation_request()) {
-            const RespondToInvitationRequest &respond_request =
-                request.respond_to_invitation_request();
-            if (db_connector.is_invitation_accepted(respond_request.receiver_id(
-                ))) {
-                return grpc::Status(
-                    grpc::ALREADY_EXISTS, "Invitation already accepted"
-                );
-            } else {
-                db_connector.respond_to_invitation(
-                    respond_request.receiver_id(), respond_request.accept()
-                );
-                if (respond_request.accept()) {
-                    db_connector.create_chat(respond_request.receiver_id());
-                    response.mutable_respond_to_invitation_response()
-                        ->set_message("Invitation accepted and chat created");
-                    Notification *notification =
-                        response.mutable_notification();
-                    notification->set_sender_id(respond_request.sender_id());
-                    notification->set_receiver_id(respond_request.receiver_id()
-                    );
-                    notification->set_message("Your invitation was accepted");
-                    if (online_users.count(respond_request.sender_id())) {
-                        online_users[respond_request.sender_id()]->Write(
-                            response
-                        );
-                    }
+
+                invitation::InvitationResponse response;
+
+                const auto sender = new common::UserPreview;
+                const auto receiver = new common::UserPreview;
+                sender->set_login(sender_login);
+                receiver->set_login(receiver_login);
+                sender->set_user_id(sender_id);
+                receiver->set_user_id(receiver_id);
+
+                const auto send_response = new invitation::SendInvitationResponse;
+                send_response->set_allocated_sender(sender);
+                send_response->set_allocated_receiver(receiver);
+                send_response->set_invite_id(invite_id.first);
+                send_response->set_invite_text(invite_text);
+
+                response.set_allocated_send_invitation_response(send_response);
+                
+                if (users_online.count(receiver_id)) {
+                    users_online[receiver_id]->Write(response);
                 } else {
-                    response.mutable_respond_to_invitation_response()
-                        ->set_message("Invitation declined");
+                    invite_db_api.add_unhandled_invite(
+                        receiver_id, invite_id.first
+                    );
                 }
+
                 stream->Write(response);
             }
+        } else if (request.has_respond_to_invitation_request()) {
+            invitation::InvitationResponse response;
+            const auto respond_response = new invitation::RespondToInvitationResponse;
+            int invite_id = request.respond_to_invitation_request().invite_id();
+            int sender_id = request.respond_to_invitation_request().sender_id();
+            int receiver_id = request.respond_to_invitation_request().receiver_id();
+            auto status = request.respond_to_invitation_request().status();
+
+            if (status == invitation::InviteStatus::ACCEPTED) {
+                invite_db_api.change_invite_status(
+                    invite_id
+                );
+
+                respond_response->set_allocated_chat(create_private_chat(sender_id, receiver_id));
+            } else {
+                invite_db_api.change_invite_status(
+                    invite_id
+                );
+            }
+
+            respond_response->set_invite_id(invite_id);
+            respond_response->set_receiver_id(receiver_id);
+            respond_response->set_status(status);
+            response.set_allocated_respond_to_invitation_response(respond_response);
+
+            if (users_online.count(receiver_id)) {
+                users_online[receiver_id]->Write(response);
+            }
+
+            stream->Write(response);
+        } else if (request.has_init_request()) {
+            invitation::InvitationResponse response;
+            users_online.insert(
+                {request.init_request().user_id(),
+                 std::make_shared<grpc::ServerReaderWriter<
+                     invitation::InvitationResponse, invitation::InvitationRequest>>(*stream)}
+            );
+            const auto init_response = new invitation::InitResponse;
+            init_response->set_status(invitation::Status::SUCCESS);
+            response.set_allocated_init_response(init_response);
+            stream->Write(response);
+        } else if (request.has_leave_request()) {
+            invitation::InvitationResponse response;
+            users_online.erase(request.leave_request().user_id());
+            const auto disconnect_response = new invitation::LeaveResponse;
+            disconnect_response->set_status(invitation::Status::SUCCESS);
+            response.set_allocated_leave_response(disconnect_response);
+            stream->Write(response);
         }
     }
-    if (user_id != -1) {
-        online_users.erase(user_id);
+    return grpc::Status::OK;
+}
+
+chat_service::ChatPreview *invitation_service::create_private_chat(int first_id, int second_id) {
+    grpc::ClientContext context;
+
+    chat_service::CreatePrivateChatRequest request;
+    request.set_firest_user_id(first_id);
+    request.set_second_user_id(second_id);
+
+    auto *response = new chat_service::ChatPreview;
+    grpc::Status status = chat_stub->CreatePrivateChat(&context, request, response);
+
+    return response;
+}
+
+grpc::Status invitation_data_service::GetReceivedInvitations(
+    grpc::ServerContext *context,
+    const invitation::RequestWithId *request,
+    invitation::InvitesReceived *response
+) {
+    database::invite_service_database_api invite_db_api;
+    auto invites = invite_db_api.get_received_invites(request->id()).invites;
+    for (auto &invite : invites) {
+        auto *new_invite = response->add_invites();
+        invite.convert_to_proto(new_invite);
     }
-    return Status::OK;
+    return grpc::Status::OK;
+}
+
+grpc::Status invitation_data_service::GetSentInvitations(
+    grpc::ServerContext *context,
+    const invitation::RequestWithId *request,
+    invitation::InvitesSent *response
+) {
+    database::invite_service_database_api invite_db_api;
+    auto invites = invite_db_api.get_sended_invites(request->id()).invites;
+    for (auto &invite : invites) {
+        auto *new_invite = response->add_invites();
+        invite.convert_to_proto(new_invite);
+    }
+    return grpc::Status::OK;
 }

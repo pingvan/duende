@@ -1,4 +1,5 @@
 #include "block_service.hpp"
+#include "components/database/services/authservice/authservice.hpp"
 
 Status BlockServiceImpl::Block(
     ServerContext *context,
@@ -38,7 +39,9 @@ Status BlockServiceImpl::ShowAllBlocked(
     database::connector db_connector;
     std::vector<int> blocked_users = db_connector.get_all_blocked(request->blockie_id());
     for (int blockie_id : blocked_users) {
+        auto preview = database::authservice_database_api::get_user_preview(blockie_id);
         response->add_blockie_id(blockie_id);
     }
+
     return Status::OK;
 }

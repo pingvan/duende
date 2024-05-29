@@ -1,9 +1,9 @@
 #include "authservice.hpp"
-// #include <sys/types.h>
 #include <cassert>
 #include <components/database/connection/database-connector.hpp>
 #include <exception>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <iostream>
 #include <unordered_map>
@@ -18,7 +18,6 @@ bool authservice_database_api::is_email_used(const std::string &user_email) {
         exists = row[0].as<bool>();
     }
     return exists;
-
 }
 
 bool authservice_database_api::is_nickname_used(const std::string &user_nickname) {
@@ -65,7 +64,6 @@ std::string authservice_database_api::get_user_nickname(const int &user_id) {
     connection.txn->commit();
     return nickname;
 }
-
 
 
 int authservice_database_api::add_user(const std::string &user_email, const std::string &user_nickname,
@@ -122,11 +120,18 @@ void authservice_database_api::remove_refresh_token(const int &user_id) {
 
 user_preview authservice_database_api::get_user_preview(const int &user_id) {
     const connector connection;
-    static std::string querr = "SELECT login FROM users WHERE id = $1";
-    const auto result = connection.txn->exec_params(querr, user_id);
+    static constexpr std::string_view query = "SELECT u.login, f.photo "
+                                              "FROM users u "
+                                                "JOIN forms f ON u.id = f.user_id "
+                                                "WHERE u.id = $1";
+    const auto result = connection.txn->exec_params(pqxx::zview(query), user_id);
     user_preview prewiew;
+    prewiew.id = user_id;
     for (const auto &row : result) {
         prewiew.login = row[0].as<std::string>();
+        if (!row[1].is_null()) {
+            prewiew.photo = row[1].as<std::basic_string<std::byte>>();
+        }
     }
     connection.txn->commit();
     return prewiew;
@@ -145,19 +150,23 @@ user_full_page authservice_database_api::get_user_full_page(const int &user_id) 
     int form_id = -1;
     for (const auto &row : result) {
         form_id = row[0].as<int>();
-        //row[1].is_null()
-        full_page.quote = row[1].as<std::string>();
-        //here
-        full_page.about = row[2].as<std::string>();
-        full_page.fauvorite_genres = array_parser(row[3].as<std::string>());
+        if (!row[1].is_null()) {
+            full_page.quote = row[1].as<std::string>();
+        }
+        if (!row[2].is_null()) {
+            full_page.about = row[2].as<std::string>();
+        }
+        if (!row[3].is_null()) {
+            full_page.fauvorite_genres = array_parser(row[3].as<std::string>());
+        }   
     }
-    // assert(false);
     static std::string get_views = "SELECT ratio, title, description, genres "
                         "FROM VIEWS "
                         "INNER JOIN films ON views.film_id = films.id "
                         "WHERE user_id = $1";
     const auto result_second = connection.txn->exec_params(get_views, user_id);
     full_page.watched_films.reserve(result_second.size());
+    //TODO::maybe rewrite to get film preview 
     for (const auto &row : result_second) {
         film_on_user_page film;
         film.ratio = row[0].as<int>();
@@ -183,29 +192,29 @@ user_full_page authservice_database_api::get_user_full_page(const int &user_id) 
 
 genre authservice_database_api::enum_from_string(const std::string &ss) {
     static const std::unordered_map<std::string, genre> genre_map = {
-        {"action", genre::action},
-        {"adventure", genre::adventure},
-        {"comedy", genre::comedy},
-        {"drama", genre::drama},
-        {"horror", genre::horror},
-        {"sci-fi", genre::sci_fi},
-        {"science fiction", genre::sci_fi},
-        {"fantasy", genre::fantasy},
-        {"thriller", genre::thriller},
-        {"mystery", genre::mystery},
-        {"romance", genre::romance},
-        {"animation", genre::animation},
-        {"documentary", genre::documentary},
-        {"crime", genre::crime},
-        {"western", genre::western},
-        {"music", genre::music},
-        {"history", genre::history},
-        {"war", genre::war},
-        {"biographical", genre::biographical},
-        {"sports", genre::sports},
-        {"family", genre::family},
-        {"foreign", genre::foreign},
-        {"tv movie", genre::tv_movie}
+        {"action", genre::ACTION},
+        {"adventure", genre::ADVENTURE},
+        {"comedy", genre::COMEDY},
+        {"drama", genre::DRAMA},
+        {"horror", genre::HORROR},
+        {"sci-fi", genre::SCI_FI},
+        {"science fiction", genre::SCI_FI},
+        {"fantasy", genre::FANTASY},
+        {"thriller", genre::THRILLER},
+        {"mystery", genre::MYSTERY},
+        {"romance", genre::ROMANCE},
+        {"animation", genre::ANIMATION},
+        {"documentary", genre::DOCUMENTARY},
+        {"crime", genre::CRIME},
+        {"western", genre::WESTERN},
+        {"music", genre::MUSIC},
+        {"history", genre::HISTORY},
+        {"war", genre::WAR},
+        {"biographical", genre::BIOGRAPHICAL},
+        {"sports", genre::SPORTS},
+        {"family", genre::FAMILY},
+        {"foreign", genre::FOREIGN},
+        {"tv movie", genre::TV_MOVIE}
     };
 
     if (auto it = genre_map.find(ss); it != genre_map.end()) {
@@ -216,8 +225,8 @@ genre authservice_database_api::enum_from_string(const std::string &ss) {
 }
 
 std::vector<genre> authservice_database_api::array_parser(const std::string &json_string) {
-    constexpr uint max_size = 13;
-    constexpr uint max_genres_amount = 22;
+    constexpr uint32_t max_size = 13;
+    constexpr uint32_t max_genres_amount = 22;
     static_assert(max_size == 13, "");
     static_assert(max_genres_amount == 22, "");
     
