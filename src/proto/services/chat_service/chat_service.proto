@@ -9,14 +9,35 @@ enum Status {
     ERROR = 1;
 }
 
+enum UserPrivilege {
+    ADMIN = 0;
+    DEFAULT = 1;
+}
+
+enum InviteStatus {
+    ACCEPT = 0;
+    DECLINED = 1;
+}
+
 service ChatHandler {
     rpc HandleChat(stream ChatRequests) returns (stream ChatResponses);
+    rpc InvitesToChat(stream InvitesToChatRequests) returns (stream InvitesToChatResponses);
     rpc CreatePrivateChat(CreatePrivateChatRequest) returns (ChatPreview);
+    rpc CreateGroupChat(CreateGroupChatRequest) returns (ChatPreview);
+    rpc CheckUserPrivileges(UserChat) returns (UserPrivilegeResponse);
+    rpc ChangeChatName(ChangeChatNameRequest) returns (OperationStatusResponse);
+    rpc ChangeChatDescription(ChangeChatDescriptionRequest) returns (OperationStatusResponse);
+    rpc ChangeChatCover(ChangeChatCoverRequest) returns (OperationStatusResponse);
+    rpc AddPrivilegesToUser(UserChat) returns (OperationStatusResponse);
+    rpc RemovePrivilegesFromUser(UserChat) returns (OperationStatusResponse);
+    rpc AddUserToChat(UserChat) returns (OperationStatusResponse);
 }
 
 service ChatDataService {
     rpc GetUserChats(GetChatsRequest) returns (UserChats);
     rpc GetLastMessages(GetChatMessagesRequest) returns (LastMessages);
+    rpc GetChatMembers(UserChat) returns (GetChatMembersResponse);
+    rpc CheckUserInChat(UserChat) returns (BoolResponse);
 }
 
 message ChatRequests {
@@ -98,4 +119,70 @@ message LastMessages {
 message CreatePrivateChatRequest {
     int32 firest_user_id = 1;
     int32 second_user_id = 2;
+}
+
+
+message UserChat {
+    int32 user_id = 1;
+    int32 chat_id = 2;
+}
+
+message CreateGroupChatRequest {
+    int32 creator_id = 1;
+    string chat_name = 2;
+    string description = 3;
+}
+
+message UserPrivilegeResponse {
+    UserPrivilege privilege = 1;
+}
+
+message ChangeChatNameRequest {
+    int32 chat_id = 1;
+    string new_chat_name = 2;
+}
+
+message ChangeChatDescriptionRequest {
+    int32 chat_id = 1;
+    string new_description = 2;
+}
+
+message ChangeChatCoverRequest {
+    int32 chat_id = 1;
+    bytes new_cover = 2;
+}
+
+message InvitesToChatRequests {
+    oneof request {
+        InitialRequest init = 1;
+        RemoveRequest remove = 3;
+        DisconnectRequest leave = 5;
+    }
+}
+
+message InvitesToChatResponses {
+    oneof response {
+        OperationStatusResponse response_with_status = 1;
+        RemoveResponse remove = 3;
+    }
+}
+
+message RemoveRequest {
+    int32 sender_id = 1;
+    int32 receiver_id = 2;
+    int32 chat_id = 3;
+}
+
+message RemoveResponse {
+    common.UserPreview sender = 1;
+    common.UserPreview receiver = 2;
+    int32 chat_id = 3;
+}
+
+message GetChatMembersResponse {
+    repeated common.UserPreview members = 1;
+}
+
+message BoolResponse {
+    bool response = 1;
 }

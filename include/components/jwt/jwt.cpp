@@ -1,10 +1,19 @@
 #include "jwt.hpp"
-#include "secret_key.hpp"
+
+std::string jwt_tokens::get_env_var(const std::string &key) {
+    const char *val = std::getenv(key.c_str());
+    if (val == nullptr) {
+        throw std::runtime_error("Environment variable " + key + " not set");
+    }
+    return std::string(val);
+}
 
 authservice::AccessToken *jwt_tokens::create_access_token(
     authservice::Payload info,
     std::chrono::seconds time
 ) {
+    std::string secret_access = get_env_var("SECRET_ACCESS");
+
     authservice::AccessToken *token = new authservice::AccessToken();
     token->set_token(
         jwt::create()
@@ -15,7 +24,7 @@ authservice::AccessToken *jwt_tokens::create_access_token(
             .set_payload_claim("id", jwt::claim(std::to_string(info.user_id())))
             .set_payload_claim("email", jwt::claim(info.email()))
             .set_payload_claim("username", jwt::claim(info.username()))
-            .sign(jwt::algorithm::hs256{SECRET_ACCESS})
+            .sign(jwt::algorithm::hs256{secret_access})
     );
 
     return token;
@@ -25,6 +34,8 @@ authservice::RefreshToken *jwt_tokens::create_refresh_token(
     authservice::Payload info,
     std::chrono::seconds time
 ) {
+    std::string secret_refresh = get_env_var("SECRET_REFRESH");
+
     authservice::RefreshToken *token = new authservice::RefreshToken();
     token->set_token(
         jwt::create()
@@ -35,7 +46,7 @@ authservice::RefreshToken *jwt_tokens::create_refresh_token(
             .set_payload_claim("id", jwt::claim(std::to_string(info.user_id())))
             .set_payload_claim("email", jwt::claim(info.email()))
             .set_payload_claim("username", jwt::claim(info.username()))
-            .sign(jwt::algorithm::hs256{SECRET_REFRESH})
+            .sign(jwt::algorithm::hs256{secret_refresh})
     );
 
     return token;

@@ -21,6 +21,10 @@
 #include <QGraphicsPixmapItem>
 #include <QApplication>
 #include <QScreen>
+#include <QGraphicsDropShadowEffect>
+#include <QListWidget>
+#include <QFileDialog>
+#include <QGraphicsProxyWidget>
 
 
 namespace Ui {
@@ -44,6 +48,13 @@ private slots:
     void plusItem_favActors_clicked();
     void plusItem_watchlist_clicked();
     void update_favorite_genres();
+    void update_watchlist(int start_films, bool edit_mode);
+    void update_actors(int start_actors, bool edit_mode);
+    void onEditButtonClicked() {
+        editMode = !editMode;
+    }
+    void uploadPhoto();
+
 
 private:
     Ui::Profile *ui;
@@ -56,7 +67,12 @@ private:
     QLabel *label_status;
     QLabel *label_about;
     QLabel *label_username;
+    QLabel *label_photo;
     QLabel *label_favorite_genres;
+    QLabel *actors_text = nullptr;
+    QLabel *movies_text = nullptr;
+    QLabel *genres_text = nullptr;
+    QLabel *greeting;
 
     QLineEdit *lineEdit_status;
     QTextEdit *textEdit_about;
@@ -77,6 +93,13 @@ private:
     QStringList watchlistImages;
 
     Genres_SearchWindow *genres_searchWindow;
+
+    QHBoxLayout *genresLayout;
+    QListWidget *genresList;
+    bool editMode = false;
+    QMetaObject::Connection connection;
+
+    bool eventFilter(QObject *watched, QEvent *event) override; // Добавьте это объявление
 };
 
 class ClickablePixmapItem : public QObject, public QGraphicsPixmapItem

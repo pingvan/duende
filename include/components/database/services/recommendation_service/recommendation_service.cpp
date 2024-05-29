@@ -7,19 +7,19 @@
 namespace database {
     std::vector<std::vector<int>> recommendation_service_database_api::getUserRatingMarix() {
         const connector connection;
-        static constexpr std::string_view user_count_query = "SELECT COUNT(DISTINCT id) FROM users";
+        static std::string user_count_query = "SELECT COUNT(DISTINCT id) FROM users";
         const auto reslut_user_count = connection.txn->exec(user_count_query);
         int user_count = 0;
         for (const auto &row : reslut_user_count) {
             user_count = row[0].as<int>();
         }
-        static constexpr std::string_view film_count_query = "SELECT COUNT(DISTINCT id) FROM films";
+        static std::string film_count_query = "SELECT COUNT(DISTINCT id) FROM films";
         int film_count = 0;
         const auto reslut_film_count = connection.txn->exec(film_count_query);
         for (const auto &row : reslut_film_count) {
             film_count = row[0].as<int>();
         }
-        static constexpr std::string_view query = "SELECT ratio, user_id, film_id FROM views";
+        static std::string query = "SELECT ratio, user_id, film_id FROM views";
         const auto result = connection.txn->exec(query);
         std::vector<std::vector<int>> rating_matrix(user_count+1, std::vector<int>(film_count+1, 0));
         for (const auto &row : result) {

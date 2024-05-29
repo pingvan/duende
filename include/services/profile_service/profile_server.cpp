@@ -1,4 +1,5 @@
 #include "profile_server.hpp"
+#include <iostream>
 #include "components/database/services/authservice/authservice.hpp"
 #include "components/database/services/profile_service/profile_service.hpp"
 
@@ -19,17 +20,6 @@ Status ProfileServiceImpl::ChangeUsername(
     reply->set_message("Username changed");
     return Status::OK;
 }
-
-// Status ProfileServiceImpl::ChangePhoto(
-//     ServerContext *context,
-//     const ProfileRequest *request,
-//     ProfileReply *reply
-// ) {
-//     ProfileRequest current_profile = *request;
-//     profiles[current_profile.id()].set_photo(current_profile.photo());
-//     reply->set_message("Photo changed");
-//     return Status::OK;
-// }
 
 Status ProfileServiceImpl::ChangeQuote(
     ServerContext *context,
@@ -84,13 +74,21 @@ Status ProfileServiceImpl::RemoveFromWatchlist(
     ProfileReply *reply
 ) {
     MovieRequest current_profile = *request;
-    for (const auto &movie : current_profile.movies()) {
-        database::profile_service_database_api::remove_watched(
-            current_profile.id(), movie.id()
-        );
+    try {
+        for (const auto &movie : current_profile.movies()) {
+            database::profile_service_database_api::remove_watched(
+                current_profile.id(), movie.id()
+            );
+        }
+        reply->set_message("Watchlist changed");
+        return Status::OK;
+    } catch (const std::exception &e) {
+        std::string error_message = "Failed to change watchlist: ";
+        error_message += e.what();
+        std::cerr << error_message
+                  << std::endl;  // Выводим сообщение об ошибке в консоль
+        return Status(grpc::INTERNAL, error_message);
     }
-    reply->set_message("Watchlist changed");
-    return Status::OK;
 }
 
 Status ProfileServiceImpl::AddToListOfActors(
@@ -153,42 +151,21 @@ Status ProfileServiceImpl::RemoveFromListOfGenres(
     return Status::OK;
 }
 
-// Status ProfileServiceImpl::GetProfile(
-//     ServerContext *context,
-//     const GetProfileRequest *request,
-//     GetProfileReply *reply
-// ) {
-//     int id = request->id();
-//     std::string username =
-//         database::profile_service_database_api::get_username(id);
-//     std::string quote = database::profile_service_database_api::get_quote(id);
-//     std::string bio = database::profile_service_database_api::get_bio(id);
-//     std::vector<Movie> movies =
-//         database::profile_service_database_api::get_movies(id);
-//     std::vector<Actor> actors =
-//         database::profile_service_database_api::get_actors(id);
-//     std::vector<Genre> genres =
-//         database::profile_service_database_api::get_genres(id);
+Status ProfileServiceImpl::ChangeProfilePhoto(
+    ServerContext *context,
+    const ProfilePhotoRequest *request,
+    ProfileReply *reply
+) {
+    int user_id = request->user_id();
 
-//     reply->set_username(username);
-//     reply->set_quote(quote);
-//     reply->set_bio(bio);
+    std::string photo_data = request->photo();
+    std::basic_string<std::byte> photo_binary(
+        reinterpret_cast<const std::byte *>(photo_data.data()),
+        photo_data.size()
+    );
 
-//     for (const auto &movie : movies) {
-//         Movie *reply_movie = reply->add_movies();
-//         reply_movie->set_id(movie.id());
-//         reply_movie->set_rating(movie.rating());
-//     }
+    database::profile_service_database_api::change_photo(user_id, photo_binary);
 
-//     for (const auto &actor : actors) {
-//         Actor *reply_actor = reply->add_actors();
-//         reply_actor->set_id(actor.id());
-//     }
-
-//     for (const auto &genre : genres) {
-//         Genre *reply_genre = reply->add_genres();
-//         reply_genre->set_name(genre.name());
-//     }
-
-//     return Status::OK;
-// }
+    reply->set_message("Profile photo changed");
+    return Status::OK;
+}

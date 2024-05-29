@@ -68,8 +68,11 @@ grpc::Status token_service::activate_access_token(
     authservice::Payload payload
 ) {
     try {
+        jwt_tokens jwt_tokens;
+        std::string secret_access = jwt_tokens.get_env_var("SECRET_ACCESS");
+
         jwt::verify()
-            .allow_algorithm(jwt::algorithm::hs256{SECRET_ACCESS})
+            .allow_algorithm(jwt::algorithm::hs256{secret_access})
             .with_issuer("auth0")
             .verify(jwt::decode(token));
     } catch (...) {
@@ -92,8 +95,11 @@ grpc::Status token_service::is_refresh_token_active(
     std::string token
 ) {
     try {
+        jwt_tokens jwt_tokens;
+        std::string secret_refresh = jwt_tokens.get_env_var("SECRET_REFRESH");
+
         jwt::verify()
-            .allow_algorithm(jwt::algorithm::hs256{SECRET_REFRESH})
+            .allow_algorithm(jwt::algorithm::hs256{secret_refresh})
             .with_issuer("auth0")
             .verify(jwt::decode(token));
         return grpc::Status::OK;

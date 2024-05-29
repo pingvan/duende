@@ -2,6 +2,7 @@
 
 #include <grpcpp/grpcpp.h>
 #include "components/database/services/invite_service/invite_service.hpp"
+#include "components/database/services/authservice/authservice.hpp"
 #include "services/invitation_service/invitation.grpc.pb.h"
 #include "services/invitation_service/invitation.pb.h"
 #include "services/chat_service/chat_service.grpc.pb.h"
@@ -17,6 +18,7 @@ struct invitation_service final : public invitation::InvitationService::Service 
     ) override;
 
     chat_service::ChatPreview *create_private_chat(int first_id, int second_id);
+    grpc::Status add_user_to_chat(int user_id, int chat_id);
 
 private:
     std::unique_ptr<chat_service::ChatHandler::Stub> chat_stub;

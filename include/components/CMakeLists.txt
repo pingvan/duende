@@ -11,6 +11,7 @@ set(COMPONENTS_SRCS
 		${CMAKE_CURRENT_SOURCE_DIR}/database/services/subscription_service/subscription_service.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/database/services/block_service/block_service.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/jwt/jwt.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/aes/aes.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/database/services/recommendation_service/recommendation_service.cpp
 		PARENT_SCOPE
 )

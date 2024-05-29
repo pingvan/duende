@@ -23,7 +23,7 @@ std::vector<user_preview> search_service_database_api::search_user_by_credential
             users.emplace_back(row[0].as<int>(), row[1].as<std::string>());
         }
         if (!row[3].is_null()) {
-            users.back().photo = row[3].as<std::basic_string<std::byte>>();
+            // users.back().photo = row[3].as<std::basic_string<std::byte>>();
         }
     }
     return users;

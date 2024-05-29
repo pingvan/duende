@@ -1,46 +1,58 @@
 #ifndef FOLLOWS_H
 #define FOLLOWS_H
 
-#include "manager.h"
-#include "otherpage/otherpage.h"
-
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QLineEdit>
+#include <QButtonGroup>
 #include <QComboBox>
-#include <QStringListModel>
 #include <QCompleter>
-#include <QSpacerItem>
 #include <QDebug>
+#include <QLineEdit>
 #include <QListWidget>
 #include <QPushButton>
 #include <QScrollArea>
-#include <QButtonGroup>
+#include <QSpacerItem>
+#include <QStringListModel>
+#include <QVBoxLayout>
+#include <QWidget>
+#include "manager.h"
+#include "otherpage/otherpage.h"
 
 namespace Ui {
 class Follows;
 }
 
-class Follows : public QWidget
-{
+class Follows : public QWidget {
     Q_OBJECT
 
 public:
-    explicit Follows(Manager* managerPtr, QWidget *parent = nullptr);
+    explicit Follows(Manager *managerPtr, QWidget *parent = nullptr);
+    QStringList searchUsers(const QString &input);
     ~Follows();
 
 signals:
     void userClicked(int id);
+    void userFromListClicked(int id);
 
 private slots:
-    // void toggleLists();
+    void updateUserList(const QString &input);
+    void onUserClicked(const QString &username);
+    void UpdateSubscribers();
+    void UpdateSubscriptions();
+    void UpdateBlocked();
+    void onUserFromListClicked(QListWidgetItem *item);
+    void UpdateList(QListWidget &list, const std::vector<uint32_t> &ids);
 
 private:
     Ui::Follows *ui;
     Manager *manager;
+    QLineEdit *search_line;
     QListWidget *subscribersList;
     QListWidget *subscriptionsList;
-    QPushButton *toggleButton;
+    QListWidget *blockedList;
+    QStringListModel *model;
+    QCompleter *completer;
+    QMap<QString, int> users_id;
+    enum ListType { Subscriptions, Subscribers, Blocked };
+    ListType currentList;
 };
 
-#endif // FOLLOWS_H
+#endif  // FOLLOWS_H

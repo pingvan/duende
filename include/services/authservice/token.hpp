@@ -3,7 +3,6 @@
 #include <optional>
 #include <sstream>
 #include "components/jwt/jwt.hpp"
-#include "components/jwt/secret_key.hpp"
 #include "services/authservice/authservice.grpc.pb.h"
 #include "services/authservice/authservice.pb.h"
 

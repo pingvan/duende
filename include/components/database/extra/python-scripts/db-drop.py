@@ -5,13 +5,17 @@ connection = psycopg2.connect(
     "postgres://root:strongpassword@localhost:5432/duende"
 )
 
-connection_test = psycopg2.connect(
-    "postgres://root:strongpassword@localhost:5432/duende_test"
-)
+# connection_test = psycopg2.connect(
+#     "postgres://root:strongpassword@localhost:5432/duende_test"
+# )
+# connection_test = psycopg2.connect(
+#     "postgres://root:strongpassword@localhost:5432/duende_test"
+# )
 
 # Create a cursor object to execute SQL queries
 cursor = connection.cursor()
-cursor_test = connection_test.cursor()
+# cursor_test = connection_test.cursor()
+# cursor_test = connection_test.cursor()
 
 # Define SQL statements to create tables
 
@@ -31,16 +35,19 @@ DROP TYPE IF EXISTS genre, invite_status
 cursor.execute(drop_tables)
 cursor.execute(drop_types)
 
-cursor_test.execute(drop_tables)
-cursor_test.execute(drop_types)
+# cursor_test.execute(drop_tables)
+# cursor_test.execute(drop_types)
+# cursor_test.execute(drop_tables)
+# cursor_test.execute(drop_types)
 
 # Commit the transaction
 connection.commit()
-connection_test.commit()
+# connection_test.commit()
+# connection_test.commit()
 
 # Close the cursor and connection
 cursor.close()
 connection.close()
 
-cursor_test.close()
-connection_test.close()
+# cursor_test.close()
+# connection_test.close()

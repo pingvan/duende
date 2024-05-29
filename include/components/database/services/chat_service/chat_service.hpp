@@ -4,6 +4,7 @@
 #include <string>
 
 #include "components/database/placeholders/placeholders.hpp"
+#include "components/aes/aes.hpp"
 
 namespace database {
 struct chat_service_database_api {

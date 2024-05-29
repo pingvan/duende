@@ -12,5 +12,13 @@
         <file>img/logout.png</file>
         <file>img/cross.png</file>
         <file>img/follows.png</file>
+        <file>img/person-add.png</file>
+        <file>img/ban.png</file>
+        <file>img/background.JPG</file>
+        <file>img/film.png</file>
+        <file>img/box-arrow-left.png</file>
+        <file>img/person-circle.png</file>
+        <file>img/person-fill.png</file>
+        <file>img/person-circle2.png</file>
     </qresource>
 </RCC>

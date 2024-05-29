@@ -32,6 +32,7 @@ private slots:
 
 signals:
     void windowClosed();
+    void genreAdded();
 
 private:
     Ui::Genres_SearchWindow *ui;

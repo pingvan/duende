@@ -19,6 +19,8 @@
 #include <QGraphicsPixmapItem>
 #include <QApplication>
 #include <QScreen>
+#include <QListWidget>
+#include <QMessageBox>
 
 namespace Ui {
 class OtherPage;
@@ -37,9 +39,12 @@ public:
 
 signals:
     void inviteSent(const invitation::Invite&);
+    void subscriptionMade(const common::UserPreview&);
 
 public slots:
     void sendInvite();
+    void toggleSubscription();
+    void showBlockDialog(QPushButton* blockButton);
 
 private:
     Ui::OtherPage *ui;
@@ -55,6 +60,10 @@ private:
     QLabel *label_about;
     QLabel *label_username;
     QLabel *label_favorite_genres;
+    QLabel *actors_text = nullptr;
+    QLabel *movies_text = nullptr;
+    QLabel *genres_text = nullptr;
+    QPushButton* subscribeButton;
 
     QGraphicsView *view_favActors = nullptr;
     QGraphicsView *view_watchlist = nullptr;
@@ -64,6 +73,11 @@ private:
 
     QStringList favActorsImages;
     QStringList watchlistImages;
+
+    QListWidget *genresList;
+    QPushButton *inviteButton;
+    QPushButton *blockButton;
+
 };
 
 #endif // OTHERPAGE_H
