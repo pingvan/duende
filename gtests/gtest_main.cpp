@@ -92,11 +92,11 @@ struct ProtosAndPlaceholdersTesting : ::testing::Test {
 
     static constexpr uint32_t actor_preview_proto_fields = 2;
     static constexpr uint32_t actor_id = 21; 
-    static  std::string actor_full_name = "FirstName LastName ThirdName";
+    static constexpr std::string_view actor_full_name = "FirstName LastName ThirdName";
 
     static constexpr uint32_t user_preview_proto_fields = 3;
     static constexpr uint32_t user_id = 21;
-    static  std::string user_login = "Login";
+    static constexpr std::string_view user_login = "Login";
 
     static constexpr uint32_t film_preview_proto_fields = 3;
     static constexpr uint32_t film_id = 21;
@@ -112,22 +112,22 @@ struct ProtosAndPlaceholdersTesting : ::testing::Test {
     static constexpr uint32_t film_ratio = 5;
 
     static constexpr uint32_t user_full_page_proto_fields = 6;
-    static  std::string quoete = "Quoete";
-    static  std::string about = "About";
+    static constexpr std::string_view quoete = "Quoete";
+    static constexpr std::string_view about = "About";
     static const std::vector<genre> favourite_genres;
     static const std::vector<actor_preview> favourite_actors;
     static const std::vector<film_on_user_page> watched_films;
 
     static constexpr uint32_t message_proto_fields = 3;
-    static  std::string message_text = "Text";
-    static  std::string time_stamp = "12-12-2021 12:12:12";
+    static constexpr std::string_view message_text = "Text";
+    static constexpr std::string_view time_stamp = "12-12-2021 12:12:12";
 
     static constexpr uint32_t chat_preview_proto_fields = 7;
     static constexpr uint32_t chat_id = 21;
     static constexpr bool is_group_chat = true;
-    static  std::string chat_name = "Name";
-    static  std::string chat_description = "Description";
-    static  std::string chat_time_stamp = "12-12-2021 12:12:12";
+    static constexpr std::string_view chat_name = "Name";
+    static constexpr std::string_view chat_description = "Description";
+    static constexpr std::string_view chat_time_stamp = "12-12-2021 12:12:12";
     static const std::vector<user_preview> chat_members;
 
     static constexpr uint32_t user_chats_proto_fields = 1;
@@ -349,7 +349,7 @@ TEST_F(databaseTesting, TestConnection) {
 // }
 
 TEST_F(databaseTesting, TestTablesExistence) {
-    static  std::string quer = "SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog', 'information_schema') AND table_type = 'BASE TABLE'";
+    static constexpr std::string_view quer = "SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog', 'information_schema') AND table_type = 'BASE TABLE'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string_view> tables;
     for (const auto& row : result) {
@@ -383,7 +383,7 @@ TEST_F(databaseTesting, TestTablesExistence) {
 
 
 TEST_F(databaseTesting, TestColumnsUsers) {
-    static  std::string quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'users'";
+    static constexpr std::string_view quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'users'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string> column_names;
     for (const auto& row : result) {
@@ -397,7 +397,7 @@ TEST_F(databaseTesting, TestColumnsUsers) {
 
 
 TEST_F(databaseTesting, TestColumnsPasswords) {
-    static  std::string quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'passwords'";
+    static constexpr std::string_view quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'passwords'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string> column_names;
     for (const auto& row : result) {
@@ -411,7 +411,7 @@ TEST_F(databaseTesting, TestColumnsPasswords) {
 
 
 TEST_F(databaseTesting, TestColumnsTokens) {
-    static  std::string quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'tokens'";
+    static constexpr std::string_view quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'tokens'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string> column_names;
     for (const auto& row : result) {
@@ -423,7 +423,7 @@ TEST_F(databaseTesting, TestColumnsTokens) {
 }
 
 TEST_F(databaseTesting, TestColumnsForms) {
-    static  std::string quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'forms'";
+    static constexpr std::string_view quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'forms'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string> column_names;
     for (const auto& row : result) {
@@ -441,7 +441,7 @@ TEST_F(databaseTesting, TestColumnsForms) {
 
 //views is a reserved table in postgresql, rewrite
 TEST_F(databaseTesting, TestColumnsViews) {
-    static  std::string quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'views'";
+    static constexpr std::string_view quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'views'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string> column_names;
     for (const auto& row : result) {
@@ -455,7 +455,7 @@ TEST_F(databaseTesting, TestColumnsViews) {
 }
 
 TEST_F(databaseTesting, TestColumnsFilms) {
-    static  std::string quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'films'";
+    static constexpr std::string_view quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'films'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string> column_names;
     for (const auto& row : result) {
@@ -471,7 +471,7 @@ TEST_F(databaseTesting, TestColumnsFilms) {
 }
 
 TEST_F(databaseTesting, TestColumnsProducers) {
-    static  std::string quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'producers'";
+    static constexpr std::string_view quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'producers'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string> column_names;
     for (const auto& row : result) {
@@ -484,7 +484,7 @@ TEST_F(databaseTesting, TestColumnsProducers) {
 }
 
 TEST_F(databaseTesting, TestColumnsProducersByFilm) {
-    static  std::string quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'producers_by_film'";
+    static constexpr std::string_view quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'producers_by_film'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string> column_names;
     for (const auto& row : result) {
@@ -496,7 +496,7 @@ TEST_F(databaseTesting, TestColumnsProducersByFilm) {
 }
 
 TEST_F(databaseTesting, TestColumnsInvites) {
-    static  std::string quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'invites'";
+    static constexpr std::string_view quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'invites'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string> column_names;
     for (const auto& row : result) {
@@ -511,7 +511,7 @@ TEST_F(databaseTesting, TestColumnsInvites) {
 }
 
 TEST_F(databaseTesting, TestColumnsActors) {
-    static  std::string quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'actors'";
+    static constexpr std::string_view quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'actors'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string> column_names;
     for (const auto& row : result) {
@@ -523,7 +523,7 @@ TEST_F(databaseTesting, TestColumnsActors) {
 }
 
 TEST_F(databaseTesting, TestColumnsActorsToForm) {
-    static  std::string quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'actors_to_form'";
+    static constexpr std::string_view quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'actors_to_form'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string> column_names;
     for (const auto& row : result) {
@@ -535,7 +535,7 @@ TEST_F(databaseTesting, TestColumnsActorsToForm) {
 }
 
 TEST_F(databaseTesting, TestColumnsActorsToFIlm) {
-    static  std::string quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'actors_to_film'";
+    static constexpr std::string_view quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'actors_to_film'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string> column_names;
     for (const auto& row : result) {
@@ -547,7 +547,7 @@ TEST_F(databaseTesting, TestColumnsActorsToFIlm) {
 }
 
 TEST_F(databaseTesting, TestColumnsMessages) {
-    static  std::string quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'messages'";
+    static constexpr std::string_view quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'messages'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string> column_names;
     for (const auto& row : result) {
@@ -562,7 +562,7 @@ TEST_F(databaseTesting, TestColumnsMessages) {
 }
 
 TEST_F(databaseTesting, TestColumnsChats) {
-    static  std::string quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'chats'";
+    static constexpr std::string_view quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'chats'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string> column_names;
     for (const auto& row : result) {
@@ -580,7 +580,7 @@ TEST_F(databaseTesting, TestColumnsChats) {
 
 
 TEST_F(databaseTesting, TestColumnsChatMembership) {
-    static  std::string quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'chat_membership'";
+    static constexpr std::string_view quer = "SELECT column_name FROM information_schema.columns WHERE table_name = 'chat_membership'";
     auto result = connector.txn->exec(quer);
     std::vector<std::string> column_names;
     for (const auto& row : result) {
