@@ -12,6 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # set(CMAKE_CXX_FLAGS "-fsanitize=undefined,address")
 
 add_subdirectory(./include/)
+add_subdirectory(./libs/libpqxx)
 
 message(NOTICE "COMPONENTS_SRCS: " ${COMPONENTS_SRCS})
 message(NOTICE "SERVICES_SRCS: " ${SERVICES_SRCS})
@@ -24,7 +25,7 @@ find_package(GTest REQUIRED)
 find_package(OpenSSL REQUIRED)
 # find_package(GMock REQUIRED)
 
-pkg_check_modules(LIBPQXX REQUIRED libpqxx)
+# pkg_check_modules(LIBPQXX REQUIRED libpqxx)
 
 # add_executable(gtests
 #         gtests/gtest_main.cpp
@@ -48,6 +49,7 @@ add_executable(main
 
 
 add_dependencies(main generate_proto_models)
+add_dependencies(main pqxx)
 # add_dependencies(gtests generate_proto_models)
 
 
