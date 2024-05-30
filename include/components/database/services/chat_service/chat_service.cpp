@@ -1,6 +1,5 @@
 #include "chat_service.hpp"
 #include <_types/_uint32_t.h>
-#include <components/aes/aes.hpp>
 #include <components/database/connection/database-connector.hpp>
 #include <vector>
 #include "components/database/placeholders/placeholders.hpp"
@@ -40,7 +39,6 @@ std::vector<int> chat_service_database_api::get_members_ids(const int &chat_id) 
 
 user_chats chat_service_database_api::get_user_chats(const int &user_id) {
     const connector connection;
-    aes::encryptor encryptor;
     static std::string query = "SELECT chat_id FROM chat_membership WHERE user_id = $1"; 
     const auto result = connection.txn->exec_params(query, user_id);
     std::vector<uint32_t> chat_ids;
@@ -73,7 +71,7 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
             for (const auto &row : last_message) {
                 prewiew.last_message.sender = authservice_database_api::get_user_preview(row[0].as<int>());
                 prewiew.last_message.time_stamp = row[1].as<std::string>();
-                prewiew.last_message.message_text = encryptor.decrypt(row[2].as<std::string>());
+                prewiew.last_message.message_text = row[2].as<std::string>();
             }
         }
         chats.user_chats.push_back(prewiew);
@@ -84,7 +82,6 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
 
 last_messages chat_service_database_api::get_chats_messages(const int &chat_id) {
     const connector connection;
-    aes::encryptor encryptor;
     static std::string query = "SELECT sender_id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS'), message_text_data FROM messages WHERE chat_id = $1";
     const auto result = connection.txn->exec_params(query, chat_id);
     last_messages messages;
@@ -93,7 +90,7 @@ last_messages chat_service_database_api::get_chats_messages(const int &chat_id) 
         message new_message;
         new_message.sender = authservice_database_api::get_user_preview(row[0].as<int>());
         new_message.time_stamp = row[1].as<std::string>();
-        new_message.message_text = encryptor.decrypt(row[2].as<std::string>());
+        new_message.message_text = row[2].as<std::string>();
         messages.messages.push_back(new_message);
     }
     connection.txn->commit();
