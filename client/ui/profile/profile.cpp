@@ -475,7 +475,7 @@ void Profile::build() {
     greeting->setStyleSheet("font-size: 50px; color: #8023a8;");
     label_photo = new QLabel();
     label_photo->installEventFilter(this);
-    std::string photo_data = user->preview().photo();
+    std::basic_string photo_data = user->preview().photo();
     QPixmap pixmap;
     if (photo_data.empty()) {
         pixmap.load(":/img/person-circle2.png");
@@ -600,7 +600,7 @@ void Profile::build() {
     leftBox->addWidget(button_save);
 
     genres_text = new QLabel();
-    genres_text->setText("Your favourite genres");
+    genres_text->setText("Your watchlist");
     genres_text->setStyleSheet("font-size: 20px; color: black;");
 
     // right layout

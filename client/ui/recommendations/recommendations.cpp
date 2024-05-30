@@ -131,6 +131,7 @@ void Recommendations::updateRecommendations() {
         font.setPointSize(18);
         filmItem->setFont(font);
         filmsGallery->addItem(filmItem);
+        filmItem->setToolTip(tr(""));
     }
 }
 

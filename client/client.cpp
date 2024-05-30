@@ -882,7 +882,8 @@ void client::change_photo(uint32_t user_id, const std::string& photo_path) {
         std::cout << "Cannot open file: " << photo_path << std::endl;
         return;
     }
-    std::string photo_data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    std::basic_string photo_data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    std::cout << photo_data;
     request.set_user_id(user_id);
     request.set_photo(photo_data);
 

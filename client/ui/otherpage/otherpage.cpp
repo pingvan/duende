@@ -272,7 +272,7 @@ void OtherPage::build_scenes() {
     movies_text = new QLabel();
     movies_text->setText(
         QString::fromStdString(user->preview().login().c_str()) +
-        "'s favourite movies"
+        "'s watchlist"
     );
     movies_text->setStyleSheet("font-size: 20px; color: black;");
 
