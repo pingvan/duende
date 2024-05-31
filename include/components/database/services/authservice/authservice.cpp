@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 #include <unordered_map>
+#include "components/database/placeholders/placeholders.hpp"
 
 namespace database {
 bool authservice_database_api::is_email_used(const std::string &user_email) {
@@ -138,8 +139,6 @@ user_preview authservice_database_api::get_user_preview(const int &user_id) {
 }
 
 
-//TO_ASK::very ambiguos, i think the other service would be more efficient and prettier...
-
 user_full_page authservice_database_api::get_user_full_page(const int &user_id) {
     const connector connection;
     user_preview prewiew = get_user_preview(user_id);
@@ -160,22 +159,23 @@ user_full_page authservice_database_api::get_user_full_page(const int &user_id) 
             full_page.fauvorite_genres = array_parser(row[3].as<std::string>());
         }   
     }
-    static std::string get_views = "SELECT ratio, title, description, genres "
-                        "FROM VIEWS "
-                        "INNER JOIN films ON views.film_id = films.id "
-                        "WHERE user_id = $1";
-    const auto result_second = connection.txn->exec_params(get_views, user_id);
-    full_page.watched_films.reserve(result_second.size());
-    //TODO::maybe rewrite to get film preview 
+        static std::string get_views = "SELECT films.id, title, cover_preview_url, ratio "
+                            "FROM views "
+                            "INNER JOIN films ON views.film_id = films.id "
+                            "WHERE user_id = $1";
+        const auto result_second = connection.txn->exec_params(get_views, user_id);
+        full_page.watched_films.reserve(result_second.size());
     for (const auto &row : result_second) {
         film_on_user_page film;
-        film.ratio = row[0].as<int>();
-        film.full_page.preview.title = row[1].as<std::string>();
-        film.full_page.description = row[2].as<std::string>();
-        film.full_page.genres = array_parser(row[3].as<std::string>());
+        film.preview.id = row[0].as<int>();
+        film.preview.title = row[1].as<std::string>();
+        if (!row[2].is_null()) {
+            film.preview.preview_cover_url = row[2].as<std::string>();
+        }
+        film.ratio = row[3].as<int>();
         full_page.watched_films.push_back(film);
     }
-    static std::string get_fauvorite_actors = "SELECT full_name "
+    static std::string get_fauvorite_actors = "SELECT actors.id, full_name "
                         "FROM actors_to_form "
                         "INNER JOIN actors ON actors_to_form.actor_id = actors.id "
                         "WHERE form_id = $1";
@@ -183,7 +183,8 @@ user_full_page authservice_database_api::get_user_full_page(const int &user_id) 
     full_page.fauvorite_actors.reserve(result_third.size());
     for (const auto &row : result_third) {
         actor_preview actor_prewiew;
-        actor_prewiew.full_name = row[0].as<std::string>();
+        actor_prewiew.id = row[0].as<int>();
+        actor_prewiew.full_name = row[1].as<std::string>();
         full_page.fauvorite_actors.push_back(actor_prewiew);
     }
     connection.txn->commit();
@@ -232,7 +233,6 @@ std::vector<genre> authservice_database_api::array_parser(const std::string &jso
     
     std::vector<genre> genres;
     genres.reserve(max_genres_amount);
-    //can optimize working with strings???
     std::string genre;
     genre.reserve(max_size);
     for (std::size_t i = 1; i < json_string.size(); i++) {

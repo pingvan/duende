@@ -32,6 +32,7 @@ message Invite {
   string time_stamp = 4;
   int32 chat_id = 5;
   InviteStatus status = 6;
+  optional common.GroupChatPreview chat_preview = 7;
 }
 
 message InvitesReceived {

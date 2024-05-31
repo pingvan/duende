@@ -9,7 +9,7 @@ grpc::Status invitation_service::InvitationStream(
     database::invite_service_database_api invite_db_api;
     while (stream->Read(&request)) {
         if (request.has_invite()) {
-            if (!invite_db_api.is_invite_already_sended(
+            if (!invite_db_api.is_invite_already_sendt(
                     request.invite().sender_id(), request.invite().invite().sender().user_id()
                 )) {
                 int sender_id = request.invite().sender_id();

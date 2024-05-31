@@ -1,5 +1,6 @@
 #pragma once
 
+#include <_types/_uint32_t.h>
 #include <algorithm>
 #include <cassert>
 #include <vector>
@@ -38,6 +39,15 @@ enum class genre {
     TV_MOVIE
 };
 
+enum class chat_events_types {
+    NAME_CHANGED,
+    DESCRIPTION_CHANGED,
+    COVER_CHANGED,
+    USER_ENTERED,
+    USER_LEFT,
+    USER_REMOVED
+};
+
 // enum class invite_status { SENT, ACCEPTED, DECLINED };
 
     struct actor_preview  {
@@ -61,12 +71,15 @@ enum class genre {
 
         uint32_t id;
         std::string title;
-        std::string preview_cover_url;
+        std::optional<std::string> preview_cover_url;
+        // std::string preview_cover_url;
 
         void convert_to_proto(common::FilmPreview *proto) const {
             proto->set_film_id(id);
             proto->set_title(title);
-            proto->set_preview_cover_url(preview_cover_url);
+            if (preview_cover_url.has_value()) {
+                proto->set_preview_cover_url(preview_cover_url.value());
+            }
         }
     };
 
@@ -74,7 +87,8 @@ enum class genre {
         film_preview preview;
         std::string description;
         std::vector<genre> genres;
-        std::string full_page_cover_url{};
+        std::optional<std::string> full_page_cover_url;
+        // std::string full_page_cover_url{};
 
         void convert_to_proto(common::FilmFullPage *proto) const {
             auto prewiew_proto = new common::FilmPreview;
@@ -84,18 +98,20 @@ enum class genre {
             for (const auto& genre : this->genres) {
                 proto->add_genres(static_cast<common::Genre>(genre));
             }
-            proto->set_full_page_cover_url(full_page_cover_url);
+            if (full_page_cover_url.has_value()) {
+                proto->set_full_page_cover_url(full_page_cover_url.value());
+            }
         }
     };
 
     struct film_on_user_page  {
-        film_full_page full_page;
+        film_preview preview;
         uint32_t ratio;
 
         void convert_to_proto(common::FilmOnUserPage *proto)  const {
-            auto *film_full_page_proto = new common::FilmFullPage;
-            full_page.convert_to_proto(film_full_page_proto);
-            proto->set_allocated_full_page(film_full_page_proto);
+            auto *film_preview_proto = new common::FilmPreview;
+            preview.convert_to_proto(film_preview_proto);
+            proto->set_allocated_preview(film_preview_proto);
             proto->set_ratio(ratio);
         }
     };
@@ -107,14 +123,17 @@ enum class genre {
         
         uint32_t id;
         std::string login;
-        std::basic_string<std::byte> photo;
+        std::optional<std::basic_string<std::byte>> photo;
+        // std::basic_string<std::byte> photo;
 
         void convert_to_proto(common::UserPreview *response) const  {
             response->set_user_id(id);
             response->set_login(login);
-            std::string string_photo;
-            std::transform(photo.begin(), photo.end(), std::back_inserter(string_photo), [](std::byte byte_) { return static_cast<char>(byte_); });
-            response->set_photo(string_photo);
+            if (photo.has_value()) {
+                std::string string_photo;
+                std::transform(photo.value().begin(), photo.value().end(), std::back_inserter(string_photo), [](std::byte byte_) { return static_cast<char>(byte_); });
+                response->set_photo(string_photo);
+            }
         }
     };
 
@@ -175,7 +194,7 @@ enum class genre {
         std::string time_stamp;
         message last_message;
         std::vector<user_preview> chat_members;
-        std::basic_string<std::byte> chat_cover;
+        std::optional<std::basic_string<std::byte>> chat_cover;
 
         void convert_to_proto(chat_service::ChatPreview *proto) const  {
             proto->set_chat_id(chat_id);
@@ -190,9 +209,44 @@ enum class genre {
                 user_preview_.convert_to_proto(user_preview_proto);
             }
             proto->set_is_group_chat(is_group_chat);
-            std::string string_chat_cover;
-            std::transform(chat_cover.begin(), chat_cover.end(), std::back_inserter(string_chat_cover), [](std::byte byte_) { return static_cast<char>(byte_); });
-            proto->set_chat_cover(string_chat_cover);
+            if (chat_cover.has_value()) {
+                std::string string_chat_cover;
+                std::transform(chat_cover.value().begin(), chat_cover.value().end(), std::back_inserter(string_chat_cover), [](std::byte byte_) { return static_cast<char>(byte_); });
+                proto->set_chat_cover(string_chat_cover);
+            }
+        }
+    };
+
+    struct chat_event {
+        chat_events_types event;
+        std::optional<user_preview> user;
+        std::string time_stamp;
+        std::optional<user_preview> user_affected;
+
+        void convert_to_proto(chat_service::ChatEvent *proto) const {
+            proto->set_event_type(static_cast<chat_service::EventType>(event));
+            if (user.has_value()) {
+                auto user_proto = new common::UserPreview;
+                user->convert_to_proto(user_proto);
+                proto->set_allocated_user(user_proto);
+            }
+            proto->set_time_stamp(time_stamp);
+            if (user_affected.has_value()) {
+                auto user_affected_proto = new common::UserPreview;
+                user_affected->convert_to_proto(user_affected_proto);
+                proto->set_allocated_user_affected(user_affected_proto);
+            }
+        }
+    };
+
+    struct chat_events {
+        std::vector<chat_event> events;
+
+        void convert_to_proto(chat_service::ChatEvents *proto) const {
+            for (const auto &event : events) {
+                auto event_proto = proto->add_events();
+                event.convert_to_proto(event_proto);
+            }
         }
     };
 
@@ -219,10 +273,34 @@ enum class genre {
     };
 
     struct invite  {
+        struct group_chat_preview {
+            uint32_t chat_id;
+            std::string name;
+            std::string description;
+            std::vector<user_preview> chat_members;
+            std::optional<std::basic_string<std::byte>> chat_cover;
+
+            void convert_to_proto(common::GroupChatPreview *proto) const {
+                proto->set_chat_id(chat_id);
+                proto->set_name(name);
+                proto->set_description(description);
+                for (const auto &user_preview_ : chat_members) {
+                    auto user_preview_proto = proto->add_members();
+                    user_preview_.convert_to_proto(user_preview_proto);
+                }
+                if (chat_cover.has_value()) {
+                    std::string string_chat_cover;
+                    std::transform(chat_cover.value().begin(), chat_cover.value().end(), std::back_inserter(string_chat_cover), [](std::byte byte_) { return static_cast<char>(byte_); });
+                    proto->set_chat_cover(string_chat_cover);
+                }
+            }
+        };
+
         uint32_t invite_id;
         user_preview sender;
         std::string invite_text;
         std::string time_stamp;
+        std::optional<group_chat_preview> chat_preview;
 
         void convert_to_proto(invitation::Invite *proto) const {
             proto->set_invite_id(invite_id);
@@ -231,6 +309,11 @@ enum class genre {
             sender.convert_to_proto(prewiew_proto);
             proto->set_allocated_sender(prewiew_proto);
             proto->set_time_stamp(time_stamp);
+            if (chat_preview.has_value()) {
+                auto *chat_preview_proto = new common::GroupChatPreview;
+                chat_preview->convert_to_proto(chat_preview_proto);
+                proto->set_allocated_chat_preview(chat_preview_proto);
+            }
         }
     };
 

@@ -1,3 +1,5 @@
+#include <exception>
+#include <iterator>
 #define TESTING
 
 #include <gtest/gtest.h>
@@ -64,7 +66,7 @@ struct databaseTesting : ::testing::Test {
     static constexpr uint32_t chat_membershipCOLUMNS = 2;
 };
 
-const std::string databaseTesting::host = "postgres://root:strongpassword@localhost:5432/duende_test";
+const std::string databaseTesting::host = "postgres://root:strongpassword@localhost:5432/duende";
 const database::connector databaseTesting::connector {host};
 
 //think about creating this vecs to any table (not using contains)
@@ -157,7 +159,7 @@ actor_preview ProtosAndPlaceholdersTesting::actor_preview_placeholder { ProtosAn
 user_preview ProtosAndPlaceholdersTesting::user_preview_placeholder { ProtosAndPlaceholdersTesting::user_id, std::string(ProtosAndPlaceholdersTesting::user_login), ProtosAndPlaceholdersTesting::some_image };
 film_preview ProtosAndPlaceholdersTesting::film_preview_placeholder { ProtosAndPlaceholdersTesting::film_id, std::string(ProtosAndPlaceholdersTesting::film_title), std::string(ProtosAndPlaceholdersTesting::film_cover_url) };
 film_full_page ProtosAndPlaceholdersTesting::film_full_page_placeholder { ProtosAndPlaceholdersTesting::film_preview_placeholder, std::string(ProtosAndPlaceholdersTesting::film_description), ProtosAndPlaceholdersTesting::genres, std::string(ProtosAndPlaceholdersTesting::film_full_page_cover_url) };
-film_on_user_page ProtosAndPlaceholdersTesting::film_on_user_page_placeholder { ProtosAndPlaceholdersTesting::film_full_page_placeholder, ProtosAndPlaceholdersTesting::film_ratio };
+film_on_user_page ProtosAndPlaceholdersTesting::film_on_user_page_placeholder { ProtosAndPlaceholdersTesting::film_preview_placeholder, ProtosAndPlaceholdersTesting::film_ratio };
 
 
 const std::vector<actor_preview> ProtosAndPlaceholdersTesting::favourite_actors = {ProtosAndPlaceholdersTesting::actor_preview_placeholder};
@@ -191,7 +193,7 @@ void check_user_preview(const common::UserPreview &proto, const user_preview &pl
     EXPECT_EQ(proto.user_id(), placeholder.id);
     EXPECT_EQ(proto.login(), placeholder.login);
     std::string placeholder_photo;
-    std::transform(placeholder.photo.begin(), placeholder.photo.end(), std::back_inserter(placeholder_photo), [](std::byte byte) { return static_cast<char>(byte); });
+    std::transform(placeholder.photo.value().begin(), placeholder.photo.value().end(), std::back_inserter(placeholder_photo), [](std::byte byte) { return static_cast<char>(byte); });
     EXPECT_EQ(proto.photo(), placeholder_photo);
 }
 
@@ -216,7 +218,7 @@ void check_film_full_page(const common::FilmFullPage &proto, const film_full_pag
 }
 
 void check_film_on_user_page(const common::FilmOnUserPage &proto, const film_on_user_page &placeholder) {
-    check_film_full_page(proto.full_page(), placeholder.full_page);
+    check_film_preview(proto.preview(), placeholder.preview);
     EXPECT_EQ(proto.ratio(), placeholder.ratio);
 }
 
@@ -640,6 +642,178 @@ TEST_F(databaseTesting, TestColumnsUnhandledInvites) {
     
 // }
 
+std::vector<char> read_photo_as_binary(const std::filesystem::path &path) {  
+    std::ifstream file(path, std::ios_base::in | std::ios_base::binary);
+    // std::ifstream file;
+    // file.open(path, std::ios_base::in | std::ios_base::binary);
+    if (!file.is_open()) {
+        std::cerr << "Can't open photo file\n";
+        // std::exit(1);
+        return {};
+    }
+    std::vector<char> vector_binary_data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());;
+    // std::basic_string<std::byte> string_binary_data;
+    // std::string string_binary_data;
+    // std::transform(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>(), std::back_inserter(vector_binary_data), [](char char_) { return static_cast<std::byte>(char_); });
+    return vector_binary_data;
+    // std::transform(string_binary_data.begin(), string_binary_data.end(), std::back_inserter(string_binary_data), [](char char_) { return static_cast<std::byte>(char_); });
+    // std::transform(vector_binary_data.begin(), vector_binary_data.end(), std::back_inserter(vector_binary_data), )
+}
+
+void write_photo_from_binary(const std::string &photo_binaty) {
+    std::ofstream out("../gtests/test_out.jpg", std::ios_base::out | std::ios_base::binary);
+    if (!out.is_open()) {
+        std::cerr << "can't open out\n";
+        // std::exit(1);
+    }
+    out.write(photo_binaty.data(), photo_binaty.size());
+    out.close();
+}
+
+void write_photo_binary(const std::string &photo_name, const std::basic_string<std::byte> &ph) {
+    std::ofstream out("../gtests/" + photo_name + ".jpg", std::ios_base::out | std::ios_base::binary);
+    if (!out.is_open()) {
+        std::cerr << "can't open out\n";
+        // std::exit(1);
+    }
+    out.write(reinterpret_cast<const char*>(ph.c_str()), ph.size());
+    out.close();
+}
+
+TEST_F(databaseTesting, TestChangingPhoto) {
+    static std::string server_address = "0.0.0.0:50051";
+    auto channel = grpc::CreateChannel(server_address, grpc::InsecureChannelCredentials());
+    auto stub = profile::ProfileService::NewStub(channel);
+    grpc::ClientContext context;
+    profile::ProfilePhotoRequest request;
+    profile::ProfileReply response;
+    std::cout << "Current path: " << std::filesystem::current_path() << '\n';
+    auto res_binary = read_photo_as_binary("../gtests/test_in.jpg");
+    std::cout << "size of image: " << res_binary.size() << std::endl;
+    // std::cerr << "Binary vector: " << std::endl;
+    // for (const auto b : res_binary) {
+    //     std::cout << (char)b;
+    // }
+    request.set_user_id(1);
+    std::string string_binary;
+    std::transform(res_binary.begin(), res_binary.end(), std::back_inserter(string_binary), [](char byte_) { return static_cast<char>(byte_); } );
+    // std::cerr << "Binary photo to insert: " << string_binary << std::endl;
+    std::cout << "size of image: " << string_binary.size() << std::endl;
+    request.set_photo(string_binary);
+    std::cout << request.ByteSizeLong() << '\n';
+    auto status = stub->ChangeProfilePhoto(&context, request, &response);
+    if (!status.ok()) {
+        std::cerr << "No\n";
+    }
+
+    static constexpr std::string_view query = "SELECT photo FROM forms WHERE user_id = $1";
+    auto res = connector.txn->exec_params(pqxx::zview(query), 1);
+    std::basic_string<std::byte> photo_from_db;
+    for (const auto &row : res) {
+        if (!row[0].is_null()) {
+            photo_from_db = row[0].as<std::basic_string<std::byte>>();
+            std::cerr << "Get photo\n";
+        }
+    }
+    // std::string out_str;
+    // std::transform(photo_from_db.begin(), photo_from_db.end(), std::back_inserter(out_str), [](std::byte byte_){return static_cast<char>(byte_);});
+    // write_photo_from_binary(out_str);
+}
+
+// TEST_F(databaseTesting, GetPhotoFromProfile) {
+//     static constexpr std::string_view query = "SELECT photo FROM forms WHERE user_id = $1";
+//     pqxx::result res;
+//     try {
+//      res = connector.txn->exec_params(pqxx::zview(query), 1);
+//     } catch(const std::exception &e) {
+//         std::cerr << e.what() << std::endl;
+//     }
+//     std::cerr << res.affected_rows() << ' ' << res.size() << std::endl;
+//     std::basic_string<std::byte> photo_from_db;
+//     std::string out_ff;
+//     // pqxx::binarystring ss_binary;
+//     for (const auto &row : res) {
+//         // if (!row["photo"].is_null()) {
+//         // std::cout << row["photo"].as<std::string>();
+//         // }
+//         if (!row[0].is_null()) {
+//             photo_from_db = row[0].as<std::basic_string<std::byte>>();
+//             out_ff = row[0].as<std::string>();
+//             auto as_bs = row[0].as<pqxx::binarystring>();
+//             std::cerr << "Get photo\n";
+//             std::cerr << "as bs: " << as_bs.size() << std::endl;
+//         }
+//     }
+//     std::string out_str;
+//     std::cout << "size of ph: " << out_ff.size() << '\n';
+//     std::cout << photo_from_db.size() << ' ';
+//     // std::transform(photo_from_db.begin(), photo_from_db.end(), std::back_inserter(out_str), [](std::byte byte_){return static_cast<char>(byte_);});
+//     // std::cout << out_str << '\n';
+//     // std::cout << out_ff << '\n';
+//     // write_photo_from_binary(out_ff);
+//     write_photo_binary(photo_from_db);
+// }
+
+TEST(GetUserFullPage, Full) {
+    static std::string server_address = "0.0.0.0:50051";
+    auto channel = grpc::CreateChannel(server_address, grpc::InsecureChannelCredentials());
+    auto stub = authservice::AuthServiceData::NewStub(channel);
+    grpc::ClientContext context;
+    authservice::RequestWithUserId request;
+    common::UserPreview response;
+    request.set_user_id(1);
+    auto status = stub->GetUserPrewiew(&context, request, &response);
+    if (!status.ok()) {
+        std::cerr << "Error in handling\n";
+    }
+    std::basic_string<std::byte> byte_photo;
+    auto photo = response.photo();
+    std::transform(photo.begin(), photo.end(), std::back_inserter(byte_photo), [](char char_){return static_cast<std::byte>(char_);});
+    write_photo_binary("prev", byte_photo);
+}
+
+TEST(GetFull, prev) {
+    static std::string server_address = "0.0.0.0:50051";
+    auto channel = grpc::CreateChannel(server_address, grpc::InsecureChannelCredentials());
+    auto stub = authservice::AuthServiceData::NewStub(channel);
+    grpc::ClientContext context;
+    authservice::RequestWithUserId request;
+    common::UserFullPage response;
+    request.set_user_id(10);
+    auto status = stub->GetUserFullPage(&context, request, &response);
+    if (!status.ok()) {
+        std::cerr << "Error in handling\n";
+    }
+    std::basic_string<std::byte> byte_photo;
+    auto photo = response.preview().photo();
+    std::transform(photo.begin(), photo.end(), std::back_inserter(byte_photo), [](char char_){return static_cast<std::byte>(char_);});
+    write_photo_binary("full", byte_photo);
+    std::cout << response.preview().user_id() << std::endl;
+    std::cout << response.preview().login() << std::endl;
+    std::cout << response.quote() << std::endl;
+    std::cout << response.about() << std::endl;
+    for (int i = 0; i < response.favorite_genres_size() && i < 10; i++) {
+        std::cout << response.favorite_genres(i) << std::endl;
+    }
+    for (int i = 0; i < response.favorite_actors_size() && i < 10; i++) {
+        std::cout << response.favorite_actors(i).actor_id() << std::endl;
+        std::cout << response.favorite_actors(i).full_name() << std::endl;
+    }
+    for (int i = 0; i < response.watched_films_size() && i < 10; i++) {
+        std::cout << response.watched_films(i).preview().film_id() << std::endl;
+        std::cout << response.watched_films(i).preview().title() << std::endl;
+        std::cout << response.watched_films(i).ratio() << std::endl;
+    }
+}
+
+TEST_F(databaseTesting, getfilm) {
+    for (int i = 1; i < 10; i++) {
+    auto res = database::profile_service_database_api::get_film_full_page(i);
+    auto film_full_page_proto = new common::FilmFullPage;
+    res.convert_to_proto(film_full_page_proto);
+    std::cerr << film_full_page_proto->DebugString() << std::endl;
+    }
+}
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
