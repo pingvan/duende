@@ -19,6 +19,15 @@ enum InviteStatus {
     DECLINED = 1;
 }
 
+enum EventType {
+    NAME_CHANGED = 0;
+    DESCRIPTION_CHANGED = 1;
+    COVER_CHANGED = 2;
+    USER_ENTERED = 3;
+    USER_LEFT = 4;
+    USER_REMOVED = 5;
+}
+
 service ChatHandler {
     rpc HandleChat(stream ChatRequests) returns (stream ChatResponses);
     rpc InvitesToChat(stream InvitesToChatRequests) returns (stream InvitesToChatResponses);
@@ -185,4 +194,15 @@ message GetChatMembersResponse {
 
 message BoolResponse {
     bool response = 1;
+}
+
+message ChatEvent {
+    EventType event_type = 1;
+    optional common.UserPreview user = 2;
+    string time_stamp = 3;
+    optional common.UserPreview user_affected = 4;
+}
+
+message ChatEvents {
+    repeated ChatEvent events = 1;
 }

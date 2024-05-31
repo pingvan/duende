@@ -25,7 +25,7 @@ subscriptions, black_list, chat_events, events, chat_admins  CASCADE
 """
 
 drop_types = """
-DROP TYPE IF EXISTS genre, invite_status
+DROP TYPE IF EXISTS genre, invite_status, event_types, event_type CASCADE
 """
 
 cursor.execute(drop_tables)

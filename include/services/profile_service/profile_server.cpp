@@ -169,3 +169,9 @@ Status ProfileServiceImpl::ChangeProfilePhoto(
     reply->set_message("Profile photo changed");
     return Status::OK;
 }
+
+grpc::Status ProfileDataService::GetFilmFullPage(grpc::ServerContext *context, const profile::FilmId *request, common::FilmFullPage *response) {
+    auto film_full_page = database::profile_service_database_api::get_film_full_page(request->id());
+    film_full_page.convert_to_proto(response);
+    return grpc::Status::OK;
+}
