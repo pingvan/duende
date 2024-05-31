@@ -267,10 +267,10 @@ void Profile::update_watchlist(int start_films, bool edit_mode) {
         pixmap = pixmap.scaledToHeight(view_watchlist->height() - 50);
 
         MyGraphicsItem *item = new MyGraphicsItem(
-            pixmap, movie.full_page().preview().title(), movie.ratio(),
-            movie.full_page().preview().film_id(), manager
+            pixmap, movie.preview().title(), movie.ratio(),
+            movie.preview().film_id(), manager
         );
-        int32_t movieId = movie.full_page().preview().film_id();
+        int32_t movieId = movie.preview().film_id();
         qDebug() << "Setting movieId:" << movieId;
         item->setData(Qt::UserRole, movieId);
         if (edit_mode) {
@@ -402,7 +402,7 @@ void Profile::build_scenes(bool edit_mode) {
     actors_text->setStyleSheet("font-size: 20px; color: black;");
 
     movies_text = new QLabel();
-    movies_text->setText("Your favourite movies");
+    movies_text->setText("Your watchlist");
     movies_text->setStyleSheet("font-size: 20px; color: black;");
 
     int start_actors = 0;
@@ -472,10 +472,11 @@ void Profile::build() {
         "Hello, " + QString::fromStdString(user->preview().login().c_str()) +
         "!"
     );
+    common::UserPreview user2 = user->preview();
     greeting->setStyleSheet("font-size: 50px; color: #8023a8;");
     label_photo = new QLabel();
     label_photo->installEventFilter(this);
-    std::basic_string photo_data = user->preview().photo();
+    std::string photo_data(user2.photo().begin(), user2.photo().end());
     QPixmap pixmap;
     if (photo_data.empty()) {
         pixmap.load(":/img/person-circle2.png");
