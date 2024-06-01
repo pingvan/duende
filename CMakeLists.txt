@@ -51,6 +51,7 @@ add_executable(gtests
 add_dependencies(main generate_proto_models)
 add_dependencies(main pqxx)
 add_dependencies(gtests generate_proto_models)
+add_dependencies(gtests pqxx)
 
 
 target_link_libraries(main
@@ -83,6 +84,9 @@ target_link_libraries(gtests
         Threads::Threads
         GTest::gtest_main 
         GTest::gmock_main
+        pqxx
+        OpenSSL::SSL
+        OpenSSL::Crypto
 )
 
 target_include_directories(gtests PUBLIC

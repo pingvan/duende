@@ -267,10 +267,10 @@ void Profile::update_watchlist(int start_films, bool edit_mode) {
         pixmap = pixmap.scaledToHeight(view_watchlist->height() - 50);
 
         MyGraphicsItem *item = new MyGraphicsItem(
-            pixmap, movie.full_page().preview().title(), movie.ratio(),
-            movie.full_page().preview().film_id(), manager
+            pixmap, movie.preview().title(), movie.ratio(),
+            movie.preview().film_id(), manager
         );
-        int32_t movieId = movie.full_page().preview().film_id();
+        int32_t movieId = movie.preview().film_id();
         qDebug() << "Setting movieId:" << movieId;
         item->setData(Qt::UserRole, movieId);
         if (edit_mode) {

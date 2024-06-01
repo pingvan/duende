@@ -1,5 +1,4 @@
 #include "invite_service.hpp"
-#include <_types/_uint32_t.h>
 #include <grpcpp/support/status.h>
 #include <sys/types.h>
 #include "components/database/connection/database-connector.hpp"

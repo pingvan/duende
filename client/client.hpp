@@ -78,8 +78,8 @@ public:
     void init_invite_stream(int user_id);
     void start_reading_invite_stream();
     void leave_invite_stream(int user_id);
-    void send_invite(int sender_id, int receiver_id, std::string sender_login, std::string receiver_login, int chat_id = -1);
-    void respond_invite(int invite_id, int sender_id, int receiver_id, int chat_id, bool accept);
+    void send_invite(int sender_id, int receiver_id, int chat_id = -1);
+    void respond_invite(int invite_id, int sender_id, int receiver_id, bool accept, int chat_id = -1);
 
     std::vector<invitation::Invite> get_sent_invites(int user_id);
     std::vector<invitation::Invite> get_received_invites(int user_id);

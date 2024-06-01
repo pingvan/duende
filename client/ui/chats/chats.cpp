@@ -84,7 +84,7 @@ void Chats::onAddMemberToChatButtonClicked()
     QLabel membersLabel("Add members to your chat:");
     QListWidget membersList;
     QMap<QString, uint32_t> userMap;
-    std::vector<uint32_t> members = manager->new_client.get_subscriptions(manager->ID); // TODO
+    std::vector<uint32_t> members = manager->new_client.get_mutual_subscriptions(manager->ID);
     std::vector<uint32_t> chose_members;
 
     for (uint32_t member : members) {
@@ -118,7 +118,7 @@ void Chats::onAddMemberToChatButtonClicked()
     QObject::connect(&createButton, &QPushButton::clicked, [&]() {
         
         for (auto member : chose_members) {
-            manager->new_client.send_invite(manager->ID, member, manager->username, manager->new_client.get_user_full_page(member)->preview().login(), chat_id);
+            manager->new_client.send_invite(manager->ID, member, chat_id);
         }
 
         dialog.close();
@@ -350,7 +350,7 @@ void Chats::onAddChatButtonClicked()
         chat_service::ChatPreview *chat = manager->new_client.create_group_chat(manager->ID, name.toStdString(), description.toStdString());
 
         for (auto member : chose_members) {
-            manager->new_client.send_invite(manager->ID, member, manager->username, manager->new_client.get_user_full_page(member)->preview().login(), chat->chat_id());
+            manager->new_client.send_invite(manager->ID, member, chat->chat_id());
         }
 
         auto *chatPage = new QWidget();
@@ -401,46 +401,49 @@ void Chats::onInviteRespond(bool accept)
 void Chats::onInviteRespondReceived(const invitation::RespondToInvitationResponse& response) {
     // get response data
     int sender_id = response.sender_id();
-    int chat_id   = response.invite().chat_id();
-    int invite_id = response.invite().invite_id();
-    bool accept   = (response.invite().status() == invitation::InviteStatus::ACCEPTED);
+    int invite_id = response.invite_id();
+    bool accept   = (response.status() == invitation::InviteStatus::ACCEPTED);
     qDebug() << "Invite response received: " << invite_id << " " << accept;
 
     delete_invite_item(invite_id);
 
-    if (chat_id == -1) {
-        if (accept) {
+    if (accept) {
+        if (response.chat().is_group_chat()) {
+            if (sender_id == manager->ID) {
+                if (accept) {
+                    // std::string message_text =  " added " + manager->username + " to chat.";
+                    // manager->new_client.send_message(manager->ID, chat_id, message_text);
+
+                    auto *chatPage = new QWidget();
+                    int index = chatPages->addWidget(chatPage);
+                    
+                    make_chat_item(response.chat(), index, -1);
+                }
+            }
+            else {
+                if (accept) {
+                    // std::string message_text = manager->username + " added "  + " to chat.";
+                    // manager->new_client.send_message(manager->ID, chat_id, message_text);
+                }
+            }
+        }
+        else {
             auto *chatPage = new QWidget();
             int index = chatPages->addWidget(chatPage);
             
             make_chat_item(response.chat(), index, -1);
         }
     }
-    else {
-        if (sender_id == manager->ID) {
-            if (accept) {
-                std::string message_text = response.invite().sender().login() + " added " + manager->username + " to chat.";
-                manager->new_client.send_message(manager->ID, chat_id, message_text);
-
-                auto *chatPage = new QWidget();
-                int index = chatPages->addWidget(chatPage);
-                
-                make_chat_item(response.chat(), index, -1);
-            }
-        }
-        else {
-            if (accept) {
-                std::string message_text = manager->username + " added " + response.invite().sender().login() + " to chat.";
-                manager->new_client.send_message(manager->ID, chat_id, message_text);
-            }
-        }
-        
-    }
     
 }
 
 void Chats::onNewInviteReceived(const invitation::SendInvitationResponse& invite_response) {
     // get invite data
+    if (invite_response.has_error_message()) {
+        QMessageBox::critical(this, "Error", QString::fromStdString(invite_response.error_message()));
+        return;
+    }
+
     bool am_i_sender = (invite_response.sender_id() == manager->ID);
     make_invite_item(invite_response.invite(), am_i_sender);
 }
@@ -507,7 +510,7 @@ void Chats::onChatClicked(QListWidgetItem* item)
     currentChatId     = item->data(Qt::UserRole).toInt();
     chatPages->setCurrentIndex(item->data(Qt::UserRole + 1).toInt());
     chatTitle->setText(item->data(Qt::UserRole + 2).toString());
-    bool isGroupChat  = (currentChatId != -1); // TODO
+    bool isGroupChat  = item->data(Qt::UserRole + 3).toBool();
 
     chatInfoButton->setVisible(isGroupChat);
     addMemberToChatButton->setVisible(isGroupChat);
@@ -690,12 +693,13 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     QString time_stamp   = QString::fromStdString(chat.time_stamp());
     QString last_message = QString::fromStdString(chat.last_message().message_text());
     int sender_id        = chat.last_message().sender().user_id();
+    bool is_group_chat   = chat.is_group_chat();
 
     if (sender_id == manager->ID) {
         last_message = "(You) " + last_message;
     }
 
-    if (!chat.is_group_chat()) {
+    if (!is_group_chat) {
         for (const auto& member : chat.chat_members()) {
             if (member.user_id() != manager->ID) {
                 chat_name = QString::fromStdString(member.login());
@@ -738,6 +742,7 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     item->setData(Qt::UserRole, chat_id);
     item->setData(Qt::UserRole + 1, chat_page_index);
     item->setData(Qt::UserRole + 2, chatNameLabel->text());
+    item->setData(Qt::UserRole + 3, is_group_chat);
 
     chatWidget->setCursor(Qt::PointingHandCursor);
 }
@@ -851,7 +856,7 @@ void Chats::delete_chat_item(int chat_id)
     int item_index                = chatList->row(current_item);
     QString chat_name             = current_item->data(Qt::UserRole + 2).toString();
     int page_index                = current_item->data(Qt::UserRole + 1).toInt();
-    bool is_group_chat            = (currentChatId != -1); // TODO
+    bool is_group_chat            = current_item->data(Qt::UserRole + 3).toBool();
 
     // delete chat from list
     QListWidgetItem* item         = chatList->takeItem(item_index);
