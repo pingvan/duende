@@ -23,9 +23,6 @@ find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 find_package(GTest REQUIRED)
 find_package(OpenSSL REQUIRED)
-# find_package(GMock REQUIRED)
-
-# pkg_check_modules(LIBPQXX REQUIRED libpqxx)
 
 add_executable(main
     src/main.cpp
@@ -71,12 +68,6 @@ target_include_directories(main PUBLIC
         ${LIBPQXX_INCLUDE_DIRS}
 )
 
-target_link_options(main PUBLIC
-        -lpqxx)
-
-target_link_options(main PUBLIC
-        ${LIBPQXX_LDFLAGS})
-
 target_link_libraries(gtests
         absl::flags_parse
         gRPC::grpc++
@@ -95,9 +86,3 @@ target_include_directories(gtests PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
         ${LIBPQXX_INCLUDE_DIRS}
 )
-
-target_link_options(gtests PUBLIC
-        -lpqxx)
-
-target_link_options(gtests PUBLIC
-        ${LIBPQXX_LDFLAGS})

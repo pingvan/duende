@@ -15,6 +15,7 @@ struct RecommendationServiceImpl : public recommendation_service::Recommendation
 
     std::vector<std::vector<int>> transpose(const std::vector<std::vector<int>> &martix);
     std::vector<std::vector<double>> computeCosineSimularity(const std::vector<std::vector<int>> &ratings_matrix);
+    std::vector<double> computeCosineSimularityForOneUser(const std::vector<std::vector<int>> &rating_matrix, const int &user_id);
     std::vector<int> recommendUsers(const uint32_t user_id, const uint32_t reccomendation_count);
     std::vector<int> recommendFilms(const uint32_t user_id, const uint32_t reccomendation_count);
 
