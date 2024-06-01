@@ -1,5 +1,6 @@
 #include "chat_service.hpp"
 #include <components/database/connection/database-connector.hpp>
+#include <shared_mutex>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -56,7 +57,7 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
 
     // const auto user_chats_result = connection.txn->exec_params(pqxx::zview(query_get_user_chats), user_id);
 
-    static std::string query_sec = "SELECT id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS'), is_group_chat, chat_name, description, users_count FROM chats WHERE id = $1";
+    static std::string query_sec = "SELECT id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS'), is_group_chat, chat_name, description, users_count, cover FROM chats WHERE id = $1";
     user_chats chats;
     chats.user_chats.reserve(chat_ids.size());
     for (const auto &chat_id : chat_ids) {
@@ -67,6 +68,9 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
             prewiew.time_stamp = row[1].as<std::string>();
             prewiew.name = row[3].as<std::string>();
             prewiew.description = row[4].as<std::string>();
+            if (!row[5].is_null()) {
+                prewiew.chat_cover = row[5].as<std::basic_string<std::byte>>();
+            }
             static std::string query_third = "SELECT sender_id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS'), message_text_data FROM messages WHERE chat_id = $1 ORDER BY sended_at DESC LIMIT 1";
             const auto last_message = connection.txn->exec_params(query_third, chat_id);
             for (const auto &row : last_message) {
@@ -119,6 +123,46 @@ chat_events chat_service_database_api::get_chat_events(const int &chat_id) {
     connection.txn->commit();
     return events;
 
+}
+
+
+//can do int one select with join
+chat_preview chat_service_database_api::get_chat_preview(const int &chat_id) {
+    const connector connection;
+    static constexpr std::string_view query = 
+    "SELECT c.id, to_char(c.created_at, 'YYYY-MM-DD HH24:MI:SS'), c.is_group_chat, c.chat_name, c.description, c.users_count, c.cover, m.sender_id, to_char(m.sended_at, 'YYYY-MM-DD HH24:MI:SS'), m.message_text_data "
+    "FROM chats AS c "
+    "JOIN messages AS m ON c.id = m.chat_id "
+    "WHERE c.id = $1 "
+    "ORDER BY sended_at "
+    "DESC LIMIT 1 ";
+    const auto result = connection.txn->exec_params(pqxx::zview(query), chat_id);
+    chat_preview preview;
+    for (const auto &row : result) {
+        preview.chat_id = row[0].as<int>();
+        preview.time_stamp = row[1].as<std::string>();
+        preview.is_group_chat = row[2].as<bool>();
+        if (!row[3].is_null()) {
+            preview.name = row[3].as<std::string>();
+        }
+        if (!row[4].is_null()) {
+            preview.description = row[4].as<std::string>();
+        }
+        //users count
+        if (!row[6].is_null()) {
+            preview.chat_cover = row[6].as<std::basic_string<std::byte>>();
+        }
+        preview.last_message.sender = authservice_database_api::get_user_preview(row[7].as<int>());
+        preview.last_message.time_stamp = row[8].as<std::string>();
+        preview.last_message.message_text = row[9].as<std::string>();
+    }
+    auto chat_members = get_members_ids(chat_id);
+    preview.chat_members.reserve(chat_members.size());
+    for (const auto member_id : chat_members) {
+        preview.chat_members.push_back(authservice_database_api::get_user_preview(member_id));
+    }
+    connection.txn->commit();
+    return preview;
 }
 
 invite::group_chat_preview chat_service_database_api::get_group_chat_preview(const int &chat_id) {

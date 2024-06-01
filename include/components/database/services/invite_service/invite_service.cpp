@@ -5,6 +5,7 @@
 #include "components/database/connection/database-connector.hpp"
 #include "components/database/services/authservice/authservice.hpp"
 #include "components/database/services/chat_service/chat_service.hpp"
+#include "pqxx/zview.hxx"
 
 
 #include <array>
@@ -69,7 +70,7 @@ namespace database {
         return exists;
     }
 
-    bool invite_service_database_api::is_invite_already_sent(const int &chat_id, const int &invite_to, bool group_chat) {
+    bool invite_service_database_api::is_invite_already_sent_into_the_group_chat(const int &chat_id, const int &invite_to) {
         const connector connection;
         static std::string quer = "SELECT EXISTS(SELECT id FROM invites WHERE chat_id = $1 AND invite_to_user = $2)";
         const auto result = connection.txn->exec_params(quer, chat_id, invite_to);
@@ -79,6 +80,17 @@ namespace database {
         }
         connection.txn->commit();
         return exists;
+    }
+
+    bool invite_service_database_api::is_invite_into_group_chat(const int &invite_id) {
+        const connector connection;
+        static constexpr std::string_view query = "SELECT chat_id FROM invites WHERE chat_id = $1";
+        const auto result = connection.txn->exec_params(pqxx::zview(query), invite_id);
+        bool into_group = false;
+        for (const auto &row : result) {
+            into_group = !(row[0].is_null());
+        }
+        return into_group;
     }
 
     invites_recivie invite_service_database_api::get_received_invites(const int &user_id) {
