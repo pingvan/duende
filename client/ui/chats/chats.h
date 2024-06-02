@@ -108,6 +108,7 @@ private:
 
     QMap<int, std::vector<chat_service::MessageReceived>> chatMessagesData;
     QMap<int, invitation::Invite> invitesData;
+    QMap<int, chat_service::ChatPreview> chatsData;
 
     QLineEdit *search_line_chats;
     QLineEdit *search_line_invites;

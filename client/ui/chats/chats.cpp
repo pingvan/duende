@@ -485,14 +485,11 @@ void Chats::onNewMessageReceived(const chat_service::MessageReceived& message) {
     if (current_item == nullptr) return;
 
     // current chat
-    chat_service::ChatPreview current_chat;
-    current_chat.set_chat_id(chat_id);
-    current_chat.set_name(current_item->data(Qt::UserRole + 2).toString().toStdString());
-    current_chat.set_time_stamp(timestampLabel->text().toStdString());
+    chatsData[chat_id].set_time_stamp(timestampLabel->text().toStdString());
     chat_service::MessageReceived* message_copy = new chat_service::MessageReceived(message);
-    current_chat.set_allocated_last_message(message_copy);
+    chatsData[chat_id].set_allocated_last_message(message_copy);
 
-    make_chat_item(current_chat, chatPages->currentIndex(), chatList->row(current_item));
+    make_chat_item(chatsData[chat_id], chatPages->currentIndex(), chatList->row(current_item));
 }
 
 void Chats::sendMessage() {
@@ -735,6 +732,8 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
         }
     }
 
+    chatsData[chat_id] = chat;
+
     // make chat widget
     QWidget *chatWidget     = new QWidget();
     chatWidget->setFixedWidth(chatList->width());
@@ -888,6 +887,9 @@ void Chats::delete_chat_item(int chat_id)
             break;
         }
     }
+
+    chatsData.remove(chat_id);
+    chatMessagesData.remove(chat_id);
 
     int item_index                = chatList->row(current_item);
     QString chat_name             = current_item->data(Qt::UserRole + 2).toString();
