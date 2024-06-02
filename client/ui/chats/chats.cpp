@@ -89,7 +89,6 @@ void Chats::onAddMemberToChatButtonClicked()
 
     for (uint32_t member : members) {
         QString memberName = QString::fromStdString(manager->new_client.get_user_full_page(member)->preview().login());
-        // QString memberName = QString::number(member);
         QListWidgetItem *item = new QListWidgetItem(memberName);
         membersList.addItem(item);
         userMap.insert(memberName, member);
@@ -160,13 +159,13 @@ void Chats::showChatInfo(bool editMode)
     layout.addWidget(&descLabel);
 
     QLineEdit descLineEdit;
-    QLabel descText; // TODO
+    QLabel descText;
     if (editMode) {
-        descLineEdit.setText(descText.text());
+        descLineEdit.setText(chatList->currentItem()->data(Qt::UserRole + 4).toString());
         layout.addWidget(&descLineEdit);
     } else {
         if (descLineEdit.text().isEmpty()) {
-            descText.setText("Some description");
+            descText.setText(chatList->currentItem()->data(Qt::UserRole + 4).toString());
         }
         else {
             descText.setText(descLineEdit.text());
@@ -252,7 +251,7 @@ void Chats::showChatInfo(bool editMode)
     QObject::connect(&membersList, &QListWidget::itemClicked, [&](QListWidgetItem *item) {
         QString selectedItemText = item->text();
         uint32_t userId = userMap.value(selectedItemText);
-        // TODO onUserClicked
+        emit userClicked(userId);
         qDebug() << "Selected user ID: " << userId;
     });
 
@@ -314,12 +313,11 @@ void Chats::onAddChatButtonClicked()
     QLabel membersLabel("Add members to your chat:");
     QListWidget membersList;
     QMap<QString, uint32_t> userMap;
-    std::vector<uint32_t> members = manager->new_client.get_subscriptions(manager->ID);
+    std::vector<uint32_t> members = manager->new_client.get_mutual_subscriptions(manager->ID);
     std::vector<uint32_t> chose_members;
 
     for (uint32_t member : members) {
         QString memberName = QString::fromStdString(manager->new_client.get_user_full_page(member)->preview().login());
-        // QString memberName = QString::number(member);
         QListWidgetItem *item = new QListWidgetItem(memberName);
         membersList.addItem(item);
         userMap.insert(memberName, member);
@@ -393,9 +391,9 @@ void Chats::onInviteRespond(bool accept)
     QListWidgetItem* current_item = inviteList->currentItem();
     int receiver_id               = current_item->data(Qt::UserRole + 3).toInt();
     int invite_id                 = current_item->data(Qt::UserRole).toInt();
-    int chat_id                   = current_item->data(Qt::UserRole + 5).toInt();
+    int chat_id                   = invitesData[invite_id].chat_preview().chat_id();
 
-    manager->new_client.respond_invite(invite_id, manager->ID, receiver_id, chat_id, accept);
+    manager->new_client.respond_invite(invite_id, manager->ID, receiver_id, accept, chat_id);
 }
 
 void Chats::onInviteRespondReceived(const invitation::RespondToInvitationResponse& response) {
@@ -410,21 +408,17 @@ void Chats::onInviteRespondReceived(const invitation::RespondToInvitationRespons
     if (accept) {
         if (response.chat().is_group_chat()) {
             if (sender_id == manager->ID) {
-                if (accept) {
-                    // std::string message_text =  " added " + manager->username + " to chat.";
-                    // manager->new_client.send_message(manager->ID, chat_id, message_text);
+                // std::string message_text =  " added " + manager->username + " to chat.";
+                // manager->new_client.send_message(manager->ID, chat_id, message_text);
 
-                    auto *chatPage = new QWidget();
-                    int index = chatPages->addWidget(chatPage);
-                    
-                    make_chat_item(response.chat(), index, -1);
-                }
+                auto *chatPage = new QWidget();
+                int index = chatPages->addWidget(chatPage);
+                
+                make_chat_item(response.chat(), index, -1);
             }
             else {
-                if (accept) {
-                    // std::string message_text = manager->username + " added "  + " to chat.";
-                    // manager->new_client.send_message(manager->ID, chat_id, message_text);
-                }
+                // std::string message_text = manager->username + " added "  + " to chat.";
+                // manager->new_client.send_message(manager->ID, chat_id, message_text);
             }
         }
         else {
@@ -562,6 +556,8 @@ void Chats::onInviteClicked(QListWidgetItem* item)
     invitePages->setCurrentIndex(item->data(Qt::UserRole + 1).toInt());
     inviteTitle->setText(item->data(Qt::UserRole + 2).toString());
 
+    invitation::Invite invite = invitesData[currentInviteId];
+
     if (invitePageLayout != nullptr) {
         while (invitePageLayout->count() != 0) {
             auto item = invitePageLayout->takeAt(0);
@@ -570,22 +566,22 @@ void Chats::onInviteClicked(QListWidgetItem* item)
         }
     }
 
-    QFrame *invite = new QFrame();
-    invite->setFixedSize(600, 700);
+    QFrame *invite_frame = new QFrame();
+    invite_frame->setFixedSize(600, 700);
     QGraphicsDropShadowEffect* shadowEffect = new QGraphicsDropShadowEffect(this);
     shadowEffect->setBlurRadius(10);
     shadowEffect->setXOffset(10);
     shadowEffect->setYOffset(10);
     shadowEffect->setColor(QColor(136, 136, 136));
 
-    invite->setGraphicsEffect(shadowEffect);
-    invite->setStyleSheet("background-color: #FFFFFF; border-radius: 10px;");
+    invite_frame->setGraphicsEffect(shadowEffect);
+    invite_frame->setStyleSheet("background-color: #FFFFFF; border-radius: 10px;");
 
-    QVBoxLayout *inviteLayout = new QVBoxLayout(invite);
+    QVBoxLayout *inviteLayout = new QVBoxLayout(invite_frame);
 
     QLabel* photoLabel = new QLabel(this);
     QLabel* inviteTextLabel = new QLabel(this);
-    QLabel* descriptionTitleLabel = new QLabel("Some information about me:", this);
+    QLabel* descriptionTitleLabel = new QLabel();
     descriptionTitleLabel->setStyleSheet("font-weight: bold;");
     QLabel* descriptionLabel = new QLabel(this);
 
@@ -614,8 +610,18 @@ void Chats::onInviteClicked(QListWidgetItem* item)
     photoLabel->setPixmap(circlePixmap.scaled(300, 300, Qt::KeepAspectRatio));
     photoLabel->setAlignment(Qt::AlignCenter);
 
-    inviteTextLabel->setText("Invite text");
-    descriptionLabel->setText("Short description");
+    inviteTextLabel->setText(invite.invite_text().c_str());
+    if (invite.has_chat_preview()) {
+        descriptionTitleLabel->setText("Some information about our chat:");
+        descriptionLabel->setText(manager->new_client.get_chat_preview(invite.chat_preview().chat_id())->description().c_str());
+    } else {
+        descriptionTitleLabel->setText("Some information about me:");
+        descriptionLabel->setText(manager->new_client.get_user_full_page(invite.sender().user_id())->about().c_str());
+    }
+
+    if (invite.has_chat_preview()) {
+        // TODO add members photos
+    }
 
     inviteLayout->addWidget(photoLabel);
     inviteLayout->addWidget(inviteTextLabel);
@@ -638,7 +644,7 @@ void Chats::onInviteClicked(QListWidgetItem* item)
         inviteLayout->addLayout(buttonLayout);
     }
 
-    invitePageLayout->addWidget(invite, 0, Qt::AlignCenter);
+    invitePageLayout->addWidget(invite_frame, 0, Qt::AlignCenter);
     invitePages->currentWidget()->setLayout(invitePageLayout);
 }
 
@@ -694,6 +700,8 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     QString last_message = QString::fromStdString(chat.last_message().message_text());
     int sender_id        = chat.last_message().sender().user_id();
     bool is_group_chat   = chat.is_group_chat();
+    QString description  = QString::fromStdString(chat.description());
+    // TODO chat_cover
 
     if (sender_id == manager->ID) {
         last_message = "(You) " + last_message;
@@ -743,11 +751,12 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     item->setData(Qt::UserRole + 1, chat_page_index);
     item->setData(Qt::UserRole + 2, chatNameLabel->text());
     item->setData(Qt::UserRole + 3, is_group_chat);
+    item->setData(Qt::UserRole + 4, description);
 
     chatWidget->setCursor(Qt::PointingHandCursor);
 }
 
-void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender, int chat_id)
+void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender)
 {
     // get invite data
     QString sender_name    = QString::fromStdString(invite.sender().login());
@@ -756,6 +765,8 @@ void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender,
     QString time_stamp     = QString::fromStdString(invite.time_stamp());
     int sender_id          = am_i_sender ? manager->ID : invite.sender().user_id();
     int receiver_id        = am_i_sender ? invite.sender().user_id() : manager->ID;
+
+    invitesData[invite_id] = invite;
 
     if (am_i_sender) {
         invite_text = "(You) " + invite_text;
@@ -795,7 +806,6 @@ void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender,
     item->setData(Qt::UserRole + 2, senderNameLabel->text());
     item->setData(Qt::UserRole + 3, sender_id);
     item->setData(Qt::UserRole + 4, receiver_id);
-    item->setData(Qt::UserRole + 5, chat_id);
 
     inviteWidget->setCursor(Qt::PointingHandCursor);
 }
@@ -811,6 +821,8 @@ void Chats::delete_invite_item(int invite_id)
             break;
         }
     }
+
+    invitesData.remove(invite_id);
 
     int item_index                = inviteList->row(current_item);
     int receiver_id               = current_item->data(Qt::UserRole + 3).toInt();
@@ -928,9 +940,15 @@ void Chats::build()
     inviteList->hide();
     
     // right layout
+    chatWidget = new QWidget();
+    chatWidgetLayout = new QVBoxLayout();
+    chatWidget->setLayout(chatWidgetLayout);
+    inviteWidget = new QWidget();
+    inviteWidgetLayout = new QVBoxLayout();
+    inviteWidget->setLayout(inviteWidgetLayout);
+    inviteWidget->hide();
     chatPages = new QStackedWidget();
     invitePages = new QStackedWidget();
-    invitePages->hide();
 
     chatTitle = new QLabel();
     chatTitle->setAlignment(Qt::AlignCenter);
@@ -939,7 +957,6 @@ void Chats::build()
     inviteTitle = new QLabel();
     inviteTitle->setAlignment(Qt::AlignCenter);
     inviteTitle->setStyleSheet("font-size: 18px; font-weight: bold;");
-    inviteTitle->hide();
 
     // input layout
     messageInput = new QLineEdit();
@@ -984,23 +1001,25 @@ void Chats::build()
     generateFilmButton->hide();
     generateFilmButton->setFixedWidth(50);
 
-    QHBoxLayout *toolBarLayout = new QHBoxLayout();
+    toolBarLayout = new QHBoxLayout();
     toolBarLayout->addWidget(chatTitle);
     toolBarLayout->addWidget(chatInfoButton);
     toolBarLayout->addWidget(addMemberToChatButton);
     toolBarLayout->addWidget(leaveChatButton);
     toolBarLayout->addWidget(generateFilmButton);
 
-    QHBoxLayout *inputLayout = new QHBoxLayout();
+    inputLayout = new QHBoxLayout();
     inputLayout->addWidget(messageInput);
     inputLayout->addWidget(sendButton);
 
-    QVBoxLayout *rightLayout = new QVBoxLayout();
-    rightLayout->addLayout(toolBarLayout);
-    rightLayout->addWidget(inviteTitle);
-    rightLayout->addWidget(chatPages);
-    rightLayout->addWidget(invitePages);
-    rightLayout->addLayout(inputLayout);
+    rightLayout = new QStackedWidget();
+    chatWidgetLayout->addLayout(toolBarLayout);
+    chatWidgetLayout->addWidget(chatPages);
+    chatWidgetLayout->addLayout(inputLayout);
+    inviteWidgetLayout->addWidget(inviteTitle);
+    inviteWidgetLayout->addWidget(invitePages);
+    rightLayout->addWidget(chatWidget);
+    rightLayout->addWidget(inviteWidget);
 
     QHBoxLayout *chatButtonsLayout = new QHBoxLayout();
     chatButtonsLayout->addWidget(toggleButton);
@@ -1014,7 +1033,7 @@ void Chats::build()
     leftLayout->addWidget(inviteList);
 
     mainLayout->addLayout(leftLayout);
-    mainLayout->addLayout(rightLayout);
+    mainLayout->addWidget(rightLayout);
 
     // chat page layout
     chatPageLayout     = new QVBoxLayout();
@@ -1055,18 +1074,13 @@ void Chats::connect_slots()
     connect(leaveChatButton, &QPushButton::clicked, this, &Chats::onLeaveChatButtonClicked);
     connect(generateFilmButton, &QPushButton::clicked, this, &Chats::onGenerateFilmButtonClicked);
     connect(toggleButton, &QPushButton::clicked, [this]() {
-        bool isChatsVisible = chatList->isVisible();
-        chatList->setVisible(!isChatsVisible);
-        chatTitle->setVisible(!isChatsVisible);
-        chatPages->setVisible(!isChatsVisible);
-        messageInput->setVisible(!isChatsVisible);
-        sendButton->setVisible(!isChatsVisible);
-        inviteList->setVisible(isChatsVisible);
-        inviteTitle->setVisible(isChatsVisible);
-        invitePages->setVisible(isChatsVisible);
-        toggleButton->setText(!isChatsVisible ? "Check invites" : "Check chats");
-        search_line_chats->setVisible(!isChatsVisible);
-        search_line_invites->setVisible(isChatsVisible);
+        bool isInvitesSelected = chatList->isVisible();
+        chatList->setVisible(!isInvitesSelected);
+        inviteList->setVisible(isInvitesSelected);
+        rightLayout->setCurrentIndex(isInvitesSelected);
+        toggleButton->setText(!isInvitesSelected ? "Check invites" : "Check chats");
+        search_line_chats->setVisible(!isInvitesSelected);
+        search_line_invites->setVisible(isInvitesSelected);
     });
 }
 
