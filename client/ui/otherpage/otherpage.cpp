@@ -188,13 +188,29 @@ void OtherPage::updatePage(int newId) {
 
 void OtherPage::update_watchlist() {
     int start_films = 0;
+    std::vector<common::FilmOnUserPage> current_watchlist;
     for (const auto &movie : user->watched_films()) {
+        current_watchlist.push_back(movie);
+    }
+    std::sort(
+        current_watchlist.begin(), current_watchlist.end(),
+        [](const common::FilmOnUserPage &a, const common::FilmOnUserPage &b) {
+            return a.ratio() > b.ratio();
+        }
+    );
+    for (const auto &movie : current_watchlist) {
         QPixmap pixmap;
         QNetworkAccessManager *nam = new QNetworkAccessManager(this);
         auto full_page =
             manager->new_client.get_film_full_page(movie.preview().film_id());
-        // QUrl url(full_page->full_page_cover_url().c_str());
-        QUrl url(movie.preview().preview_cover_url().c_str());
+        QUrl url;
+        if (full_page == nullptr){
+            qDebug() << "aaaaaaaaa";
+            url = movie.preview().preview_cover_url().c_str();
+        }
+        else{
+            url = full_page->full_page_cover_url().c_str();
+        }
         QNetworkReply *reply = nam->get(QNetworkRequest(url));
 
         QEventLoop loop;

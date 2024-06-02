@@ -50,6 +50,19 @@ void Movies_SearchWindow::saveChanges()
         int rating = QInputDialog::getInt(this, tr("Rate the movie"),
                                           tr("Rating:"), 5, 0, 10, 1, &ok);
         if (ok) {
+            bool is_film_already_chosen = false;
+            for (const auto &film : manager->watchlist) {
+                if (film.id == movies_map[selectedMovie]) {
+                    qDebug() << "Film already chosen!";
+                    is_film_already_chosen = true;
+                    break;
+                }
+            }
+            if (!is_film_already_chosen) {
+                manager->watchlist.push_back(
+                    movie{movies_map[selectedMovie], rating}
+                );
+            }
             manager->new_client.add_movie(manager->ID, movies_map[selectedMovie], rating);
         }
     }

@@ -598,17 +598,39 @@ void Chats::onInviteClicked(QListWidgetItem* item)
     connect(acceptButton, &QPushButton::clicked, this, [this]() { onInviteRespond(true); });
     connect(declineButton, &QPushButton::clicked, this, [this]() { onInviteRespond(false); });
 
-    QPixmap photoPixmap(":/img/robertdeniro.jpg");
-    QPixmap circlePixmap(photoPixmap.size());
-    circlePixmap.fill(Qt::transparent);
-    QPainter painter(&circlePixmap);
-    QPainterPath path;
-    path.addEllipse(circlePixmap.rect());
-    painter.setClipPath(path);
-    painter.drawPixmap(0, 0, photoPixmap);
+    int user_id = (item->data(Qt::UserRole + 3).toInt() != manager->ID)
+        ? item->data(Qt::UserRole + 3).toInt()
+        : item->data(Qt::UserRole + 4).toInt();
+    common::UserPreview user2 = manager->new_client.get_user_full_page(user_id)->preview();
+    photoLabel->installEventFilter(this);
+    std::string photo_data(user2.photo().begin(), user2.photo().end());
+    QPixmap pixmap;
+    if (photo_data.empty()) {
+        pixmap.load(":/img/person-circle2.png");
+    } else {
+        pixmap.loadFromData(
+            reinterpret_cast<const uchar *>(photo_data.data()),
+            photo_data.size()
+        );
+    }
 
-    photoLabel->setPixmap(circlePixmap.scaled(300, 300, Qt::KeepAspectRatio));
-    photoLabel->setAlignment(Qt::AlignCenter);
+    int size = qMin(pixmap.width(), pixmap.height());
+    QPixmap squarePixmap = pixmap.copy(0, 0, size, size);
+
+    QPixmap scaledPixmap = squarePixmap.scaled(
+        300, 300, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation
+    );
+
+    QPixmap rounded = QPixmap(scaledPixmap.size());
+    rounded.fill(Qt::transparent);
+
+    QPainter painter(&rounded);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setBrush(QBrush(scaledPixmap));
+    painter.setPen(Qt::NoPen);
+    painter.drawEllipse(rounded.rect());
+
+    photoLabel->setPixmap(rounded);
 
     inviteTextLabel->setText(invite.invite_text().c_str());
     if (invite.has_chat_preview()) {

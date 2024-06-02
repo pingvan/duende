@@ -42,7 +42,9 @@ void client::start_reading_invite_chat_stream() {
                 qDebug() << "Invite chat response received";
                 if (response.has_remove()) {
                     if (onRemoveFromChatReceived) {
-                        onRemoveFromChatReceived(response.remove());
+                        onRemoveFromChatReceived(
+                            response.remove()
+                        );
                     }
                 } else if (response.has_response_with_status()) {
                     qDebug()
@@ -62,11 +64,7 @@ void client::leave_invite_chat_stream(int user_id) {
     invite_chat_stream->Write(request);
 }
 
-chat_service::ChatPreview *client::create_group_chat(
-    int creator_id,
-    std::string chat_name,
-    std::string description
-) {
+chat_service::ChatPreview *client::create_group_chat(int creator_id, std::string chat_name, std::string description) {
     grpc::ClientContext context;
 
     chat_service::CreateGroupChatRequest request;
@@ -75,8 +73,7 @@ chat_service::ChatPreview *client::create_group_chat(
     request.set_chat_name(chat_name);
     request.set_description(description);
 
-    grpc::Status status =
-        chat_stub->CreateGroupChat(&context, request, response);
+    grpc::Status status = chat_stub->CreateGroupChat(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -92,8 +89,7 @@ bool client::check_user_privileges(int user_id, int chat_id) {
     request.set_user_id(user_id);
     request.set_chat_id(chat_id);
 
-    grpc::Status status =
-        chat_stub->CheckUserPrivileges(&context, request, response);
+    grpc::Status status = chat_stub->CheckUserPrivileges(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -108,8 +104,7 @@ void client::change_chat_name(int chat_id, std::string new_chat_name) {
     request.set_chat_id(chat_id);
     request.set_new_chat_name(new_chat_name);
 
-    grpc::Status status =
-        chat_stub->ChangeChatName(&context, request, response);
+    grpc::Status status = chat_stub->ChangeChatName(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -123,34 +118,29 @@ void client::change_description(int chat_id, std::string new_description) {
     request.set_chat_id(chat_id);
     request.set_new_description(new_description);
 
-    grpc::Status status =
-        chat_stub->ChangeChatDescription(&context, request, response);
+    grpc::Status status = chat_stub->ChangeChatDescription(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
 }
 
 // void client::change_cover(int chat_id, std::string new_cover) {
-// grpc::ClientContext context;
+    // grpc::ClientContext context;
 
-// chat_service::ChangeChatCoverRequest request;
-// auto *response = new chat_service::OperationStatusResponse;
-// request.set_chat_id(chat_id);
-// request.set_new_cover(new_cover);
+    // chat_service::ChangeChatCoverRequest request;
+    // auto *response = new chat_service::OperationStatusResponse;
+    // request.set_chat_id(chat_id);
+    // request.set_new_cover(new_cover);
 
-// grpc::Status status = chat_stub->ChangeChatCover(&context, request,
-// response); if (!status.ok()) {
-//     std::cout << status.error_message() << '\n';
+    // grpc::Status status = chat_stub->ChangeChatCover(&context, request, response);
+    // if (!status.ok()) {
+    //     std::cout << status.error_message() << '\n';
+    // }
 // }
-// }
 
-void client::add_privileges_to_user(
-    int sender_id,
-    int receiver_id,
-    int chat_id
-) {
+void client::add_privileges_to_user(int sender_id, int receiver_id, int chat_id) {
     if (!check_user_privileges(sender_id, chat_id)) {
-        return;  // TODO add errors
+        return; // TODO add errors
     }
 
     grpc::ClientContext context;
@@ -160,20 +150,15 @@ void client::add_privileges_to_user(
     request.set_user_id(receiver_id);
     request.set_chat_id(chat_id);
 
-    grpc::Status status =
-        chat_stub->AddPrivilegesToUser(&context, request, response);
+    grpc::Status status = chat_stub->AddPrivilegesToUser(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
 }
 
-void client::remove_privileges_from_user(
-    int sender_id,
-    int receiver_id,
-    int chat_id
-) {
+void client::remove_privileges_from_user(int sender_id, int receiver_id, int chat_id) {
     if (!check_user_privileges(sender_id, chat_id)) {
-        return;  // TODO add errors
+        return; // TODO add errors
     }
 
     grpc::ClientContext context;
@@ -183,21 +168,15 @@ void client::remove_privileges_from_user(
     request.set_user_id(receiver_id);
     request.set_chat_id(chat_id);
 
-    grpc::Status status =
-        chat_stub->RemovePrivilegesFromUser(&context, request, response);
+    grpc::Status status = chat_stub->RemovePrivilegesFromUser(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
 }
 
-void client::remove_user_from_chat(
-    int sender_id,
-    int receiver_id,
-    int chat_id
-) {
-    if (!check_user_privileges(sender_id, chat_id) &&
-        sender_id != receiver_id) {
-        return;  // TODO add errors
+void client::remove_user_from_chat(int sender_id, int receiver_id, int chat_id) {
+    if (!check_user_privileges(sender_id, chat_id) && sender_id != receiver_id) {
+        return; // TODO add errors
     }
 
     chat_service::RemoveRequest request;
@@ -229,32 +208,38 @@ void client::init_invite_stream(int user_id) {
 
 void client::start_reading_invite_stream() {
     qDebug() << "start_reading_invite_stream started";
-    QFuture<void> future = QtConcurrent::run([this] {
-        qDebug() << "QtConcurrent invite stream running";
-        invitation::InvitationResponse response;
-        while (invite_stream->Read(&response)) {
-            qDebug() << "Invite response received";
-            if (response.has_invite()) {
-                if (onNewInviteReceived) {
-                    onNewInviteReceived(response.invite());
+    QFuture<void> future =
+        QtConcurrent::run([this] {
+            qDebug() << "QtConcurrent invite stream running";
+            invitation::InvitationResponse response;
+            while (invite_stream->Read(&response)) {
+                qDebug() << "Invite response received";
+                if (response.has_invite()) {
+                    if (onNewInviteReceived) {
+                        onNewInviteReceived(response.invite()
+                        );
+                    }
+                }
+                if (response.has_invite_respond()) {
+                    if (onInviteRespondReceived) {
+                        onInviteRespondReceived(
+                            response.invite_respond()
+                        );
+                    }
+                }
+                if (response.has_init()) {
+                    qDebug()
+                        << (response.init().status() ==
+                            invitation::Status::SUCCESS);
+                }
+                if (response.has_leave()) {
+                    qDebug()
+                        << (response.leave().status() ==
+                            invitation::Status::SUCCESS);
                 }
             }
-            if (response.has_invite_respond()) {
-                if (onInviteRespondReceived) {
-                    onInviteRespondReceived(response.invite_respond());
-                }
-            }
-            if (response.has_init()) {
-                qDebug(
-                ) << (response.init().status() == invitation::Status::SUCCESS);
-            }
-            if (response.has_leave()) {
-                qDebug(
-                ) << (response.leave().status() == invitation::Status::SUCCESS);
-            }
-        }
-        qDebug() << "Invite stream ended";
-    });
+            qDebug() << "Invite stream ended";
+        });
 }
 
 void client::leave_invite_stream(int user_id) {
@@ -278,11 +263,6 @@ void client::send_invite(
     if (chat_id != -1) {
         request.set_chat_id(chat_id);
     }
-    invite->set_allocated_sender(receiver);
-    invite->set_invite_text("Invitation"
-    );  // TODO add invite text with purpose of invite
-    invite->set_chat_id(chat_id);
-    request.set_allocated_invite(invite);
 
     std::cout << request.DebugString() << std::endl;
 
@@ -1018,9 +998,25 @@ common::FilmFullPage *client::get_film_full_page(int film_id) {
     request.set_id(film_id);
     grpc::Status status =
         profile_data_stub->GetFilmFullPage(&context, request, response);
-    // if (!status.ok()) {
-    //     qDebug() << "blya" << status.error_message().c_str();
-    //     return {};
-    // }
+    if (!status.ok()) {
+        qDebug() << status.error_message().c_str();
+        return {};
+    }
+    return response;
+}
+
+common::FilmPreview *client::get_film_preview(int film_id) {
+    grpc::ClientContext context;
+
+    profile::FilmId request;
+    auto *response = new common::FilmPreview;
+
+    request.set_id(film_id);
+    grpc::Status status =
+        profile_data_stub->GetFilmPreview(&context, request, response);
+    if (!status.ok()) {
+        qDebug() << status.error_message().c_str();
+        return {};
+    }
     return response;
 }
