@@ -34,15 +34,7 @@ void OtherPage::sendInvite() {
         );
         return;
     }
-    if (manager->new_client.invite_already_sent(manager->ID, id)) {
-        QMessageBox msgBox;
-        msgBox.setText("The invitation has already been sent.");
-        msgBox.exec();
-    } else {
-        manager->new_client.send_invite(
-            manager->ID, id, manager->username, login
-        );
-    }
+    manager->new_client.send_invite(manager->ID, id);
 }
 
 void OtherPage::showBlockDialog(QPushButton *blockButton) {

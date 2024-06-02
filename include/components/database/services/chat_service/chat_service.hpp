@@ -15,6 +15,8 @@ struct chat_service_database_api {
     [[nodiscard]] static user_chats get_user_chats(const int &user_id); //get status in chat
     [[nodiscard]] static last_messages get_chats_messages(const int &chat_id);
     [[nodiscard]] static chat_events get_chat_events(const int &chat_id);
+    [[nodiscard]] static chat_preview get_chat_preview(const int &chat_id);
+
 
     [[nodiscard]] static invite::group_chat_preview get_group_chat_preview(const int &chat_id); //here we get preview to invite 
     // [[nodiscard]] static chat_preview get_private_chat_preview(const int &chat_id);

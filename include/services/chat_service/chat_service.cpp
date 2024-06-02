@@ -138,13 +138,13 @@ grpc::Status chat_service_::CheckUserPrivileges(grpc::ServerContext* context, co
 // static void remove_user_from_chat(const int &chat_id, const int &user_id);
 
 grpc::Status chat_service_::ChangeChatName(grpc::ServerContext* context, const chat_service::ChangeChatNameRequest* request, chat_service::OperationStatusResponse* response) {
-    database::chat_service_database_api::change_chat_name(request->chat_id(), request->new_chat_name());
+    database::chat_service_database_api::change_chat_name(request->chat_id(), request->admin_id(), request->new_chat_name());
     response->set_status(chat_service::Status::SUCCESS);
     return grpc::Status::OK;
 }
 
 grpc::Status chat_service_::ChangeChatDescription(grpc::ServerContext* context, const chat_service::ChangeChatDescriptionRequest* request, chat_service::OperationStatusResponse* response) {
-    database::chat_service_database_api::change_chat_description(request->chat_id(), request->new_description());
+    database::chat_service_database_api::change_chat_description(request->chat_id(), request->admin_id(), request->new_description());
     response->set_status(chat_service::Status::SUCCESS);
     return grpc::Status::OK;
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <_types/_uint32_t.h>
 #include <algorithm>
 #include <cassert>
 #include <vector>

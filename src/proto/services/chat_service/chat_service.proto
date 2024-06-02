@@ -148,12 +148,14 @@ message UserPrivilegeResponse {
 
 message ChangeChatNameRequest {
     int32 chat_id = 1;
-    string new_chat_name = 2;
+    int32 admin_id = 2;
+    string new_chat_name = 3;
 }
 
 message ChangeChatDescriptionRequest {
     int32 chat_id = 1;
-    string new_description = 2;
+    int32 admin_id = 2;
+    string new_description = 3;
 }
 
 message ChangeChatCoverRequest {

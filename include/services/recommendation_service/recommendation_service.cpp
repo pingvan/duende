@@ -92,6 +92,34 @@ std::vector<std::vector<double>> RecommendationServiceImpl::computeCosineSimular
     return similarity;
 }
 
+std::vector<double> computeCosineSimularityForOneUser(const std::vector<std::vector<int>> &rating_matrix, const int &user_id) {
+    int num_rows = rating_matrix.size();
+    int num_cols = rating_matrix[0].size();
+    double user_norm = 0.0;
+    for (int i = 0; i < num_cols; i++) {
+        user_norm += rating_matrix[user_id][i] * rating_matrix[user_id][i];
+    }
+    if (user_norm == 0.0) {
+        // case where we have no views - give rand users;
+    }
+    auto user_norm_sqrt = std::sqrt(user_norm);
+    std::vector<double> simularity(num_rows);
+    for (int i = 1; i < num_rows; i++) {
+        if (i != user_id) {
+            double dot_product = 0.0;
+            double norm_a = 0.0;
+            for (int j = 1; j < num_cols; j++) {
+                dot_product += rating_matrix[user_id][j] * rating_matrix[i][j];
+                norm_a += rating_matrix[i][j] * rating_matrix[i][j];
+            }
+            if (norm_a != 0.0) {
+                simularity[i] = dot_product / (user_norm_sqrt * std::sqrt(norm_a));
+            }
+        }
+    }
+    return simularity;
+}
+
 std::vector<int> RecommendationServiceImpl::recommendUsers(const uint32_t user_id, const uint32_t reccomendation_count) {
     std::unique_lock<std::mutex> l(m);
     cv.wait(l, [this] { return !copying; });

@@ -268,17 +268,16 @@ void client::leave_invite_stream(int user_id) {
 void client::send_invite(
     int sender_id,
     int receiver_id,
-    std::string sender_login,
-    std::string receiver_login,
     int chat_id
 ) {
-    common::UserPreview *receiver = new common::UserPreview;
-    invitation::Invite *invite = new invitation::Invite;
-    receiver->set_user_id(receiver_id);
-    receiver->set_login(receiver_login);
-
     invitation::SendInvitationRequest request;
+
     request.set_sender_id(sender_id);
+    request.set_receiver_id(receiver_id);
+    
+    if (chat_id != -1) {
+        request.set_chat_id(chat_id);
+    }
     invite->set_allocated_sender(receiver);
     invite->set_invite_text("Invitation"
     );  // TODO add invite text with purpose of invite
@@ -302,23 +301,20 @@ void client::respond_invite(
     int invite_id,
     int sender_id,
     int receiver_id,
-    int chat_id,
-    bool accept
+    bool accept,
+    int chat_id
 ) {
     invitation::RespondToInvitationRequest request;
-    common::UserPreview *receiver = new common::UserPreview;
-    invitation::Invite *invite = new invitation::Invite;
-    receiver->set_user_id(receiver_id);
-    invite->set_invite_id(invite_id);
     request.set_sender_id(sender_id);
-    invite->set_status(
-        accept ? invitation::InviteStatus::ACCEPTED
-               : invitation::InviteStatus::DECLINED
-    );
-    invite->set_chat_id(chat_id);
-    invite->set_allocated_sender(receiver);
-    request.set_allocated_invite(invite);
-
+    request.set_receiver_id(receiver_id);
+    request.set_invite_id(invite_id);
+    if (accept) {
+        request.set_status(invitation::InviteStatus::ACCEPTED);
+    }
+    else {
+        request.set_status(invitation::InviteStatus::DECLINED);
+    }
+    
     std::cout << request.DebugString() << std::endl;
 
     invitation::InvitationRequest stream_request;
