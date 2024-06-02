@@ -76,9 +76,9 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
             if (!row[4].is_null()) {
                 prewiew.description = row[4].as<std::string>();
             }
-            // if (!row[5].is_null()) {
-            //     prewiew.chat_cover = row[5].as<std::basic_string<std::byte>>();
-            // }
+            if (!row[6].is_null()) {
+                prewiew.chat_cover = row[6].as<std::basic_string<std::byte>>();
+            }
             static std::string query_third = "SELECT sender_id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS'), message_text_data FROM messages WHERE chat_id = $1 ORDER BY sended_at DESC LIMIT 1";
             const auto last_message = connection.txn->exec_params(query_third, chat_id);
             for (const auto &row : last_message) {
@@ -142,7 +142,7 @@ chat_preview chat_service_database_api::get_chat_preview(const int &chat_id) {
     static constexpr std::string_view query = 
     "SELECT c.id, to_char(c.created_at, 'YYYY-MM-DD HH24:MI:SS'), c.is_group_chat, c.chat_name, c.description, c.users_count, c.cover, m.sender_id, to_char(m.sended_at, 'YYYY-MM-DD HH24:MI:SS'), m.message_text_data "
     "FROM chats AS c "
-    "JOIN messages AS m ON c.id = m.chat_id "
+    "left JOIN messages AS m ON c.id = m.chat_id "
     "WHERE c.id = $1 "
     "ORDER BY sended_at "
     "DESC LIMIT 1 ";
@@ -162,9 +162,11 @@ chat_preview chat_service_database_api::get_chat_preview(const int &chat_id) {
         if (!row[6].is_null()) {
             preview.chat_cover = row[6].as<std::basic_string<std::byte>>();
         }
-        preview.last_message.sender = authservice_database_api::get_user_preview(row[7].as<int>());
-        preview.last_message.time_stamp = row[8].as<std::string>();
-        preview.last_message.message_text = encryptor.decrypt(row[9].as<std::string>());
+        if (!row[7].is_null()) {
+            preview.last_message.sender = authservice_database_api::get_user_preview(row[7].as<int>());
+            preview.last_message.time_stamp = row[8].as<std::string>();
+            preview.last_message.message_text = encryptor.decrypt(row[9].as<std::string>());
+        }
     }
     auto chat_members = get_members_ids(chat_id);
     preview.chat_members.reserve(chat_members.size());
@@ -258,7 +260,7 @@ bool chat_service_database_api::check_user_privileges(const int &user_id, const 
 void chat_service_database_api::add_user_to_chat(const int &chat_id, const int &user_id) {
     const connector connection;
     static constexpr std::string_view query = "INSERT INTO chat_membership (user_id, chat_id) VALUES ($1, $2)";
-    static constexpr std::string_view update_query = "UPDATE chats SET users_count = users_count + 1 WHERE id = $2";
+    static constexpr std::string_view update_query = "UPDATE chats SET users_count = users_count + 1 WHERE id = $1";
     static constexpr std::string_view store_chat_event = "INSERT INTO chat_events (type_of_event, chat_id, affected_user) VALUES ('user_entered', $1, $2)";
     connection.txn->exec_params(pqxx::zview(query), user_id, chat_id);
     connection.txn->exec_params(pqxx::zview(update_query), chat_id);
@@ -270,7 +272,7 @@ void chat_service_database_api::add_user_to_chat(const int &chat_id, const int &
 void chat_service_database_api::remove_user_from_chat(const int &chat_id, const int &user_id) {
     const connector connection;
     static constexpr std::string_view query = "DELETE FROM chat_membership WHERE user_id = $1 AND chat_id = $2";
-    static constexpr std::string_view update_query = "UPDATE chats SET users_count = users_count - 1 WHERE id = $2";
+    static constexpr std::string_view update_query = "UPDATE chats SET users_count = users_count - 1 WHERE id = $1";
     static constexpr std::string_view store_chat_event = "INSERT INTO chat_events (type_of_event, chat_id, affected_user) VALUES ('user_left', $1, $2)";
     connection.txn->exec_params(pqxx::zview(query), user_id, chat_id);
     connection.txn->exec_params(pqxx::zview(update_query), chat_id);
@@ -283,7 +285,7 @@ void chat_service_database_api::remove_user_from_chat(const int &chat_id, const 
 void chat_service_database_api::remove_user_from_chat(const int &chat_id, const int &admin_id, const int &user_id_to_remove) {
     const connector connection;
     static constexpr std::string_view query = "DELETE FROM chat_membership WHERE user_id = $1 AND chat_id = $2";
-    static constexpr std::string_view update_query = "UPDATE chats SET users_count = users_count - 1 WHERE id = $2";
+    static constexpr std::string_view update_query = "UPDATE chats SET users_count = users_count - 1 WHERE id = $1";
     static constexpr std::string_view store_chat_event = "INSERT INTO chat_events (type_of_event, chat_id, affected_user) VALUES ('user_removed', $1, $2)";
     connection.txn->exec_params(pqxx::zview(query), user_id_to_remove, chat_id);
     connection.txn->exec_params(pqxx::zview(update_query), chat_id);

@@ -64,9 +64,9 @@ public:
     void leave_invite_chat_stream(int user_id);
     chat_service::ChatPreview *create_group_chat(int creator_id, std::string chat_name, std::string description);
     bool check_user_privileges(int user_id, int chat_id);
-    void change_chat_name(int chat_id, std::string new_chat_name);
-    void change_description(int chat_id, std::string new_description);
-    // void change_cover(int chat_id, std::string new_cover);
+    bool change_chat_name(int chat_id, int admin_id, std::string new_chat_name);
+    bool change_description(int chat_id, int admin_id, std::string new_description);
+    // bool change_cover(int chat_id, int admin_id, std::string new_cover);
     void add_privileges_to_user(int sender_id, int receiver_id, int chat_id);
     void remove_privileges_from_user(int sender_id, int receiver_id, int chat_id);
     void remove_user_from_chat(int sender_id, int receiver_id, int chat_id);
@@ -108,6 +108,7 @@ public:
     bool check_user_in_chat(int user_id, int chat_id);
     chat_service::ChatPreview *get_chat_preview(int chat_id);
     common::GroupChatPreview *get_group_chat_preview(int chat_id);
+    std::vector<chat_service::ChatEvent> get_chat_events(int chat_id);
 
     authservice::LoginResponse *login(const std::string &client_login, const std::string &password);
     authservice::SignupResponse *registration(

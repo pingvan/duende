@@ -100,12 +100,17 @@ bool client::check_user_privileges(int user_id, int chat_id) {
     return (response->privilege() == chat_service::UserPrivilege::ADMIN);
 }
 
-void client::change_chat_name(int chat_id, std::string new_chat_name) {
+bool client::change_chat_name(int chat_id, int admin_id, std::string new_chat_name) {
+    if (!check_user_privileges(admin_id, chat_id)) {
+        return false;
+    }
+
     grpc::ClientContext context;
 
     chat_service::ChangeChatNameRequest request;
     auto *response = new chat_service::OperationStatusResponse;
     request.set_chat_id(chat_id);
+    request.set_admin_id(admin_id);
     request.set_new_chat_name(new_chat_name);
 
     grpc::Status status =
@@ -113,14 +118,21 @@ void client::change_chat_name(int chat_id, std::string new_chat_name) {
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
+
+    return true;
 }
 
-void client::change_description(int chat_id, std::string new_description) {
+bool client::change_description(int chat_id, int admin_id, std::string new_description) {
+    if (!check_user_privileges(admin_id, chat_id)) {
+        return false;
+    }
+
     grpc::ClientContext context;
 
     chat_service::ChangeChatDescriptionRequest request;
     auto *response = new chat_service::OperationStatusResponse;
     request.set_chat_id(chat_id);
+    request.set_admin_id(admin_id);
     request.set_new_description(new_description);
 
     grpc::Status status =
@@ -128,20 +140,28 @@ void client::change_description(int chat_id, std::string new_description) {
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
+
+    return true;
 }
 
-// void client::change_cover(int chat_id, std::string new_cover) {
-// grpc::ClientContext context;
+// bool client::change_cover(int chat_id, int admin_id, std::string new_cover) {
+//     if (!check_user_privileges(admin_id, chat_id)) {
+//         return false;
+//     }
 
-// chat_service::ChangeChatCoverRequest request;
-// auto *response = new chat_service::OperationStatusResponse;
-// request.set_chat_id(chat_id);
-// request.set_new_cover(new_cover);
+//     grpc::ClientContext context;
 
-// grpc::Status status = chat_stub->ChangeChatCover(&context, request,
-// response); if (!status.ok()) {
-//     std::cout << status.error_message() << '\n';
-// }
+//     chat_service::ChangeChatCoverRequest request;
+//     auto *response = new chat_service::OperationStatusResponse;
+//     request.set_chat_id(chat_id);
+//     request.set_new_cover(new_cover);
+
+//     grpc::Status status = chat_stub->ChangeChatCover(&context, request, response);
+//     if (!status.ok()) {
+//         std::cout << status.error_message() << '\n';
+//     }
+
+//     return true;
 // }
 
 void client::add_privileges_to_user(
@@ -703,6 +723,25 @@ common::GroupChatPreview *client::get_group_chat_preview(int chat_id) {
     }
 
     return response;
+}
+
+std::vector<chat_service::ChatEvent> client::get_chat_events(int chat_id) {
+    grpc::ClientContext context;
+
+    chat_service::UserChat request;
+    auto *response = new chat_service::ChatEvents;
+    request.set_chat_id(chat_id);
+
+    grpc::Status status = chat_data_stub->GetChatEvents(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << '\n';
+    }
+
+    std::vector<chat_service::ChatEvent> events;
+    for (int i = 0; i < response->events_size(); i++) {
+        events.push_back(response->events(i));
+    }
+    return events;
 }
 
 authservice::LoginResponse *
