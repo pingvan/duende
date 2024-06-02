@@ -86,9 +86,10 @@ message SendInvitationResponse {
 
 message RespondToInvitationResponse {
   int32 sender_id = 1;
-  InviteStatus status = 2;
-  int32 invite_id = 3;
-  optional chat_service.ChatPreview chat = 4;
+  int32 receiver_id = 2;
+  InviteStatus status = 3;
+  int32 invite_id = 4;
+  optional chat_service.ChatPreview chat = 5;
 }
 
 message InitRequest {

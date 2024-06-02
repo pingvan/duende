@@ -232,7 +232,6 @@ void Chats::showChatInfo(bool editMode)
             }
         });
     }
-    
 
     for (auto member : members) {
         int member_id = member.user_id();
@@ -272,18 +271,32 @@ void Chats::showChatInfo(bool editMode)
             QString new_chat_name = nameLineEdit.text();
             QString new_chat_desc = descLineEdit.text();
             if (new_chat_name != chatTitle->text()) {
-                manager->new_client.change_chat_name(chat_id, new_chat_name.toStdString());
+                if (!manager->new_client.change_chat_name(chat_id, manager->ID, new_chat_name.toStdString())) {
+                    QMessageBox::critical(
+                        this, "Permission denied", "You are not admin of this chat!"
+                    );
+                }
+                else {
+                    // std::string message_text = manager->username + " changed chat name.";
+                    // manager->new_client.send_message(-1, chat_id, message_text);
 
-                std::string message_text = manager->username + " changed chat name to " + new_chat_name.toStdString();
-                manager->new_client.send_message(manager->ID, chat_id, message_text);
+                    chatTitle->setText(new_chat_name);
 
-                chatTitle->setText(new_chat_name);
-
-                chatList->currentItem()->setData(Qt::UserRole + 2, new_chat_name);
-
+                    chatList->currentItem()->setData(Qt::UserRole + 2, new_chat_name);
+                }
             }
             if (new_chat_desc != descText.text()) {
-                manager->new_client.change_description(chat_id, new_chat_desc.toStdString());
+                if (!manager->new_client.change_description(chat_id, manager->ID, new_chat_desc.toStdString())) {
+                    QMessageBox::critical(
+                        this, "Permission denied", "You are not admin of this chat!"
+                    );
+                }
+                else {
+                    // std::string message_text = manager->username + " changed chat description.";
+                    // manager->new_client.send_message(-1, chat_id, message_text);
+
+                    chatList->currentItem()->setData(Qt::UserRole + 4, new_chat_desc);
+                }
             }
             dialog.accept();
         });
@@ -371,14 +384,14 @@ void Chats::onRemoveFromChatReceived(const chat_service::RemoveResponse& respons
 
     qDebug() << "Remove from chat received: " << chat_id << " " << sender_id << " " << receiver_id;
 
-    std::string message_text;
-    if (sender_id == receiver_id) {
-        message_text = sender_login + " left chat.";
-    }
-    else {
-        message_text = sender_login + " removed " + receiver_login + " from chat.";
-    }
-    manager->new_client.send_message(manager->ID, chat_id, message_text);
+    // std::string message_text;
+    // if (sender_id == receiver_id) {
+    //     message_text = sender_login + " left chat.";
+    // }
+    // else {
+    //     message_text = sender_login + " removed " + receiver_login + " from chat.";
+    // }
+    // manager->new_client.send_message(-1, chat_id, message_text);
 
     if (receiver_id == manager->ID) {
         delete_chat_item(chat_id);
@@ -398,9 +411,10 @@ void Chats::onInviteRespond(bool accept)
 
 void Chats::onInviteRespondReceived(const invitation::RespondToInvitationResponse& response) {
     // get response data
-    int sender_id = response.sender_id();
-    int invite_id = response.invite_id();
-    bool accept   = (response.status() == invitation::InviteStatus::ACCEPTED);
+    int sender_id   = response.sender_id();
+    int receiver_id = response.receiver_id();
+    int invite_id   = response.invite_id();
+    bool accept     = (response.status() == invitation::InviteStatus::ACCEPTED);
     qDebug() << "Invite response received: " << invite_id << " " << accept;
 
     delete_invite_item(invite_id);
@@ -408,8 +422,8 @@ void Chats::onInviteRespondReceived(const invitation::RespondToInvitationRespons
     if (accept) {
         if (response.chat().is_group_chat()) {
             if (sender_id == manager->ID) {
-                // std::string message_text =  " added " + manager->username + " to chat.";
-                // manager->new_client.send_message(manager->ID, chat_id, message_text);
+                // std::string message_text = manager->new_client.get_user_full_page(receiver_id)->preview().login() + " added " + manager->username + " to chat.";
+                // manager->new_client.send_message(-1, response.chat().chat_id(), message_text);
 
                 auto *chatPage = new QWidget();
                 int index = chatPages->addWidget(chatPage);
@@ -417,8 +431,8 @@ void Chats::onInviteRespondReceived(const invitation::RespondToInvitationRespons
                 make_chat_item(response.chat(), index, -1);
             }
             else {
-                // std::string message_text = manager->username + " added "  + " to chat.";
-                // manager->new_client.send_message(manager->ID, chat_id, message_text);
+                // std::string message_text = manager->username + " added " + manager->new_client.get_user_full_page(sender_id)->preview().login()+  " to chat.";
+                // manager->new_client.send_message(-1, response.chat().chat_id(), message_text);
             }
         }
         else {
@@ -437,6 +451,8 @@ void Chats::onNewInviteReceived(const invitation::SendInvitationResponse& invite
         QMessageBox::critical(this, "Error", QString::fromStdString(invite_response.error_message()));
         return;
     }
+
+    qDebug() << "Chat id: " << invite_response.invite().chat_preview().chat_id();
 
     bool am_i_sender = (invite_response.sender_id() == manager->ID);
     make_invite_item(invite_response.invite(), am_i_sender);
@@ -557,6 +573,8 @@ void Chats::onInviteClicked(QListWidgetItem* item)
     inviteTitle->setText(item->data(Qt::UserRole + 2).toString());
 
     invitation::Invite invite = invitesData[currentInviteId];
+
+    qDebug() << "Chat id: " << invite.chat_preview().chat_id();
 
     if (invitePageLayout != nullptr) {
         while (invitePageLayout->count() != 0) {
@@ -693,7 +711,9 @@ void Chats::make_message_item(const chat_service::MessageReceived& message)
     textLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QLabel *timestampLabel = new QLabel(time_stamp);
 
-    messageLayout->addWidget(senderLabel);
+    if (sender_id != -1) {
+        messageLayout->addWidget(senderLabel);
+    }
     messageLayout->addWidget(textLabel);
     messageLayout->addWidget(timestampLabel);
     messageWidget->setLayout(messageLayout);
@@ -788,7 +808,11 @@ void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender)
     int sender_id          = am_i_sender ? manager->ID : invite.sender().user_id();
     int receiver_id        = am_i_sender ? invite.sender().user_id() : manager->ID;
 
+    qDebug() << "Chat id: " << invite.chat_preview().chat_id();
+
     invitesData[invite_id] = invite;
+
+    qDebug() << "Chat id: " << invitesData[invite_id].chat_preview().chat_id();
 
     if (am_i_sender) {
         invite_text = "(You) " + invite_text;
@@ -903,9 +927,9 @@ void Chats::delete_chat_item(int chat_id)
     if (currentChatId == chat_id) {
         currentChatId = -1;
 
-        if (chatPageLayout != nullptr) {
-            while (chatPageLayout->count() != 0) {
-                auto item = chatPageLayout->takeAt(0);
+        if (scrollWidgetLayout != nullptr) {
+            while (scrollWidgetLayout->count() != 0) {
+                auto item = scrollWidgetLayout->takeAt(0);
                 delete item->widget();
                 delete item;
             }
@@ -924,7 +948,6 @@ void Chats::delete_chat_item(int chat_id)
         sendButton->hide();
 
     }
-    
 }
 
 void Chats::updateChatList(const QString &input)

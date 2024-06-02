@@ -49,6 +49,7 @@ service ChatDataService {
     rpc CheckUserInChat(UserChat) returns (BoolResponse);
     rpc GetChatPreview(UserChat) returns (ChatPreview);
     rpc GetGroupChatPreview(UserChat) returns (common.GroupChatPreview);
+    rpc GetChatEvents(UserChat) returns (ChatEvents);
 }
 
 message ChatRequests {

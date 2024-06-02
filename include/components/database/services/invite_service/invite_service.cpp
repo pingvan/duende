@@ -45,8 +45,11 @@ namespace database {
 
     void invite_service_database_api::change_invite_status(const int &invite_id) {
         const connector connection;
-        static std::string quer = "DELETE FROM invites WHERE id = $1";
-        const auto result = connection.txn->exec_params(quer, invite_id);
+        static std::string quer_first = "DELETE FROM unhandled_invites WHERE invite_id = $1";
+        const auto result_first = connection.txn->exec_params(quer_first, invite_id);
+
+        static std::string quer_second = "DELETE FROM invites WHERE id = $1";
+        const auto result_second = connection.txn->exec_params(quer_second, invite_id);
         connection.txn->commit();
     }
 

@@ -68,7 +68,7 @@ grpc::Status invitation_service::InvitationStream(
                 receiver_invite->set_invite_text(invite_text);
                 receiver_invite->set_time_stamp(invite_timestamp);
                 receiver_invite->set_status(invitation::InviteStatus::SENT);
-                sender_invite->mutable_chat_preview()->CopyFrom(*chat);
+                receiver_invite->mutable_chat_preview()->CopyFrom(*chat);
 
                 invite_sender_response->set_sender_id(sender_id);
                 invite_sender_response->set_allocated_invite(sender_invite);
@@ -187,7 +187,7 @@ grpc::Status invitation_service::InvitationStream(
             if (status == invitation::InviteStatus::ACCEPTED) {
                 invite_db_api.change_invite_status(invite_id);
 
-                if (!is_group_chat) { 
+                if (!is_group_chat) {   
                     chat_service::ChatPreview *private_chat = create_private_chat(sender_id, receiver_id);
                     respond_sender_response->mutable_chat()->CopyFrom(*private_chat);
                     respond_receiver_response->mutable_chat()->CopyFrom(*private_chat);
@@ -198,7 +198,9 @@ grpc::Status invitation_service::InvitationStream(
                     respond_sender_response->mutable_chat()->CopyFrom(*group_chat);
                     respond_receiver_response->mutable_chat()->CopyFrom(*group_chat);
 
-                    add_user_to_chat(sender_id, group_chat->chat_id());
+                    std::cout << "ID: " << group_chat->chat_id();
+
+                    add_user_to_chat(sender_id, request.invite_respond().chat_id()); // TODO replace with group_chat->chat_id()
                 }
                             
             } else {
@@ -206,11 +208,13 @@ grpc::Status invitation_service::InvitationStream(
             }
 
             respond_sender_response->set_sender_id(sender_id);
+            respond_sender_response->set_receiver_id(receiver_id);
             respond_sender_response->set_status(status);
             respond_sender_response->set_invite_id(invite_id);
             sender_response.set_allocated_invite_respond(respond_sender_response);
 
             respond_receiver_response->set_sender_id(sender_id);
+            respond_receiver_response->set_receiver_id(receiver_id);
             respond_receiver_response->set_status(status);
             respond_receiver_response->set_invite_id(invite_id);
             receiver_response.set_allocated_invite_respond(respond_receiver_response);
