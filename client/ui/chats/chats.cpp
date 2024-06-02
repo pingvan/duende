@@ -404,9 +404,15 @@ void Chats::onInviteRespond(bool accept)
     QListWidgetItem* current_item = inviteList->currentItem();
     int receiver_id               = current_item->data(Qt::UserRole + 3).toInt();
     int invite_id                 = current_item->data(Qt::UserRole).toInt();
-    int chat_id                   = invitesData[invite_id].chat_preview().chat_id();
 
-    manager->new_client.respond_invite(invite_id, manager->ID, receiver_id, accept, chat_id);
+    if (invitesData[invite_id].has_chat_preview()) {
+        int chat_id                   = invitesData[invite_id].chat_preview().chat_id();
+        manager->new_client.respond_invite(invite_id, manager->ID, receiver_id, accept, chat_id);
+    }
+    else {
+        manager->new_client.respond_invite(invite_id, manager->ID, receiver_id, accept);
+    }
+
 }
 
 void Chats::onInviteRespondReceived(const invitation::RespondToInvitationResponse& response) {
