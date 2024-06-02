@@ -122,7 +122,31 @@ void Recommendations::updateRecommendations() {
 
     for (const auto &film : recommended_films) {
         QIcon filmIcon;
-        filmIcon = QIcon(":/img/titanik.jpeg");
+        QNetworkAccessManager *nam = new QNetworkAccessManager(this);
+        auto *full_page =
+            manager->new_client.get_film_full_page(film.film_id());
+        if (full_page == nullptr){
+            qDebug() << "aaaaaaaaa";
+        }
+        else{
+            qDebug() << full_page->full_page_cover_url().c_str();
+        }
+        // QUrl url(full_page->full_page_cover_url().c_str());
+        QUrl url(film.preview_cover_url().c_str());
+        QNetworkReply *reply = nam->get(QNetworkRequest(url));
+
+        QEventLoop loop;
+        connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+        loop.exec();
+        if (reply->error() == QNetworkReply::NoError) {
+            QByteArray data = reply->readAll();
+            QImage image;
+            image.loadFromData(data);
+            QPixmap pixmap = QPixmap::fromImage(image).scaledToHeight(150);
+            filmIcon = QIcon(pixmap);
+        } else {
+            filmIcon = QIcon(":/img/titanik.jpeg");
+        }
         auto *filmItem = new QListWidgetItem(
             filmIcon, QString::fromStdString(film.title().c_str())
         );
@@ -131,7 +155,7 @@ void Recommendations::updateRecommendations() {
         font.setPointSize(18);
         filmItem->setFont(font);
         filmsGallery->addItem(filmItem);
-        filmItem->setToolTip(tr(""));
+        // filmItem->setToolTip(tr(full_page->description().c_str()));
     }
 }
 

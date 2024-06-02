@@ -38,6 +38,7 @@ private:
     std::unique_ptr<invitation::InvitationDataService::Stub> invite_data_stub;
     std::unique_ptr<users_interaction::UsersInteractionService::Stub> users_interaction_stub;
     std::unique_ptr<recommendation_service::RecommendationService::Stub> recommendation_stub;
+    std::unique_ptr<profile::ProfileServiceData::Stub> profile_data_stub;
 
     std::unique_ptr<grpc::ClientReaderWriter<chat_service::ChatRequests, chat_service::ChatResponses>> chat_stream;
     std::unique_ptr<grpc::ClientReaderWriter<chat_service::InvitesToChatRequests, chat_service::InvitesToChatResponses>> invite_chat_stream;
@@ -128,4 +129,5 @@ public:
     void change_photo(uint32_t user_id, const std::string &photo_path);
     std::vector<common::UserPreview> get_user_recommendations(uint32_t user_id);
     std::vector<common::FilmPreview> get_film_recommendations(uint32_t user_id);
+    common::FilmFullPage *get_film_full_page(int film_id);
 };

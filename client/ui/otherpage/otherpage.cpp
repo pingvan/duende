@@ -1,6 +1,14 @@
 #include "otherpage.h"
 #include "ui_otherpage.h"
 
+std::string repeat_symbol(const std::string &str, int times) {
+    std::string result;
+    for (int i = 0; i < times; ++i) {
+        result += str;
+    }
+    return result;
+}
+
 OtherPage::OtherPage(int id, Manager *managerPtr, QWidget *parent)
     : QWidget(parent), ui(new Ui::OtherPage), id(id), manager(managerPtr) {
     ui->setupUi(this);
@@ -186,6 +194,56 @@ void OtherPage::updatePage(int newId) {
     qDebug() << "Update page end";
 }
 
+void OtherPage::update_watchlist() {
+    int start_films = 0;
+    for (const auto &movie : user->watched_films()) {
+        QPixmap pixmap;
+        QNetworkAccessManager *nam = new QNetworkAccessManager(this);
+        auto full_page =
+            manager->new_client.get_film_full_page(movie.preview().film_id());
+        // QUrl url(full_page->full_page_cover_url().c_str());
+        QUrl url(movie.preview().preview_cover_url().c_str());
+        QNetworkReply *reply = nam->get(QNetworkRequest(url));
+
+        QEventLoop loop;
+        connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+        loop.exec();
+        if (reply->error() == QNetworkReply::NoError) {
+            QByteArray data = reply->readAll();
+            QImage image;
+            image.loadFromData(data);
+            pixmap = QPixmap::fromImage(image);
+            pixmap = pixmap.scaledToHeight(view_watchlist->height() - 50);
+
+            QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap);
+            item->setPos(start_films, 0);
+            scene_watchlist->addItem(item);
+
+            QGraphicsTextItem *titleItem = new QGraphicsTextItem(
+                QString::fromStdString(movie.preview().title())
+            );
+            titleItem->setPos(start_films, pixmap.height());
+            scene_watchlist->addItem(titleItem);
+
+            QGraphicsTextItem *ratingItem =
+                new QGraphicsTextItem(QString::fromStdString(
+                    repeat_symbol("★", movie.ratio()) +
+                    repeat_symbol("☆", (10 - movie.ratio()))
+                ));
+            ratingItem->setPos(
+                start_films,
+                pixmap.height() + titleItem->boundingRect().height()
+            );
+            scene_watchlist->addItem(ratingItem);
+        } else {
+            qDebug() << "Failed to load image from url:"
+                     << reply->errorString();
+        }
+        reply->deleteLater();
+        start_films += 200;
+    }
+}
+
 void OtherPage::build_scenes() {
     // delete if something
     if (view_favActors != nullptr) {
@@ -204,6 +262,14 @@ void OtherPage::build_scenes() {
         delete scene_watchlist;
         scene_watchlist = nullptr;
     }
+    if (actors_text != nullptr) {
+        delete actors_text;
+        actors_text = nullptr;
+    }
+    if (movies_text != nullptr) {
+        delete movies_text;
+        movies_text = nullptr;
+    }
 
     view_favActors = new QGraphicsView();
     scene_favActors = new QGraphicsScene();
@@ -215,12 +281,14 @@ void OtherPage::build_scenes() {
     favActorsImages << ":/img/tarantino.jpg" << ":/img/tarantino.jpg"
                     << ":/img/tarantino.jpg";
     view_favActors->setScene(scene_favActors);
-    view_favActors->setFixedHeight(250);
+    view_favActors->setFixedHeight(150);
     view_favActors->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view_favActors->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view_watchlist->setFrameShape(QFrame::NoFrame);
+    view_favActors->setFrameShape(QFrame::NoFrame);
 
     view_watchlist->setScene(scene_watchlist);
-    view_watchlist->setFixedHeight(250);
+    view_watchlist->setFixedHeight(300);
     view_watchlist->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view_watchlist->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     int x = 0;
@@ -235,6 +303,8 @@ void OtherPage::build_scenes() {
         x += item->boundingRect().width() + 10;
     }
 
+    update_watchlist();
+
     if (actors_text != nullptr) {
         rightBox->removeWidget(actors_text);
         delete actors_text;
@@ -246,22 +316,6 @@ void OtherPage::build_scenes() {
         movies_text = nullptr;
     }
 
-    // watchlist
-    watchlistImages.clear();
-    watchlistImages << ":/img/titanik.jpeg" << ":/img/titanik.jpeg"
-                    << ":/img/titanik.jpeg";
-    x = 0;
-    for (auto it = watchlistImages.rbegin(); it != watchlistImages.rend();
-         ++it) {
-        QPixmap pixmap(*it);
-        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(
-            pixmap.scaledToHeight(view_watchlist->height())
-        );
-        item->setPos(x, 0);
-        scene_watchlist->addItem(item);
-        x += item->boundingRect().width() + 10;
-    }
-
     actors_text = new QLabel();
     actors_text->setText(
         QString::fromStdString(user->preview().login().c_str()) +
@@ -271,8 +325,7 @@ void OtherPage::build_scenes() {
 
     movies_text = new QLabel();
     movies_text->setText(
-        QString::fromStdString(user->preview().login().c_str()) +
-        "'s watchlist"
+        QString::fromStdString(user->preview().login().c_str()) + "'s watchlist"
     );
     movies_text->setStyleSheet("font-size: 20px; color: black;");
 
@@ -309,14 +362,16 @@ void OtherPage::build() {
 
     // photo
     QLabel *label_photo = new QLabel();
-    std::string photo_data = user->preview().photo();
+    common::UserPreview user_preview = user->preview();
+    // std::string photo_data(
+    //     user_preview.photo().begin(), user_preview.photo().end()
+    // );
     QPixmap pixmap;
-    if (photo_data.empty()) {
+    if (user_preview.photo().empty()) {
         pixmap.load(":/img/person-circle2.png");
     } else {
-        pixmap.loadFromData(
-            reinterpret_cast<const uchar *>(photo_data.data()),
-            photo_data.size()
+        pixmap = QPixmap::fromImage(
+            QImage::fromData(QByteArray::fromStdString(user_preview.photo()))
         );
     }
 
