@@ -1,6 +1,17 @@
 #include "profile.h"
 #include "ui_profile.h"
 
+// i will change
+bool was_watchlist_changed = false;
+
+std::string repeat_symbols(const std::string &str, int times) {
+    std::string result;
+    for (int i = 0; i < times; ++i) {
+        result += str;
+    }
+    return result;
+}
+
 class MyGraphicsItem : public QGraphicsPixmapItem {
 public:
     MyGraphicsItem(
@@ -17,12 +28,14 @@ public:
           isEditingMode(false) {
         QGraphicsTextItem *titleItem =
             new QGraphicsTextItem(QString::fromStdString(title), this);
-        titleItem->setPos(
-            0, pixmap.height()
-        );
+        titleItem->setPos(0, pixmap.height());
 
-        QGraphicsSimpleTextItem *ratingItem =
-            new QGraphicsSimpleTextItem(QString::number(rating), this);
+        QGraphicsSimpleTextItem *ratingItem = new QGraphicsSimpleTextItem(
+            QString::fromStdString(
+                repeat_symbols("★", rating) + repeat_symbols("☆", (10 - rating))
+            ),
+            this
+        );
         ratingItem->setPos(
             0, pixmap.height() + titleItem->boundingRect().height()
         );
@@ -36,7 +49,7 @@ public:
         if (!isEditingMode || !scene()) {
             return;
         }
-
+        was_watchlist_changed = true;
         int movieId = data(Qt::UserRole).toInt();
         int rating = data(Qt::UserRole + 1).toInt();
         QGraphicsProxyWidget *proxy =
@@ -171,8 +184,11 @@ void Profile::button_save_clicked() {
     greeting->clear();
     greeting->setText(QString("Hello, %1!").arg(lineEdit_username->text()));
     update_favorite_genres();
-    update_watchlist(0, false);
     update_actors(0, false);
+    if (was_watchlist_changed) {
+        update_watchlist(0, false);
+        was_watchlist_changed = false;
+    }
 
     // replace lineEdits with labels
     label_status->setText(lineEdit_status->text());
@@ -249,6 +265,7 @@ void Profile::plusItem_favActors_clicked() {
 }
 
 void Profile::plusItem_watchlist_clicked() {
+    was_watchlist_changed = true;
     // open search window
     Movies_SearchWindow *searchWindow = new Movies_SearchWindow(manager, this);
     searchWindow->setWindowModality(Qt::ApplicationModal);
@@ -263,30 +280,46 @@ void Profile::plusItem_watchlist_clicked() {
 void Profile::update_watchlist(int start_films, bool edit_mode) {
     for (const auto &movie : user->watched_films()) {
         QPixmap pixmap;
-        pixmap.load(":/img/titanik.jpeg");
-        pixmap = pixmap.scaledToHeight(view_watchlist->height() - 50);
+        QNetworkAccessManager *nam = new QNetworkAccessManager(this);
+        auto full_page =
+            manager->new_client.get_film_full_page(movie.preview().film_id());
+        // QUrl url(full_page->full_page_cover_url().c_str());
+        QUrl url(movie.preview().preview_cover_url().c_str());
+        QNetworkReply *reply = nam->get(QNetworkRequest(url));
 
-        MyGraphicsItem *item = new MyGraphicsItem(
-            pixmap, movie.preview().title(), movie.ratio(),
-            movie.preview().film_id(), manager
-        );
-        int32_t movieId = movie.preview().film_id();
-        qDebug() << "Setting movieId:" << movieId;
-        item->setData(Qt::UserRole, movieId);
-        if (edit_mode) {
-            item->setToolTip(tr("Double click to delete this movie"));
-            item->setCursor(Qt::PointingHandCursor);
-            item->setEditingMode(true);
+        QEventLoop loop;
+        connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+        loop.exec();
+        if (reply->error() == QNetworkReply::NoError) {
+            QByteArray data = reply->readAll();
+            QImage image;
+            image.loadFromData(data);
+            pixmap = QPixmap::fromImage(image);
+            pixmap = pixmap.scaledToHeight(view_watchlist->height() - 50);
+
+            MyGraphicsItem *item = new MyGraphicsItem(
+                pixmap, movie.preview().title(), movie.ratio(),
+                movie.preview().film_id(), manager
+            );
+            int32_t movieId = movie.preview().film_id();
+            item->setData(Qt::UserRole, movieId);
+            if (edit_mode) {
+                item->setToolTip(tr("Double click to delete this movie"));
+                item->setCursor(Qt::PointingHandCursor);
+                item->setEditingMode(true);
+            } else {
+                item->setToolTip("");
+                item->setCursor(Qt::ArrowCursor);
+                item->setEditingMode(false);
+            }
+            item->setPos(start_films, 0);
+            scene_watchlist->addItem(item);
         } else {
-            item->setToolTip("");
-            item->setCursor(Qt::ArrowCursor);
-            item->setEditingMode(false);
+            qDebug() << "Failed to load image from url:"
+                     << reply->errorString();
         }
-        item->setPos(start_films, 0);
-        scene_watchlist->addItem(item);
-
-        start_films += item->boundingRect().width() +
-                       20; 
+        reply->deleteLater();
+        start_films += 200;
     }
 }
 
@@ -314,8 +347,7 @@ void Profile::update_actors(int start_actors, bool edit_mode) {
         item->setPos(start_actors, 0);
         scene_favActors->addItem(item);
 
-        start_actors += item->boundingRect().width() +
-                        20;
+        start_actors += item->boundingRect().width() + 20;
     }
 }
 
@@ -402,19 +434,19 @@ void Profile::build_scenes(bool edit_mode) {
     actors_text->setStyleSheet("font-size: 20px; color: black;");
 
     movies_text = new QLabel();
-    movies_text->setText("Your favourite movies");
+    movies_text->setText("Your watchlist");
     movies_text->setStyleSheet("font-size: 20px; color: black;");
 
     int start_actors = 0;
     int start_films = 0;
 
     view_favActors->setScene(scene_favActors);
-    view_favActors->setFixedHeight(250);
+    view_favActors->setFixedHeight(150);
     view_favActors->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view_favActors->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     view_watchlist->setScene(scene_watchlist);
-    view_watchlist->setFixedHeight(250);
+    view_watchlist->setFixedHeight(300);
     view_watchlist->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view_watchlist->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
@@ -472,10 +504,11 @@ void Profile::build() {
         "Hello, " + QString::fromStdString(user->preview().login().c_str()) +
         "!"
     );
+    common::UserPreview user2 = user->preview();
     greeting->setStyleSheet("font-size: 50px; color: #8023a8;");
     label_photo = new QLabel();
     label_photo->installEventFilter(this);
-    std::string photo_data = user->preview().photo();
+    std::string photo_data(user2.photo().begin(), user2.photo().end());
     QPixmap pixmap;
     if (photo_data.empty()) {
         pixmap.load(":/img/person-circle2.png");
@@ -527,12 +560,11 @@ void Profile::build() {
     );
     label_about->setWordWrap(true);
     textEdit_about = new QTextEdit();
-    textEdit_about->setMaximumWidth(500);
     textEdit_about->hide();
 
     lineEdit_status->setPlaceholderText("My favourite quote");
     textEdit_about->setPlaceholderText("About me");
-    textEdit_about->setStyleSheet("color: #8023a8;");
+    textEdit_about->setStyleSheet("color: #8023a8; font-size: 18px;");
     textEdit_about->setMaximumHeight(300);
 
     // username

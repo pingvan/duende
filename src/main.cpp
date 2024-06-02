@@ -33,11 +33,11 @@ void run_server() {
     auth_service auth_service;
     auth_service_data auth_service_data;
     ProfileServiceImpl profile_service;
-    chat_service_ chat_service;
-    chat_data_service chat_data_service;
+    // chat_service_ chat_service;
+    // chat_data_service chat_data_service;
     SearchService search_service;
-    invitation_service invitation_service(chat_channel);
-    invitation_data_service invitation_data_service;
+    // invitation_service invitation_service(chat_channel);
+    // invitation_data_service invitation_data_service;
     UsersInteractionServiceImpl users_interaction_service;
     RecommendationServiceImpl recommendation_service;
     recommendation_service.Init();
@@ -77,12 +77,12 @@ void run_server() {
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
     builder.RegisterService(&auth_service);
     builder.RegisterService(&profile_service);
-    builder.RegisterService(&chat_service); 
+    // builder.RegisterService(&chat_service); 
     builder.RegisterService(&auth_service_data);
-    builder.RegisterService(&chat_data_service);
+    // builder.RegisterService(&chat_data_service);
     builder.RegisterService(&search_service);
-    builder.RegisterService(&invitation_service);
-    builder.RegisterService(&invitation_data_service);
+    // builder.RegisterService(&invitation_service);
+    // builder.RegisterService(&invitation_data_service);
     builder.RegisterService(&users_interaction_service);
     builder.RegisterService(&recommendation_service);
 

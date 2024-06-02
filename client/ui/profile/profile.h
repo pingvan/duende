@@ -25,7 +25,11 @@
 #include <QListWidget>
 #include <QFileDialog>
 #include <QGraphicsProxyWidget>
-
+#include <QImageReader>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QUrl>
 
 namespace Ui {
 class Profile;
@@ -54,7 +58,6 @@ private slots:
         editMode = !editMode;
     }
     void uploadPhoto();
-
 
 private:
     Ui::Profile *ui;
@@ -99,7 +102,7 @@ private:
     bool editMode = false;
     QMetaObject::Connection connection;
 
-    bool eventFilter(QObject *watched, QEvent *event) override; // Добавьте это объявление
+    bool eventFilter(QObject *watched, QEvent *event) override;
 };
 
 class ClickablePixmapItem : public QObject, public QGraphicsPixmapItem

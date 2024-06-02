@@ -13,9 +13,11 @@ client::client(const std::shared_ptr<grpc::Channel> &new_channel)
       invite_data_stub(invitation::InvitationDataService::NewStub(new_channel)),
       users_interaction_stub(
           users_interaction::UsersInteractionService::NewStub(new_channel)
-      ), recommendation_stub(
-          recommendation_service::RecommendationService::NewStub(new_channel)) 
-      {
+      ),
+      recommendation_stub(
+          recommendation_service::RecommendationService::NewStub(new_channel)
+      ),
+      profile_data_stub(profile::ProfileServiceData::NewStub(new_channel)) {
 }
 
 void client::init_invite_chat_stream(int user_id) {
@@ -40,9 +42,7 @@ void client::start_reading_invite_chat_stream() {
                 qDebug() << "Invite chat response received";
                 if (response.has_remove()) {
                     if (onRemoveFromChatReceived) {
-                        onRemoveFromChatReceived(
-                            response.remove()
-                        );
+                        onRemoveFromChatReceived(response.remove());
                     }
                 } else if (response.has_response_with_status()) {
                     qDebug()
@@ -62,7 +62,11 @@ void client::leave_invite_chat_stream(int user_id) {
     invite_chat_stream->Write(request);
 }
 
-chat_service::ChatPreview *client::create_group_chat(int creator_id, std::string chat_name, std::string description) {
+chat_service::ChatPreview *client::create_group_chat(
+    int creator_id,
+    std::string chat_name,
+    std::string description
+) {
     grpc::ClientContext context;
 
     chat_service::CreateGroupChatRequest request;
@@ -71,7 +75,8 @@ chat_service::ChatPreview *client::create_group_chat(int creator_id, std::string
     request.set_chat_name(chat_name);
     request.set_description(description);
 
-    grpc::Status status = chat_stub->CreateGroupChat(&context, request, response);
+    grpc::Status status =
+        chat_stub->CreateGroupChat(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -87,7 +92,8 @@ bool client::check_user_privileges(int user_id, int chat_id) {
     request.set_user_id(user_id);
     request.set_chat_id(chat_id);
 
-    grpc::Status status = chat_stub->CheckUserPrivileges(&context, request, response);
+    grpc::Status status =
+        chat_stub->CheckUserPrivileges(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -102,7 +108,8 @@ void client::change_chat_name(int chat_id, std::string new_chat_name) {
     request.set_chat_id(chat_id);
     request.set_new_chat_name(new_chat_name);
 
-    grpc::Status status = chat_stub->ChangeChatName(&context, request, response);
+    grpc::Status status =
+        chat_stub->ChangeChatName(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -116,29 +123,34 @@ void client::change_description(int chat_id, std::string new_description) {
     request.set_chat_id(chat_id);
     request.set_new_description(new_description);
 
-    grpc::Status status = chat_stub->ChangeChatDescription(&context, request, response);
+    grpc::Status status =
+        chat_stub->ChangeChatDescription(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
 }
 
 // void client::change_cover(int chat_id, std::string new_cover) {
-    // grpc::ClientContext context;
+// grpc::ClientContext context;
 
-    // chat_service::ChangeChatCoverRequest request;
-    // auto *response = new chat_service::OperationStatusResponse;
-    // request.set_chat_id(chat_id);
-    // request.set_new_cover(new_cover);
+// chat_service::ChangeChatCoverRequest request;
+// auto *response = new chat_service::OperationStatusResponse;
+// request.set_chat_id(chat_id);
+// request.set_new_cover(new_cover);
 
-    // grpc::Status status = chat_stub->ChangeChatCover(&context, request, response);
-    // if (!status.ok()) {
-    //     std::cout << status.error_message() << '\n';
-    // }
+// grpc::Status status = chat_stub->ChangeChatCover(&context, request,
+// response); if (!status.ok()) {
+//     std::cout << status.error_message() << '\n';
+// }
 // }
 
-void client::add_privileges_to_user(int sender_id, int receiver_id, int chat_id) {
+void client::add_privileges_to_user(
+    int sender_id,
+    int receiver_id,
+    int chat_id
+) {
     if (!check_user_privileges(sender_id, chat_id)) {
-        return; // TODO add errors
+        return;  // TODO add errors
     }
 
     grpc::ClientContext context;
@@ -148,15 +160,20 @@ void client::add_privileges_to_user(int sender_id, int receiver_id, int chat_id)
     request.set_user_id(receiver_id);
     request.set_chat_id(chat_id);
 
-    grpc::Status status = chat_stub->AddPrivilegesToUser(&context, request, response);
+    grpc::Status status =
+        chat_stub->AddPrivilegesToUser(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
 }
 
-void client::remove_privileges_from_user(int sender_id, int receiver_id, int chat_id) {
+void client::remove_privileges_from_user(
+    int sender_id,
+    int receiver_id,
+    int chat_id
+) {
     if (!check_user_privileges(sender_id, chat_id)) {
-        return; // TODO add errors
+        return;  // TODO add errors
     }
 
     grpc::ClientContext context;
@@ -166,15 +183,21 @@ void client::remove_privileges_from_user(int sender_id, int receiver_id, int cha
     request.set_user_id(receiver_id);
     request.set_chat_id(chat_id);
 
-    grpc::Status status = chat_stub->RemovePrivilegesFromUser(&context, request, response);
+    grpc::Status status =
+        chat_stub->RemovePrivilegesFromUser(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
 }
 
-void client::remove_user_from_chat(int sender_id, int receiver_id, int chat_id) {
-    if (!check_user_privileges(sender_id, chat_id) && sender_id != receiver_id) {
-        return; // TODO add errors
+void client::remove_user_from_chat(
+    int sender_id,
+    int receiver_id,
+    int chat_id
+) {
+    if (!check_user_privileges(sender_id, chat_id) &&
+        sender_id != receiver_id) {
+        return;  // TODO add errors
     }
 
     chat_service::RemoveRequest request;
@@ -206,38 +229,32 @@ void client::init_invite_stream(int user_id) {
 
 void client::start_reading_invite_stream() {
     qDebug() << "start_reading_invite_stream started";
-    QFuture<void> future =
-        QtConcurrent::run([this] {
-            qDebug() << "QtConcurrent invite stream running";
-            invitation::InvitationResponse response;
-            while (invite_stream->Read(&response)) {
-                qDebug() << "Invite response received";
-                if (response.has_invite()) {
-                    if (onNewInviteReceived) {
-                        onNewInviteReceived(response.invite()
-                        );
-                    }
-                }
-                if (response.has_invite_respond()) {
-                    if (onInviteRespondReceived) {
-                        onInviteRespondReceived(
-                            response.invite_respond()
-                        );
-                    }
-                }
-                if (response.has_init()) {
-                    qDebug()
-                        << (response.init().status() ==
-                            invitation::Status::SUCCESS);
-                }
-                if (response.has_leave()) {
-                    qDebug()
-                        << (response.leave().status() ==
-                            invitation::Status::SUCCESS);
+    QFuture<void> future = QtConcurrent::run([this] {
+        qDebug() << "QtConcurrent invite stream running";
+        invitation::InvitationResponse response;
+        while (invite_stream->Read(&response)) {
+            qDebug() << "Invite response received";
+            if (response.has_invite()) {
+                if (onNewInviteReceived) {
+                    onNewInviteReceived(response.invite());
                 }
             }
-            qDebug() << "Invite stream ended";
-        });
+            if (response.has_invite_respond()) {
+                if (onInviteRespondReceived) {
+                    onInviteRespondReceived(response.invite_respond());
+                }
+            }
+            if (response.has_init()) {
+                qDebug(
+                ) << (response.init().status() == invitation::Status::SUCCESS);
+            }
+            if (response.has_leave()) {
+                qDebug(
+                ) << (response.leave().status() == invitation::Status::SUCCESS);
+            }
+        }
+        qDebug() << "Invite stream ended";
+    });
 }
 
 void client::leave_invite_stream(int user_id) {
@@ -486,7 +503,8 @@ void client::remove_genre(int user_id, const std::string &genre_name) {
     request.set_id(user_id);
     profile::Genre *genre = request.add_genres();
     genre->set_name(genre_name);
-    qDebug() << "Sending remove genre request to server: " << genre_name.c_str();
+    qDebug() << "Sending remove genre request to server: "
+             << genre_name.c_str();
     grpc::Status status =
         profile_stub->RemoveFromListOfGenres(&context, request, response);
     if (!status.ok()) {
@@ -648,7 +666,8 @@ bool client::check_user_in_chat(int user_id, int chat_id) {
     request.set_user_id(user_id);
     request.set_chat_id(chat_id);
 
-    grpc::Status status = chat_data_stub->CheckUserInChat(&context, request, response);
+    grpc::Status status =
+        chat_data_stub->CheckUserInChat(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -774,8 +793,9 @@ std::vector<uint32_t> client::get_subscriptions(uint32_t subscriber_id) {
 
     grpc::ClientContext context;
 
-    grpc::Status status =
-        users_interaction_stub->ShowAllSubscriptions(&context, request, &response);
+    grpc::Status status = users_interaction_stub->ShowAllSubscriptions(
+        &context, request, &response
+    );
 
     std::vector<uint32_t> result;
     if (status.ok()) {
@@ -796,8 +816,9 @@ std::vector<uint32_t> client::get_subscribers(uint32_t subscribie_id) {
 
     grpc::ClientContext context;
 
-    grpc::Status status =
-        users_interaction_stub->ShowAllSubscribers(&context, request, &response);
+    grpc::Status status = users_interaction_stub->ShowAllSubscribers(
+        &context, request, &response
+    );
 
     std::vector<uint32_t> result;
     if (status.ok()) {
@@ -852,7 +873,8 @@ std::vector<uint32_t> client::get_blocked(uint32_t blockie_id) {
 
     grpc::ClientContext context;
 
-    grpc::Status status = users_interaction_stub->ShowAllBlocked(&context, request, &response);
+    grpc::Status status =
+        users_interaction_stub->ShowAllBlocked(&context, request, &response);
 
     std::vector<uint32_t> result;
     if (status.ok()) {
@@ -867,7 +889,8 @@ std::vector<uint32_t> client::get_blocked(uint32_t blockie_id) {
 
 bool client::is_subscribed(uint32_t user_id, uint32_t subscribie_id) {
     std::vector<uint32_t> subscribers = get_subscribers(subscribie_id);
-    return std::find(subscribers.begin(), subscribers.end(), user_id) != subscribers.end();
+    return std::find(subscribers.begin(), subscribers.end(), user_id) !=
+           subscribers.end();
 }
 
 bool client::is_blocked(uint32_t user_id, uint32_t blockie_id) {
@@ -877,7 +900,7 @@ bool client::is_blocked(uint32_t user_id, uint32_t blockie_id) {
 
 bool client::invite_already_sent(uint32_t user_id, uint32_t receiver_id) {
     auto invites = get_sent_invites(user_id);
-    for (const auto& invite : invites) {
+    for (const auto &invite : invites) {
         if (invite.sender().user_id() == receiver_id) {
             return true;
         }
@@ -890,16 +913,21 @@ std::vector<uint32_t> client::get_mutual_subscriptions(uint32_t user_id) {
     request.set_subscriber_id(user_id);
     users_interaction::GetMutualSubscriptionsResponse response;
     grpc::ClientContext context;
-    grpc::Status status = users_interaction_stub->GetMutualSubscriptions(&context, request, &response);
+    grpc::Status status = users_interaction_stub->GetMutualSubscriptions(
+        &context, request, &response
+    );
     if (!status.ok()) {
-        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+        std::cout << status.error_code() << ": " << status.error_message()
+                  << std::endl;
         return {};
     }
-    std::vector<uint32_t> mutual_subscriptions(response.subscribie_id().begin(), response.subscribie_id().end());
+    std::vector<uint32_t> mutual_subscriptions(
+        response.subscribie_id().begin(), response.subscribie_id().end()
+    );
     return mutual_subscriptions;
 }
 
-void client::change_photo(uint32_t user_id, const std::string& photo_path) {
+void client::change_photo(uint32_t user_id, const std::string &photo_path) {
     profile::ProfilePhotoRequest request;
 
     std::ifstream file(photo_path, std::ios::binary);
@@ -907,56 +935,87 @@ void client::change_photo(uint32_t user_id, const std::string& photo_path) {
         std::cout << "Cannot open file: " << photo_path << std::endl;
         return;
     }
-    std::string photo_data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    std::basic_string photo_data(
+        (std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()
+    );
+    std::cout << photo_data;
     request.set_user_id(user_id);
     request.set_photo(photo_data);
 
     profile::ProfileReply response;
     grpc::ClientContext context;
-    grpc::Status status = profile_stub->ChangeProfilePhoto(&context, request, &response);
+    grpc::Status status =
+        profile_stub->ChangeProfilePhoto(&context, request, &response);
 
     if (!status.ok()) {
-        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+        std::cout << status.error_code() << ": " << status.error_message()
+                  << std::endl;
         return;
     }
 }
 
-std::vector<common::UserPreview> client::get_user_recommendations(uint32_t user_id) {
+std::vector<common::UserPreview> client::get_user_recommendations(
+    uint32_t user_id
+) {
     recommendation_service::UserId request;
     request.set_id(user_id);
 
     recommendation_service::GetUsersRecommendationsResponse response;
     grpc::ClientContext context;
-    grpc::Status status = recommendation_stub->GetUsersRecommendations(&context, request, &response);
+    grpc::Status status = recommendation_stub->GetUsersRecommendations(
+        &context, request, &response
+    );
 
     std::vector<common::UserPreview> user_recommendations;
     if (status.ok()) {
-        for (const auto& user : response.user()) {
+        for (const auto &user : response.user()) {
             user_recommendations.push_back(user);
         }
     } else {
-        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+        std::cout << status.error_code() << ": " << status.error_message()
+                  << std::endl;
     }
 
     return user_recommendations;
 }
 
-std::vector<common::FilmPreview> client::get_film_recommendations(uint32_t user_id) {
+std::vector<common::FilmPreview> client::get_film_recommendations(
+    uint32_t user_id
+) {
     recommendation_service::UserId request;
     request.set_id(user_id);
 
     recommendation_service::GetFilmsRecommendationsResponse response;
     grpc::ClientContext context;
-    grpc::Status status = recommendation_stub->GetFilmsRecommendations(&context, request, &response);
+    grpc::Status status = recommendation_stub->GetFilmsRecommendations(
+        &context, request, &response
+    );
 
     std::vector<common::FilmPreview> film_recommendations;
     if (status.ok()) {
-        for (const auto& film : response.film()) {
+        for (const auto &film : response.film()) {
             film_recommendations.push_back(film);
         }
     } else {
-        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+        std::cout << status.error_code() << ": " << status.error_message()
+                  << std::endl;
     }
 
     return film_recommendations;
+}
+
+common::FilmFullPage *client::get_film_full_page(int film_id) {
+    grpc::ClientContext context;
+
+    profile::FilmId request;
+    auto *response = new common::FilmFullPage;
+
+    request.set_id(film_id);
+    grpc::Status status =
+        profile_data_stub->GetFilmFullPage(&context, request, response);
+    // if (!status.ok()) {
+    //     qDebug() << "blya" << status.error_message().c_str();
+    //     return {};
+    // }
+    return response;
 }
