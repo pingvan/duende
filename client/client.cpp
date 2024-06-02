@@ -292,6 +292,9 @@ void client::respond_invite(
     else {
         request.set_status(invitation::InviteStatus::DECLINED);
     }
+    if (chat_id != -1) {
+        request.set_chat_id(chat_id);
+    }
     
     std::cout << request.DebugString() << std::endl;
 
@@ -651,6 +654,36 @@ bool client::check_user_in_chat(int user_id, int chat_id) {
     }
 
     return response->response();
+}
+
+chat_service::ChatPreview *client::get_chat_preview(int chat_id) {
+    grpc::ClientContext context;
+
+    chat_service::UserChat request;
+    auto *response = new chat_service::ChatPreview;
+    request.set_chat_id(chat_id);
+
+    grpc::Status status = chat_data_stub->GetChatPreview(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << '\n';
+    }
+
+    return response;
+}
+
+common::GroupChatPreview *client::get_group_chat_preview(int chat_id) {
+    grpc::ClientContext context;
+
+    chat_service::UserChat request;
+    auto *response = new common::GroupChatPreview;
+    request.set_chat_id(chat_id);
+
+    grpc::Status status = chat_data_stub->GetGroupChatPreview(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << '\n';
+    }
+
+    return response;
 }
 
 authservice::LoginResponse *

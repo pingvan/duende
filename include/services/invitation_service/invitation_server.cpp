@@ -15,10 +15,10 @@ grpc::Status invitation_service::InvitationStream(
                 int sender_id = request.invite().sender_id();
                 int receiver_id = request.invite().receiver_id();
                 int chat_id = request.invite().chat_id();
-                common::GroupChatPreview *chat = new common::GroupChatPreview; // TODO
+                common::GroupChatPreview *chat = get_group_chat_preview(chat_id);
 
-                if (invite_db_api.is_invite_already_sent(
-                    chat_id, receiver_id, true
+                if (invite_db_api.is_invite_already_sent_into_the_group_chat(
+                    chat_id, receiver_id
                 )) {
                     invitation::InvitationResponse sender_response;
                     const auto invite_sender_response = new invitation::SendInvitationResponse;
@@ -41,10 +41,16 @@ grpc::Status invitation_service::InvitationStream(
                 invitation::InvitationResponse receiver_response;
 
                 const auto sender = new common::UserPreview;
+                auto sender_preview = database::authservice_database_api::get_user_preview(sender_id);
+                auto sender_preview_proto = new common::UserPreview;
+                sender_preview.convert_to_proto(sender_preview_proto);
+                sender->CopyFrom(*sender_preview_proto);
+
                 const auto receiver = new common::UserPreview;
-                sender->set_user_id(sender_id);
-                receiver->set_user_id(receiver_id);
-                // TODO add logins
+                auto receiver_preview = database::authservice_database_api::get_user_preview(receiver_id);
+                auto receiver_preview_proto = new common::UserPreview;
+                receiver_preview.convert_to_proto(receiver_preview_proto);
+                receiver->CopyFrom(*receiver_preview_proto);
 
                 const auto invite_sender_response = new invitation::SendInvitationResponse;
                 const auto invite_receiver_response = new invitation::SendInvitationResponse;
@@ -122,10 +128,16 @@ grpc::Status invitation_service::InvitationStream(
                 invitation::InvitationResponse receiver_response;
 
                 const auto sender = new common::UserPreview;
+                auto sender_preview = database::authservice_database_api::get_user_preview(sender_id);
+                auto sender_preview_proto = new common::UserPreview;
+                sender_preview.convert_to_proto(sender_preview_proto);
+                sender->CopyFrom(*sender_preview_proto);
+
                 const auto receiver = new common::UserPreview;
-                sender->set_user_id(sender_id);
-                receiver->set_user_id(receiver_id);
-                // TODO add logins
+                auto receiver_preview = database::authservice_database_api::get_user_preview(receiver_id);
+                auto receiver_preview_proto = new common::UserPreview;
+                receiver_preview.convert_to_proto(receiver_preview_proto);
+                receiver->CopyFrom(*receiver_preview_proto);
 
                 const auto invite_sender_response = new invitation::SendInvitationResponse;
                 const auto invite_receiver_response = new invitation::SendInvitationResponse;
@@ -182,11 +194,11 @@ grpc::Status invitation_service::InvitationStream(
                     delete private_chat;
                 }
                 else {
-                    chat_service::ChatPreview *group_chat = new chat_service::ChatPreview; // TODO
+                    chat_service::ChatPreview *group_chat = get_chat_preview(request.invite_respond().chat_id());
                     respond_sender_response->mutable_chat()->CopyFrom(*group_chat);
                     respond_receiver_response->mutable_chat()->CopyFrom(*group_chat);
 
-                    add_user_to_chat(sender_id, request.invite_respond().chat_id()); // TODO replace with group_chat->chat_id()
+                    add_user_to_chat(sender_id, group_chat->chat_id());
                 }
                             
             } else {
@@ -241,6 +253,30 @@ chat_service::ChatPreview *invitation_service::create_private_chat(int first_id,
 
     auto *response = new chat_service::ChatPreview;
     grpc::Status status = chat_stub->CreatePrivateChat(&context, request, response);
+
+    return response;
+}
+
+chat_service::ChatPreview *invitation_service::get_chat_preview(int chat_id) {
+    grpc::ClientContext context;
+
+    chat_service::UserChat request;
+    request.set_chat_id(chat_id);
+
+    auto *response = new chat_service::ChatPreview;
+    grpc::Status status = chat_data_stub->GetChatPreview(&context, request, response);
+
+    return response;
+}
+
+common::GroupChatPreview *invitation_service::get_group_chat_preview(int chat_id) {
+    grpc::ClientContext context;
+
+    chat_service::UserChat request;
+    request.set_chat_id(chat_id);
+
+    auto *response = new common::GroupChatPreview;
+    grpc::Status status = chat_data_stub->GetGroupChatPreview(&context, request, response);
 
     return response;
 }

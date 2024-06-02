@@ -47,6 +47,8 @@ service ChatDataService {
     rpc GetLastMessages(GetChatMessagesRequest) returns (LastMessages);
     rpc GetChatMembers(UserChat) returns (GetChatMembersResponse);
     rpc CheckUserInChat(UserChat) returns (BoolResponse);
+    rpc GetChatPreview(UserChat) returns (ChatPreview);
+    rpc GetGroupChatPreview(UserChat) returns (common.GroupChatPreview);
 }
 
 message ChatRequests {

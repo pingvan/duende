@@ -37,4 +37,6 @@ struct chat_data_service final : public chat_service::ChatDataService::Service {
     grpc::Status GetLastMessages(grpc::ServerContext *context, const chat_service::GetChatMessagesRequest *request, chat_service::LastMessages *responst) override;
     grpc::Status GetChatMembers(grpc::ServerContext *context, const chat_service::UserChat *request, chat_service::GetChatMembersResponse *response) override;
     grpc::Status CheckUserInChat(grpc::ServerContext *context, const chat_service::UserChat *request, chat_service::BoolResponse *response) override;
+    grpc::Status GetChatPreview(grpc::ServerContext *context, const chat_service::UserChat *request, chat_service::ChatPreview *response) override;
+    grpc::Status GetGroupChatPreview(grpc::ServerContext *context, const chat_service::UserChat *request, common::GroupChatPreview *response) override;
 };
