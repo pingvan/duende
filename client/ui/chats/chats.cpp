@@ -905,9 +905,9 @@ void Chats::delete_chat_item(int chat_id)
     if (currentChatId == chat_id) {
         currentChatId = -1;
 
-        if (chatPageLayout != nullptr) {
-            while (chatPageLayout->count() != 0) {
-                auto item = chatPageLayout->takeAt(0);
+        if (scrollWidgetLayout != nullptr) {
+            while (scrollWidgetLayout->count() != 0) {
+                auto item = scrollWidgetLayout->takeAt(0);
                 delete item->widget();
                 delete item;
             }
