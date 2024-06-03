@@ -15,6 +15,9 @@ service ProfileService {
   rpc AddToListOfGenres (GenreRequest) returns (ProfileReply) {}
   rpc RemoveFromListOfGenres (GenreRequest) returns (ProfileReply) {}
   rpc ChangeProfilePhoto (ProfilePhotoRequest) returns (ProfileReply) {}
+  rpc CheckIsGenreFavourite (GenreRequest) returns (IsChosenReply) {}
+  rpc CheckIsMovieChosen (MovieRequest) returns (IsChosenReply) {}
+  rpc CheckIsActorFavourite (ActorRequest) returns (IsChosenReply) {}
 }
 
 service ProfileServiceData {
@@ -76,4 +79,8 @@ message ProfileReply {
 message ProfilePhotoRequest {
   int32 user_id = 1;
   bytes photo = 2;
+}
+
+message IsChosenReply {
+  bool is_chosen = 1;
 }

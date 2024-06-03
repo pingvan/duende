@@ -29,6 +29,7 @@ public:
         QGraphicsTextItem *titleItem =
             new QGraphicsTextItem(QString::fromStdString(title), this);
         titleItem->setPos(0, pixmap.height());
+        titleItem->setTextWidth(pixmap.width());
 
         QGraphicsSimpleTextItem *ratingItem = new QGraphicsSimpleTextItem(
             QString::fromStdString(

@@ -1059,3 +1059,51 @@ common::FilmPreview *client::get_film_preview(int film_id) {
     }
     return response;
 }
+
+bool client::is_genre_favourite(uint32_t user_id, const std::string &genre_name) {
+    grpc::ClientContext context;
+
+    profile::GenreRequest request;
+    auto *response = new profile::IsChosenReply;
+    request.set_id(user_id);
+    profile::Genre *genre = request.add_genres();
+    genre->set_name(genre_name);
+    grpc::Status status =
+        profile_stub->CheckIsGenreFavourite(&context, request, response);
+    if (!status.ok()) {
+        return false;
+    }
+    return response->is_chosen();
+}
+
+bool client::is_actor_favourite(uint32_t user_id, uint32_t actor_id) {
+    grpc::ClientContext context;
+
+    profile::ActorRequest request;
+    auto *response = new profile::IsChosenReply;
+    request.set_id(user_id);
+    profile::Actor *actor = request.add_actors();
+    actor->set_id(actor_id);
+    grpc::Status status =
+        profile_stub->CheckIsActorFavourite(&context, request, response);
+    if (!status.ok()) {
+        return false;
+    }
+    return response->is_chosen();
+}
+
+bool client::is_movie_watched(uint32_t user_id, uint32_t movie_id) {
+    grpc::ClientContext context;
+
+    profile::MovieRequest request;
+    auto *response = new profile::IsChosenReply;
+    request.set_id(user_id);
+    profile::Movie *movie = request.add_movies();
+    movie->set_id(movie_id);
+    grpc::Status status =
+        profile_stub->CheckIsMovieChosen(&context, request, response);
+    if (!status.ok()) {
+        return false;
+    }
+    return response->is_chosen();
+}

@@ -37,7 +37,7 @@ private slots:
     void updateUserList(const QString &input);
     void onUserClicked(const QString &username);
     void updateRecommendations();
-    void onUserFromListClicked(QListWidgetItem *item);
+    void onUserFromListClicked(int id);
 
 private:
     Ui::Recommendations *ui;
@@ -48,6 +48,11 @@ private:
     QMap<QString, int> users_id;
     QListWidget *usersGallery;
     QListWidget *filmsGallery;
+    QGraphicsView *view_users = nullptr;
+    QGraphicsView *view_films = nullptr;
+
+    QGraphicsScene *scene_users = nullptr;
+    QGraphicsScene *scene_films = nullptr;
     // common::UserFullPage *user;
     // common::FilmFullPage *film;
 };
