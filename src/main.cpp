@@ -39,8 +39,8 @@ void run_server() {
     invitation_service invitation_service(chat_channel);
     invitation_data_service invitation_data_service;
     UsersInteractionServiceImpl users_interaction_service;
-    // RecommendationServiceImpl recommendation_service;
-    // recommendation_service.Init();
+    RecommendationServiceImpl recommendation_service;
+    recommendation_service.Init();
     // recommendation_service.computed = true;
     // recommendation_service.recomputeSimularity();
 
@@ -85,6 +85,7 @@ void run_server() {
     builder.RegisterService(&invitation_data_service);
     builder.RegisterService(&users_interaction_service);
     // builder.RegisterService(&recommendation_service);
+    builder.RegisterService(&profile_service_data);
 
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << '\n';

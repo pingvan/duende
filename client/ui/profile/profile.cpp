@@ -56,6 +56,25 @@ public:
             data(Qt::UserRole + 2).value<QGraphicsProxyWidget *>();
         qDebug() << "Double click detected. Removing movie with ID:" << movieId;
         manager->new_client.remove_movie(manager->ID, movieId, rating);
+        // auto deleted_movie = remove(
+        //     manager->watchlist.begin(), manager->watchlist.end(),
+        //     movie{movieId, rating}
+        // );
+        // manager->watchlist.erase(deleted_movie, manager->watchlist.end());
+        auto it = std::find_if(
+            manager->watchlist.begin(), manager->watchlist.end(),
+            [movieId, rating](const movie &m) {
+                return m.id == movieId && m.ratio == rating;
+            }
+        );
+
+        if (it != manager->watchlist.end()) {
+            // Удаляем найденный объект movie
+            manager->watchlist.erase(it);
+            qDebug() << "Movie removed successfully.";
+        } else {
+            qDebug() << "Movie not found in watchlist.";
+        }
         qDebug() << "Movie removed successfully.";
         scene()->removeItem(this);
         delete this;
@@ -278,13 +297,29 @@ void Profile::plusItem_watchlist_clicked() {
 }
 
 void Profile::update_watchlist(int start_films, bool edit_mode) {
+    // TODO: without new vector
+    std::vector<common::FilmOnUserPage> current_watchlist;
     for (const auto &movie : user->watched_films()) {
+        current_watchlist.push_back(movie);
+    }
+    std::sort(
+        current_watchlist.begin(), current_watchlist.end(),
+        [](const common::FilmOnUserPage &a, const common::FilmOnUserPage &b) {
+            return a.ratio() > b.ratio();
+        }
+    );
+    for (const auto &movie : current_watchlist) {
         QPixmap pixmap;
         QNetworkAccessManager *nam = new QNetworkAccessManager(this);
-        auto full_page =
+        auto *full_page =
             manager->new_client.get_film_full_page(movie.preview().film_id());
-        // QUrl url(full_page->full_page_cover_url().c_str());
-        QUrl url(movie.preview().preview_cover_url().c_str());
+        QUrl url;
+        if (full_page == nullptr) {
+            qDebug() << "aaaaaaaaa";
+            url = movie.preview().preview_cover_url().c_str();
+        } else {
+            url = full_page->full_page_cover_url().c_str();
+        }
         QNetworkReply *reply = nam->get(QNetworkRequest(url));
 
         QEventLoop loop;

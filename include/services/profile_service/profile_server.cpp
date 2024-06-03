@@ -185,3 +185,9 @@ grpc::Status ProfileDataService::GetFilmFullPage(grpc::ServerContext *context, c
     film_full_page.convert_to_proto(response);
     return grpc::Status::OK;
 }
+
+grpc::Status ProfileDataService::GetFilmPreview(grpc::ServerContext *context, const profile::FilmId *request, common::FilmPreview *response) {
+    auto film_preview = database::profile_service_database_api::get_film_preview(request->id());
+    film_preview.convert_to_proto(response);
+    return grpc::Status::OK;
+}

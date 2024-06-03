@@ -133,4 +133,5 @@ public:
     std::vector<common::UserPreview> get_user_recommendations(uint32_t user_id);
     std::vector<common::FilmPreview> get_film_recommendations(uint32_t user_id);
     common::FilmFullPage *get_film_full_page(int film_id);
+    common::FilmPreview *get_film_preview(int film_id);
 };
