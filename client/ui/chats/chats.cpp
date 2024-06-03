@@ -609,7 +609,9 @@ void Chats::onChatClicked(QListWidgetItem* item)
     scrollArea->setWidget(scrollWidget);
 
     // TODO
-    scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
+    QTimer::singleShot(100, [this]() {
+        scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
+    });
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->update();
 }
@@ -791,7 +793,9 @@ void Chats::make_message_item(const chat_service::MessageReceived& message)
             : scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignLeft);
     }
 
-    scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
+    QTimer::singleShot(100, [this]() {
+        scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
+    });
     scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->update();
