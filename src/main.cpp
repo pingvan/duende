@@ -39,8 +39,9 @@ void run_server() {
     invitation_service invitation_service(chat_channel);
     invitation_data_service invitation_data_service;
     UsersInteractionServiceImpl users_interaction_service;
-    RecommendationServiceImpl recommendation_service;
-    recommendation_service.Init();
+    // RecommendationServiceImpl recommendation_service;
+    ProfileDataService profile_service_data;
+    // recommendation_service.Init();
     // recommendation_service.computed = true;
     // recommendation_service.recomputeSimularity();
 

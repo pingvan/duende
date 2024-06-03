@@ -49,6 +49,45 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     qDebug() << "Chats page end\n";
 }
 
+void Chats::onUserInInviteClicked()
+{
+    int user_id = invitesData[currentInviteId].sender().user_id();
+    emit userClicked(user_id);
+}
+
+void Chats::onUserInPrivateChatClicked()
+{
+    int chat_id        = chatList->currentItem()->data(Qt::UserRole).toInt();
+    bool is_group_chat = chatList->currentItem()->data(Qt::UserRole + 3).toInt();
+    if (is_group_chat) {
+        return;
+    }
+
+    std::vector<common::UserPreview> members = manager->new_client.get_chat_members(chat_id);
+    for (const auto& member : members) {
+        if (member.user_id() != manager->ID) {
+            emit userClicked(member.user_id());
+        }
+    }
+}
+
+QString Chats::parseTimeStamp(const std::string& time_stamp)
+{
+    QDateTime messageDateTime = QDateTime::fromString(QString::fromStdString(time_stamp), "yyyy-MM-dd hh:mm:ss");
+    QDate messageDate = messageDateTime.date();
+    QDate currentDate = QDate::currentDate();
+
+    if (messageDate == currentDate) {
+        return messageDateTime.time().toString("hh:mm");
+    } else if (messageDate.addDays(1) == currentDate) {
+        return "Yesterday";
+    } else if (messageDate.year() == currentDate.year()) {
+        return messageDate.toString("MMM dd");
+    } else {
+        return messageDate.toString("MMM dd, yyyy");
+    }
+}
+
 void Chats::onGenerateFilmButtonClicked() {
     int chat_id = currentChatId;
 
@@ -532,6 +571,13 @@ void Chats::onChatClicked(QListWidgetItem* item)
     messageInput->setVisible(true);
     sendButton->setVisible(true);
 
+    if (!isGroupChat) {
+        chatTitle->setCursor(Qt::PointingHandCursor);
+    }
+    else {
+        chatTitle->setCursor(Qt::ArrowCursor);
+    }
+
     // get messages
     if (chatMessagesData[currentChatId].empty()) {
         auto messages = manager->new_client.get_last_messages(manager->ID, currentChatId);
@@ -574,6 +620,7 @@ void Chats::onInviteClicked(QListWidgetItem* item)
     currentInviteId = item->data(Qt::UserRole).toInt();
     invitePages->setCurrentIndex(item->data(Qt::UserRole + 1).toInt());
     inviteTitle->setText(item->data(Qt::UserRole + 2).toString());
+    inviteTitle->setCursor(Qt::PointingHandCursor);
 
     invitation::Invite invite = invitesData[currentInviteId];
 
@@ -697,7 +744,7 @@ void Chats::make_message_item(const chat_service::MessageReceived& message)
     int sender_id           = message.sender().user_id();
     QString sender_username = QString::fromStdString(message.sender().login());
     QString message_text    = QString::fromStdString(message.message_text());
-    QString time_stamp      = QString::fromStdString(message.time_stamp());
+    QString time_stamp      = parseTimeStamp(message.time_stamp());
 
     bool am_i_sender = (sender_id == manager->ID);
 
@@ -708,10 +755,13 @@ void Chats::make_message_item(const chat_service::MessageReceived& message)
     QLabel *senderLabel = am_i_sender
         ? new QLabel(QString::fromStdString(manager->username) + " (You)")
         : new QLabel(sender_username);
+    senderLabel->setStyleSheet(
+        QString("QLabel { color: %1; }").arg(am_i_sender ? "#ffffff" : "#8023A8")
+    );
 
     QLabel *textLabel      = new QLabel(message_text);
     textLabel->setWordWrap(true);
-    textLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    textLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     QLabel *timestampLabel = new QLabel(time_stamp);
 
     if (sender_id != -1) {
@@ -721,6 +771,16 @@ void Chats::make_message_item(const chat_service::MessageReceived& message)
     messageLayout->addWidget(timestampLabel);
     messageWidget->setLayout(messageLayout);
     messageWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    messageWidget->setStyleSheet(
+        QString(
+            "QWidget {"
+            "   background-color: %1;"
+            "   border-radius: 10px;"
+            "   padding: 10px;"
+            "   color: %2;"
+            "}"
+        ).arg(am_i_sender ? "#8023A8" : "#ffffff", am_i_sender ? "#ffffff" : "#000000")
+    );
 
     if (sender_id == -1) {
         scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignCenter);
@@ -732,6 +792,7 @@ void Chats::make_message_item(const chat_service::MessageReceived& message)
     }
 
     scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
+    scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->update();
 }
@@ -741,7 +802,7 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     // get chat data
     QString chat_name    = QString::fromStdString(chat.name());
     int chat_id          = chat.chat_id();
-    QString time_stamp   = QString::fromStdString(chat.time_stamp());
+    QString time_stamp   = parseTimeStamp(chat.time_stamp());
     QString last_message = QString::fromStdString(chat.last_message().message_text());
     int sender_id        = chat.last_message().sender().user_id();
     bool is_group_chat   = chat.is_group_chat();
@@ -767,15 +828,28 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     chatWidget->setFixedWidth(chatList->width());
     QHBoxLayout *chatLayout = new QHBoxLayout(chatWidget);
 
+    chatWidget->setObjectName("chatWidget");
+    chatWidget->setStyleSheet(
+        "#chatWidget {"
+        "   border: 1px solid #8023A8;"
+        "}"
+    );
+
     // make text and name layout
     QVBoxLayout *textLayout  = new QVBoxLayout();
     QLabel *chatNameLabel    = new QLabel(chat_name);
+    chatNameLabel->setStyleSheet(
+        QString("QLabel { color: %1; }").arg("#8023A8")
+    );
     QLabel *lastMessageLabel = new QLabel(last_message);
     textLayout->addWidget(chatNameLabel);
     textLayout->addWidget(lastMessageLabel);
 
     // make time label
     QLabel *timeLabel = new QLabel(time_stamp);
+    timeLabel->setStyleSheet(
+        QString("QLabel { color: %1; }").arg("#8023A8")
+    );
     chatLayout->addLayout(textLayout);
     chatLayout->addStretch(1);
     chatLayout->addWidget(timeLabel);
@@ -809,7 +883,7 @@ void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender)
     QString sender_name    = QString::fromStdString(invite.sender().login());
     int invite_id          = invite.invite_id();
     QString invite_text    = QString::fromStdString(invite.invite_text());
-    QString time_stamp     = QString::fromStdString(invite.time_stamp());
+    QString time_stamp     = parseTimeStamp(invite.time_stamp());
     int sender_id          = am_i_sender ? manager->ID : invite.sender().user_id();
     int receiver_id        = am_i_sender ? invite.sender().user_id() : manager->ID;
 
@@ -828,15 +902,28 @@ void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender)
     inviteWidget->setFixedWidth(inviteList->width());
     QHBoxLayout *inviteLayout = new QHBoxLayout(inviteWidget);
 
+    inviteWidget->setObjectName("chatWidget");
+    inviteWidget->setStyleSheet(
+        "#chatWidget {"
+        "   border: 1px solid #8023A8;"
+        "}"
+    );
+
     // make text and name layout
     QVBoxLayout *textLayout  = new QVBoxLayout();
     QLabel *senderNameLabel    = new QLabel(sender_name);
+    senderNameLabel->setStyleSheet(
+        QString("QLabel { color: %1; }").arg("#8023A8")
+    );
     QLabel *inviteMessageLabel = new QLabel(invite_text);
     textLayout->addWidget(senderNameLabel);
     textLayout->addWidget(inviteMessageLabel);
 
     // make time label
     QLabel *timeLabel = new QLabel(time_stamp);
+    timeLabel->setStyleSheet(
+        QString("QLabel { color: %1; }").arg("#8023A8")
+    );
     inviteLayout->addLayout(textLayout);
     inviteLayout->addStretch(1);
     inviteLayout->addWidget(timeLabel);
@@ -1003,11 +1090,11 @@ void Chats::build()
     chatPages = new QStackedWidget();
     invitePages = new QStackedWidget();
 
-    chatTitle = new QLabel();
+    chatTitle = new ClickableLabel();
     chatTitle->setAlignment(Qt::AlignCenter);
     chatTitle->setStyleSheet("font-size: 18px; font-weight: bold;");
 
-    inviteTitle = new QLabel();
+    inviteTitle = new ClickableLabel();
     inviteTitle->setAlignment(Qt::AlignCenter);
     inviteTitle->setStyleSheet("font-size: 18px; font-weight: bold;");
 
@@ -1030,29 +1117,36 @@ void Chats::build()
 
     toggleButton = new QPushButton();
     toggleButton->setText("Check invites");
+    toggleButton->setCursor(Qt::PointingHandCursor);
 
     addChatButton = new QPushButton();
-    addChatButton->setText("+");
+    addChatButton->setIcon(QIcon(":/img/plus-square.png"));
+    addChatButton->setFixedWidth(50);
+    addChatButton->setCursor(Qt::PointingHandCursor);
 
     chatInfoButton = new QPushButton();
-    chatInfoButton->setText("?");
+    chatInfoButton->setIcon(QIcon(":/img/info-circle.png"));
     chatInfoButton->hide();
     chatInfoButton->setFixedWidth(50);
+    chatInfoButton->setCursor(Qt::PointingHandCursor);
 
     addMemberToChatButton = new QPushButton();
-    addMemberToChatButton->setText("+");
+    addMemberToChatButton->setIcon(QIcon(":/img/plus-circle.png"));
     addMemberToChatButton->hide();
     addMemberToChatButton->setFixedWidth(50);
+    addMemberToChatButton->setCursor(Qt::PointingHandCursor);
 
     leaveChatButton = new QPushButton();
-    leaveChatButton->setText("X");
+    leaveChatButton->setIcon(QIcon(":/img/x-circle.png"));
     leaveChatButton->hide();
     leaveChatButton->setFixedWidth(50);
+    leaveChatButton->setCursor(Qt::PointingHandCursor);
 
     generateFilmButton = new QPushButton();
-    generateFilmButton->setText("F");
+    generateFilmButton->setIcon(QIcon(":/img/camera-reels.png"));
     generateFilmButton->hide();
     generateFilmButton->setFixedWidth(50);
+    generateFilmButton->setCursor(Qt::PointingHandCursor);
 
     toolBarLayout = new QHBoxLayout();
     toolBarLayout->addWidget(chatTitle);
@@ -1126,6 +1220,8 @@ void Chats::connect_slots()
     connect(addMemberToChatButton, &QPushButton::clicked, this, &Chats::onAddMemberToChatButtonClicked);
     connect(leaveChatButton, &QPushButton::clicked, this, &Chats::onLeaveChatButtonClicked);
     connect(generateFilmButton, &QPushButton::clicked, this, &Chats::onGenerateFilmButtonClicked);
+    connect(chatTitle, &ClickableLabel::clicked, this, &Chats::onUserInPrivateChatClicked);
+    connect(inviteTitle, &ClickableLabel::clicked, this, &Chats::onUserInInviteClicked);
     connect(toggleButton, &QPushButton::clicked, [this]() {
         bool isInvitesSelected = chatList->isVisible();
         chatList->setVisible(!isInvitesSelected);
