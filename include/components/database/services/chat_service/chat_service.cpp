@@ -87,6 +87,11 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
                 prewiew.last_message.message_text = encryptor.decrypt(row[2].as<std::string>());
             }
         }
+        auto chat_members = get_members_ids(chat_id);
+        prewiew.chat_members.reserve(chat_members.size());
+        for (const auto member_id : chat_members) {
+            prewiew.chat_members.push_back(authservice_database_api::get_user_preview(member_id));
+        }
         chats.user_chats.push_back(prewiew);
     }
     connection.txn->commit();

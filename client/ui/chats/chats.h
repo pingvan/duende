@@ -29,6 +29,22 @@ namespace Ui {
 class Chats;
 }
 
+class ClickableLabel : public QLabel {
+    Q_OBJECT
+
+public:
+    explicit ClickableLabel(QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags())
+        : QLabel(parent) {}
+
+signals:
+    void clicked();
+
+protected:
+    void mousePressEvent(QMouseEvent* event) override {
+        emit clicked();
+    }
+};
+
 class Chats : public QWidget
 {
     Q_OBJECT
@@ -36,6 +52,7 @@ class Chats : public QWidget
 public:
     explicit Chats(Manager* managerPtr, QWidget *parent = nullptr);
     void showChatInfo(bool editMode);
+    QString parseTimeStamp(const std::string& time_stamp);
     ~Chats();
 
 signals:
@@ -64,6 +81,8 @@ private slots:
     void onLeaveChatButtonClicked();
     void onAddMemberToChatButtonClicked();
     void onGenerateFilmButtonClicked();
+    void onUserInPrivateChatClicked();
+    void onUserInInviteClicked();
 
 private:
     Ui::Chats *ui;
@@ -83,8 +102,8 @@ private:
     QTextEdit *chatMessages;
     QLineEdit *messageInput;
     QPushButton *sendButton;
-    QLabel *chatTitle;
-    QLabel *inviteTitle;
+    ClickableLabel *chatTitle;
+    ClickableLabel *inviteTitle;
     QPushButton* toggleButton;
     QPushButton* addChatButton;
     QStackedWidget *rightLayout;
@@ -108,6 +127,7 @@ private:
 
     QMap<int, std::vector<chat_service::MessageReceived>> chatMessagesData;
     QMap<int, invitation::Invite> invitesData;
+    QMap<int, chat_service::ChatPreview> chatsData;
 
     QLineEdit *search_line_chats;
     QLineEdit *search_line_invites;
