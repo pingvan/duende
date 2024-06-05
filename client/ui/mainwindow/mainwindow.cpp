@@ -127,6 +127,7 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
     });
     connect(search_button, &QPushButton::clicked, this, [this]() {
         pages->setCurrentIndex(3);
+        
     });
     connect(
         followsPage, &Follows::userClicked, this, &MainWindow::openOtherPage
@@ -147,6 +148,10 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
         recommendationsPage, &Recommendations::userFromListClicked, this,
         &MainWindow::openOtherPage
     );
+    // connect(
+    //     chatsPage, &Chats::profileButtonClicked, this,
+    //     &MainWindow::openOtherPage
+    // );
 
     qDebug() << "Main window end\n";
 }
@@ -168,6 +173,7 @@ void MainWindow::openOtherPage(int id) {
         QMessageBox::information(
             this, "Blocked User", "You can't view this page :("
         );
+        return;
     }
     qDebug() << "openOtherPage called with id:" << id;
     otherPage->updatePage(id);

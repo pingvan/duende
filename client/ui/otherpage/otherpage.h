@@ -56,6 +56,7 @@ private:
     Ui::OtherPage *ui;
     Manager *manager;
     common::UserFullPage *user;
+    common::UserPreview *user_preview;
     int id;
     std::string login;
 
@@ -70,12 +71,16 @@ private:
     QLabel *movies_text = nullptr;
     QLabel *genres_text = nullptr;
     QPushButton *subscribeButton;
+    QLabel *label_photo = nullptr;
 
     QGraphicsView *view_favActors = nullptr;
     QGraphicsView *view_watchlist = nullptr;
 
     QGraphicsScene *scene_favActors = nullptr;
     QGraphicsScene *scene_watchlist = nullptr;
+
+    QHBoxLayout *actorsLayout;
+    QListWidget *actorsList;
 
     QStringList favActorsImages;
     QStringList watchlistImages;

@@ -90,7 +90,7 @@ public:
     search_service::FilmSearchResponse *search_film_by_title(const std::string &film_title);
 
     common::UserFullPage *get_user_full_page(int user_id);
-    //TODO get_user_preview
+    common::UserPreview *get_user_preview(int user_id);
 
     void change_username(int user_id, const std::string &new_username); 
     void change_quote(int user_id, const std::string &new_quote); 

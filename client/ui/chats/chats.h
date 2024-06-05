@@ -58,6 +58,7 @@ public:
 signals:
     void messageReceived(const QString& message);
     void userClicked(int user_id);
+    void profileButtonClicked(int id);
 
 private slots:
     void build();
@@ -83,6 +84,7 @@ private slots:
     void onGenerateFilmButtonClicked();
     void onUserInPrivateChatClicked();
     void onUserInInviteClicked();
+    void onProfileButtonClicked();
 
 private:
     Ui::Chats *ui;

@@ -96,12 +96,14 @@ void Chats::onGenerateFilmButtonClicked() {
 
     QVBoxLayout layout(&filmDialog);
     filmDialog.setLayout(&layout);
+    filmDialog.setMaximumSize(500, 500);
 
     QLabel *textLabel = new QLabel("We recommend that you watch this film:");
     layout.addWidget(textLabel);
 
     QLabel *imageLabel = new QLabel;
     QPixmap pixmap(":/img/titanik.jpeg");
+    QPixmap scaledPixmap = pixmap.scaledToHeight(300);
     imageLabel->setPixmap(pixmap);
     layout.addWidget(imageLabel);
 
@@ -623,6 +625,9 @@ void Chats::onInviteClicked(QListWidgetItem* item)
     invitePages->setCurrentIndex(item->data(Qt::UserRole + 1).toInt());
     inviteTitle->setText(item->data(Qt::UserRole + 2).toString());
     inviteTitle->setCursor(Qt::PointingHandCursor);
+    QFont font = inviteTitle->font();
+    font.setPointSize(24);
+    inviteTitle->setFont(font);
 
     invitation::Invite invite = invitesData[currentInviteId];
 
@@ -652,7 +657,7 @@ void Chats::onInviteClicked(QListWidgetItem* item)
     QLabel* photoLabel = new QLabel(this);
     QLabel* inviteTextLabel = new QLabel(this);
     QLabel* descriptionTitleLabel = new QLabel();
-    descriptionTitleLabel->setStyleSheet("font-weight: bold;");
+    // descriptionTitleLabel->setStyleSheet("font-weight: bold;");
     QLabel* descriptionLabel = new QLabel(this);
 
     acceptButton = new QPushButton("Accept", this);
@@ -702,28 +707,59 @@ void Chats::onInviteClicked(QListWidgetItem* item)
 
     photoLabel->setPixmap(rounded);
 
-    inviteTextLabel->setText(invite.invite_text().c_str());
+    if (item->data(Qt::UserRole + 3).toInt() == manager->ID){
+        inviteTextLabel->setText("You have sent this invitation");
+    } else {
+        inviteTextLabel->setText("Hi! I would like to invite you to the chat!");
+    }
+    // inviteTextLabel->setText(invite.invite_text().c_str());
+    inviteTextLabel->setStyleSheet("color: #8023A8;");
+    font = inviteTextLabel->font();
+    font.setPointSize(20);
+    inviteTextLabel->setFont(font);
     if (invite.has_chat_preview()) {
         descriptionTitleLabel->setText("Some information about our chat:");
         descriptionLabel->setText(manager->new_client.get_chat_preview(invite.chat_preview().chat_id())->description().c_str());
     } else {
-        descriptionTitleLabel->setText("Some information about me:");
+        descriptionTitleLabel->setText(QString("Some information about ") + 
+    (item->data(Qt::UserRole + 3).toInt() == manager->ID ? 
+    QString::fromStdString(manager->new_client.get_user_full_page(user_id)->preview().login()) : 
+    QString("me")) + 
+    QString(":"));
         descriptionLabel->setText(manager->new_client.get_user_full_page(invite.sender().user_id())->about().c_str());
     }
+
+    font = descriptionTitleLabel->font();
+    font.setPointSize(20);
+    descriptionTitleLabel->setFont(font);
+
+    font = descriptionLabel->font();
+    font.setPointSize(20); 
+    descriptionLabel->setFont(font);
+    descriptionLabel->setStyleSheet("color: #8023A8;");
+
+    // QPushButton *profileButton = new QPushButton("Learn more");
+    // profileButton->setProperty("id", item->data(Qt::UserRole + 3).toInt() == manager->ID ? 
+    // item->data(Qt::UserRole + 4).toInt() : item->data(Qt::UserRole + 3).toInt());
+    // connect(profileButton, &QPushButton::clicked, this, &Chats::onProfileButtonClicked);
+    // profileButton->show();
 
     if (invite.has_chat_preview()) {
         // TODO add members photos
     }
-
+    inviteLayout->setSpacing(0);
     inviteLayout->addWidget(photoLabel);
     inviteLayout->addWidget(inviteTextLabel);
     inviteLayout->addWidget(descriptionTitleLabel);
     inviteLayout->addWidget(descriptionLabel);
+    // inviteLayout->addWidget(profileButton);
 
     if (item->data(Qt::UserRole + 3).toInt() == manager->ID) {
         acceptButton->hide();
         declineButton->hide();
         QLabel* inviteStatusLabel = new QLabel("Your invite is under review");
+        QFont font = inviteStatusLabel->font();
+        font.setPointSize(18);
         inviteStatusLabel->setFixedHeight(50);
         inviteStatusLabel->setAlignment(Qt::AlignCenter);
         inviteLayout->addWidget(inviteStatusLabel);
@@ -738,6 +774,14 @@ void Chats::onInviteClicked(QListWidgetItem* item)
 
     invitePageLayout->addWidget(invite_frame, 0, Qt::AlignCenter);
     invitePages->currentWidget()->setLayout(invitePageLayout);
+}
+
+void Chats::onProfileButtonClicked() {
+    QPushButton *button = qobject_cast<QPushButton *>(sender());
+    if (button) {
+        int id = button->property("id").toInt();
+        emit profileButtonClicked(id);
+    }
 }
 
 void Chats::make_message_item(const chat_service::MessageReceived& message)

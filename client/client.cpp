@@ -488,6 +488,21 @@ common::UserFullPage *client::get_user_full_page(int user_id) {
     return response;
 }
 
+common::UserPreview *client::get_user_preview(int user_id) {
+    grpc::ClientContext context;
+
+    authservice::RequestWithUserId request;
+    auto *response = new common::UserPreview;
+
+    request.set_user_id(user_id);
+    grpc::Status status =
+        authorization_data_stub->GetUserPrewiew(&context, request, response);
+    if (!status.ok()) {
+        return {};
+    }
+    return response;
+}
+
 void client::add_genre(int user_id, const std::string &genre_name) {
     grpc::ClientContext context;
 
@@ -568,6 +583,9 @@ void client::remove_actor(int user_id, int actor_id) {
     actor->set_id(actor_id);
     grpc::Status status =
         profile_stub->RemoveFromListOfActors(&context, request, response);
+    if (!status.ok()){
+        std::cout << status.error_message() << '\n';
+    }
 }
 
 void client::change_bio(int user_id, const std::string &new_bio) {
