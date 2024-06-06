@@ -55,6 +55,12 @@ void Chats::onUserInInviteClicked()
     emit userClicked(user_id);
 }
 
+// void Chats::onUserPhotoClicked()
+// {
+//     int user_id = invitesData[currentInviteId].sender().user_id();
+//     emit userClicked(user_id);
+// }
+
 void Chats::onUserInPrivateChatClicked()
 {
     int chat_id        = chatList->currentItem()->data(Qt::UserRole).toInt();
@@ -96,14 +102,13 @@ void Chats::onGenerateFilmButtonClicked() {
 
     QVBoxLayout layout(&filmDialog);
     filmDialog.setLayout(&layout);
-    filmDialog.setMaximumSize(500, 500);
+    // filmDialog.setMaximumSize(500, 500);
 
     QLabel *textLabel = new QLabel("We recommend that you watch this film:");
     layout.addWidget(textLabel);
 
     QLabel *imageLabel = new QLabel;
     QPixmap pixmap(":/img/titanik.jpeg");
-    QPixmap scaledPixmap = pixmap.scaledToHeight(300);
     imageLabel->setPixmap(pixmap);
     layout.addWidget(imageLabel);
 
@@ -552,6 +557,23 @@ void Chats::sendMessage() {
         return;
     }
 
+    if (!manager->new_client.get_chat_preview(currentChatId)->is_group_chat()) {
+        std::vector<common::UserPreview> chat_members = manager->new_client.get_chat_members(currentChatId);
+        int receiver_id = chat_members[0].user_id() != manager->ID ? chat_members[0].user_id() : chat_members[1].user_id();
+        if (manager->new_client.is_blocked(manager->ID, receiver_id)) {
+        QMessageBox::information(
+            this, "Blocked User", "You can't send messages to this user :("
+        );
+        return;
+        }
+        if (manager->new_client.is_blocked(receiver_id, manager->ID)) {
+        QMessageBox::information(
+            this, "Blocked User", "You should unblock this user first"
+        );
+        return;
+        }
+    }
+
     messageInput->clear();
 
     // send message
@@ -572,6 +594,46 @@ void Chats::onChatClicked(QListWidgetItem* item)
     generateFilmButton->setVisible(true);
     messageInput->setVisible(true);
     sendButton->setVisible(true);
+
+    chat_service::ChatPreview* chat_preview = manager->new_client.get_chat_preview(currentChatId);
+    // ClickableLabel* chatPhoto = new ClickableLabel();
+    if (chat_preview->is_group_chat()) {
+        chatPhoto->setCursor(Qt::PointingHandCursor);
+        QPixmap chat_cover;
+        chat_cover.load(":/img/people-fill.png");
+        QPixmap rounded_cover = make_rounded_pixmap(QPixmap(chat_cover), 50);
+        chatPhoto->setPixmap(rounded_cover);
+
+        connect(chatPhoto, &ClickableLabel::clicked, [=]() {
+            QString fileName = QFileDialog::getOpenFileName(this,
+                tr("Open Image"), "", tr("Image Files (*.png *.jpg *.bmp)"));
+            if (fileName != ""){
+                QPixmap newCover(fileName);
+                QPixmap newRoundedCover = make_rounded_pixmap(newCover, 50);
+                chatPhoto->setPixmap(newRoundedCover);
+                manager->new_client.change_chat_cover(currentChatId, manager->ID, fileName.toStdString());
+                // update in list
+            }
+        });
+    }
+    else {
+        chatPhoto->setCursor(Qt::ArrowCursor);
+        std::vector<common::UserPreview> chat_members = manager->new_client.get_chat_members(currentChatId);
+        int other_user_id = chat_members[0].user_id() != manager->ID ? chat_members[0].user_id() : chat_members[1].user_id();
+        common::UserPreview* user_preview = manager->new_client.get_user_preview(other_user_id);
+        std::string photo_data(user_preview->photo().begin(), user_preview->photo().end());
+        QPixmap pixmap;
+        if (photo_data.empty()) {
+            pixmap.load(":/img/person-circle2.png");
+        } else {
+            pixmap.loadFromData(
+                reinterpret_cast<const uchar *>(photo_data.data()),
+                photo_data.size()
+            );
+        }
+        QPixmap rounded = make_rounded_pixmap(pixmap, 50);  
+        chatPhoto->setPixmap(rounded);
+    }
 
     if (!isGroupChat) {
         chatTitle->setCursor(Qt::PointingHandCursor);
@@ -615,6 +677,8 @@ void Chats::onChatClicked(QListWidgetItem* item)
         scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
     });
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setFrameShape(QFrame::NoFrame);
     scrollArea->update();
 }
 
@@ -657,17 +721,16 @@ void Chats::onInviteClicked(QListWidgetItem* item)
     QLabel* photoLabel = new QLabel(this);
     QLabel* inviteTextLabel = new QLabel(this);
     QLabel* descriptionTitleLabel = new QLabel();
-    // descriptionTitleLabel->setStyleSheet("font-weight: bold;");
     QLabel* descriptionLabel = new QLabel(this);
 
     acceptButton = new QPushButton("Accept", this);
     acceptButton->setFixedHeight(50);
-    acceptButton->setStyleSheet("background-color: #A18594;");
+    acceptButton->setStyleSheet("background-color: #ebd2fc;");
     acceptButton->setCursor(Qt::PointingHandCursor);
 
     declineButton = new QPushButton("Decline", this);
     declineButton->setFixedHeight(50);
-    declineButton->setStyleSheet("background-color: #E4717A;");
+    declineButton->setStyleSheet("background-color: #8023A8; color: #FFFFFF;");
     declineButton->setCursor(Qt::PointingHandCursor);
 
     connect(acceptButton, &QPushButton::clicked, this, [this]() { onInviteRespond(true); });
@@ -676,36 +739,10 @@ void Chats::onInviteClicked(QListWidgetItem* item)
     int user_id = (item->data(Qt::UserRole + 3).toInt() != manager->ID)
         ? item->data(Qt::UserRole + 3).toInt()
         : item->data(Qt::UserRole + 4).toInt();
-    common::UserPreview user2 = manager->new_client.get_user_full_page(user_id)->preview();
+    // common::UserPreview user2 = manager->new_client.get_user_full_page(user_id)->preview();
     photoLabel->installEventFilter(this);
-    std::string photo_data(user2.photo().begin(), user2.photo().end());
+    // std::string photo_data(user2.photo().begin(), user2.photo().end());
     QPixmap pixmap;
-    if (photo_data.empty()) {
-        pixmap.load(":/img/person-circle2.png");
-    } else {
-        pixmap.loadFromData(
-            reinterpret_cast<const uchar *>(photo_data.data()),
-            photo_data.size()
-        );
-    }
-
-    int size = qMin(pixmap.width(), pixmap.height());
-    QPixmap squarePixmap = pixmap.copy(0, 0, size, size);
-
-    QPixmap scaledPixmap = squarePixmap.scaled(
-        300, 300, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation
-    );
-
-    QPixmap rounded = QPixmap(scaledPixmap.size());
-    rounded.fill(Qt::transparent);
-
-    QPainter painter(&rounded);
-    painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.setBrush(QBrush(scaledPixmap));
-    painter.setPen(Qt::NoPen);
-    painter.drawEllipse(rounded.rect());
-
-    photoLabel->setPixmap(rounded);
 
     if (item->data(Qt::UserRole + 3).toInt() == manager->ID){
         inviteTextLabel->setText("You have sent this invitation");
@@ -718,9 +755,28 @@ void Chats::onInviteClicked(QListWidgetItem* item)
     font.setPointSize(20);
     inviteTextLabel->setFont(font);
     if (invite.has_chat_preview()) {
+        std::string photo_data(invite.chat_preview().chat_cover().begin(), invite.chat_preview().chat_cover().end());
+        if (photo_data.empty()) {
+            pixmap.load(":/img/people-fill.png");
+        } else {
+            pixmap.loadFromData(
+                reinterpret_cast<const uchar *>(photo_data.data()),
+                photo_data.size()
+            );
+        }
         descriptionTitleLabel->setText("Some information about our chat:");
         descriptionLabel->setText(manager->new_client.get_chat_preview(invite.chat_preview().chat_id())->description().c_str());
     } else {
+        common::UserPreview user2 = manager->new_client.get_user_full_page(user_id)->preview();
+        std::string photo_data(user2.photo().begin(), user2.photo().end());
+        if (photo_data.empty()) {
+        pixmap.load(":/img/person-circle2.png");
+    } else {
+        pixmap.loadFromData(
+            reinterpret_cast<const uchar *>(photo_data.data()),
+            photo_data.size()
+        );
+    }
         descriptionTitleLabel->setText(QString("Some information about ") + 
     (item->data(Qt::UserRole + 3).toInt() == manager->ID ? 
     QString::fromStdString(manager->new_client.get_user_full_page(user_id)->preview().login()) : 
@@ -728,6 +784,9 @@ void Chats::onInviteClicked(QListWidgetItem* item)
     QString(":"));
         descriptionLabel->setText(manager->new_client.get_user_full_page(invite.sender().user_id())->about().c_str());
     }
+
+    QPixmap rounded_pixmap = make_rounded_pixmap(pixmap, 300);
+    photoLabel->setPixmap(rounded_pixmap);
 
     font = descriptionTitleLabel->font();
     font.setPointSize(20);
@@ -738,28 +797,26 @@ void Chats::onInviteClicked(QListWidgetItem* item)
     descriptionLabel->setFont(font);
     descriptionLabel->setStyleSheet("color: #8023A8;");
 
-    // QPushButton *profileButton = new QPushButton("Learn more");
-    // profileButton->setProperty("id", item->data(Qt::UserRole + 3).toInt() == manager->ID ? 
-    // item->data(Qt::UserRole + 4).toInt() : item->data(Qt::UserRole + 3).toInt());
-    // connect(profileButton, &QPushButton::clicked, this, &Chats::onProfileButtonClicked);
-    // profileButton->show();
-
     if (invite.has_chat_preview()) {
         // TODO add members photos
     }
-    inviteLayout->setSpacing(0);
+    QSpacerItem* spacerItem = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    inviteLayout->addSpacing(10);
     inviteLayout->addWidget(photoLabel);
     inviteLayout->addWidget(inviteTextLabel);
+    inviteLayout->addSpacing(10);
     inviteLayout->addWidget(descriptionTitleLabel);
+    inviteLayout->addSpacing(10);
     inviteLayout->addWidget(descriptionLabel);
-    // inviteLayout->addWidget(profileButton);
+    inviteLayout->addItem(spacerItem);
 
     if (item->data(Qt::UserRole + 3).toInt() == manager->ID) {
         acceptButton->hide();
         declineButton->hide();
         QLabel* inviteStatusLabel = new QLabel("Your invite is under review");
         QFont font = inviteStatusLabel->font();
-        font.setPointSize(18);
+        font.setPointSize(14);
+        inviteStatusLabel->setFont(font);
         inviteStatusLabel->setFixedHeight(50);
         inviteStatusLabel->setAlignment(Qt::AlignCenter);
         inviteLayout->addWidget(inviteStatusLabel);
@@ -784,6 +841,27 @@ void Chats::onProfileButtonClicked() {
     }
 }
 
+QPixmap Chats::make_rounded_pixmap(const QPixmap& pixmap, int s)
+{
+    int size = qMin(pixmap.width(), pixmap.height());
+    QPixmap squarePixmap = pixmap.copy(0, 0, size, size);
+
+    QPixmap scaledPixmap = squarePixmap.scaled(
+        s, s, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation
+    );
+
+    QPixmap rounded = QPixmap(scaledPixmap.size());
+    rounded.fill(Qt::transparent);
+
+    QPainter painter(&rounded);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setBrush(QBrush(scaledPixmap));
+    painter.setPen(Qt::NoPen);
+    painter.drawEllipse(rounded.rect());
+
+    return rounded;
+}
+
 void Chats::make_message_item(const chat_service::MessageReceived& message)
 {
     // get message data
@@ -794,15 +872,38 @@ void Chats::make_message_item(const chat_service::MessageReceived& message)
 
     bool am_i_sender = (sender_id == manager->ID);
 
+    QPixmap imagePixmap;
+    ClickableLabel *imageLabel = new ClickableLabel;
+    imageLabel->setFixedSize(50, 50);
+    common::UserPreview* user_preview = manager->new_client.get_user_preview(sender_id);
+    std::string photo_data(user_preview->photo().begin(), user_preview->photo().end());
+    if (photo_data.empty()) {
+        imagePixmap.load(":/img/person-circle2.png");
+    } else {
+        imagePixmap.loadFromData(
+            reinterpret_cast<const uchar *>(photo_data.data()),
+            photo_data.size()
+        );
+    }
+    QPixmap rounded_pixmap = make_rounded_pixmap(imagePixmap, 50);
+    imageLabel->setPixmap(rounded_pixmap);
+    imageLabel->setProperty("userId", sender_id);
+    imageLabel->setCursor(Qt::PointingHandCursor);
+
+    connect(imageLabel, &ClickableLabel::clicked, [=]() {
+        int user_id = imageLabel->property("userId").toInt();
+        emit userClicked(user_id);
+    });
+
     // make message widget
-    messageWidget = new QWidget();
-    messageLayout = new QVBoxLayout();
+    QWidget *messageWidget = new QWidget();
+    QVBoxLayout *messageLayout = new QVBoxLayout();
 
     QLabel *senderLabel = am_i_sender
         ? new QLabel(QString::fromStdString(manager->username) + " (You)")
         : new QLabel(sender_username);
     senderLabel->setStyleSheet(
-        QString("QLabel { color: %1; }").arg(am_i_sender ? "#ffffff" : "#8023A8")
+        QString("QLabel { color: %1; }").arg(am_i_sender ? "#ffffff" : "#000000")
     );
 
     QLabel *textLabel      = new QLabel(message_text);
@@ -810,13 +911,23 @@ void Chats::make_message_item(const chat_service::MessageReceived& message)
     textLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     QLabel *timestampLabel = new QLabel(time_stamp);
 
-    if (sender_id != -1) {
+    QFont font = senderLabel->font();
+    font.setPointSize(16);
+    senderLabel->setFont(font);
+    textLabel->setFont(font);
+    font = timestampLabel->font();
+    font.setPointSize(10);
+    timestampLabel->setFont(font);
+
+    if (sender_id != -1 && !am_i_sender) {
         messageLayout->addWidget(senderLabel);
     }
+
+    QSpacerItem* spacerItem = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
     messageLayout->addWidget(textLabel);
+    messageLayout->addItem(spacerItem);
     messageLayout->addWidget(timestampLabel);
     messageWidget->setLayout(messageLayout);
-    messageWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     messageWidget->setStyleSheet(
         QString(
             "QWidget {"
@@ -825,16 +936,31 @@ void Chats::make_message_item(const chat_service::MessageReceived& message)
             "   padding: 10px;"
             "   color: %2;"
             "}"
-        ).arg(am_i_sender ? "#8023A8" : "#ffffff", am_i_sender ? "#ffffff" : "#000000")
+        ).arg(am_i_sender ? "#8023A8" : "#ffffff", am_i_sender ? "#ffffff" : "#8023A8")
     );
+    messageWidget->setMinimumWidth(200);
+    messageWidget->setMaximumWidth(450);
+    messageWidget->setMaximumHeight(300);
+
+    QLabel *spacerLabel = new QLabel;
+    spacerLabel->setMinimumHeight(20);
+
+    QWidget *messageAndImageWidget = new QWidget;
+    QHBoxLayout *messageAndImageLayout = new QHBoxLayout;
+    messageAndImageLayout->addWidget(spacerLabel);
+    if (!am_i_sender){
+        messageAndImageLayout->addWidget(imageLabel);
+    }
+    messageAndImageLayout->addWidget(messageWidget);
+    messageAndImageWidget->setLayout(messageAndImageLayout);
 
     if (sender_id == -1) {
-        scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignCenter);
+        scrollWidgetLayout->addWidget(messageAndImageWidget, 1, Qt::AlignCenter);
     }
     else {
         am_i_sender
-            ? scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignRight)
-            : scrollWidgetLayout->addWidget(messageWidget, 1, Qt::AlignLeft);
+            ? scrollWidgetLayout->addWidget(messageAndImageWidget, 1, Qt::AlignRight)
+            : scrollWidgetLayout->addWidget(messageAndImageWidget, 1, Qt::AlignLeft);
     }
 
     QTimer::singleShot(100, [this]() {
@@ -842,6 +968,7 @@ void Chats::make_message_item(const chat_service::MessageReceived& message)
     });
     scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->update();
 }
 
@@ -856,6 +983,35 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     bool is_group_chat   = chat.is_group_chat();
     QString description  = QString::fromStdString(chat.description());
     // TODO chat_cover
+    QPixmap chat_cover;
+    if (!is_group_chat){
+        // std::vector<common::UserPreview> chat_members = chat.chat_members();
+        int other_user_id = chat.chat_members()[0].user_id() != manager->ID ? chat.chat_members()[0].user_id() : chat.chat_members()[1].user_id();
+        common::UserPreview* user_preview = manager->new_client.get_user_preview(other_user_id);
+
+        std::string photo_data(user_preview->photo().begin(), user_preview->photo().end());
+        if (photo_data.empty()) {
+            chat_cover.load(":/img/person-circle2.png");
+        } else {
+            chat_cover.loadFromData(
+                reinterpret_cast<const uchar *>(photo_data.data()),
+                photo_data.size()
+            );
+        }
+    } else {
+        std::string photo_data(chat.chat_cover().begin(), chat.chat_cover().end());
+        if (photo_data.empty()) {
+            chat_cover.load(":/img/people-fill.png");
+        }
+        else {
+            chat_cover.loadFromData(
+                reinterpret_cast<const uchar *>(photo_data.data()),
+                photo_data.size()
+            );
+        }
+    }
+
+    QPixmap rounded_cover = make_rounded_pixmap(chat_cover, 50);
 
     if (sender_id == manager->ID) {
         last_message = "(You) " + last_message;
@@ -884,6 +1040,8 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     );
 
     // make text and name layout
+    QLabel *imageLabel = new QLabel;
+    imageLabel->setPixmap(rounded_cover);
     QVBoxLayout *textLayout  = new QVBoxLayout();
     QLabel *chatNameLabel    = new QLabel(chat_name);
     chatNameLabel->setStyleSheet(
@@ -898,6 +1056,7 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     timeLabel->setStyleSheet(
         QString("QLabel { color: %1; }").arg("#8023A8")
     );
+    chatLayout->addWidget(imageLabel);
     chatLayout->addLayout(textLayout);
     chatLayout->addStretch(1);
     chatLayout->addWidget(timeLabel);
@@ -914,6 +1073,9 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     chatList->insertItem(0, item);
     chatList->setItemWidget(item, chatWidget);
     chatList->setCurrentItem(item);
+    chatList->setFrameShape(QFrame::NoFrame);
+    chatList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    chatList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     // set data 
     item->setData(Qt::UserRole, chat_id);
@@ -934,6 +1096,19 @@ void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender)
     QString time_stamp     = parseTimeStamp(invite.time_stamp());
     int sender_id          = am_i_sender ? manager->ID : invite.sender().user_id();
     int receiver_id        = am_i_sender ? invite.sender().user_id() : manager->ID;
+    QPixmap invite_photo;
+    common::UserPreview* user_preview = manager->new_client.get_user_preview(am_i_sender ? receiver_id : sender_id);
+    std::string photo_data(user_preview->photo().begin(), user_preview->photo().end());
+    if (photo_data.empty()) {
+            invite_photo.load(":/img/person-circle2.png");
+    } else {
+        invite_photo.loadFromData(
+            reinterpret_cast<const uchar *>(photo_data.data()),
+            photo_data.size()
+        );
+    }
+
+    QPixmap rounded_cover = make_rounded_pixmap(invite_photo, 50);
 
     qDebug() << "Chat id: " << invite.chat_preview().chat_id();
 
@@ -972,6 +1147,10 @@ void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender)
     timeLabel->setStyleSheet(
         QString("QLabel { color: %1; }").arg("#8023A8")
     );
+    QLabel *imageLabel = new QLabel;
+    imageLabel->setPixmap(rounded_cover);
+
+    inviteLayout->addWidget(imageLabel);
     inviteLayout->addLayout(textLayout);
     inviteLayout->addStretch(1);
     inviteLayout->addWidget(timeLabel);
@@ -982,6 +1161,9 @@ void Chats::make_invite_item(const invitation::Invite& invite, bool am_i_sender)
     inviteList->addItem(item);
     inviteList->setItemWidget(item, inviteWidget);
     inviteList->setCurrentItem(item);
+    inviteList->setFrameShape(QFrame::NoFrame);
+    inviteList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    inviteList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     auto *invitePage = new QWidget();
     int index = invitePages->addWidget(invitePage);
@@ -1140,11 +1322,11 @@ void Chats::build()
 
     chatTitle = new ClickableLabel();
     chatTitle->setAlignment(Qt::AlignCenter);
-    chatTitle->setStyleSheet("font-size: 18px; font-weight: bold;");
+    chatTitle->setStyleSheet("font-size: 24px; font-weight: bold;");
 
     inviteTitle = new ClickableLabel();
     inviteTitle->setAlignment(Qt::AlignCenter);
-    inviteTitle->setStyleSheet("font-size: 18px; font-weight: bold;");
+    inviteTitle->setStyleSheet("font-size: 24px; font-weight: bold;");
 
     // input layout
     messageInput = new QLineEdit();
@@ -1162,6 +1344,16 @@ void Chats::build()
     search_line_invites->setPlaceholderText("Search invites...");
     search_line_invites->setFixedWidth(inviteList->width());
     search_line_invites->hide();
+    search_line_chats->setMinimumHeight(50);
+    search_line_chats->setStyleSheet(
+        "font-size: 18px; color: #5a1e71; border: 1px solid #8023a8; "
+        "border-radius: 5px; padding: 5px; text-color: #8023a8;"
+    );
+    search_line_invites->setMinimumHeight(50);
+    search_line_invites->setStyleSheet(
+        "font-size: 18px; color: #5a1e71; border: 1px solid #8023a8; "
+        "border-radius: 5px; padding: 5px; text-color: #8023a8;"
+    );
 
     toggleButton = new QPushButton();
     toggleButton->setText("Check invites");
@@ -1169,26 +1361,33 @@ void Chats::build()
 
     addChatButton = new QPushButton();
     addChatButton->setIcon(QIcon(":/img/plus-square.png"));
-    addChatButton->setFixedWidth(50);
+    addChatButton->setFixedWidth(30);
     addChatButton->setCursor(Qt::PointingHandCursor);
+    addChatButton->setObjectName("сhatButton");
 
     chatInfoButton = new QPushButton();
     chatInfoButton->setIcon(QIcon(":/img/info-circle.png"));
     chatInfoButton->hide();
-    chatInfoButton->setFixedWidth(50);
+    chatInfoButton->setFixedWidth(30);
     chatInfoButton->setCursor(Qt::PointingHandCursor);
+    chatInfoButton->setObjectName("сhatButton");
 
     addMemberToChatButton = new QPushButton();
     addMemberToChatButton->setIcon(QIcon(":/img/plus-circle.png"));
     addMemberToChatButton->hide();
-    addMemberToChatButton->setFixedWidth(50);
+    addMemberToChatButton->setFixedWidth(30);
     addMemberToChatButton->setCursor(Qt::PointingHandCursor);
+    addMemberToChatButton->setObjectName("сhatButton");
 
     leaveChatButton = new QPushButton();
     leaveChatButton->setIcon(QIcon(":/img/x-circle.png"));
     leaveChatButton->hide();
-    leaveChatButton->setFixedWidth(50);
+    leaveChatButton->setFixedWidth(30);
     leaveChatButton->setCursor(Qt::PointingHandCursor);
+    leaveChatButton->setObjectName("сhatButton");
+    // connect(leaveChatButton, &QPushButton::clicked, this, [this]() {
+    //     showLeaveDialog(leaveChatButton);
+    // });
 
     generateFilmButton = new QPushButton();
     generateFilmButton->setIcon(QIcon(":/img/camera-reels.png"));
@@ -1196,8 +1395,13 @@ void Chats::build()
     generateFilmButton->setFixedWidth(50);
     generateFilmButton->setCursor(Qt::PointingHandCursor);
 
+    chatPhoto = new ClickableLabel();
+
     toolBarLayout = new QHBoxLayout();
+    toolBarLayout->addWidget(chatPhoto);
     toolBarLayout->addWidget(chatTitle);
+    QSpacerItem* horizontalSpacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    toolBarLayout->addSpacerItem(horizontalSpacer);
     toolBarLayout->addWidget(chatInfoButton);
     toolBarLayout->addWidget(addMemberToChatButton);
     toolBarLayout->addWidget(leaveChatButton);

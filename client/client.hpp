@@ -137,4 +137,5 @@ public:
     bool is_genre_favourite(uint32_t user_id, const std::string &genre_name);
     bool is_actor_favourite(uint32_t user_id, uint32_t actor_id);
     bool is_movie_watched(uint32_t user_id, uint32_t movie_id);
+    void change_chat_cover(uint32_t chat_id, uint32_t admin_id, const std::string &photo_path);
 };

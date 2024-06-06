@@ -23,6 +23,7 @@
 #include <QDialog>
 #include <QGraphicsDropShadowEffect>
 #include <QMenu>
+#include <QFileDialog>
 
 
 namespace Ui {
@@ -54,6 +55,7 @@ public:
     void showChatInfo(bool editMode);
     QString parseTimeStamp(const std::string& time_stamp);
     ~Chats();
+    QPixmap make_rounded_pixmap(const QPixmap& pixmap, int s);
 
 signals:
     void messageReceived(const QString& message);
@@ -133,6 +135,8 @@ private:
 
     QLineEdit *search_line_chats;
     QLineEdit *search_line_invites;
+
+    ClickableLabel* chatPhoto;
 };
 
 #endif // CHATS_H

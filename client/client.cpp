@@ -138,25 +138,35 @@ bool client::change_description(int chat_id, int admin_id, std::string new_descr
     return true;
 }
 
-// bool client::change_cover(int chat_id, int admin_id, std::string new_cover) {
-//     if (!check_user_privileges(admin_id, chat_id)) {
-//         return false;
-//     }
+void client::change_chat_cover(uint32_t chat_id, uint32_t admin_id, const std::string &photo_path) {
+    if (!check_user_privileges(admin_id, chat_id)) {
+        return;
+    }
+    chat_service::ChangeChatCoverRequest request;
 
-//     grpc::ClientContext context;
+    std::ifstream file(photo_path, std::ios::binary);
+    if (!file) {
+        std::cout << "Cannot open file: " << photo_path << std::endl;
+        return;
+    }
+    std::basic_string photo_data(
+        (std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()
+    );
+    request.set_chat_id(chat_id);
+    request.set_admin_id(admin_id);
+    request.set_new_cover(photo_data);
 
-//     chat_service::ChangeChatCoverRequest request;
-//     auto *response = new chat_service::OperationStatusResponse;
-//     request.set_chat_id(chat_id);
-//     request.set_new_cover(new_cover);
-
-//     grpc::Status status = chat_stub->ChangeChatCover(&context, request, response);
-//     if (!status.ok()) {
-//         std::cout << status.error_message() << '\n';
-//     }
-
-//     return true;
-// }
+    chat_service::OperationStatusResponse response;
+    grpc::ClientContext context;
+    grpc::Status status =
+        chat_stub->ChangeChatCover(&context, request, &response);
+        
+    if (!status.ok()) {
+        std::cout << status.error_code() << ": " << status.error_message()
+                  << std::endl;
+        return;
+    }
+}
 
 void client::add_privileges_to_user(int sender_id, int receiver_id, int chat_id) {
     if (!check_user_privileges(sender_id, chat_id)) {

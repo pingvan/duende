@@ -30,6 +30,9 @@ int main(int argc, char *argv[]) {
         "QLineEdit { font-size: 18px; color: #8023a8; min-height: 40px;}"
         "QPushButton#myButton { background-color: #e9e9e9; }"
         "QToolTip { font-size: 16px; color: black;}"
+        "QPushButton#сhatButton { width: 30px; height: 30px; font-size: 24px; "
+        "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #b24ee7, stop: 1 #982ecb); "
+        "color: white; border-radius: 5px;}"
     );
 
     // Splash screen

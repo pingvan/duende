@@ -149,8 +149,10 @@ grpc::Status chat_service_::ChangeChatDescription(grpc::ServerContext* context, 
 }
 
 grpc::Status chat_service_::ChangeChatCover(grpc::ServerContext* context, const chat_service::ChangeChatCoverRequest* request, chat_service::OperationStatusResponse* response) {
-    // TODO
-    // database::chat_service_database_api::change_chat_cover(request->chat_id(), request->new_cover());
+    std::basic_string<char> char_data = request->new_cover();
+    std::basic_string<std::byte> byte_data(reinterpret_cast<std::byte const*>(char_data.data()), char_data.size());
+
+    database::chat_service_database_api::change_chat_cover(request->chat_id(), request->admin_id(), byte_data);
     response->set_status(chat_service::Status::SUCCESS);
     return grpc::Status::OK;
 }
