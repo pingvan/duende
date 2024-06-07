@@ -5,9 +5,10 @@ client::client(const std::shared_ptr<grpc::Channel> &new_channel)
       authorization_stub(authservice::AuthService::NewStub(new_channel)),
       authorization_data_stub(authservice::AuthServiceData::NewStub(new_channel)
       ),
-      chat_data_stub(chat_service::ChatDataService::NewStub(new_channel)),
       chat_stub(chat_service::ChatHandler::NewStub(new_channel)),
+      chat_data_stub(chat_service::ChatDataService::NewStub(new_channel)),
       profile_stub(profile::ProfileService::NewStub(new_channel)),
+      profile_data_stub(profile::ProfileServiceData::NewStub(new_channel)),
       search_stub(search_service::SerachService::NewStub(new_channel)),
       invite_stub(invitation::InvitationService::NewStub(new_channel)),
       invite_data_stub(invitation::InvitationDataService::NewStub(new_channel)),
@@ -16,8 +17,7 @@ client::client(const std::shared_ptr<grpc::Channel> &new_channel)
       ),
       recommendation_stub(
           recommendation_service::RecommendationService::NewStub(new_channel)
-      ),
-      profile_data_stub(profile::ProfileServiceData::NewStub(new_channel)) {
+      ) {
 }
 
 void client::init_invite_chat_stream(int user_id) {
@@ -771,10 +771,9 @@ client::login(const std::string &client_login, const std::string &password) {
     grpc::Status status =
         authorization_stub->Login(&context, request, response);
     if (!status.ok()) {
-        response->set_message(status.error_message());
-    } else {
-        response->set_message("OK");
+        std::cout << status.error_message() << std::endl;
     }
+
     return response;
 }
 
@@ -795,11 +794,11 @@ authservice::SignupResponse *client::registration(
 
     grpc::Status status =
         authorization_stub->Signup(&context, request, response);
+
     if (!status.ok()) {
-        response->set_message(status.error_message());
-    } else {
-        response->set_message("OK");
+        std::cout << status.error_message() << std::endl;
     }
+
     return response;
 }
 
@@ -948,16 +947,6 @@ bool client::is_subscribed(uint32_t user_id, uint32_t subscribie_id) {
 bool client::is_blocked(uint32_t user_id, uint32_t blockie_id) {
     std::vector<uint32_t> blocked = get_blocked(blockie_id);
     return std::find(blocked.begin(), blocked.end(), user_id) != blocked.end();
-}
-
-bool client::invite_already_sent(uint32_t user_id, uint32_t receiver_id) {
-    auto invites = get_sent_invites(user_id);
-    for (const auto &invite : invites) {
-        if (invite.sender().user_id() == receiver_id) {
-            return true;
-        }
-    }
-    return false;
 }
 
 std::vector<uint32_t> client::get_mutual_subscriptions(uint32_t user_id) {

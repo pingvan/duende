@@ -30,15 +30,15 @@ private:
     std::shared_ptr<grpc::Channel> channel;
     std::unique_ptr<authservice::AuthService::Stub> authorization_stub;
     std::unique_ptr<authservice::AuthServiceData::Stub> authorization_data_stub;
-    std::unique_ptr<chat_service::ChatDataService::Stub> chat_data_stub;
     std::unique_ptr<chat_service::ChatHandler::Stub> chat_stub;
+    std::unique_ptr<chat_service::ChatDataService::Stub> chat_data_stub;
     std::unique_ptr<profile::ProfileService::Stub> profile_stub;
+    std::unique_ptr<profile::ProfileServiceData::Stub> profile_data_stub;
     std::unique_ptr<search_service::SerachService::Stub> search_stub;
     std::unique_ptr<invitation::InvitationService::Stub> invite_stub;
     std::unique_ptr<invitation::InvitationDataService::Stub> invite_data_stub;
     std::unique_ptr<users_interaction::UsersInteractionService::Stub> users_interaction_stub;
     std::unique_ptr<recommendation_service::RecommendationService::Stub> recommendation_stub;
-    std::unique_ptr<profile::ProfileServiceData::Stub> profile_data_stub;
 
     std::unique_ptr<grpc::ClientReaderWriter<chat_service::ChatRequests, chat_service::ChatResponses>> chat_stream;
     std::unique_ptr<grpc::ClientReaderWriter<chat_service::InvitesToChatRequests, chat_service::InvitesToChatResponses>> invite_chat_stream;
@@ -66,7 +66,7 @@ public:
     bool check_user_privileges(int user_id, int chat_id);
     bool change_chat_name(int chat_id, int admin_id, std::string new_chat_name);
     bool change_description(int chat_id, int admin_id, std::string new_description);
-    // bool change_cover(int chat_id, int admin_id, std::string new_cover);
+    void change_chat_cover(uint32_t chat_id, uint32_t admin_id, const std::string &photo_path);
     void add_privileges_to_user(int sender_id, int receiver_id, int chat_id);
     void remove_privileges_from_user(int sender_id, int receiver_id, int chat_id);
     void remove_user_from_chat(int sender_id, int receiver_id, int chat_id);
@@ -95,6 +95,7 @@ public:
     void change_username(int user_id, const std::string &new_username); 
     void change_quote(int user_id, const std::string &new_quote); 
     void change_bio(int user_id, const std::string &new_bio); 
+    void change_photo(uint32_t user_id, const std::string &photo_path);
     void add_actor(int user_id, int actor_id);
     void remove_actor(int user_id, int actor_id);
     void add_movie(int user_id, int movie_id, int rating);
@@ -110,6 +111,27 @@ public:
     common::GroupChatPreview *get_group_chat_preview(int chat_id);
     std::vector<chat_service::ChatEvent> get_chat_events(int chat_id);
 
+    void subscribe(int subscriber_id, int subscribie_id);
+    void unsubscribe(int subscriber_id, int subscribie_id);
+    std::vector<uint32_t> get_subscriptions(uint32_t subscriber_id);
+    std::vector<uint32_t> get_subscribers(uint32_t subscribie_id);
+    bool is_subscribed(uint32_t user_id, uint32_t subscribie_id);
+    std::vector <uint32_t> get_mutual_subscriptions(uint32_t user_id);
+
+    void block(int blocker_id, int blockie_id);
+    void unblock(int blocker_id, int blockie_id);
+    std::vector<uint32_t> get_blocked(uint32_t blockie_id);
+    bool is_blocked(uint32_t user_id, uint32_t blockie_id);
+
+    std::vector<common::UserPreview> get_user_recommendations(uint32_t user_id);
+    std::vector<common::FilmPreview> get_film_recommendations(uint32_t user_id);
+
+    common::FilmFullPage *get_film_full_page(int film_id);
+    common::FilmPreview *get_film_preview(int film_id);
+    bool is_genre_favourite(uint32_t user_id, const std::string &genre_name);
+    bool is_actor_favourite(uint32_t user_id, uint32_t actor_id);
+    bool is_movie_watched(uint32_t user_id, uint32_t movie_id);
+
     authservice::LoginResponse *login(const std::string &client_login, const std::string &password);
     authservice::SignupResponse *registration(
         const std::string &client_login,
@@ -117,25 +139,4 @@ public:
         const std::string &password,
         const std::string &password_confirmation
     );
-
-    void subscribe(int subscriber_id, int subscribie_id);
-    void unsubscribe(int subscriber_id, int subscribie_id);
-    std::vector<uint32_t> get_subscriptions(uint32_t subscriber_id);
-    std::vector<uint32_t> get_subscribers(uint32_t subscribie_id);
-    void block(int blocker_id, int blockie_id);
-    void unblock(int blocker_id, int blockie_id);
-    std::vector<uint32_t> get_blocked(uint32_t blockie_id);
-    bool is_subscribed(uint32_t user_id, uint32_t subscribie_id);
-    bool is_blocked(uint32_t user_id, uint32_t blockie_id);
-    bool invite_already_sent(uint32_t sender_id, uint32_t receiver_id);
-    std::vector <uint32_t> get_mutual_subscriptions(uint32_t user_id);
-    void change_photo(uint32_t user_id, const std::string &photo_path);
-    std::vector<common::UserPreview> get_user_recommendations(uint32_t user_id);
-    std::vector<common::FilmPreview> get_film_recommendations(uint32_t user_id);
-    common::FilmFullPage *get_film_full_page(int film_id);
-    common::FilmPreview *get_film_preview(int film_id);
-    bool is_genre_favourite(uint32_t user_id, const std::string &genre_name);
-    bool is_actor_favourite(uint32_t user_id, uint32_t actor_id);
-    bool is_movie_watched(uint32_t user_id, uint32_t movie_id);
-    void change_chat_cover(uint32_t chat_id, uint32_t admin_id, const std::string &photo_path);
 };
