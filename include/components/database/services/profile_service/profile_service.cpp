@@ -96,7 +96,8 @@ bool profile_service_database_api::check_is_favourite_actor(const int &user_id, 
 void profile_service_database_api::remove_favourite_actor(const int &user_id,
                                        const int &actor_id) {
   const connector connection;
-    const auto result = connection.txn->exec_params("DELETE FROM actors_to_form WHERE user_id = $1 AND actor_id = $2", user_id, actor_id);
+  auto form_id = get_form_id(user_id);
+    const auto result = connection.txn->exec_params("DELETE FROM actors_to_form WHERE form_id = $1 AND actor_id = $2", form_id, actor_id);
     connection.txn->commit();
 }
 
