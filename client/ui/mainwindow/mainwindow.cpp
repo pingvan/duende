@@ -140,6 +140,10 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
         &MainWindow::openOtherPage
     );
     connect(
+        chatsPage, &Chats::userClicked, this,
+        &MainWindow::openOtherPage
+    );
+    connect(
         recommendationsPage, &Recommendations::userFromListClicked, this,
         &MainWindow::openOtherPage
     );

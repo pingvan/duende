@@ -38,6 +38,7 @@ private:
     std::unique_ptr<invitation::InvitationDataService::Stub> invite_data_stub;
     std::unique_ptr<users_interaction::UsersInteractionService::Stub> users_interaction_stub;
     std::unique_ptr<recommendation_service::RecommendationService::Stub> recommendation_stub;
+    std::unique_ptr<profile::ProfileServiceData::Stub> profile_data_stub;
 
     std::unique_ptr<grpc::ClientReaderWriter<chat_service::ChatRequests, chat_service::ChatResponses>> chat_stream;
     std::unique_ptr<grpc::ClientReaderWriter<chat_service::InvitesToChatRequests, chat_service::InvitesToChatResponses>> invite_chat_stream;
@@ -63,9 +64,9 @@ public:
     void leave_invite_chat_stream(int user_id);
     chat_service::ChatPreview *create_group_chat(int creator_id, std::string chat_name, std::string description);
     bool check_user_privileges(int user_id, int chat_id);
-    void change_chat_name(int chat_id, std::string new_chat_name);
-    void change_description(int chat_id, std::string new_description);
-    // void change_cover(int chat_id, std::string new_cover);
+    bool change_chat_name(int chat_id, int admin_id, std::string new_chat_name);
+    bool change_description(int chat_id, int admin_id, std::string new_description);
+    // bool change_cover(int chat_id, int admin_id, std::string new_cover);
     void add_privileges_to_user(int sender_id, int receiver_id, int chat_id);
     void remove_privileges_from_user(int sender_id, int receiver_id, int chat_id);
     void remove_user_from_chat(int sender_id, int receiver_id, int chat_id);
@@ -78,8 +79,8 @@ public:
     void init_invite_stream(int user_id);
     void start_reading_invite_stream();
     void leave_invite_stream(int user_id);
-    void send_invite(int sender_id, int receiver_id, std::string sender_login, std::string receiver_login, int chat_id = -1);
-    void respond_invite(int invite_id, int sender_id, int receiver_id, int chat_id, bool accept);
+    void send_invite(int sender_id, int receiver_id, int chat_id = -1);
+    void respond_invite(int invite_id, int sender_id, int receiver_id, bool accept, int chat_id = -1);
 
     std::vector<invitation::Invite> get_sent_invites(int user_id);
     std::vector<invitation::Invite> get_received_invites(int user_id);
@@ -105,6 +106,9 @@ public:
     std::vector<chat_service::MessageReceived> get_last_messages(int user_id, int chat_id);
     std::vector<common::UserPreview> get_chat_members(int chat_id);
     bool check_user_in_chat(int user_id, int chat_id);
+    chat_service::ChatPreview *get_chat_preview(int chat_id);
+    common::GroupChatPreview *get_group_chat_preview(int chat_id);
+    std::vector<chat_service::ChatEvent> get_chat_events(int chat_id);
 
     authservice::LoginResponse *login(const std::string &client_login, const std::string &password);
     authservice::SignupResponse *registration(
@@ -128,4 +132,6 @@ public:
     void change_photo(uint32_t user_id, const std::string &photo_path);
     std::vector<common::UserPreview> get_user_recommendations(uint32_t user_id);
     std::vector<common::FilmPreview> get_film_recommendations(uint32_t user_id);
+    common::FilmFullPage *get_film_full_page(int film_id);
+    common::FilmPreview *get_film_preview(int film_id);
 };

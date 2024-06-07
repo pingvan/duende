@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 COMPONENTS Widgets REQUIRED)
 find_package(Qt6 COMPONENTS Core REQUIRED)
+find_package(Qt6 COMPONENTS Network REQUIRED)
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
@@ -56,6 +57,7 @@ target_include_directories(client PRIVATE
 target_link_libraries(client PRIVATE
     Qt6::Core
     Qt6::Widgets
+    Qt6::Network
     absl::flags_parse
     gRPC::grpc++
     protobuf::libprotobuf

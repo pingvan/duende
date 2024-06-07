@@ -30,7 +30,6 @@ message Invite {
   common.UserPreview sender = 2;
   string invite_text = 3;
   string time_stamp = 4;
-  int32 chat_id = 5;
   InviteStatus status = 6;
   optional common.GroupChatPreview chat_preview = 7;
 }
@@ -67,22 +66,29 @@ message InvitationResponse {
 
 message SendInvitationRequest {
   int32 sender_id = 1;
-  Invite invite = 2;
+  int32 receiver_id = 2;
+  optional int32 chat_id = 3;
 }
 
 message RespondToInvitationRequest {
   int32 sender_id = 1;
-  Invite invite = 2;
+  int32 receiver_id = 2;
+  int32 invite_id = 3;
+  InviteStatus status = 4;
+  optional int32 chat_id = 5;
 }
 
 message SendInvitationResponse {
   int32 sender_id = 1;
   Invite invite = 2;
+  optional string error_message = 3;
 }
 
 message RespondToInvitationResponse {
   int32 sender_id = 1;
-  Invite invite = 2;
+  int32 receiver_id = 2;
+  InviteStatus status = 3;
+  int32 invite_id = 4;
   optional chat_service.ChatPreview chat = 5;
 }
 

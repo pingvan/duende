@@ -66,4 +66,6 @@ class ProfileServiceImpl final : public ProfileService::Service
 struct ProfileDataService final : public profile::ProfileServiceData::Service {
   grpc::Status GetFilmFullPage(grpc::ServerContext *context, const profile::FilmId *request,
                                common::FilmFullPage *response) override;
+  grpc::Status GetFilmPreview(grpc::ServerContext *context, const profile::FilmId *request,
+                               common::FilmPreview *response) override;
 };

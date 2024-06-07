@@ -12,6 +12,6 @@ set(SERVICES_SRCS
 		${CMAKE_CURRENT_SOURCE_DIR}/invitation_service/invitation_server.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/search_service/search_service.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/users_interaction_service/users_interaction_service.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/recommendation_service/recommendation_service.cpp
+		# ${CMAKE_CURRENT_SOURCE_DIR}/recommendation_service/recommendation_service.cpp
 	PARENT_SCOPE
 )

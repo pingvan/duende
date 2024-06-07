@@ -66,8 +66,7 @@ chat_service::AcceptMessageResponse* chat_service_::make_accept_message_response
 
 chat_service::ChatResponses chat_service_::send_to_chat(const chat_service::MessageSend& msg) {
     std::cerr << "first line\n";
-    aes::encryptor encryptor;
-    auto id_timestamp = database::chat_service_database_api::add_message(msg.sender_id(), msg.chat_id(), encryptor.encrypt(msg.message_text()));
+    auto id_timestamp = database::chat_service_database_api::add_message(msg.sender_id(), msg.chat_id(), msg.message_text());
     std::cerr << "get members\n";
     auto members_ids = database::chat_service_database_api::get_members_ids(msg.chat_id());
     std::cerr << "before making response\n";
@@ -138,13 +137,13 @@ grpc::Status chat_service_::CheckUserPrivileges(grpc::ServerContext* context, co
 // static void remove_user_from_chat(const int &chat_id, const int &user_id);
 
 grpc::Status chat_service_::ChangeChatName(grpc::ServerContext* context, const chat_service::ChangeChatNameRequest* request, chat_service::OperationStatusResponse* response) {
-    database::chat_service_database_api::change_chat_name(request->chat_id(), request->new_chat_name());
+    database::chat_service_database_api::change_chat_name(request->chat_id(), request->admin_id(), request->new_chat_name());
     response->set_status(chat_service::Status::SUCCESS);
     return grpc::Status::OK;
 }
 
 grpc::Status chat_service_::ChangeChatDescription(grpc::ServerContext* context, const chat_service::ChangeChatDescriptionRequest* request, chat_service::OperationStatusResponse* response) {
-    database::chat_service_database_api::change_chat_description(request->chat_id(), request->new_description());
+    database::chat_service_database_api::change_chat_description(request->chat_id(), request->admin_id(), request->new_description());
     response->set_status(chat_service::Status::SUCCESS);
     return grpc::Status::OK;
 }
@@ -201,8 +200,13 @@ grpc::Status chat_service_::InvitesToChat(grpc::ServerContext* context, grpc::Se
 
             std::string sender_login = sender_preview_proto->login();
             std::string receiver_login = receiver_preview_proto->login();
-
-            database::chat_service_database_api::remove_user_from_chat(chat_id, receiver_id);
+            
+            if (sender_id == receiver_id) {
+                database::chat_service_database_api::remove_user_from_chat(chat_id, receiver_id);
+            }
+            else {
+                database::chat_service_database_api::remove_user_from_chat(chat_id, sender_id, receiver_id);
+            }
 
             chat_service::InvitesToChatResponses response;
             const auto remove_response = new chat_service::RemoveResponse;
@@ -221,15 +225,9 @@ grpc::Status chat_service_::InvitesToChat(grpc::ServerContext* context, grpc::Se
 
             response.set_allocated_remove(remove_response);
 
-            std::vector<int> chat_members = database::chat_service_database_api::get_members_ids(chat_id);
-
-            for (int member_id : chat_members) {
-                if (users_invites_online.count(member_id)) {
-                    users_invites_online[member_id]->Write(response);
-                }
+            if (users_invites_online.count(receiver_id)) {
+                users_invites_online[receiver_id]->Write(response);
             }
-
-            stream->Write(response);
             
         } else if (request.has_leave()) {
             chat_service::InvitesToChatResponses response;
@@ -254,8 +252,14 @@ grpc::Status chat_service_::AddUserToChat(grpc::ServerContext* context, const ch
 
 grpc::Status chat_data_service::GetUserChats(grpc::ServerContext *context, const chat_service::GetChatsRequest *request, chat_service::UserChats *response) {
         std::cout << "GetUserChats called from server\n";
-        auto chats = database::chat_service_database_api::get_user_chats(request->user_id());
-        chats.convert_to_proto(response);
+        try {
+            auto chats = database::chat_service_database_api::get_user_chats(request->user_id());
+            chats.convert_to_proto(response);
+        }
+        catch (std::exception &e) {
+            std::cerr << e.what() << std::endl;
+        }
+        
         std::cout << "response->user_chats_size(): " << response->user_chats_size() << '\n';
         return grpc::Status::OK;
 }
@@ -285,5 +289,28 @@ grpc::Status chat_data_service::GetChatMembers(grpc::ServerContext *context, con
 grpc::Status chat_data_service::CheckUserInChat(grpc::ServerContext *context, const chat_service::UserChat *request, chat_service::BoolResponse *response) {
     bool is_user_in_chat = database::chat_service_database_api::check_user_in_chat(request->user_id(), request->chat_id());
     response->set_response(is_user_in_chat);
+    return grpc::Status::OK;
+}
+
+grpc::Status chat_data_service::GetChatPreview(grpc::ServerContext *context, const chat_service::UserChat *request, chat_service::ChatPreview *response) {
+    try {
+        auto chat_preview = database::chat_service_database_api::get_chat_preview(request->chat_id());
+        chat_preview.convert_to_proto(response);
+    }
+    catch (std::exception &e) {
+        std::cout << e.what() << '\n';
+    }
+    return grpc::Status::OK;
+}
+
+grpc::Status chat_data_service::GetGroupChatPreview(grpc::ServerContext *context, const chat_service::UserChat *request, common::GroupChatPreview *response) {
+    auto group_chat_preview = database::chat_service_database_api::get_group_chat_preview(request->chat_id());
+    group_chat_preview.convert_to_proto(response);
+    return grpc::Status::OK;
+}
+
+grpc::Status chat_data_service::GetChatEvents(grpc::ServerContext *context, const chat_service::UserChat *request, chat_service::ChatEvents *response) {
+    auto chat_events = database::chat_service_database_api::get_chat_events(request->chat_id());
+    chat_events.convert_to_proto(response);
     return grpc::Status::OK;
 }

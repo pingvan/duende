@@ -46,6 +46,39 @@ void run_server() {
     invitation_service invitation_service(chat_channel);
     invitation_data_service invitation_data_service;
     UsersInteractionServiceImpl users_interaction_service;
+    // RecommendationServiceImpl recommendation_service;
+    ProfileDataService profile_service_data;
+    // recommendation_service.Init();
+    // recommendation_service.computed = true;
+    // recommendation_service.recomputeSimularity();
+
+    // std::string key;
+    // std::string cert;
+    // std::string root;
+
+    // auto key_path = std::filesystem::path("src/cert/server.key");
+    // auto cert_path = std::filesystem::path("src/cert/server.crt");
+    // auto root_path = std::filesystem::path("src/cert/ca.crt");
+
+    auto current_path = std::filesystem::current_path();
+
+    std::cout << "current path: " << current_path << std::endl;
+
+    auto parent_path = current_path.parent_path();
+
+    // read(parent_path / key_path, key);
+    // read(parent_path / cert_path, cert);
+    // read(parent_path / root_path, root);
+
+    // auto key_cert_pair = grpc::SslServerCredentialsOptions::PemKeyCertPair{
+    //     key, cert
+    // };
+
+    // grpc::SslServerCredentialsOptions ssl_options;
+    // ssl_options.pem_root_certs = root;
+    // ssl_options.pem_key_cert_pairs.push_back(key_cert_pair);
+
+    // auto server_credentials = grpc::SslServerCredentials(ssl_options);
     RecommendationServiceImpl recommendation_service;
     recommendation_service.Init();
 
@@ -61,7 +94,8 @@ void run_server() {
     builder.RegisterService(&invitation_service);
     builder.RegisterService(&invitation_data_service);
     builder.RegisterService(&users_interaction_service);
-    builder.RegisterService(&recommendation_service);
+    // builder.RegisterService(&recommendation_service);
+    builder.RegisterService(&profile_service_data);
 
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << '\n';

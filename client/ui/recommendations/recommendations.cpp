@@ -52,7 +52,7 @@ Recommendations::Recommendations(Manager *managerPtr, QWidget *parent)
     // scroller->setScrollerProperties(properties);
     filmsGallery = new QListWidget;
     filmsGallery->setFixedHeight(300);
-    filmsGallery->setIconSize(QSize(200, 200));
+    filmsGallery->setIconSize(QSize(250, 250));
     filmsGallery->setSpacing(10);
     filmsGallery->setFrameShape(QFrame::NoFrame);
     filmsGallery->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -91,7 +91,6 @@ Recommendations::~Recommendations() {
 }
 
 void Recommendations::updateRecommendations() {
-    // Получаем рекомендации
     auto recommended_users =
         manager->new_client.get_user_recommendations(manager->ID);
     auto recommended_films =
@@ -101,6 +100,11 @@ void Recommendations::updateRecommendations() {
     filmsGallery->clear();
 
     for (const auto &user : recommended_users) {
+        if (manager->new_client.is_subscribed(manager->ID, user.user_id()) ||
+            manager->new_client.is_blocked(manager->ID, user.user_id()) ||
+            manager->new_client.is_blocked(user.user_id(), manager->ID)) {
+            continue;
+        }
         QIcon userIcon;
         if (user.photo().empty()) {
             userIcon = QIcon(":/img/person-circle2.png");
@@ -121,8 +125,34 @@ void Recommendations::updateRecommendations() {
     }
 
     for (const auto &film : recommended_films) {
+        // if (is_watched(manager->ID, film.film_id())) {
+        //     continue;
+        // }
         QIcon filmIcon;
-        filmIcon = QIcon(":/img/titanik.jpeg");
+        QNetworkAccessManager *nam = new QNetworkAccessManager(this);
+        auto *full_page =
+            manager->new_client.get_film_full_page(film.film_id());
+        QUrl url;
+        if (full_page == nullptr) {
+            qDebug() << "aaaaaaaaa";
+            url = film.preview_cover_url().c_str();
+        } else {
+            url = full_page->full_page_cover_url().c_str();
+        }
+        QNetworkReply *reply = nam->get(QNetworkRequest(url));
+
+        QEventLoop loop;
+        connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+        loop.exec();
+        if (reply->error() == QNetworkReply::NoError) {
+            QByteArray data = reply->readAll();
+            QImage image;
+            image.loadFromData(data);
+            QPixmap pixmap = QPixmap::fromImage(image).scaledToHeight(250);
+            filmIcon = QIcon(pixmap);
+        } else {
+            filmIcon = QIcon(":/img/titanik.jpeg");
+        }
         auto *filmItem = new QListWidgetItem(
             filmIcon, QString::fromStdString(film.title().c_str())
         );
@@ -131,6 +161,7 @@ void Recommendations::updateRecommendations() {
         font.setPointSize(18);
         filmItem->setFont(font);
         filmsGallery->addItem(filmItem);
+        // filmItem->setToolTip(tr(full_page->description().c_str()));
     }
 }
 

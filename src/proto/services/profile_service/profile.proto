@@ -19,6 +19,7 @@ service ProfileService {
 
 service ProfileServiceData {
   rpc GetFilmFullPage (FilmId) returns (common.FilmFullPage) {}
+  rpc GetFilmPreview (FilmId) returns (common.FilmPreview) {}
 }
 
 message FilmId {
