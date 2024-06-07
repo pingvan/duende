@@ -87,6 +87,7 @@ private slots:
     void onUserInPrivateChatClicked();
     void onUserInInviteClicked();
     void onProfileButtonClicked();
+    void showLeaveDialog(QPushButton *button);
 
 private:
     Ui::Chats *ui;

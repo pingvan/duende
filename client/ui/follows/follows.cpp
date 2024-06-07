@@ -199,11 +199,42 @@ void Follows::updateUserList(const QString &input) {
     }
     for (const QString &user : users) {
         QListWidgetItem *item = new QListWidgetItem;
+        common::UserFullPage *user_full = manager->new_client.get_user_full_page(users_id[user]);
+        std::string photo_data(
+            user_full->preview().photo().begin(), user_full->preview().photo().end()
+        );
+        QPixmap pixmap;
+        if (photo_data.empty()) {
+            pixmap.load(":/img/person-circle2.png");
+        } else {
+            pixmap.loadFromData(
+                reinterpret_cast<const uchar *>(photo_data.data()),
+                photo_data.size()
+            );
+        }
+
+        int size = qMin(pixmap.width(), pixmap.height());
+        QPixmap squarePixmap = pixmap.copy(0, 0, size, size);
+
+        QPixmap scaledPixmap = squarePixmap.scaled(
+            50, 50, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation
+        );
+
+        QPixmap rounded = QPixmap(scaledPixmap.size());
+        rounded.fill(Qt::transparent);
+
+        QPainter painter(&rounded);
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setBrush(QBrush(scaledPixmap));
+        painter.setPen(Qt::NoPen);
+        painter.drawEllipse(rounded.rect());
+        QIcon icon(rounded);
+        item->setIcon(icon);
         item->setText(user);
         item->setData(Qt::UserRole, users_id[user]);
-        item->setSizeHint(QSize(item->sizeHint().width(), 45));
+        item->setSizeHint(QSize(item->sizeHint().width(), 80));
         QFont font = item->font();
-        font.setPointSize(18);
+        font.setPointSize(24);
         item->setFont(font);
         item->setForeground(QColor("#8023a8"));
         switch (currentList) {
@@ -226,17 +257,42 @@ void Follows::UpdateList(QListWidget &list, const std::vector<uint32_t> &ids) {
         common::UserFullPage *user = manager->new_client.get_user_full_page(id);
         if (user) {
             QString username = QString::fromStdString(user->preview().login());
-            // QString quote = QString::fromStdString(user->quote());
+            std::string photo_data(
+                user->preview().photo().begin(), user->preview().photo().end()
+            );
+            QPixmap pixmap;
+            if (photo_data.empty()) {
+                pixmap.load(":/img/person-circle2.png");
+            } else {
+                pixmap.loadFromData(
+                    reinterpret_cast<const uchar *>(photo_data.data()),
+                    photo_data.size()
+                );
+            }
+
+            int size = qMin(pixmap.width(), pixmap.height());
+            QPixmap squarePixmap = pixmap.copy(0, 0, size, size);
+
+            QPixmap scaledPixmap = squarePixmap.scaled(
+                50, 50, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation
+            );
+
+            QPixmap rounded = QPixmap(scaledPixmap.size());
+            rounded.fill(Qt::transparent);
+
+            QPainter painter(&rounded);
+            painter.setRenderHint(QPainter::Antialiasing, true);
+            painter.setBrush(QBrush(scaledPixmap));
+            painter.setPen(Qt::NoPen);
+            painter.drawEllipse(rounded.rect());
+            QIcon icon(rounded);
             QListWidgetItem *item = new QListWidgetItem;
-            // if (quote.isEmpty()) {
+            item->setIcon(icon);
             item->setText(username);
-            // } else {
-            //     item->setText(username + ": \" " + quote + "\"");
-            // }
             item->setData(Qt::UserRole, id);
-            item->setSizeHint(QSize(item->sizeHint().width(), 45));
+            item->setSizeHint(QSize(item->sizeHint().width(), 80));
             QFont font = item->font();
-            font.setPointSize(18);
+            font.setPointSize(24);
             item->setFont(font);
             item->setForeground(QColor("#8023a8"));
             list.addItem(item);

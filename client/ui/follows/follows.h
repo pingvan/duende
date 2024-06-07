@@ -32,12 +32,14 @@ signals:
     void userClicked(int id);
     void userFromListClicked(int id);
 
-private slots:
-    void updateUserList(const QString &input);
-    void onUserClicked(const QString &username);
+public slots:
     void UpdateSubscribers();
     void UpdateSubscriptions();
     void UpdateBlocked();
+    
+private slots:
+    void updateUserList(const QString &input);
+    void onUserClicked(const QString &username);
     void onUserFromListClicked(QListWidgetItem *item);
     void UpdateList(QListWidget &list, const std::vector<uint32_t> &ids);
 

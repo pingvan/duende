@@ -582,6 +582,17 @@ void Chats::sendMessage() {
 
 void Chats::onChatClicked(QListWidgetItem* item)
 {
+    QMetaObject::Connection connection = connect(chatPhoto, &ClickableLabel::clicked, [=]() {
+        QString fileName = QFileDialog::getOpenFileName(this,
+            tr("Open Image"), "", tr("Image Files (*.png *.jpg *.bmp)"));
+        if (fileName != ""){
+            QPixmap newCover(fileName);
+            QPixmap newRoundedCover = make_rounded_pixmap(newCover, 50);
+            chatPhoto->setPixmap(newRoundedCover);
+            manager->new_client.change_chat_cover(currentChatId, manager->ID, fileName.toStdString());
+            // update in list
+        }
+    });
     // get chat data
     currentChatId     = item->data(Qt::UserRole).toInt();
     chatPages->setCurrentIndex(item->data(Qt::UserRole + 1).toInt());
@@ -596,28 +607,16 @@ void Chats::onChatClicked(QListWidgetItem* item)
     sendButton->setVisible(true);
 
     chat_service::ChatPreview* chat_preview = manager->new_client.get_chat_preview(currentChatId);
-    // ClickableLabel* chatPhoto = new ClickableLabel();
     if (chat_preview->is_group_chat()) {
         chatPhoto->setCursor(Qt::PointingHandCursor);
         QPixmap chat_cover;
         chat_cover.load(":/img/people-fill.png");
         QPixmap rounded_cover = make_rounded_pixmap(QPixmap(chat_cover), 50);
         chatPhoto->setPixmap(rounded_cover);
-
-        connect(chatPhoto, &ClickableLabel::clicked, [=]() {
-            QString fileName = QFileDialog::getOpenFileName(this,
-                tr("Open Image"), "", tr("Image Files (*.png *.jpg *.bmp)"));
-            if (fileName != ""){
-                QPixmap newCover(fileName);
-                QPixmap newRoundedCover = make_rounded_pixmap(newCover, 50);
-                chatPhoto->setPixmap(newRoundedCover);
-                manager->new_client.change_chat_cover(currentChatId, manager->ID, fileName.toStdString());
-                // update in list
-            }
-        });
     }
     else {
         chatPhoto->setCursor(Qt::ArrowCursor);
+        disconnect(connection);
         std::vector<common::UserPreview> chat_members = manager->new_client.get_chat_members(currentChatId);
         int other_user_id = chat_members[0].user_id() != manager->ID ? chat_members[0].user_id() : chat_members[1].user_id();
         common::UserPreview* user_preview = manager->new_client.get_user_preview(other_user_id);
@@ -912,11 +911,11 @@ void Chats::make_message_item(const chat_service::MessageReceived& message)
     QLabel *timestampLabel = new QLabel(time_stamp);
 
     QFont font = senderLabel->font();
-    font.setPointSize(16);
+    font.setPointSize(18);
     senderLabel->setFont(font);
     textLabel->setFont(font);
     font = timestampLabel->font();
-    font.setPointSize(10);
+    font.setPointSize(12);
     timestampLabel->setFont(font);
 
     if (sender_id != -1 && !am_i_sender) {
@@ -940,7 +939,7 @@ void Chats::make_message_item(const chat_service::MessageReceived& message)
     );
     messageWidget->setMinimumWidth(200);
     messageWidget->setMaximumWidth(450);
-    messageWidget->setMaximumHeight(300);
+    messageWidget->setMaximumHeight(250);
 
     QLabel *spacerLabel = new QLabel;
     spacerLabel->setMinimumHeight(20);
@@ -1293,6 +1292,15 @@ void Chats::updateInviteList(const QString &input)
     }
 }
 
+void Chats::showLeaveDialog(QPushButton *button) {
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Leave chat", "Are you sure you want to leave the chat?",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        manager->new_client.remove_user_from_chat(manager->ID, manager->ID, currentChatId);
+    }
+}
+
 void Chats::build()
 {
     // main layout
@@ -1330,6 +1338,11 @@ void Chats::build()
 
     // input layout
     messageInput = new QLineEdit();
+    messageInput->setStyleSheet(
+        "font-size: 18px; color: #5a1e71; border: 1px solid #8023a8; "
+        "border-radius: 5px; padding: 5px; text-color: #8023a8;"
+    );
+    messageInput->setPlaceholderText("Message");
     messageInput->hide();
     sendButton   = new QPushButton("Send");
     sendButton->hide();
@@ -1360,13 +1373,18 @@ void Chats::build()
     toggleButton->setCursor(Qt::PointingHandCursor);
 
     addChatButton = new QPushButton();
+    // addChatButton->setIcon(QIcon(":/img/plus-square.png"));
     addChatButton->setIcon(QIcon(":/img/plus-square.png"));
+    addChatButton->setIconSize(QSize(20, 20));
+    addChatButton->setToolTip("Create new chat");
     addChatButton->setFixedWidth(30);
     addChatButton->setCursor(Qt::PointingHandCursor);
     addChatButton->setObjectName("сhatButton");
 
     chatInfoButton = new QPushButton();
     chatInfoButton->setIcon(QIcon(":/img/info-circle.png"));
+    chatInfoButton->setIconSize(QSize(20, 20));
+    chatInfoButton->setToolTip("About chat");
     chatInfoButton->hide();
     chatInfoButton->setFixedWidth(30);
     chatInfoButton->setCursor(Qt::PointingHandCursor);
@@ -1374,23 +1392,26 @@ void Chats::build()
 
     addMemberToChatButton = new QPushButton();
     addMemberToChatButton->setIcon(QIcon(":/img/plus-circle.png"));
+    addMemberToChatButton->setToolTip("Add members");
+    addMemberToChatButton->setIconSize(QSize(20, 20));
     addMemberToChatButton->hide();
     addMemberToChatButton->setFixedWidth(30);
     addMemberToChatButton->setCursor(Qt::PointingHandCursor);
     addMemberToChatButton->setObjectName("сhatButton");
 
     leaveChatButton = new QPushButton();
-    leaveChatButton->setIcon(QIcon(":/img/x-circle.png"));
+    leaveChatButton->setIcon(QIcon(":/img/box-arrow-right.png"));
+    leaveChatButton->setIconSize(QSize(20, 20));
+    leaveChatButton->setToolTip("Leave chat");
     leaveChatButton->hide();
     leaveChatButton->setFixedWidth(30);
     leaveChatButton->setCursor(Qt::PointingHandCursor);
     leaveChatButton->setObjectName("сhatButton");
-    // connect(leaveChatButton, &QPushButton::clicked, this, [this]() {
-    //     showLeaveDialog(leaveChatButton);
-    // });
 
     generateFilmButton = new QPushButton();
-    generateFilmButton->setIcon(QIcon(":/img/camera-reels.png"));
+    generateFilmButton->setIcon(QIcon(":/img/movie.png"));
+    generateFilmButton->setToolTip("Generate film for us");
+    generateFilmButton->setIconSize(QSize(20, 20));
     generateFilmButton->hide();
     generateFilmButton->setFixedWidth(50);
     generateFilmButton->setCursor(Qt::PointingHandCursor);
@@ -1470,7 +1491,10 @@ void Chats::connect_slots()
     connect(addChatButton, &QPushButton::clicked, this, &Chats::onAddChatButtonClicked);
     connect(chatInfoButton, &QPushButton::clicked, this, [this]() { showChatInfo(false); });
     connect(addMemberToChatButton, &QPushButton::clicked, this, &Chats::onAddMemberToChatButtonClicked);
-    connect(leaveChatButton, &QPushButton::clicked, this, &Chats::onLeaveChatButtonClicked);
+    // connect(leaveChatButton, &QPushButton::clicked, this, &Chats::onLeaveChatButtonClicked);
+    connect(leaveChatButton, &QPushButton::clicked, this, [this]() {
+        showLeaveDialog(leaveChatButton);
+    });
     connect(generateFilmButton, &QPushButton::clicked, this, &Chats::onGenerateFilmButtonClicked);
     connect(chatTitle, &ClickableLabel::clicked, this, &Chats::onUserInPrivateChatClicked);
     connect(inviteTitle, &ClickableLabel::clicked, this, &Chats::onUserInInviteClicked);

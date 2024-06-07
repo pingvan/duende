@@ -282,34 +282,35 @@ void Profile::update_watchlist(int start_films, bool edit_mode) {
         QEventLoop loop;
         connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
         loop.exec();
+        QImage image;
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray data = reply->readAll();
-            QImage image;
             image.loadFromData(data);
             pixmap = QPixmap::fromImage(image);
-            pixmap = pixmap.scaledToHeight(view_watchlist->height() - 100);
-
-            MyGraphicsItem *item = new MyGraphicsItem(
-                pixmap, movie.preview().title(), movie.ratio(),
-                movie.preview().film_id(), manager
-            );
-            int32_t movieId = movie.preview().film_id();
-            item->setData(Qt::UserRole, movieId);
-            if (edit_mode) {
-                item->setToolTip(tr("Double click to delete this movie"));
-                item->setCursor(Qt::PointingHandCursor);
-                item->setEditingMode(true);
-            } else {
-                item->setToolTip("");
-                item->setCursor(Qt::ArrowCursor);
-                item->setEditingMode(false);
-            }
-            item->setPos(start_films, 0);
-            scene_watchlist->addItem(item);
         } else {
             qDebug() << "Failed to load image from url:"
                      << reply->errorString();
+            pixmap.load(":/img/file.PNG");
         }
+        pixmap = pixmap.scaledToHeight(view_watchlist->height() - 100);
+
+        MyGraphicsItem *item = new MyGraphicsItem(
+            pixmap, movie.preview().title(), movie.ratio(),
+            movie.preview().film_id(), manager
+        );
+        int32_t movieId = movie.preview().film_id();
+        item->setData(Qt::UserRole, movieId);
+        if (edit_mode) {
+            item->setToolTip(tr("Double click to delete this movie"));
+            item->setCursor(Qt::PointingHandCursor);
+            item->setEditingMode(true);
+        } else {
+            item->setToolTip("");
+            item->setCursor(Qt::ArrowCursor);
+            item->setEditingMode(false);
+        }
+        item->setPos(start_films, 0);
+        scene_watchlist->addItem(item);
         reply->deleteLater();
         start_films += 200;
     }
@@ -320,8 +321,7 @@ void Profile::update_favorite_actors() {
     actorsList->setSpacing(10);
 
     for (const auto &actor : user->favorite_actors()) {
-        QListWidgetItem *item =
-            new QListWidgetItem(actor.full_name().c_str());
+        QListWidgetItem *item = new QListWidgetItem(actor.full_name().c_str());
         item->setTextAlignment(Qt::AlignCenter);
         QFont font;
         font.setPointSize(28);

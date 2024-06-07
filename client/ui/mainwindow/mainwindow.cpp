@@ -2,7 +2,7 @@
 #include "./ui_mainwindow.h"
 
 MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), manager(managerPtr) {
+    : QMainWindow(parent), ui(new Ui::MainWindow), manager(managerPtr), followsInstance(managerPtr) {
     ui->setupUi(this);
 
     qDebug() << "Main window start\n";
@@ -125,7 +125,10 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
     connect(rec_button, &QPushButton::clicked, this, [this]() {
         pages->setCurrentIndex(2);
     });
-    connect(search_button, &QPushButton::clicked, this, [this]() {
+    connect(search_button, &QPushButton::clicked, this, [this] {
+        followsInstance.UpdateSubscriptions();
+        followsInstance.UpdateSubscribers();
+        followsInstance.UpdateBlocked();
         pages->setCurrentIndex(3);
         
     });

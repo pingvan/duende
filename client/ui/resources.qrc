@@ -26,5 +26,10 @@
         <file>img/camera-reels.png</file>
         <file>img/plus-square.png</file>
         <file>img/people-fill.png</file>
+        <file>img/file-earmark-image.png</file>
+        <file>img/movie.png</file>
+        <file>img/info.png</file>
+        <file>img/box-arrow-right.png</file>
+        <file>img/file.PNG</file>
     </qresource>
 </RCC>
