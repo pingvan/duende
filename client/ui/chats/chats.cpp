@@ -421,6 +421,11 @@ void Chats::onAddChatButtonClicked()
 }
 
 void Chats::onRemoveFromChatReceived(const chat_service::RemoveResponse& response) {
+    if (response.has_error_message()) {
+        QMessageBox::critical(this, "Error", QString::fromStdString(response.error_message()));
+        return;
+    }
+
     // get remove data
     int chat_id = response.chat_id();
     int sender_id = response.sender().user_id();
@@ -429,15 +434,6 @@ void Chats::onRemoveFromChatReceived(const chat_service::RemoveResponse& respons
     std::string receiver_login = response.receiver().login();
 
     qDebug() << "Remove from chat received: " << chat_id << " " << sender_id << " " << receiver_id;
-
-    // std::string message_text;
-    // if (sender_id == receiver_id) {
-    //     message_text = sender_login + " left chat.";
-    // }
-    // else {
-    //     message_text = sender_login + " removed " + receiver_login + " from chat.";
-    // }
-    // manager->new_client.send_message(-1, chat_id, message_text);
 
     if (receiver_id == manager->ID) {
         delete_chat_item(chat_id);

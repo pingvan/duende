@@ -110,6 +110,7 @@ public:
     chat_service::ChatPreview *get_chat_preview(int chat_id);
     common::GroupChatPreview *get_group_chat_preview(int chat_id);
     std::vector<chat_service::ChatEvent> get_chat_events(int chat_id);
+    std::vector<int> get_chat_admins(int chat_id);
 
     void subscribe(int subscriber_id, int subscribie_id);
     void unsubscribe(int subscriber_id, int subscribie_id);

@@ -79,32 +79,32 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
         chat_preview preview;
         const auto result_sec = connection.txn->exec_params(query_sec, chat_id);
         for (const auto &row : result_sec) {
-            prewiew.chat_id = row[0].as<int>();
-            prewiew.time_stamp = row[1].as<std::string>();
-            prewiew.is_group_chat = row[2].as<bool>();
+            preview.chat_id = row[0].as<int>();
+            preview.time_stamp = row[1].as<std::string>();
+            preview.is_group_chat = row[2].as<bool>();
             if (!row[3].is_null()) {
-                prewiew.name = row[3].as<std::string>();
+                preview.name = row[3].as<std::string>();
             }
             if (!row[4].is_null()) {
-                prewiew.description = row[4].as<std::string>();
+                preview.description = row[4].as<std::string>();
             }
             if (!row[6].is_null()) {
-                prewiew.chat_cover = row[6].as<std::basic_string<std::byte>>();
+                preview.chat_cover = row[6].as<std::basic_string<std::byte>>();
             }
             static std::string query_third = "SELECT sender_id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS'), message_text_data FROM messages WHERE chat_id = $1 ORDER BY sended_at DESC LIMIT 1";
             const auto last_message = connection.txn->exec_params(query_third, chat_id);
             for (const auto &row : last_message) {
-                prewiew.last_message.sender = authservice_database_api::get_user_preview(row[0].as<int>());
-                prewiew.last_message.time_stamp = row[1].as<std::string>();
-                prewiew.last_message.message_text = encryptor.decrypt(row[2].as<std::string>());
+                preview.last_message.sender = authservice_database_api::get_user_preview(row[0].as<int>());
+                preview.last_message.time_stamp = row[1].as<std::string>();
+                preview.last_message.message_text = encryptor.decrypt(row[2].as<std::string>());
             }
         }
         auto chat_members = get_members_ids(chat_id);
-        prewiew.chat_members.reserve(chat_members.size());
+        preview.chat_members.reserve(chat_members.size());
         for (const auto member_id : chat_members) {
-            prewiew.chat_members.push_back(authservice_database_api::get_user_preview(member_id));
+            preview.chat_members.push_back(authservice_database_api::get_user_preview(member_id));
         }
-        chats.user_chats.push_back(prewiew);
+        chats.user_chats.push_back(preview);
     }
     connection.txn->commit();
     return chats;

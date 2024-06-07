@@ -757,6 +757,25 @@ std::vector<chat_service::ChatEvent> client::get_chat_events(int chat_id) {
     return events;
 }
 
+std::vector<int> client::get_chat_admins(int chat_id) {
+    grpc::ClientContext context;
+
+    chat_service::UserChat request;
+    auto *response = new chat_service::ChatAdmins;
+    request.set_chat_id(chat_id);
+
+    grpc::Status status = chat_data_stub->GetChatAdmins(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << '\n';
+    }
+
+    std::vector<int> admins;
+    for (int i = 0; i < response->admin_id_size(); i++) {
+        admins.push_back(response->admin_id(i));
+    }
+    return admins;
+}
+
 authservice::LoginResponse *
 client::login(const std::string &client_login, const std::string &password) {
     grpc::ClientContext context;
