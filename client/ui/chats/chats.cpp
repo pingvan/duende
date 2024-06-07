@@ -724,7 +724,7 @@ void Chats::onInviteClicked(QListWidgetItem* item)
 
     acceptButton = new QPushButton("Accept", this);
     acceptButton->setFixedHeight(50);
-    acceptButton->setStyleSheet("background-color: #ebd2fc;");
+    acceptButton->setStyleSheet("background-color: #b24ee7;");
     acceptButton->setCursor(Qt::PointingHandCursor);
 
     declineButton = new QPushButton("Decline", this);
