@@ -4,6 +4,7 @@
 #include "components/database/services/chat_service/chat_service.hpp"
 #include "components/database/services/invite_service/invite_service.hpp"
 #include "components/database/services/authservice/authservice.hpp"
+#include "components/database/services/block_service/block_service.hpp"
 #include "services/invitation_service/invitation.grpc.pb.h"
 #include "services/invitation_service/invitation.pb.h"
 #include "services/chat_service/chat_service.grpc.pb.h"

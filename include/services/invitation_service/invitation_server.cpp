@@ -8,6 +8,7 @@ grpc::Status invitation_service::InvitationStream(
     invitation::InvitationRequest request;
     database::invite_service_database_api invite_db_api;
     database::chat_service_database_api chat_db_api;
+    database::block_service_database_api block_db_api;
     while (stream->Read(&request)) {
         if (request.has_invite()) {
             bool is_group_invite = request.invite().has_chat_id();
@@ -25,6 +26,28 @@ grpc::Status invitation_service::InvitationStream(
                     const auto invite_sender_response = new invitation::SendInvitationResponse;
 
                     invite_sender_response->set_error_message("This user is already invited to this chat");
+
+                    sender_response.set_allocated_invite(invite_sender_response);
+                    stream->Write(sender_response);
+                    continue;
+                }
+
+                if (block_db_api.check_is_blocked(receiver_id, sender_id)) {
+                    invitation::InvitationResponse sender_response;
+                    const auto invite_sender_response = new invitation::SendInvitationResponse;
+
+                    invite_sender_response->set_error_message("This user has blocked you so you can't send an invitation to him");
+
+                    sender_response.set_allocated_invite(invite_sender_response);
+                    stream->Write(sender_response);
+                    continue;
+                }
+
+                if (block_db_api.check_is_blocked(sender_id, receiver_id)) {
+                    invitation::InvitationResponse sender_response;
+                    const auto invite_sender_response = new invitation::SendInvitationResponse;
+
+                    invite_sender_response->set_error_message("You should unblock this user to send an invitation to him");
 
                     sender_response.set_allocated_invite(invite_sender_response);
                     stream->Write(sender_response);
@@ -123,6 +146,28 @@ grpc::Status invitation_service::InvitationStream(
                     const auto invite_sender_response = new invitation::SendInvitationResponse;
 
                     invite_sender_response->set_error_message("You already have a private chat with this user");
+
+                    sender_response.set_allocated_invite(invite_sender_response);
+                    stream->Write(sender_response);
+                    continue;
+                }
+
+                if (block_db_api.check_is_blocked(receiver_id, sender_id)) {
+                    invitation::InvitationResponse sender_response;
+                    const auto invite_sender_response = new invitation::SendInvitationResponse;
+
+                    invite_sender_response->set_error_message("This user has blocked you so you can't send an invitation to him");
+
+                    sender_response.set_allocated_invite(invite_sender_response);
+                    stream->Write(sender_response);
+                    continue;
+                }
+
+                if (block_db_api.check_is_blocked(sender_id, receiver_id)) {
+                    invitation::InvitationResponse sender_response;
+                    const auto invite_sender_response = new invitation::SendInvitationResponse;
+
+                    invite_sender_response->set_error_message("You should unblock this user to send an invitation to him");
 
                     sender_response.set_allocated_invite(invite_sender_response);
                     stream->Write(sender_response);

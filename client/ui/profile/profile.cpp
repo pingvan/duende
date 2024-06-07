@@ -416,10 +416,18 @@ void Profile::build_scenes(bool edit_mode) {
         start_films = plusItem_watchlist->boundingRect().width() + 10;
     }
 
-    update_watchlist(start_films, edit_mode);
-
-    // right layout
     rightBox->addWidget(movies_text);
+
+    QLabel *loadingLabel = new QLabel;
+    loadingLabel->setFixedHeight(350);
+    loadingLabel->setFixedWidth(400);
+    loadingLabel->setAlignment(Qt::AlignCenter);
+    rightBox->addWidget(loadingLabel);
+
+    update_watchlist(start_films, edit_mode);
+    rightBox->removeWidget(loadingLabel);
+    delete loadingLabel;
+
     rightBox->addWidget(view_watchlist);
 }
 
@@ -514,7 +522,6 @@ void Profile::build() {
 
     genresLayout = new QHBoxLayout;
     genresList = new QListWidget;
-    // genresList->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     genresList->setStyleSheet("border: none;");
     genresList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     genresList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -535,7 +542,6 @@ void Profile::build() {
     actorsList->setStyleSheet("border: none;");
     actorsList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     actorsList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    // actorsList->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     actorsList->setViewMode(QListView::IconMode);
     actorsList->setFlow(QListView::LeftToRight);
     actorsList->setMaximumHeight(200);
@@ -569,6 +575,7 @@ void Profile::build() {
     connect(
         button_edit, &QPushButton::clicked, this, &Profile::button_edit_clicked
     );
+    button_edit->setMaximumWidth(300);
 
     // save button
     button_save = new QPushButton("Save");
@@ -577,6 +584,7 @@ void Profile::build() {
         button_save, &QPushButton::clicked, this, &Profile::button_save_clicked
     );
     button_save->setVisible(false);
+    button_save->setMaximumWidth(300);
 
     // spacer
     QSpacerItem *verticalSpacer =
