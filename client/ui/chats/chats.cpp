@@ -23,17 +23,23 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     qDebug() << "Received invites size: " << received_invites.size();
     std::vector<invitation::Invite> sent_invites = manager->new_client.get_sent_invites(manager->ID);
     qDebug() << "Sent invites size: " << sent_invites.size();
+    std::vector<std::pair<invitation::Invite, bool>> merged_invites;
+    for (const auto& invite : received_invites) {
+        merged_invites.push_back({invite, false});
+    }
+    for (const auto& invite : sent_invites) {
+        merged_invites.push_back({invite, true});
+    }
+    std::sort(merged_invites.begin(), merged_invites.end(), [](const std::pair<invitation::Invite, bool>& a, const std::pair<invitation::Invite, bool>& b) {
+        return a.first.time_stamp() < b.first.time_stamp();
+    });
     std::sort(chats.begin(), chats.end(), [](const chat_service::ChatPreview& a, const chat_service::ChatPreview& b) {
         return a.time_stamp() < b.time_stamp();
     });
 
     // deal with invites
-    for (const auto &invite : received_invites) {
-        make_invite_item(invite, false);
-    }
-
-    for (const auto &invite : sent_invites) {
-        make_invite_item(invite, true);
+    for (const auto &invite : merged_invites) {
+        make_invite_item(invite.first, invite.second);
     }
 
     // deal with chats
