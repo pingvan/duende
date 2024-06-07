@@ -11,6 +11,7 @@ struct chat_service_database_api {
     static void add_unhandle_message(const int &user_id, const int &message_id);
 
     [[nodiscard]] static std::vector<int> get_members_ids(const int &chat_id);
+    [[nodiscard]] static std::vector<int> get_chat_admins(const int &chat_id);
 
     [[nodiscard]] static user_chats get_user_chats(const int &user_id); //get status in chat
     [[nodiscard]] static last_messages get_chats_messages(const int &chat_id);
@@ -27,6 +28,9 @@ struct chat_service_database_api {
 
     [[nodiscard]] static std::pair<uint32_t, std::string> create_group_chat(const int &creator_id, const std::string &chat_name, const std::string &description, const std::vector<uint32_t> &users_in_chat);
     [[nodiscard]] static bool check_user_privileges(const int &user_id, const int &chat_id);
+    [[nodiscard]] static bool check_is_private_chat_already_exists(const int &user_id_a, const int &user_id_b);
+    [[nodiscard]] static bool check_is_group_chat(const int &chat_id);
+
 
     static void add_user_to_chat(const int &chat_id, const int &user_id);
     static void remove_user_from_chat(const int &chat_id, const int &user_id);
