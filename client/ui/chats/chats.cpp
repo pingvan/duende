@@ -23,17 +23,23 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     qDebug() << "Received invites size: " << received_invites.size();
     std::vector<invitation::Invite> sent_invites = manager->new_client.get_sent_invites(manager->ID);
     qDebug() << "Sent invites size: " << sent_invites.size();
+    std::vector<std::pair<invitation::Invite, bool>> merged_invites;
+    for (const auto& invite : received_invites) {
+        merged_invites.push_back({invite, false});
+    }
+    for (const auto& invite : sent_invites) {
+        merged_invites.push_back({invite, true});
+    }
+    std::sort(merged_invites.begin(), merged_invites.end(), [](const std::pair<invitation::Invite, bool>& a, const std::pair<invitation::Invite, bool>& b) {
+        return a.first.time_stamp() < b.first.time_stamp();
+    });
     std::sort(chats.begin(), chats.end(), [](const chat_service::ChatPreview& a, const chat_service::ChatPreview& b) {
         return a.time_stamp() < b.time_stamp();
     });
 
     // deal with invites
-    for (const auto &invite : received_invites) {
-        make_invite_item(invite, false);
-    }
-
-    for (const auto &invite : sent_invites) {
-        make_invite_item(invite, true);
+    for (const auto &invite : merged_invites) {
+        make_invite_item(invite.first, invite.second);
     }
 
     // deal with chats
@@ -421,6 +427,11 @@ void Chats::onAddChatButtonClicked()
 }
 
 void Chats::onRemoveFromChatReceived(const chat_service::RemoveResponse& response) {
+    if (response.has_error_message()) {
+        QMessageBox::critical(this, "Error", QString::fromStdString(response.error_message()));
+        return;
+    }
+
     // get remove data
     int chat_id = response.chat_id();
     int sender_id = response.sender().user_id();
@@ -429,15 +440,6 @@ void Chats::onRemoveFromChatReceived(const chat_service::RemoveResponse& respons
     std::string receiver_login = response.receiver().login();
 
     qDebug() << "Remove from chat received: " << chat_id << " " << sender_id << " " << receiver_id;
-
-    // std::string message_text;
-    // if (sender_id == receiver_id) {
-    //     message_text = sender_login + " left chat.";
-    // }
-    // else {
-    //     message_text = sender_login + " removed " + receiver_login + " from chat.";
-    // }
-    // manager->new_client.send_message(-1, chat_id, message_text);
 
     if (receiver_id == manager->ID) {
         delete_chat_item(chat_id);

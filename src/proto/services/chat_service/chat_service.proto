@@ -50,6 +50,7 @@ service ChatDataService {
     rpc GetChatPreview(UserChat) returns (ChatPreview);
     rpc GetGroupChatPreview(UserChat) returns (common.GroupChatPreview);
     rpc GetChatEvents(UserChat) returns (ChatEvents);
+    rpc GetChatAdmins(UserChat) returns (ChatAdmins);
 }
 
 message ChatRequests {
@@ -192,6 +193,7 @@ message RemoveResponse {
     common.UserPreview sender = 1;
     common.UserPreview receiver = 2;
     int32 chat_id = 3;
+    optional string error_message = 4;
 }
 
 message GetChatMembersResponse {
@@ -211,4 +213,8 @@ message ChatEvent {
 
 message ChatEvents {
     repeated ChatEvent events = 1;
+}
+
+message ChatAdmins {
+    repeated int32 admin_id = 1;
 }

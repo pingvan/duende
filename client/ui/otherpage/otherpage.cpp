@@ -30,12 +30,6 @@ OtherPage::OtherPage(int id, Manager *managerPtr, QWidget *parent)
 
 void OtherPage::sendInvite() {
     assert(manager != nullptr);
-    if (manager->new_client.is_blocked(id, manager->ID)) {
-        QMessageBox::information(
-            this, "Blocked User", "You should unblock this user first."
-        );
-        return;
-    }
     manager->new_client.send_invite(manager->ID, id);
 }
 
