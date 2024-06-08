@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package profile;
 
+import "common/common.proto";
+
 service ProfileService {
   rpc ChangeUsername (UsernameRequest) returns (ProfileReply) {}
   rpc ChangeQuote (QuoteRequest) returns (ProfileReply) {}
@@ -13,10 +15,18 @@ service ProfileService {
   rpc AddToListOfGenres (GenreRequest) returns (ProfileReply) {}
   rpc RemoveFromListOfGenres (GenreRequest) returns (ProfileReply) {}
   rpc ChangeProfilePhoto (ProfilePhotoRequest) returns (ProfileReply) {}
+  rpc CheckIsGenreFavourite (GenreRequest) returns (IsChosenReply) {}
+  rpc CheckIsMovieChosen (MovieRequest) returns (IsChosenReply) {}
+  rpc CheckIsActorFavourite (ActorRequest) returns (IsChosenReply) {}
 }
 
 service ProfileServiceData {
+  rpc GetFilmFullPage (FilmId) returns (common.FilmFullPage) {}
+  rpc GetFilmPreview (FilmId) returns (common.FilmPreview) {}
+}
 
+message FilmId {
+  int32 id = 1;
 }
 
 message Movie{
@@ -69,4 +79,8 @@ message ProfileReply {
 message ProfilePhotoRequest {
   int32 user_id = 1;
   bytes photo = 2;
+}
+
+message IsChosenReply {
+  bool is_chosen = 1;
 }

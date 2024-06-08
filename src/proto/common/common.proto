@@ -35,25 +35,25 @@ message ActorPreview {
 message FilmPreview {
     int32 film_id = 1;
   string title = 2;
-  string preview_cover_url = 3;
+  optional string preview_cover_url = 3;
 }
 
 message FilmFullPage {
   FilmPreview preview = 1;
   string description = 2;
   repeated Genre genres = 3;
-  string full_page_cover_url = 4;
+  optional string full_page_cover_url = 4;
 }
 
 message FilmOnUserPage {
-  FilmFullPage full_page = 1;
+  FilmPreview preview = 1;
   int32 ratio = 2;
 }
 
 message UserPreview {
   int32 user_id = 1;
   string login = 2;
-  bytes photo = 3;
+  optional bytes photo = 3;
 }
 
 message UserFullPage {
@@ -63,4 +63,12 @@ message UserFullPage {
   repeated Genre favorite_genres = 4;
   repeated ActorPreview favorite_actors = 5;
   repeated FilmOnUserPage watched_films = 6;
+}
+
+message GroupChatPreview {
+  int32 chat_id = 1;
+  string name = 2;
+  string description = 3;
+  repeated UserPreview members = 4;
+  optional bytes chat_cover = 5;
 }

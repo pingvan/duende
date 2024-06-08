@@ -8,6 +8,7 @@
 
 #include <grpcpp/grpcpp.h>
 
+#include "common/common.pb.h"
 #include "services/profile_service/profile.grpc.pb.h"
 #include "services/profile_service/profile.pb.h"
 
@@ -27,6 +28,7 @@ using profile::BioRequest;
 using profile::QuoteRequest;
 using profile::ProfileService;
 using profile::ProfilePhotoRequest;
+using profile::IsChosenReply;
 
 class ProfileServiceImpl final : public ProfileService::Service
 {
@@ -60,4 +62,17 @@ class ProfileServiceImpl final : public ProfileService::Service
 
   Status ChangeProfilePhoto(ServerContext *context, const ProfilePhotoRequest *request,
                             ProfileReply *reply) override; 
+  Status CheckIsGenreFavourite(ServerContext *context, const GenreRequest *request,
+                               IsChosenReply *reply) override;
+  Status CheckIsActorFavourite(ServerContext *context, const ActorRequest *request,
+                               IsChosenReply *reply) override;
+  Status CheckIsMovieChosen(ServerContext *context, const MovieRequest *request,
+                           IsChosenReply *reply) override;
+};
+
+struct ProfileDataService final : public profile::ProfileServiceData::Service {
+  grpc::Status GetFilmFullPage(grpc::ServerContext *context, const profile::FilmId *request,
+                               common::FilmFullPage *response) override;
+  grpc::Status GetFilmPreview(grpc::ServerContext *context, const profile::FilmId *request,
+                               common::FilmPreview *response) override;
 };

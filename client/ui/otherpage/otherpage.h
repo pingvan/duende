@@ -1,61 +1,68 @@
 #ifndef OTHERPAGE_H
 #define OTHERPAGE_H
 
-#include "manager.h"
-
-#include <QWidget>
+#include <QApplication>
+#include <QCompleter>
+#include <QDebug>
+#include <QGraphicsPixmapItem>
+#include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QGridLayout>
-#include <QVBoxLayout>
+#include <QImageReader>
 #include <QLabel>
 #include <QLineEdit>
-#include <QTextEdit>
-#include <QPixmap>
-#include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QPushButton>
-#include <QDebug>
-#include <QCompleter>
-#include <QStringListModel>
-#include <QGraphicsPixmapItem>
-#include <QApplication>
-#include <QScreen>
 #include <QListWidget>
 #include <QMessageBox>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QPixmap>
+#include <QPushButton>
+#include <QScreen>
+#include <QStringListModel>
+#include <QTextEdit>
+#include <QUrl>
+#include <QVBoxLayout>
+#include <QWidget>
+#include "manager.h"
 
 namespace Ui {
 class OtherPage;
 }
 
-class OtherPage : public QWidget
-{
+class OtherPage : public QWidget {
     Q_OBJECT
 
 public:
-    explicit OtherPage(int id, Manager* managerPtr, QWidget *parent = nullptr);
+    explicit OtherPage(int id, Manager *managerPtr, QWidget *parent = nullptr);
     ~OtherPage();
     void updatePage(int newId);
     void build();
     void build_scenes();
 
 signals:
-    void inviteSent(const invitation::Invite&);
-    void subscriptionMade(const common::UserPreview&);
+    void inviteSent(const invitation::Invite &);
+    void subscriptionMade(const common::UserPreview &);
 
 public slots:
     void sendInvite();
     void toggleSubscription();
-    void showBlockDialog(QPushButton* blockButton);
+    void showBlockDialog(QPushButton *blockButton);
+
+private slots:
+    void update_watchlist();
 
 private:
     Ui::OtherPage *ui;
     Manager *manager;
     common::UserFullPage *user;
+    common::UserPreview *user_preview;
     int id;
     std::string login;
 
     QVBoxLayout *leftBox;
     QVBoxLayout *rightBox;
-    
+
     QLabel *label_status;
     QLabel *label_about;
     QLabel *label_username;
@@ -63,7 +70,8 @@ private:
     QLabel *actors_text = nullptr;
     QLabel *movies_text = nullptr;
     QLabel *genres_text = nullptr;
-    QPushButton* subscribeButton;
+    QPushButton *subscribeButton;
+    QLabel *label_photo = nullptr;
 
     QGraphicsView *view_favActors = nullptr;
     QGraphicsView *view_watchlist = nullptr;
@@ -71,13 +79,15 @@ private:
     QGraphicsScene *scene_favActors = nullptr;
     QGraphicsScene *scene_watchlist = nullptr;
 
+    QHBoxLayout *actorsLayout;
+    QListWidget *actorsList;
+
     QStringList favActorsImages;
     QStringList watchlistImages;
 
     QListWidget *genresList;
     QPushButton *inviteButton;
     QPushButton *blockButton;
-
 };
 
-#endif // OTHERPAGE_H
+#endif  // OTHERPAGE_H

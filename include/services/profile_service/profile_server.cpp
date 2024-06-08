@@ -60,6 +60,11 @@ Status ProfileServiceImpl::AddToWatchlist(
 ) {
     MovieRequest current_profile = *request;
     for (const auto &movie : current_profile.movies()) {
+        if (database::profile_service_database_api::check_is_watched(
+                current_profile.id(), movie.id()
+            )) {
+            return Status(grpc::ALREADY_EXISTS, "Movie already in watchlist");
+        }
         database::profile_service_database_api::add_watched(
             current_profile.id(), movie.id(), movie.rating()
         );
@@ -86,7 +91,7 @@ Status ProfileServiceImpl::RemoveFromWatchlist(
         std::string error_message = "Failed to change watchlist: ";
         error_message += e.what();
         std::cerr << error_message
-                  << std::endl;  // Выводим сообщение об ошибке в консоль
+                  << std::endl;
         return Status(grpc::INTERNAL, error_message);
     }
 }
@@ -98,6 +103,11 @@ Status ProfileServiceImpl::AddToListOfActors(
 ) {
     ActorRequest current_profile = *request;
     for (const auto &actor : current_profile.actors()) {
+        if (database::profile_service_database_api::check_is_favourite_actor(
+                current_profile.id(), actor.id()
+            )) {
+            return Status(grpc::ALREADY_EXISTS, "Actor already in list");
+        }
         database::profile_service_database_api::add_favourite_actor(
             current_profile.id(), actor.id()
         );
@@ -168,4 +178,37 @@ Status ProfileServiceImpl::ChangeProfilePhoto(
 
     reply->set_message("Profile photo changed");
     return Status::OK;
+}
+
+grpc::Status ProfileDataService::GetFilmFullPage(grpc::ServerContext *context, const profile::FilmId *request, common::FilmFullPage *response) {
+    auto film_full_page = database::profile_service_database_api::get_film_full_page(request->id());
+    film_full_page.convert_to_proto(response);
+    return grpc::Status::OK;
+}
+
+grpc::Status ProfileDataService::GetFilmPreview(grpc::ServerContext *context, const profile::FilmId *request, common::FilmPreview *response) {
+    auto film_preview = database::profile_service_database_api::get_film_preview(request->id());
+    film_preview.convert_to_proto(response);
+    return grpc::Status::OK;
+}
+
+grpc::Status ProfileServiceImpl::CheckIsGenreFavourite(grpc::ServerContext *context, const profile::GenreRequest *request, profile::IsChosenReply *response) {
+    for (const auto &genre : request->genres()) {
+        response->set_is_chosen(database::profile_service_database_api::check_is_favourite_genre(request->id(), genre.name()));
+    }
+    return grpc::Status::OK;
+}
+
+grpc::Status ProfileServiceImpl::CheckIsActorFavourite(grpc::ServerContext *context, const profile::ActorRequest *request, profile::IsChosenReply *response) {
+    for (const auto &actor : request->actors()) {
+        response->set_is_chosen(database::profile_service_database_api::check_is_favourite_actor(request->id(), actor.id()));
+    }
+    return grpc::Status::OK;
+}
+
+grpc::Status ProfileServiceImpl::CheckIsMovieChosen(grpc::ServerContext *context, const profile::MovieRequest *request, profile::IsChosenReply *response) {
+    for (const auto &film : request->movies()) {
+        response->set_is_chosen(database::profile_service_database_api::check_is_watched(request->id(), film.id()));
+    }
+    return grpc::Status::OK;
 }

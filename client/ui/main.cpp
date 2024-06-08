@@ -14,6 +14,26 @@
 
 std::string server_address("0.0.0.0:50051");
 
+std::string ReadFile(const std::filesystem::path &path) {
+    auto cert_path = std::filesystem::current_path().parent_path() / path;
+    std::ifstream file(cert_path);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file: " << cert_path << std::endl;
+        std::exit(1);
+    }
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
+
+std::shared_ptr<grpc::ChannelCredentials> GetCredentials() {
+  grpc::SslCredentialsOptions ssl_opts;
+  ssl_opts.pem_root_certs = ReadFile("certs/ca.crt");
+  ssl_opts.pem_private_key = ReadFile("certs/client.key");
+  ssl_opts.pem_cert_chain = ReadFile("certs/client.crt");
+  return grpc::SslCredentials(ssl_opts);
+}
+
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
@@ -30,6 +50,9 @@ int main(int argc, char *argv[]) {
         "QLineEdit { font-size: 18px; color: #8023a8; min-height: 40px;}"
         "QPushButton#myButton { background-color: #e9e9e9; }"
         "QToolTip { font-size: 16px; color: black;}"
+        "QPushButton#сhatButton { width: 30px; height: 30px; font-size: 24px; "
+        "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #b24ee7, stop: 1 #982ecb); "
+        "color: white; border-radius: 5px;}"
     );
 
     // Splash screen
@@ -40,7 +63,7 @@ int main(int argc, char *argv[]) {
 
     // Manager
     Manager manager(
-        grpc::CreateChannel(server_address, grpc::InsecureChannelCredentials())
+        grpc::CreateChannel(server_address, GetCredentials())
     );
 
     // Main window
@@ -88,6 +111,11 @@ int main(int argc, char *argv[]) {
             stackedWidget->setCurrentWidget(mainPage);
         }
     );
+
+    QObject::connect(&manager, &Manager::needLogin, [&]() {
+        stackedWidget->setCurrentIndex(0);
+        manager.logout();
+    });
 
     mainWindow.setCentralWidget(stackedWidget);
     QTimer::singleShot(2500, [&]() { mainWindow.showFullScreen(); });

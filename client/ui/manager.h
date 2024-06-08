@@ -2,8 +2,18 @@
 #define MANAGER_H
 
 #include "client.hpp"
+#include <vector>
 
 #include <QObject>
+
+class movie{
+public:
+    int id, ratio;
+
+    bool operator==(const movie& other) const {
+        return id == other.id;
+    }
+};
 
 class Manager : public QObject
 {    
@@ -14,6 +24,7 @@ public:
     client new_client;
     std::string username;
     int ID = -1;
+    std::vector <movie> watchlist;
 
     explicit Manager(const std::shared_ptr<grpc::Channel> &new_channel, QObject* parent = nullptr)
         : QObject(parent), new_client(new_channel) {
@@ -40,6 +51,9 @@ public:
             new_client.onBlockedChanged = [this](const users_interaction::BlockResponse& response) {
                 emit blockedChanged();
             };
+            new_client.onNeedLogin = [this]() {
+                emit needLogin();
+            };
     }
 
     void logout() {
@@ -58,6 +72,7 @@ signals:
     void NewInviteReceived(const invitation::SendInvitationResponse& response);
     void InviteRespondReceived(const invitation::RespondToInvitationResponse& response);
     void RemoveFromChatReceived(const chat_service::RemoveResponse& response);
+    void needLogin();
     void subscribersChanged();
     void subscriptionsChanged();
     void blockedChanged();

@@ -20,5 +20,11 @@
         <file>img/person-circle.png</file>
         <file>img/person-fill.png</file>
         <file>img/person-circle2.png</file>
+        <file>img/plus-circle.png</file>
+        <file>img/info-circle.png</file>
+        <file>img/x-circle.png</file>
+        <file>img/camera-reels.png</file>
+        <file>img/plus-square.png</file>
+        <file>img/people-fill.png</file>
     </qresource>
 </RCC>

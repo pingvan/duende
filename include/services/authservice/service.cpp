@@ -6,10 +6,10 @@
 #include <iostream>
 
 
-int auth_service::save_user(authservice::User &user, std::string password, authservice::Tokens *tokens) {
+void auth_service::save_user(authservice::User &user, std::string password) {
     user.set_salt(generate_salt(10));
-    std::string hashed_password = generate_hash(password + user.salt());
-    return database::authservice_database_api::add_user(user.email(), user.username(), tokens->refresh().token(), hashed_password, user.salt());
+    user.set_hashed_password(generate_hash(password + user.salt()));
+    user.set_id(database::authservice_database_api::add_user(user.email(), user.username(), "", user.hashed_password(), user.salt()));
 }
 
 grpc::Status auth_service::Login(
@@ -64,10 +64,6 @@ grpc::Status auth_service::Login(
         );
     }
 
-    authservice::Tokens *tokens = token_service.generate_tokens(payload);
-    token_service.save_refresh_token(user.id(), tokens->refresh());
-
-
     return grpc::Status::OK;
 }
 
@@ -80,18 +76,7 @@ grpc::Status auth_service::Signup(
     std::string email = request->email();
     std::string password = request->password();
     std::string password_confirmation = request->password_confirmation();
-    authservice::User user;
-    user.set_username(username);
-    user.set_email(email);
-    user.set_id(123);
-    token_service token_service;
     database::authservice_database_api connector;
-    authservice::Payload payload;
-    payload.set_username(username);
-    payload.set_email(email);
-    payload.set_user_id(user.id());
-
-    response->set_id(user.id());
 
     if (!username_is_valid(username).ok()) {
         return username_is_valid(username);
@@ -103,29 +88,40 @@ grpc::Status auth_service::Signup(
         return password_is_valid(password);
     }
     if (connector.is_nickname_used(username)) {
-        response->set_message("Username already registered");
         return grpc::Status(
             grpc::StatusCode::ALREADY_EXISTS, "Username already registered"
         );
     }
     if (connector.is_email_used(email)) {
-        response->set_message("Email already registered");
         return grpc::Status(
             grpc::StatusCode::ALREADY_EXISTS, "Email already registered"
         );
     }
     if (password != password_confirmation) {
-        response->set_message("Passwords do not match");
         return grpc::Status(
             grpc::StatusCode::INVALID_ARGUMENT, "Passwords do not match"
         );
     }
 
+    authservice::User user;
+    user.set_username(username);
+    user.set_email(email);
+
+    save_user(user, password);
+
+    token_service token_service;
+    authservice::Payload payload;
+    payload.set_username(username);
+    payload.set_email(email);
+    payload.set_user_id(user.id());
+
     authservice::Tokens *tokens = token_service.generate_tokens(payload);
     token_service.save_refresh_token(user.id(), tokens->refresh());
-    response->set_allocated_tokens(tokens);
-    save_user(user, password, tokens);
-    response->set_message("OK");
+    authservice::AccessToken* access_token = new authservice::AccessToken();
+    *access_token = tokens->access();
+    response->set_allocated_access_token(access_token);
+    response->set_id(user.id());
+    
     return grpc::Status::OK;
 }
 
@@ -134,10 +130,19 @@ grpc::Status auth_service::Logout(
     const authservice::LogoutRequest *request,
     authservice::LogoutResponse *response
 ) {
-    database::authservice_database_api connector;
-    std::string token = "";
-    connector.update_refresh_token(request->id(), token);
+    token_service token_service;
+    authservice::RefreshToken token;
+    token.set_token("");
+    token_service.save_refresh_token(request->id(), token);
     return grpc::Status::OK;
+}
+
+authservice::RefreshToken *auth_service_data::get_refresh_token(int user_id) {
+    database::authservice_database_api connector;
+    std::string token = connector.get_refresh_token(user_id);
+    authservice::RefreshToken *refresh_token = new authservice::RefreshToken();
+    refresh_token->set_token(token);
+    return refresh_token;
 }
 
 grpc::Status auth_service_data::GetUserPrewiew(grpc::ServerContext *context,
@@ -149,5 +154,45 @@ grpc::Status auth_service_data::GetUserPrewiew(grpc::ServerContext *context,
 
 grpc::Status auth_service_data::GetUserFullPage(grpc::ServerContext *context, const authservice::RequestWithUserId *request, common::UserFullPage *response) {
     database::authservice_database_api::get_user_full_page(request->user_id()).convert_to_proto(response);
+    return grpc::Status::OK;
+}
+
+grpc::Status auth_service_data::UpdateAccessToken(
+    grpc::ServerContext *context,
+    const authservice::RequestWithUserId *request,
+    authservice::AccessToken *response
+) {
+    token_service token_service;
+    authservice::RefreshToken *refresh_token = get_refresh_token(request->user_id());
+
+    if (token_service.is_refresh_token_active(refresh_token->token()).error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        return grpc::Status(
+            grpc::StatusCode::UNAUTHENTICATED, "Refresh token is invalid"
+        );
+    }
+
+    authservice::AccessToken *access_token = token_service.refresh_access_token(*refresh_token);
+
+    response->set_token(access_token->token());
+
+    return grpc::Status::OK;
+}
+
+grpc::Status auth_service_data::CreateTokens(
+    grpc::ServerContext *context,
+    const authservice::RequestWithUserId *request,
+    authservice::AccessToken *response
+) {
+    token_service token_service;
+    authservice::Payload payload;
+    payload.set_user_id(request->user_id());
+    payload.set_email(database::authservice_database_api::get_user_email(request->user_id()));
+    payload.set_username(database::authservice_database_api::get_user_nickname(request->user_id()));
+    authservice::Tokens *tokens = token_service.generate_tokens(payload);
+
+    token_service.save_refresh_token(request->user_id(), tokens->refresh());
+
+    response->set_token(tokens->access().token());
+
     return grpc::Status::OK;
 }

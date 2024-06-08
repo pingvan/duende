@@ -19,6 +19,15 @@ enum InviteStatus {
     DECLINED = 1;
 }
 
+enum EventType {
+    NAME_CHANGED = 0;
+    DESCRIPTION_CHANGED = 1;
+    COVER_CHANGED = 2;
+    USER_ENTERED = 3;
+    USER_LEFT = 4;
+    USER_REMOVED = 5;
+}
+
 service ChatHandler {
     rpc HandleChat(stream ChatRequests) returns (stream ChatResponses);
     rpc InvitesToChat(stream InvitesToChatRequests) returns (stream InvitesToChatResponses);
@@ -38,6 +47,10 @@ service ChatDataService {
     rpc GetLastMessages(GetChatMessagesRequest) returns (LastMessages);
     rpc GetChatMembers(UserChat) returns (GetChatMembersResponse);
     rpc CheckUserInChat(UserChat) returns (BoolResponse);
+    rpc GetChatPreview(UserChat) returns (ChatPreview);
+    rpc GetGroupChatPreview(UserChat) returns (common.GroupChatPreview);
+    rpc GetChatEvents(UserChat) returns (ChatEvents);
+    rpc GetChatAdmins(UserChat) returns (ChatAdmins);
 }
 
 message ChatRequests {
@@ -139,17 +152,20 @@ message UserPrivilegeResponse {
 
 message ChangeChatNameRequest {
     int32 chat_id = 1;
-    string new_chat_name = 2;
+    int32 admin_id = 2;
+    string new_chat_name = 3;
 }
 
 message ChangeChatDescriptionRequest {
     int32 chat_id = 1;
-    string new_description = 2;
+    int32 admin_id = 2;
+    string new_description = 3;
 }
 
 message ChangeChatCoverRequest {
     int32 chat_id = 1;
-    bytes new_cover = 2;
+    int32 admin_id = 2;
+    bytes new_cover = 3;
 }
 
 message InvitesToChatRequests {
@@ -177,6 +193,7 @@ message RemoveResponse {
     common.UserPreview sender = 1;
     common.UserPreview receiver = 2;
     int32 chat_id = 3;
+    optional string error_message = 4;
 }
 
 message GetChatMembersResponse {
@@ -185,4 +202,19 @@ message GetChatMembersResponse {
 
 message BoolResponse {
     bool response = 1;
+}
+
+message ChatEvent {
+    EventType event_type = 1;
+    optional common.UserPreview user = 2;
+    string time_stamp = 3;
+    optional common.UserPreview user_affected = 4;
+}
+
+message ChatEvents {
+    repeated ChatEvent events = 1;
+}
+
+message ChatAdmins {
+    repeated int32 admin_id = 1;
 }

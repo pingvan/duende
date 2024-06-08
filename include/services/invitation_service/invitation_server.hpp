@@ -1,6 +1,7 @@
 #pragma once
 
 #include <grpcpp/grpcpp.h>
+#include "components/database/services/chat_service/chat_service.hpp"
 #include "components/database/services/invite_service/invite_service.hpp"
 #include "components/database/services/authservice/authservice.hpp"
 #include "services/invitation_service/invitation.grpc.pb.h"
@@ -9,7 +10,7 @@
 #include "services/chat_service/chat_service.pb.h"
 
 struct invitation_service final : public invitation::InvitationService::Service {
-    invitation_service(const std::shared_ptr<grpc::Channel> &channel) : chat_stub(chat_service::ChatHandler::NewStub(channel)) {}
+    invitation_service(const std::shared_ptr<grpc::Channel> &channel) : chat_stub(chat_service::ChatHandler::NewStub(channel)), chat_data_stub(chat_service::ChatDataService::NewStub(channel)) {}
 
     grpc::Status InvitationStream(
         grpc::ServerContext *context,
@@ -18,10 +19,13 @@ struct invitation_service final : public invitation::InvitationService::Service 
     ) override;
 
     chat_service::ChatPreview *create_private_chat(int first_id, int second_id);
+    chat_service::ChatPreview *get_chat_preview(int chat_id);
+    common::GroupChatPreview *get_group_chat_preview(int chat_id);
     grpc::Status add_user_to_chat(int user_id, int chat_id);
 
 private:
     std::unique_ptr<chat_service::ChatHandler::Stub> chat_stub;
+    std::unique_ptr<chat_service::ChatDataService::Stub> chat_data_stub;
     std::unordered_map<
         int,
         std::shared_ptr<grpc::ServerReaderWriter<

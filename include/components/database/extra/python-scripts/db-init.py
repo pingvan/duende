@@ -4,12 +4,12 @@ connection = psycopg2.connect(
     "postgres://root:strongpassword@localhost:5432/duende"
 )
 
-connection_test = psycopg2.connect(
-    "postgres://root:strongpassword@localhost:5432/duende_test"
-)
+# connection_test = psycopg2.connect(
+#     "postgres://root:strongpassword@localhost:5432/duende_test"
+# )
 
 cursor = connection.cursor()
-cursor_test = connection_test.cursor()
+# cursor_test = connection_test.cursor()
 
 create_genre_type = """DO $$
 BEGIN
@@ -33,7 +33,7 @@ END $$
 create_event_types = """DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'event_types') THEN
-        CREATE TYPE event_types AS ENUM ('change_name', 'change_description', 'change_cover', 'user_entered', 'user_left', 'user_removed');
+        CREATE TYPE event_type AS ENUM ('name_changed', 'description_changed', 'cover_changed', 'user_entered', 'user_left', 'user_removed');
     END IF;
 END $$
 """
@@ -43,22 +43,22 @@ cursor.execute(create_genre_type)
 cursor.execute(create_invite_status_type)
 cursor.execute(create_event_types)
 
-cursor_test.execute(create_genre_type)
-cursor_test.execute(create_invite_status_type)
-cursor_test.execute(create_event_types)
+# cursor_test.execute(create_genre_type)
+# cursor_test.execute(create_invite_status_type)
+# cursor_test.execute(create_event_types)
 
 f = open('../../schema/sql-queries/sql_queries.sql', 'r')
 sql = f.read()
 cursor.execute(sql)
-cursor_test.execute(sql)
+# cursor_test.execute(sql)
 
 # Commit the transaction
 connection.commit()
-connection_test.commit()
+# connection_test.commit()
 
 # Close the cursor and connection
 cursor.close()
 connection.close()
 
-cursor_test.close()
-connection_test.close()
+# cursor_test.close()
+# connection_test.close()

@@ -5,17 +5,19 @@ client::client(const std::shared_ptr<grpc::Channel> &new_channel)
       authorization_stub(authservice::AuthService::NewStub(new_channel)),
       authorization_data_stub(authservice::AuthServiceData::NewStub(new_channel)
       ),
-      chat_data_stub(chat_service::ChatDataService::NewStub(new_channel)),
       chat_stub(chat_service::ChatHandler::NewStub(new_channel)),
+      chat_data_stub(chat_service::ChatDataService::NewStub(new_channel)),
       profile_stub(profile::ProfileService::NewStub(new_channel)),
+      profile_data_stub(profile::ProfileServiceData::NewStub(new_channel)),
       search_stub(search_service::SerachService::NewStub(new_channel)),
       invite_stub(invitation::InvitationService::NewStub(new_channel)),
       invite_data_stub(invitation::InvitationDataService::NewStub(new_channel)),
       users_interaction_stub(
           users_interaction::UsersInteractionService::NewStub(new_channel)
-      ), recommendation_stub(
-          recommendation_service::RecommendationService::NewStub(new_channel)) 
-      {
+      ),
+      recommendation_stub(
+          recommendation_service::RecommendationService::NewStub(new_channel)
+      ) {
 }
 
 void client::init_invite_chat_stream(int user_id) {
@@ -94,47 +96,77 @@ bool client::check_user_privileges(int user_id, int chat_id) {
     return (response->privilege() == chat_service::UserPrivilege::ADMIN);
 }
 
-void client::change_chat_name(int chat_id, std::string new_chat_name) {
+bool client::change_chat_name(int chat_id, int admin_id, std::string new_chat_name) {
+    if (!check_user_privileges(admin_id, chat_id)) {
+        return false;
+    }
+
     grpc::ClientContext context;
 
     chat_service::ChangeChatNameRequest request;
     auto *response = new chat_service::OperationStatusResponse;
     request.set_chat_id(chat_id);
+    request.set_admin_id(admin_id);
     request.set_new_chat_name(new_chat_name);
 
     grpc::Status status = chat_stub->ChangeChatName(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
+
+    return true;
 }
 
-void client::change_description(int chat_id, std::string new_description) {
+bool client::change_description(int chat_id, int admin_id, std::string new_description) {
+    if (!check_user_privileges(admin_id, chat_id)) {
+        return false;
+    }
+
     grpc::ClientContext context;
 
     chat_service::ChangeChatDescriptionRequest request;
     auto *response = new chat_service::OperationStatusResponse;
     request.set_chat_id(chat_id);
+    request.set_admin_id(admin_id);
     request.set_new_description(new_description);
 
     grpc::Status status = chat_stub->ChangeChatDescription(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
+
+    return true;
 }
 
-// void client::change_cover(int chat_id, std::string new_cover) {
-    // grpc::ClientContext context;
+void client::change_chat_cover(uint32_t chat_id, uint32_t admin_id, const std::string &photo_path) {
+    if (!check_user_privileges(admin_id, chat_id)) {
+        return;
+    }
+    chat_service::ChangeChatCoverRequest request;
 
-    // chat_service::ChangeChatCoverRequest request;
-    // auto *response = new chat_service::OperationStatusResponse;
-    // request.set_chat_id(chat_id);
-    // request.set_new_cover(new_cover);
+    std::ifstream file(photo_path, std::ios::binary);
+    if (!file) {
+        std::cout << "Cannot open file: " << photo_path << std::endl;
+        return;
+    }
+    std::basic_string photo_data(
+        (std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()
+    );
+    request.set_chat_id(chat_id);
+    request.set_admin_id(admin_id);
+    request.set_new_cover(photo_data);
 
-    // grpc::Status status = chat_stub->ChangeChatCover(&context, request, response);
-    // if (!status.ok()) {
-    //     std::cout << status.error_message() << '\n';
-    // }
-// }
+    chat_service::OperationStatusResponse response;
+    grpc::ClientContext context;
+    grpc::Status status =
+        chat_stub->ChangeChatCover(&context, request, &response);
+        
+    if (!status.ok()) {
+        std::cout << status.error_code() << ": " << status.error_message()
+                  << std::endl;
+        return;
+    }
+}
 
 void client::add_privileges_to_user(int sender_id, int receiver_id, int chat_id) {
     if (!check_user_privileges(sender_id, chat_id)) {
@@ -251,21 +283,16 @@ void client::leave_invite_stream(int user_id) {
 void client::send_invite(
     int sender_id,
     int receiver_id,
-    std::string sender_login,
-    std::string receiver_login,
     int chat_id
 ) {
-    common::UserPreview *receiver = new common::UserPreview;
-    invitation::Invite *invite = new invitation::Invite;
-    receiver->set_user_id(receiver_id);
-    receiver->set_login(receiver_login);
-
     invitation::SendInvitationRequest request;
+
     request.set_sender_id(sender_id);
-    invite->set_allocated_sender(receiver);
-    invite->set_invite_text("Invitation");  // TODO add invite text with purpose of invite
-    invite->set_chat_id(chat_id);
-    request.set_allocated_invite(invite);
+    request.set_receiver_id(receiver_id);
+    
+    if (chat_id != -1) {
+        request.set_chat_id(chat_id);
+    }
 
     std::cout << request.DebugString() << std::endl;
 
@@ -284,23 +311,23 @@ void client::respond_invite(
     int invite_id,
     int sender_id,
     int receiver_id,
-    int chat_id,
-    bool accept
+    bool accept,
+    int chat_id
 ) {
     invitation::RespondToInvitationRequest request;
-    common::UserPreview *receiver = new common::UserPreview;
-    invitation::Invite *invite = new invitation::Invite;
-    receiver->set_user_id(receiver_id);
-    invite->set_invite_id(invite_id);
     request.set_sender_id(sender_id);
-    invite->set_status(
-        accept ? invitation::InviteStatus::ACCEPTED
-               : invitation::InviteStatus::DECLINED
-    );
-    invite->set_chat_id(chat_id);
-    invite->set_allocated_sender(receiver);
-    request.set_allocated_invite(invite);
-
+    request.set_receiver_id(receiver_id);
+    request.set_invite_id(invite_id);
+    if (accept) {
+        request.set_status(invitation::InviteStatus::ACCEPTED);
+    }
+    else {
+        request.set_status(invitation::InviteStatus::DECLINED);
+    }
+    if (chat_id != -1) {
+        request.set_chat_id(chat_id);
+    }
+    
     std::cout << request.DebugString() << std::endl;
 
     invitation::InvitationRequest stream_request;
@@ -471,6 +498,21 @@ common::UserFullPage *client::get_user_full_page(int user_id) {
     return response;
 }
 
+common::UserPreview *client::get_user_preview(int user_id) {
+    grpc::ClientContext context;
+
+    authservice::RequestWithUserId request;
+    auto *response = new common::UserPreview;
+
+    request.set_user_id(user_id);
+    grpc::Status status =
+        authorization_data_stub->GetUserPrewiew(&context, request, response);
+    if (!status.ok()) {
+        return {};
+    }
+    return response;
+}
+
 void client::add_genre(int user_id, const std::string &genre_name) {
     grpc::ClientContext context;
 
@@ -491,7 +533,8 @@ void client::remove_genre(int user_id, const std::string &genre_name) {
     request.set_id(user_id);
     profile::Genre *genre = request.add_genres();
     genre->set_name(genre_name);
-    qDebug() << "Sending remove genre request to server: " << genre_name.c_str();
+    qDebug() << "Sending remove genre request to server: "
+             << genre_name.c_str();
     grpc::Status status =
         profile_stub->RemoveFromListOfGenres(&context, request, response);
     if (!status.ok()) {
@@ -550,6 +593,9 @@ void client::remove_actor(int user_id, int actor_id) {
     actor->set_id(actor_id);
     grpc::Status status =
         profile_stub->RemoveFromListOfActors(&context, request, response);
+    if (!status.ok()){
+        std::cout << status.error_message() << '\n';
+    }
 }
 
 void client::change_bio(int user_id, const std::string &new_bio) {
@@ -653,12 +699,81 @@ bool client::check_user_in_chat(int user_id, int chat_id) {
     request.set_user_id(user_id);
     request.set_chat_id(chat_id);
 
-    grpc::Status status = chat_data_stub->CheckUserInChat(&context, request, response);
+    grpc::Status status =
+        chat_data_stub->CheckUserInChat(&context, request, response);
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
 
     return response->response();
+}
+
+chat_service::ChatPreview *client::get_chat_preview(int chat_id) {
+    grpc::ClientContext context;
+
+    chat_service::UserChat request;
+    auto *response = new chat_service::ChatPreview;
+    request.set_chat_id(chat_id);
+
+    grpc::Status status = chat_data_stub->GetChatPreview(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << '\n';
+    }
+
+    return response;
+}
+
+common::GroupChatPreview *client::get_group_chat_preview(int chat_id) {
+    grpc::ClientContext context;
+
+    chat_service::UserChat request;
+    auto *response = new common::GroupChatPreview;
+    request.set_chat_id(chat_id);
+
+    grpc::Status status = chat_data_stub->GetGroupChatPreview(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << '\n';
+    }
+
+    return response;
+}
+
+std::vector<chat_service::ChatEvent> client::get_chat_events(int chat_id) {
+    grpc::ClientContext context;
+
+    chat_service::UserChat request;
+    auto *response = new chat_service::ChatEvents;
+    request.set_chat_id(chat_id);
+
+    grpc::Status status = chat_data_stub->GetChatEvents(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << '\n';
+    }
+
+    std::vector<chat_service::ChatEvent> events;
+    for (int i = 0; i < response->events_size(); i++) {
+        events.push_back(response->events(i));
+    }
+    return events;
+}
+
+std::vector<int> client::get_chat_admins(int chat_id) {
+    grpc::ClientContext context;
+
+    chat_service::UserChat request;
+    auto *response = new chat_service::ChatAdmins;
+    request.set_chat_id(chat_id);
+
+    grpc::Status status = chat_data_stub->GetChatAdmins(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << '\n';
+    }
+
+    std::vector<int> admins;
+    for (int i = 0; i < response->admin_id_size(); i++) {
+        admins.push_back(response->admin_id(i));
+    }
+    return admins;
 }
 
 authservice::LoginResponse *
@@ -675,10 +790,12 @@ client::login(const std::string &client_login, const std::string &password) {
     grpc::Status status =
         authorization_stub->Login(&context, request, response);
     if (!status.ok()) {
-        response->set_message(status.error_message());
-    } else {
-        response->set_message("OK");
+        std::cout << status.error_message() << std::endl;
     }
+
+    access_token = create_tokens(response->id());
+    id = response->id();
+
     return response;
 }
 
@@ -699,16 +816,59 @@ authservice::SignupResponse *client::registration(
 
     grpc::Status status =
         authorization_stub->Signup(&context, request, response);
+
     if (!status.ok()) {
-        response->set_message(status.error_message());
-    } else {
-        response->set_message("OK");
+        std::cout << status.error_message() << std::endl;
     }
+
+    access_token = response->access_token().token();
+    id = response->id();
+
     return response;
+}
+
+std::string client::update_access_token(int user_id) {
+    grpc::ClientContext context;
+
+    authservice::RequestWithUserId request;
+    auto *response = new authservice::AccessToken;
+    request.set_user_id(user_id);
+
+    grpc::Status status =
+        authorization_data_stub->UpdateAccessToken(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        if (onNeedLogin) {
+            onNeedLogin();
+        }
+    }
+
+    if (!status.ok()) {
+        std::cout << status.error_message() << std::endl;
+    }
+
+    return response->token();
+}
+
+std::string client::create_tokens(int user_id) {
+    grpc::ClientContext context;
+
+    authservice::RequestWithUserId request;
+    auto *response = new authservice::AccessToken;
+    request.set_user_id(user_id);
+
+    grpc::Status status =
+        authorization_data_stub->CreateTokens(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << std::endl;
+    }
+
+    return response->token();
 }
 
 void client::subscribe(int subscriber_id, int subscribie_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     users_interaction::SubscribeRequest request;
     request.set_subscriber_id(subscriber_id);
@@ -718,6 +878,11 @@ void client::subscribe(int subscriber_id, int subscribie_id) {
 
     grpc::Status status =
         users_interaction_stub->Subscribe(&context, request, &response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return subscribe(subscriber_id, subscribie_id);
+    }
 
     if (!status.ok()) {
         std::cout << status.error_message() << std::endl;
@@ -749,8 +914,9 @@ std::vector<uint32_t> client::get_subscriptions(uint32_t subscriber_id) {
 
     grpc::ClientContext context;
 
-    grpc::Status status =
-        users_interaction_stub->ShowAllSubscriptions(&context, request, &response);
+    grpc::Status status = users_interaction_stub->ShowAllSubscriptions(
+        &context, request, &response
+    );
 
     std::vector<uint32_t> result;
     if (status.ok()) {
@@ -771,8 +937,9 @@ std::vector<uint32_t> client::get_subscribers(uint32_t subscribie_id) {
 
     grpc::ClientContext context;
 
-    grpc::Status status =
-        users_interaction_stub->ShowAllSubscribers(&context, request, &response);
+    grpc::Status status = users_interaction_stub->ShowAllSubscribers(
+        &context, request, &response
+    );
 
     std::vector<uint32_t> result;
     if (status.ok()) {
@@ -827,7 +994,8 @@ std::vector<uint32_t> client::get_blocked(uint32_t blockie_id) {
 
     grpc::ClientContext context;
 
-    grpc::Status status = users_interaction_stub->ShowAllBlocked(&context, request, &response);
+    grpc::Status status =
+        users_interaction_stub->ShowAllBlocked(&context, request, &response);
 
     std::vector<uint32_t> result;
     if (status.ok()) {
@@ -842,7 +1010,8 @@ std::vector<uint32_t> client::get_blocked(uint32_t blockie_id) {
 
 bool client::is_subscribed(uint32_t user_id, uint32_t subscribie_id) {
     std::vector<uint32_t> subscribers = get_subscribers(subscribie_id);
-    return std::find(subscribers.begin(), subscribers.end(), user_id) != subscribers.end();
+    return std::find(subscribers.begin(), subscribers.end(), user_id) !=
+           subscribers.end();
 }
 
 bool client::is_blocked(uint32_t user_id, uint32_t blockie_id) {
@@ -850,31 +1019,26 @@ bool client::is_blocked(uint32_t user_id, uint32_t blockie_id) {
     return std::find(blocked.begin(), blocked.end(), user_id) != blocked.end();
 }
 
-bool client::invite_already_sent(uint32_t user_id, uint32_t receiver_id) {
-    auto invites = get_sent_invites(user_id);
-    for (const auto& invite : invites) {
-        if (invite.sender().user_id() == receiver_id) {
-            return true;
-        }
-    }
-    return false;
-}
-
 std::vector<uint32_t> client::get_mutual_subscriptions(uint32_t user_id) {
     users_interaction::GetMutualSubscriptionsRequest request;
     request.set_subscriber_id(user_id);
     users_interaction::GetMutualSubscriptionsResponse response;
     grpc::ClientContext context;
-    grpc::Status status = users_interaction_stub->GetMutualSubscriptions(&context, request, &response);
+    grpc::Status status = users_interaction_stub->GetMutualSubscriptions(
+        &context, request, &response
+    );
     if (!status.ok()) {
-        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+        std::cout << status.error_code() << ": " << status.error_message()
+                  << std::endl;
         return {};
     }
-    std::vector<uint32_t> mutual_subscriptions(response.subscribie_id().begin(), response.subscribie_id().end());
+    std::vector<uint32_t> mutual_subscriptions(
+        response.subscribie_id().begin(), response.subscribie_id().end()
+    );
     return mutual_subscriptions;
 }
 
-void client::change_photo(uint32_t user_id, const std::string& photo_path) {
+void client::change_photo(uint32_t user_id, const std::string &photo_path) {
     profile::ProfilePhotoRequest request;
 
     std::ifstream file(photo_path, std::ios::binary);
@@ -882,56 +1046,151 @@ void client::change_photo(uint32_t user_id, const std::string& photo_path) {
         std::cout << "Cannot open file: " << photo_path << std::endl;
         return;
     }
-    std::string photo_data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    std::basic_string photo_data(
+        (std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()
+    );
+    std::cout << photo_data;
     request.set_user_id(user_id);
     request.set_photo(photo_data);
 
     profile::ProfileReply response;
     grpc::ClientContext context;
-    grpc::Status status = profile_stub->ChangeProfilePhoto(&context, request, &response);
+    grpc::Status status =
+        profile_stub->ChangeProfilePhoto(&context, request, &response);
 
     if (!status.ok()) {
-        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+        std::cout << status.error_code() << ": " << status.error_message()
+                  << std::endl;
         return;
     }
 }
 
-std::vector<common::UserPreview> client::get_user_recommendations(uint32_t user_id) {
+std::vector<common::UserPreview> client::get_user_recommendations(
+    uint32_t user_id
+) {
     recommendation_service::UserId request;
     request.set_id(user_id);
 
     recommendation_service::GetUsersRecommendationsResponse response;
     grpc::ClientContext context;
-    grpc::Status status = recommendation_stub->GetUsersRecommendations(&context, request, &response);
+    grpc::Status status = recommendation_stub->GetUsersRecommendations(
+        &context, request, &response
+    );
 
     std::vector<common::UserPreview> user_recommendations;
     if (status.ok()) {
-        for (const auto& user : response.user()) {
+        for (const auto &user : response.user()) {
             user_recommendations.push_back(user);
         }
     } else {
-        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+        std::cout << status.error_code() << ": " << status.error_message()
+                  << std::endl;
     }
 
     return user_recommendations;
 }
 
-std::vector<common::FilmPreview> client::get_film_recommendations(uint32_t user_id) {
+std::vector<common::FilmPreview> client::get_film_recommendations(
+    uint32_t user_id
+) {
     recommendation_service::UserId request;
     request.set_id(user_id);
 
     recommendation_service::GetFilmsRecommendationsResponse response;
     grpc::ClientContext context;
-    grpc::Status status = recommendation_stub->GetFilmsRecommendations(&context, request, &response);
+    grpc::Status status = recommendation_stub->GetFilmsRecommendations(
+        &context, request, &response
+    );
 
     std::vector<common::FilmPreview> film_recommendations;
     if (status.ok()) {
-        for (const auto& film : response.film()) {
+        for (const auto &film : response.film()) {
             film_recommendations.push_back(film);
         }
     } else {
-        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+        std::cout << status.error_code() << ": " << status.error_message()
+                  << std::endl;
     }
 
     return film_recommendations;
+}
+
+common::FilmFullPage *client::get_film_full_page(int film_id) {
+    grpc::ClientContext context;
+
+    profile::FilmId request;
+    auto *response = new common::FilmFullPage;
+
+    request.set_id(film_id);
+    grpc::Status status =
+        profile_data_stub->GetFilmFullPage(&context, request, response);
+    if (!status.ok()) {
+        qDebug() << status.error_message().c_str();
+        return {};
+    }
+    return response;
+}
+
+common::FilmPreview *client::get_film_preview(int film_id) {
+    grpc::ClientContext context;
+
+    profile::FilmId request;
+    auto *response = new common::FilmPreview;
+
+    request.set_id(film_id);
+    grpc::Status status =
+        profile_data_stub->GetFilmPreview(&context, request, response);
+    if (!status.ok()) {
+        qDebug() << status.error_message().c_str();
+        return {};
+    }
+    return response;
+}
+
+bool client::is_genre_favourite(uint32_t user_id, const std::string &genre_name) {
+    grpc::ClientContext context;
+
+    profile::GenreRequest request;
+    auto *response = new profile::IsChosenReply;
+    request.set_id(user_id);
+    profile::Genre *genre = request.add_genres();
+    genre->set_name(genre_name);
+    grpc::Status status =
+        profile_stub->CheckIsGenreFavourite(&context, request, response);
+    if (!status.ok()) {
+        return false;
+    }
+    return response->is_chosen();
+}
+
+bool client::is_actor_favourite(uint32_t user_id, uint32_t actor_id) {
+    grpc::ClientContext context;
+
+    profile::ActorRequest request;
+    auto *response = new profile::IsChosenReply;
+    request.set_id(user_id);
+    profile::Actor *actor = request.add_actors();
+    actor->set_id(actor_id);
+    grpc::Status status =
+        profile_stub->CheckIsActorFavourite(&context, request, response);
+    if (!status.ok()) {
+        return false;
+    }
+    return response->is_chosen();
+}
+
+bool client::is_movie_watched(uint32_t user_id, uint32_t movie_id) {
+    grpc::ClientContext context;
+
+    profile::MovieRequest request;
+    auto *response = new profile::IsChosenReply;
+    request.set_id(user_id);
+    profile::Movie *movie = request.add_movies();
+    movie->set_id(movie_id);
+    grpc::Status status =
+        profile_stub->CheckIsMovieChosen(&context, request, response);
+    if (!status.ok()) {
+        return false;
+    }
+    return response->is_chosen();
 }

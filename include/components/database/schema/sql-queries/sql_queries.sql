@@ -106,22 +106,15 @@ CREATE TABLE IF NOT EXISTS chat_admins (
     FOREIGN KEY(chat_id) REFERENCES chats(id)
 );
 
-CREATE TABLE IF NOT EXISTS events (
-    id SERIAL PRIMARY KEY,
-    event_type event_types NOT NULL,
-    user_id INT,
-    new_name VARCHAR(50)
-    -- event_name VARCHAR(50) NOT NULL --strore json with event data
-);
-
 CREATE TABLE IF NOT EXISTS chat_events (
-    user_id INT NOT NULL,
+    type_of_event event_type NOT NULL, 
+    user_id INT,
     chat_id INT NOT NULL,
-    event_id INT NOT NULL,
     time_stamp TIMESTAMP default NOW(),
+    affected_user INT,
     FOREIGN KEY(user_id) REFERENCES users(id),
-    FOREIGN KEY(chat_id) REFERENCES chats(id), 
-    FOREIGN KEY(event_id) REFERENCES events(id)
+    FOREIGN KEY(chat_id) REFERENCES chats(id),
+    FOREIGN KEY(affected_user) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS messages (
@@ -140,6 +133,7 @@ CREATE TABLE IF NOT EXISTS invites (
     invite_text VARCHAR(300),
     invite_from_user INT NOT NULL,
     invite_to_user INT NOT NULL,
+    chat_id INT,
     sended_at TIMESTAMP default NOW(),
     FOREIGN KEY(invite_from_user) REFERENCES users(id),
     FOREIGN KEY(invite_to_user) REFERENCES users(id)
