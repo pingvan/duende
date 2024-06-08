@@ -66,6 +66,7 @@ void client::leave_invite_chat_stream(int user_id) {
 
 chat_service::ChatPreview *client::create_group_chat(int creator_id, std::string chat_name, std::string description) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     chat_service::CreateGroupChatRequest request;
     auto *response = new chat_service::ChatPreview;
@@ -74,6 +75,12 @@ chat_service::ChatPreview *client::create_group_chat(int creator_id, std::string
     request.set_description(description);
 
     grpc::Status status = chat_stub->CreateGroupChat(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return create_group_chat(creator_id, chat_name, description);
+    }
+
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -83,6 +90,7 @@ chat_service::ChatPreview *client::create_group_chat(int creator_id, std::string
 
 bool client::check_user_privileges(int user_id, int chat_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     chat_service::UserChat request;
     auto *response = new chat_service::UserPrivilegeResponse;
@@ -90,6 +98,12 @@ bool client::check_user_privileges(int user_id, int chat_id) {
     request.set_chat_id(chat_id);
 
     grpc::Status status = chat_stub->CheckUserPrivileges(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return check_user_privileges(user_id, chat_id);
+    }
+
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -102,6 +116,7 @@ bool client::change_chat_name(int chat_id, int admin_id, std::string new_chat_na
     }
 
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     chat_service::ChangeChatNameRequest request;
     auto *response = new chat_service::OperationStatusResponse;
@@ -110,6 +125,12 @@ bool client::change_chat_name(int chat_id, int admin_id, std::string new_chat_na
     request.set_new_chat_name(new_chat_name);
 
     grpc::Status status = chat_stub->ChangeChatName(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return change_chat_name(chat_id, admin_id, new_chat_name);
+    }
+
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -123,6 +144,7 @@ bool client::change_description(int chat_id, int admin_id, std::string new_descr
     }
 
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     chat_service::ChangeChatDescriptionRequest request;
     auto *response = new chat_service::OperationStatusResponse;
@@ -131,6 +153,12 @@ bool client::change_description(int chat_id, int admin_id, std::string new_descr
     request.set_new_description(new_description);
 
     grpc::Status status = chat_stub->ChangeChatDescription(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return change_description(chat_id, admin_id, new_description);
+    }
+    
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -158,9 +186,16 @@ void client::change_chat_cover(uint32_t chat_id, uint32_t admin_id, const std::s
 
     chat_service::OperationStatusResponse response;
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
+    
     grpc::Status status =
         chat_stub->ChangeChatCover(&context, request, &response);
         
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return change_chat_cover(chat_id, admin_id, photo_path);
+    }
+    
     if (!status.ok()) {
         std::cout << status.error_code() << ": " << status.error_message()
                   << std::endl;
@@ -174,6 +209,7 @@ void client::add_privileges_to_user(int sender_id, int receiver_id, int chat_id)
     }
 
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     chat_service::UserChat request;
     auto *response = new chat_service::OperationStatusResponse;
@@ -181,6 +217,12 @@ void client::add_privileges_to_user(int sender_id, int receiver_id, int chat_id)
     request.set_chat_id(chat_id);
 
     grpc::Status status = chat_stub->AddPrivilegesToUser(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return add_privileges_to_user(sender_id, receiver_id, chat_id);
+    }
+    
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -192,6 +234,7 @@ void client::remove_privileges_from_user(int sender_id, int receiver_id, int cha
     }
 
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     chat_service::UserChat request;
     auto *response = new chat_service::OperationStatusResponse;
@@ -199,6 +242,12 @@ void client::remove_privileges_from_user(int sender_id, int receiver_id, int cha
     request.set_chat_id(chat_id);
 
     grpc::Status status = chat_stub->RemovePrivilegesFromUser(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return remove_privileges_from_user(sender_id, receiver_id, chat_id);
+    }
+    
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -343,12 +392,19 @@ void client::respond_invite(
 
 std::vector<invitation::Invite> client::get_sent_invites(int user_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     invitation::RequestWithId request;
     auto *response = new invitation::InvitesSent;
     request.set_id(user_id);
     grpc::Status status =
         invite_data_stub->GetSentInvitations(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_sent_invites(user_id);
+    }
+    
     if (!status.ok()) {
         return {};
     }
@@ -362,12 +418,19 @@ std::vector<invitation::Invite> client::get_sent_invites(int user_id) {
 
 std::vector<invitation::Invite> client::get_received_invites(int user_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     invitation::RequestWithId request;
     auto *response = new invitation::InvitesReceived;
     request.set_id(user_id);
     grpc::Status status =
         invite_data_stub->GetReceivedInvitations(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_received_invites(user_id);
+    }
+    
     if (!status.ok()) {
         return {};
     }
@@ -485,6 +548,7 @@ search_service::FilmSearchResponse *client::search_film_by_title(
 
 common::UserFullPage *client::get_user_full_page(int user_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     authservice::RequestWithUserId request;
     auto *response = new common::UserFullPage;
@@ -492,6 +556,12 @@ common::UserFullPage *client::get_user_full_page(int user_id) {
     request.set_user_id(user_id);
     grpc::Status status =
         authorization_data_stub->GetUserFullPage(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_user_full_page(user_id);
+    }
+    
     if (!status.ok()) {
         return {};
     }
@@ -500,6 +570,7 @@ common::UserFullPage *client::get_user_full_page(int user_id) {
 
 common::UserPreview *client::get_user_preview(int user_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     authservice::RequestWithUserId request;
     auto *response = new common::UserPreview;
@@ -507,6 +578,12 @@ common::UserPreview *client::get_user_preview(int user_id) {
     request.set_user_id(user_id);
     grpc::Status status =
         authorization_data_stub->GetUserPrewiew(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_user_preview(user_id);
+    }
+    
     if (!status.ok()) {
         return {};
     }
@@ -515,6 +592,7 @@ common::UserPreview *client::get_user_preview(int user_id) {
 
 void client::add_genre(int user_id, const std::string &genre_name) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     profile::GenreRequest request;
     auto *response = new profile::ProfileReply;
@@ -523,10 +601,16 @@ void client::add_genre(int user_id, const std::string &genre_name) {
     genre->set_name(genre_name);
     grpc::Status status =
         profile_stub->AddToListOfGenres(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        add_genre(user_id, genre_name);
+    }
 }
 
 void client::remove_genre(int user_id, const std::string &genre_name) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     profile::GenreRequest request;
     auto *response = new profile::ProfileReply;
@@ -537,6 +621,12 @@ void client::remove_genre(int user_id, const std::string &genre_name) {
              << genre_name.c_str();
     grpc::Status status =
         profile_stub->RemoveFromListOfGenres(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        remove_genre(user_id, genre_name);
+    }
+    
     if (!status.ok()) {
         qDebug() << status.error_message().c_str();
     }
@@ -544,6 +634,7 @@ void client::remove_genre(int user_id, const std::string &genre_name) {
 
 void client::add_movie(int user_id, int movie_id, int rating) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     profile::MovieRequest request;
     auto *response = new profile::ProfileReply;
@@ -553,10 +644,16 @@ void client::add_movie(int user_id, int movie_id, int rating) {
     movie->set_rating(rating);
     grpc::Status status =
         profile_stub->AddToWatchlist(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        add_movie(user_id, movie_id, rating);
+    }
 }
 
 void client::remove_movie(int user_id, int movie_id, int rating) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     profile::MovieRequest request;
     auto *response = new profile::ProfileReply;
@@ -566,6 +663,12 @@ void client::remove_movie(int user_id, int movie_id, int rating) {
     movie->set_rating(rating);
     grpc::Status status =
         profile_stub->RemoveFromWatchlist(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        remove_movie(user_id, movie_id, rating);
+    }
+    
     if (!status.ok()) {
         std::cout << status.error_message() << std::endl;
     }
@@ -573,6 +676,7 @@ void client::remove_movie(int user_id, int movie_id, int rating) {
 
 void client::add_actor(int user_id, int actor_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     profile::ActorRequest request;
     auto *response = new profile::ProfileReply;
@@ -581,10 +685,17 @@ void client::add_actor(int user_id, int actor_id) {
     actor->set_id(actor_id);
     grpc::Status status =
         profile_stub->AddToListOfActors(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        add_actor(user_id, actor_id);
+    }
+    
 }
 
 void client::remove_actor(int user_id, int actor_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     profile::ActorRequest request;
     auto *response = new profile::ProfileReply;
@@ -593,6 +704,12 @@ void client::remove_actor(int user_id, int actor_id) {
     actor->set_id(actor_id);
     grpc::Status status =
         profile_stub->RemoveFromListOfActors(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        remove_actor(user_id, actor_id);
+    }
+    
     if (!status.ok()){
         std::cout << status.error_message() << '\n';
     }
@@ -600,16 +717,24 @@ void client::remove_actor(int user_id, int actor_id) {
 
 void client::change_bio(int user_id, const std::string &new_bio) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     profile::BioRequest request;
     auto *response = new profile::ProfileReply;
     request.set_id(user_id);
     request.set_bio(new_bio);
     grpc::Status status = profile_stub->ChangeBio(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        change_bio(user_id, new_bio);
+    }
+    
 }
 
 void client::change_quote(int user_id, const std::string &new_quote) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     profile::QuoteRequest request;
     auto *response = new profile::ProfileReply;
@@ -617,10 +742,17 @@ void client::change_quote(int user_id, const std::string &new_quote) {
     request.set_quote(new_quote);
     grpc::Status status =
         profile_stub->ChangeQuote(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        change_quote(user_id, new_quote);
+    }
+    
 }
 
 void client::change_username(int user_id, const std::string &new_username) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     profile::UsernameRequest request;
     auto *response = new profile::ProfileReply;
@@ -628,10 +760,17 @@ void client::change_username(int user_id, const std::string &new_username) {
     request.set_username(new_username);
     grpc::Status status =
         profile_stub->ChangeUsername(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        change_username(user_id, new_username);
+    }
+    
 }
 
 std::vector<chat_service::ChatPreview> client::get_user_chats(int user_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     chat_service::GetChatsRequest request;
     auto *response = new chat_service::UserChats;
@@ -640,6 +779,12 @@ std::vector<chat_service::ChatPreview> client::get_user_chats(int user_id) {
     std::cout << "GetUserChats called from client\n";
     grpc::Status status =
         chat_data_stub->GetUserChats(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_user_chats(user_id);
+    }
+    
     if (!status.ok()) {
         return {};
     }
@@ -654,6 +799,7 @@ std::vector<chat_service::ChatPreview> client::get_user_chats(int user_id) {
 std::vector<chat_service::MessageReceived>
 client::get_last_messages(int user_id, int chat_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     chat_service::GetChatMessagesRequest request;
     auto *response = new chat_service::LastMessages;
@@ -661,6 +807,12 @@ client::get_last_messages(int user_id, int chat_id) {
     request.set_chat_id(chat_id);
     grpc::Status status =
         chat_data_stub->GetLastMessages(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_last_messages(user_id, chat_id);
+    }
+    
     if (!status.ok()) {
         return {};
     }
@@ -674,12 +826,19 @@ client::get_last_messages(int user_id, int chat_id) {
 
 std::vector<common::UserPreview> client::get_chat_members(int chat_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     chat_service::UserChat request;
     auto *response = new chat_service::GetChatMembersResponse;
     request.set_chat_id(chat_id);
     grpc::Status status =
         chat_data_stub->GetChatMembers(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_chat_members(chat_id);
+    }
+    
     if (!status.ok()) {
         return {};
     }
@@ -693,6 +852,7 @@ std::vector<common::UserPreview> client::get_chat_members(int chat_id) {
 
 bool client::check_user_in_chat(int user_id, int chat_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     chat_service::UserChat request;
     auto *response = new chat_service::BoolResponse;
@@ -701,6 +861,12 @@ bool client::check_user_in_chat(int user_id, int chat_id) {
 
     grpc::Status status =
         chat_data_stub->CheckUserInChat(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return check_user_in_chat(user_id, chat_id);
+    }
+    
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -710,12 +876,19 @@ bool client::check_user_in_chat(int user_id, int chat_id) {
 
 chat_service::ChatPreview *client::get_chat_preview(int chat_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     chat_service::UserChat request;
     auto *response = new chat_service::ChatPreview;
     request.set_chat_id(chat_id);
 
     grpc::Status status = chat_data_stub->GetChatPreview(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_chat_preview(chat_id);
+    }
+    
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -725,12 +898,19 @@ chat_service::ChatPreview *client::get_chat_preview(int chat_id) {
 
 common::GroupChatPreview *client::get_group_chat_preview(int chat_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     chat_service::UserChat request;
     auto *response = new common::GroupChatPreview;
     request.set_chat_id(chat_id);
 
     grpc::Status status = chat_data_stub->GetGroupChatPreview(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_group_chat_preview(chat_id);
+    }
+    
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -740,12 +920,19 @@ common::GroupChatPreview *client::get_group_chat_preview(int chat_id) {
 
 std::vector<chat_service::ChatEvent> client::get_chat_events(int chat_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     chat_service::UserChat request;
     auto *response = new chat_service::ChatEvents;
     request.set_chat_id(chat_id);
 
     grpc::Status status = chat_data_stub->GetChatEvents(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_chat_events(chat_id);
+    }
+    
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -759,12 +946,19 @@ std::vector<chat_service::ChatEvent> client::get_chat_events(int chat_id) {
 
 std::vector<int> client::get_chat_admins(int chat_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     chat_service::UserChat request;
     auto *response = new chat_service::ChatAdmins;
     request.set_chat_id(chat_id);
 
     grpc::Status status = chat_data_stub->GetChatAdmins(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_chat_admins(chat_id);
+    }
+    
     if (!status.ok()) {
         std::cout << status.error_message() << '\n';
     }
@@ -891,6 +1085,7 @@ void client::subscribe(int subscriber_id, int subscribie_id) {
 
 void client::unsubscribe(int subscriber_id, int subscribie_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     users_interaction::UnsubscribeRequest request;
     request.set_subscriber_id(subscriber_id);
@@ -900,6 +1095,11 @@ void client::unsubscribe(int subscriber_id, int subscribie_id) {
 
     grpc::Status status =
         users_interaction_stub->Unsubscribe(&context, request, &response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return unsubscribe(subscriber_id, subscribie_id);
+    }
 
     if (!status.ok()) {
         std::cout << status.error_message() << std::endl;
@@ -913,11 +1113,17 @@ std::vector<uint32_t> client::get_subscriptions(uint32_t subscriber_id) {
     users_interaction::ShowAllSubscriptionsResponse response;
 
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     grpc::Status status = users_interaction_stub->ShowAllSubscriptions(
         &context, request, &response
     );
 
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_subscriptions(subscriber_id);
+    }
+    
     std::vector<uint32_t> result;
     if (status.ok()) {
         for (int i = 0; i < response.subscribie_id_size(); i++) {
@@ -936,11 +1142,17 @@ std::vector<uint32_t> client::get_subscribers(uint32_t subscribie_id) {
     users_interaction::ShowAllSubscribersResponse response;
 
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     grpc::Status status = users_interaction_stub->ShowAllSubscribers(
         &context, request, &response
     );
 
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_subscribers(subscribie_id);
+    }
+    
     std::vector<uint32_t> result;
     if (status.ok()) {
         for (int i = 0; i < response.subscriber_id_size(); i++) {
@@ -954,6 +1166,7 @@ std::vector<uint32_t> client::get_subscribers(uint32_t subscribie_id) {
 
 void client::block(int blocker_id, int blockie_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     users_interaction::BlockRequest request;
     request.set_blocker_id(blocker_id);
@@ -964,6 +1177,11 @@ void client::block(int blocker_id, int blockie_id) {
     grpc::Status status =
         users_interaction_stub->Block(&context, request, &response);
 
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        block(blocker_id, blockie_id);
+    }
+    
     if (!status.ok()) {
         std::cout << status.error_message() << std::endl;
     }
@@ -971,6 +1189,7 @@ void client::block(int blocker_id, int blockie_id) {
 
 void client::unblock(int blocker_id, int blockie_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     users_interaction::UnblockRequest request;
     request.set_blocker_id(blocker_id);
@@ -981,6 +1200,11 @@ void client::unblock(int blocker_id, int blockie_id) {
     grpc::Status status =
         users_interaction_stub->Unblock(&context, request, &response);
 
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        unblock(blocker_id, blockie_id);
+    }
+    
     if (!status.ok()) {
         std::cout << status.error_message() << std::endl;
     }
@@ -993,9 +1217,15 @@ std::vector<uint32_t> client::get_blocked(uint32_t blockie_id) {
     users_interaction::ShowAllBlockedResponse response;
 
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     grpc::Status status =
         users_interaction_stub->ShowAllBlocked(&context, request, &response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_blocked(blockie_id);
+    }
 
     std::vector<uint32_t> result;
     if (status.ok()) {
@@ -1024,9 +1254,16 @@ std::vector<uint32_t> client::get_mutual_subscriptions(uint32_t user_id) {
     request.set_subscriber_id(user_id);
     users_interaction::GetMutualSubscriptionsResponse response;
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
     grpc::Status status = users_interaction_stub->GetMutualSubscriptions(
         &context, request, &response
     );
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_mutual_subscriptions(user_id);
+    }
+    
     if (!status.ok()) {
         std::cout << status.error_code() << ": " << status.error_message()
                   << std::endl;
@@ -1055,8 +1292,14 @@ void client::change_photo(uint32_t user_id, const std::string &photo_path) {
 
     profile::ProfileReply response;
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
     grpc::Status status =
         profile_stub->ChangeProfilePhoto(&context, request, &response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        change_photo(user_id, photo_path);
+    }
 
     if (!status.ok()) {
         std::cout << status.error_code() << ": " << status.error_message()
@@ -1073,11 +1316,18 @@ std::vector<common::UserPreview> client::get_user_recommendations(
 
     recommendation_service::GetUsersRecommendationsResponse response;
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
     grpc::Status status = recommendation_stub->GetUsersRecommendations(
         &context, request, &response
     );
 
     std::vector<common::UserPreview> user_recommendations;
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_user_recommendations(user_id);
+    }
+    
     if (status.ok()) {
         for (const auto &user : response.user()) {
             user_recommendations.push_back(user);
@@ -1098,10 +1348,16 @@ std::vector<common::FilmPreview> client::get_film_recommendations(
 
     recommendation_service::GetFilmsRecommendationsResponse response;
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
     grpc::Status status = recommendation_stub->GetFilmsRecommendations(
         &context, request, &response
     );
 
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_film_recommendations(user_id);
+    }
+    
     std::vector<common::FilmPreview> film_recommendations;
     if (status.ok()) {
         for (const auto &film : response.film()) {
@@ -1117,6 +1373,7 @@ std::vector<common::FilmPreview> client::get_film_recommendations(
 
 common::FilmFullPage *client::get_film_full_page(int film_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     profile::FilmId request;
     auto *response = new common::FilmFullPage;
@@ -1124,6 +1381,12 @@ common::FilmFullPage *client::get_film_full_page(int film_id) {
     request.set_id(film_id);
     grpc::Status status =
         profile_data_stub->GetFilmFullPage(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_film_full_page(film_id);
+    }
+    
     if (!status.ok()) {
         qDebug() << status.error_message().c_str();
         return {};
@@ -1133,6 +1396,7 @@ common::FilmFullPage *client::get_film_full_page(int film_id) {
 
 common::FilmPreview *client::get_film_preview(int film_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     profile::FilmId request;
     auto *response = new common::FilmPreview;
@@ -1140,6 +1404,12 @@ common::FilmPreview *client::get_film_preview(int film_id) {
     request.set_id(film_id);
     grpc::Status status =
         profile_data_stub->GetFilmPreview(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return get_film_preview(film_id);
+    }
+    
     if (!status.ok()) {
         qDebug() << status.error_message().c_str();
         return {};
@@ -1149,6 +1419,7 @@ common::FilmPreview *client::get_film_preview(int film_id) {
 
 bool client::is_genre_favourite(uint32_t user_id, const std::string &genre_name) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     profile::GenreRequest request;
     auto *response = new profile::IsChosenReply;
@@ -1157,6 +1428,12 @@ bool client::is_genre_favourite(uint32_t user_id, const std::string &genre_name)
     genre->set_name(genre_name);
     grpc::Status status =
         profile_stub->CheckIsGenreFavourite(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return is_genre_favourite(user_id, genre_name);
+    }
+    
     if (!status.ok()) {
         return false;
     }
@@ -1165,6 +1442,7 @@ bool client::is_genre_favourite(uint32_t user_id, const std::string &genre_name)
 
 bool client::is_actor_favourite(uint32_t user_id, uint32_t actor_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     profile::ActorRequest request;
     auto *response = new profile::IsChosenReply;
@@ -1173,6 +1451,12 @@ bool client::is_actor_favourite(uint32_t user_id, uint32_t actor_id) {
     actor->set_id(actor_id);
     grpc::Status status =
         profile_stub->CheckIsActorFavourite(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return is_actor_favourite(user_id, actor_id);
+    }
+    
     if (!status.ok()) {
         return false;
     }
@@ -1181,6 +1465,7 @@ bool client::is_actor_favourite(uint32_t user_id, uint32_t actor_id) {
 
 bool client::is_movie_watched(uint32_t user_id, uint32_t movie_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     profile::MovieRequest request;
     auto *response = new profile::IsChosenReply;
@@ -1189,6 +1474,12 @@ bool client::is_movie_watched(uint32_t user_id, uint32_t movie_id) {
     movie->set_id(movie_id);
     grpc::Status status =
         profile_stub->CheckIsMovieChosen(&context, request, response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return is_movie_watched(user_id, movie_id);
+    }
+    
     if (!status.ok()) {
         return false;
     }
