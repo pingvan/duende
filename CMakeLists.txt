@@ -47,7 +47,8 @@ add_executable(main
 
 add_dependencies(main generate_proto_models)
 add_dependencies(main pqxx)
-# add_dependencies(gtests generate_proto_models)
+add_dependencies(gtests generate_proto_models)
+add_dependencies(gtests pqxx)
 
 
 target_link_libraries(main
