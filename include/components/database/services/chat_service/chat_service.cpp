@@ -52,7 +52,8 @@ std::vector<int> chat_service_database_api::get_chat_admins(const int &chat_id) 
     connection.txn->commit();
     return ids;
 }
-
+  
+  
 user_chats chat_service_database_api::get_user_chats(const int &user_id) {
     const connector connection;
     static std::string query = "SELECT chat_id FROM chat_membership WHERE user_id = $1"; 
@@ -72,12 +73,6 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
         for (const auto &row : result_sec) {
             preview.chat_id = row[0].as<int>();
             preview.time_stamp = row[1].as<std::string>();
-            preview.name = row[3].as<std::string>();
-            preview.description = row[4].as<std::string>();
-            if (!row[5].is_null()) {
-                preview.chat_cover = row[5].as<std::basic_string<std::byte>>();
-            preview.chat_id = row[0].as<int>();
-            preview.time_stamp = row[1].as<std::string>();
             preview.is_group_chat = row[2].as<bool>();
             if (!row[3].is_null()) {
                 preview.name = row[3].as<std::string>();
@@ -93,9 +88,8 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
             for (const auto &row : last_message) {
                 preview.last_message.sender = authservice_database_api::get_user_preview(row[0].as<int>());
                 preview.last_message.time_stamp = row[1].as<std::string>();
-                preview.last_message.message_text = row[2].as<std::string>();
+                preview.last_message.message_text = encryptor.decrypt(row[2].as<std::string>());
             }
-        }
         }
         auto chat_members = get_members_ids(chat_id);
         preview.chat_members.reserve(chat_members.size());
@@ -106,7 +100,7 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
     }
     connection.txn->commit();
     return chats;
-}
+}  
 
 last_messages chat_service_database_api::get_chats_messages(const int &chat_id) {
     const connector connection;

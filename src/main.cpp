@@ -9,6 +9,7 @@
 #include "services/search_service/search_service.hpp"
 #include "services/users_interaction_service/users_interaction_service.hpp"
 #include "services/recommendation_service/recommendation_service.hpp"
+#include "components/processor/processor.hpp"
 
 static const std::string server_address("0.0.0.0:50051");
 
@@ -34,8 +35,16 @@ std::shared_ptr<grpc::ServerCredentials> GetServerCredentials() {
   return grpc::SslServerCredentials(ssl_opts);
 }
 
+std::shared_ptr<grpc::ChannelCredentials> GetCredentials() {
+  grpc::SslCredentialsOptions ssl_opts;
+  ssl_opts.pem_root_certs = ReadFile("certs/ca.crt");
+  ssl_opts.pem_private_key = ReadFile("certs/client.key");
+  ssl_opts.pem_cert_chain = ReadFile("certs/client.crt");
+  return grpc::SslCredentials(ssl_opts);
+}
+
 void run_server() {
-    std::shared_ptr<grpc::Channel> chat_channel = grpc::CreateChannel(server_address, grpc::InsecureChannelCredentials());
+    std::shared_ptr<grpc::Channel> chat_channel = grpc::CreateChannel(server_address, GetCredentials());
 
     auth_service auth_service;
     auth_service_data auth_service_data;

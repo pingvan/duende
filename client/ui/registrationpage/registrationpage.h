@@ -27,12 +27,12 @@ class RegistrationPage : public QWidget
 
 public:
     explicit RegistrationPage(Manager* managerPtr, QWidget *parent = nullptr);
+    void build();
+    void connect_slots();
     ~RegistrationPage();
 
 private slots:
     void loginButton_clicked();
-    void onRegistrationSuccess();
-    void onLoginSuccess();
     void signupButton_clicked();
 
 signals:
@@ -42,12 +42,14 @@ signals:
 private:
     Ui::RegistrationPage *ui;
     Manager *manager;
-    QLineEdit *lineEdit_login_username;
-    QLineEdit *lineEdit_login_password;
-    QLineEdit *lineEdit_signup_username;
-    QLineEdit *lineEdit_signup_email;
-    QLineEdit *lineEdit_signup_password;
-    QLineEdit *lineEdit_signup_confirm;
+    QLineEdit *login_username;
+    QLineEdit *login_password;
+    QLineEdit *signup_username;
+    QLineEdit *signup_email;
+    QLineEdit *signup_password;
+    QLineEdit *signup_confirm;
+    QPushButton *signupButton;
+    QPushButton *loginButton;
 };
 
 #endif // REGISTRATIONPAGE_H

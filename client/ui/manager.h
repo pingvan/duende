@@ -51,6 +51,9 @@ public:
             new_client.onBlockedChanged = [this](const users_interaction::BlockResponse& response) {
                 emit blockedChanged();
             };
+            new_client.onNeedLogin = [this]() {
+                emit needLogin();
+            };
     }
 
     void logout() {
@@ -69,6 +72,7 @@ signals:
     void NewInviteReceived(const invitation::SendInvitationResponse& response);
     void InviteRespondReceived(const invitation::RespondToInvitationResponse& response);
     void RemoveFromChatReceived(const chat_service::RemoveResponse& response);
+    void needLogin();
     void subscribersChanged();
     void subscriptionsChanged();
     void blockedChanged();

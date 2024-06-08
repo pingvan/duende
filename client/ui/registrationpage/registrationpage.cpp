@@ -10,58 +10,95 @@ RegistrationPage::RegistrationPage(Manager* managerPtr, QWidget *parent)
     ui->setupUi(this);
 
     qDebug() << "Registration page start\n";
-    // this->setStyleSheet("QWidget { background-color: #8023a8; }");
+
+    build();
+
+    connect_slots();
+
+    qDebug() << "Registration page end\n";
+}
+
+void RegistrationPage::loginButton_clicked()
+{
+    QString login = login_username->text();
+    QString password = login_password->text();
+
+    authservice::LoginResponse *response = manager->new_client.login(login.toStdString(), password.toStdString());
+    manager->ID = response->id();
+    manager->username = manager->new_client.get_user_preview(manager->ID)->login();
+
+    qDebug() << "ID: " << manager->ID;
+
+    emit loginSuccessful();
+}
+
+void RegistrationPage::signupButton_clicked()
+{
+    QString username = signup_username->text();
+    QString email = signup_email->text();
+    QString password = signup_password->text();
+    QString password_confirmation = signup_confirm->text();
+
+    authservice::SignupResponse *response = manager->new_client.registration(username.toStdString(), email.toStdString(), password.toStdString(), password_confirmation.toStdString());
+    manager->ID = response->id();
+    manager->username = username.toStdString();
+
+    qDebug() << "ID: " << manager->ID;
+
+    emit registrationSuccessful();
+}
+
+void RegistrationPage::build()
+{
     this->setStyleSheet("QLineEdit { font-size: 16px; color: #8023a8; min-height: 40px; }"
                     "QPushButton { min-width: 100px; min-height: 40px; font-size: 20px; "
                     "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #b24ee7, stop: 1 #982ecb); "
                     "color: white; border-radius: 5px;}"
                     "QPushButton:pressed, QPushButton:checked { background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #8023A8, stop: 1 #691e8a); }");
-    
-    connect(this, &RegistrationPage::registrationSuccessful, this, &RegistrationPage::onRegistrationSuccess);
 
     QTabWidget *tabWidget = new QTabWidget(this);
 
-    lineEdit_login_username = new QLineEdit(this);
-    lineEdit_login_password = new QLineEdit(this);
-    lineEdit_signup_username = new QLineEdit(this);
-    lineEdit_signup_email = new QLineEdit(this);
-    lineEdit_signup_password = new QLineEdit(this);
-    lineEdit_signup_confirm = new QLineEdit(this);
+    login_username = new QLineEdit(this);
+    login_password = new QLineEdit(this);
+    signup_username = new QLineEdit(this);
+    signup_email = new QLineEdit(this);
+    signup_password = new QLineEdit(this);
+    signup_confirm = new QLineEdit(this);
 
-    lineEdit_login_password->setEchoMode(QLineEdit::Password);
-    lineEdit_signup_password->setEchoMode(QLineEdit::Password);
-    lineEdit_signup_confirm->setEchoMode(QLineEdit::Password);
+    login_password->setEchoMode(QLineEdit::Password);
+    signup_password->setEchoMode(QLineEdit::Password);
+    signup_confirm->setEchoMode(QLineEdit::Password);
 
-    lineEdit_signup_username->setPlaceholderText("Enter username");
-    lineEdit_signup_email->setPlaceholderText("Enter email");
-    lineEdit_signup_password->setPlaceholderText("Enter password");
-    lineEdit_signup_confirm->setPlaceholderText("Enter password confirmation");
+    signup_username->setPlaceholderText("Enter username");
+    signup_email->setPlaceholderText("Enter email");
+    signup_password->setPlaceholderText("Enter password");
+    signup_confirm->setPlaceholderText("Enter password confirmation");
 
-    lineEdit_login_username->setPlaceholderText("Enter login");
-    lineEdit_login_password->setPlaceholderText("Enter password");
+    login_username->setPlaceholderText("Enter login");
+    login_password->setPlaceholderText("Enter password");
 
     QWidget *tab1 = new QWidget;
     QWidget *tab2 = new QWidget;
     tabWidget->addTab(tab1, "Signup");
     tabWidget->addTab(tab2, "Login");
 
-    QPushButton *signupButton = new QPushButton("Sign up", tab1);
+    signupButton = new QPushButton("Sign up", tab1);
     signupButton->setCursor(Qt::PointingHandCursor);
 
     QWidget *formWidget1 = new QWidget(tab1);
     QFormLayout *formLayout1 = new QFormLayout(formWidget1);
-    formLayout1->addRow(lineEdit_signup_username);
-    formLayout1->addRow(lineEdit_signup_email);
-    formLayout1->addRow(lineEdit_signup_password);
-    formLayout1->addRow(lineEdit_signup_confirm);
+    formLayout1->addRow(signup_username);
+    formLayout1->addRow(signup_email);
+    formLayout1->addRow(signup_password);
+    formLayout1->addRow(signup_confirm);
 
-    QPushButton *loginButton = new QPushButton("Log in", tab2);
+    loginButton = new QPushButton("Log in", tab2);
     loginButton->setCursor(Qt::PointingHandCursor);
 
     QWidget *formWidget2 = new QWidget(tab2);
     QFormLayout *formLayout2 = new QFormLayout(formWidget2);
-    formLayout2->addRow(lineEdit_login_username);
-    formLayout2->addRow(lineEdit_login_password);
+    formLayout2->addRow(login_username);
+    formLayout2->addRow(login_password);
 
     QVBoxLayout *vLayout1 = new QVBoxLayout(tab1);
     vLayout1->addStretch(1);
@@ -82,64 +119,15 @@ RegistrationPage::RegistrationPage(Manager* managerPtr, QWidget *parent)
     mainLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding), 2, 0);
     mainLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding), 2, 2);
     mainLayout->addWidget(tabWidget, 1, 1);
+}
 
+void RegistrationPage::connect_slots()
+{
     connect(signupButton, &QPushButton::clicked, this, &RegistrationPage::signupButton_clicked);
     connect(loginButton, &QPushButton::clicked, this, &RegistrationPage::loginButton_clicked);
-
-    qDebug() << "Registration page end\n";
 }
 
 RegistrationPage::~RegistrationPage()
 {
     delete ui;
 }
-
-void RegistrationPage::loginButton_clicked()
-{
-    QString login = lineEdit_login_username->text();
-    QString password = lineEdit_login_password->text();
-    authservice::LoginResponse *response = manager->new_client.login(login.toStdString(), password.toStdString());
-    manager->ID = response->id();
-    manager->username = manager->new_client.get_user_full_page(manager->ID)->preview().login();
-
-    qDebug() << "ID: " << manager->ID;
-
-    if (login == "admin" && password == "admin" || response->message() == "OK") {
-        emit loginSuccessful();
-    }
-    else {
-        QMessageBox::warning(this, "Error", response->message().c_str());
-    }
-}
-
-void RegistrationPage::onRegistrationSuccess()
-{
-
-}
-
-
-void RegistrationPage::signupButton_clicked()
-{
-    QString username = lineEdit_signup_username->text();
-    QString email = lineEdit_signup_email->text();
-    QString password = lineEdit_signup_password->text();
-    QString password_confirmation = lineEdit_signup_confirm->text();
-    authservice::SignupResponse *response = manager->new_client.registration(username.toStdString(), email.toStdString(), password.toStdString(), password_confirmation.toStdString());
-
-    if (response->message() == "OK") {
-        authservice::LoginResponse *response = manager->new_client.login(username.toStdString(), password.toStdString());
-        manager->ID = response->id();
-        manager->new_client.change_username(manager->ID, username.toStdString());
-        manager->username = username.toStdString();
-        emit registrationSuccessful();
-    }
-    else {
-        QMessageBox::warning(this, "Error", response->message().c_str());
-    }
-}
-
-void RegistrationPage::onLoginSuccess()
-{
-
-}
-

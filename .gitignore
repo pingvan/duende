@@ -5,6 +5,7 @@ cmake_install.cmake
 cmake-build-debug
 cmake-build
 build
+certs
 cmake/build
 venv
 *.sln

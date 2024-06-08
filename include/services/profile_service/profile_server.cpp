@@ -191,3 +191,24 @@ grpc::Status ProfileDataService::GetFilmPreview(grpc::ServerContext *context, co
     film_preview.convert_to_proto(response);
     return grpc::Status::OK;
 }
+
+grpc::Status ProfileServiceImpl::CheckIsGenreFavourite(grpc::ServerContext *context, const profile::GenreRequest *request, profile::IsChosenReply *response) {
+    for (const auto &genre : request->genres()) {
+        response->set_is_chosen(database::profile_service_database_api::check_is_favourite_genre(request->id(), genre.name()));
+    }
+    return grpc::Status::OK;
+}
+
+grpc::Status ProfileServiceImpl::CheckIsActorFavourite(grpc::ServerContext *context, const profile::ActorRequest *request, profile::IsChosenReply *response) {
+    for (const auto &actor : request->actors()) {
+        response->set_is_chosen(database::profile_service_database_api::check_is_favourite_actor(request->id(), actor.id()));
+    }
+    return grpc::Status::OK;
+}
+
+grpc::Status ProfileServiceImpl::CheckIsMovieChosen(grpc::ServerContext *context, const profile::MovieRequest *request, profile::IsChosenReply *response) {
+    for (const auto &film : request->movies()) {
+        response->set_is_chosen(database::profile_service_database_api::check_is_watched(request->id(), film.id()));
+    }
+    return grpc::Status::OK;
+}

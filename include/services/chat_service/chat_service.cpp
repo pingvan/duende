@@ -149,8 +149,10 @@ grpc::Status chat_service_::ChangeChatDescription(grpc::ServerContext* context, 
 }
 
 grpc::Status chat_service_::ChangeChatCover(grpc::ServerContext* context, const chat_service::ChangeChatCoverRequest* request, chat_service::OperationStatusResponse* response) {
-    // TODO
-    // database::chat_service_database_api::change_chat_cover(request->chat_id(), request->new_cover());
+    std::basic_string<char> char_data = request->new_cover();
+    std::basic_string<std::byte> byte_data(reinterpret_cast<std::byte const*>(char_data.data()), char_data.size());
+
+    database::chat_service_database_api::change_chat_cover(request->chat_id(), request->admin_id(), byte_data);
     response->set_status(chat_service::Status::SUCCESS);
     return grpc::Status::OK;
 }
@@ -202,6 +204,17 @@ grpc::Status chat_service_::InvitesToChat(grpc::ServerContext* context, grpc::Se
             std::string receiver_login = receiver_preview_proto->login();
             
             if (sender_id == receiver_id) {
+                if (database::chat_service_database_api::check_user_privileges(sender_id, chat_id) && database::chat_service_database_api::get_chat_admins(chat_id).size() == 1) {
+                    chat_service::InvitesToChatResponses response;
+                    const auto remove_response = new chat_service::RemoveResponse;
+
+                    remove_response->set_error_message("You are the only admin in this chat. You can't leave it.");
+
+                    response.set_allocated_remove(remove_response);
+                    stream->Write(response);
+                    continue;
+                }
+
                 database::chat_service_database_api::remove_user_from_chat(chat_id, receiver_id);
             }
             else {
@@ -312,5 +325,13 @@ grpc::Status chat_data_service::GetGroupChatPreview(grpc::ServerContext *context
 grpc::Status chat_data_service::GetChatEvents(grpc::ServerContext *context, const chat_service::UserChat *request, chat_service::ChatEvents *response) {
     auto chat_events = database::chat_service_database_api::get_chat_events(request->chat_id());
     chat_events.convert_to_proto(response);
+    return grpc::Status::OK;
+}
+
+grpc::Status chat_data_service::GetChatAdmins(grpc::ServerContext *context, const chat_service::UserChat *request, chat_service::ChatAdmins *response) {
+    auto chat_admins = database::chat_service_database_api::get_chat_admins(request->chat_id());
+    for (auto admin_id : chat_admins) {
+        response->add_admin_id(admin_id);
+    }
     return grpc::Status::OK;
 }

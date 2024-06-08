@@ -49,11 +49,13 @@ private slots:
     void button_edit_clicked();
     void button_save_clicked();
     void button_edit_genres_clicked();
-    void plusItem_favActors_clicked();
+    void button_edit_actors_clicked();
+    // void plusItem_favActors_clicked();
     void plusItem_watchlist_clicked();
     void update_favorite_genres();
     void update_watchlist(int start_films, bool edit_mode);
-    void update_actors(int start_actors, bool edit_mode);
+    // void update_actors(int start_actors, bool edit_mode);
+    void update_favorite_actors();
     void onEditButtonClicked() {
         editMode = !editMode;
     }
@@ -88,6 +90,7 @@ private:
     QPushButton *button_edit;
     QPushButton *button_save;
     QPushButton *button_edit_genres;
+    QPushButton *button_edit_actors;
 
     QGraphicsScene *scene_favActors = nullptr;
     QGraphicsScene *scene_watchlist = nullptr;
@@ -96,11 +99,15 @@ private:
     QStringList watchlistImages;
 
     Genres_SearchWindow *genres_searchWindow;
+    Actors_SearchWindow *actors_searchWindow;
 
     QHBoxLayout *genresLayout;
     QListWidget *genresList;
+    QHBoxLayout *actorsLayout;
+    QListWidget *actorsList;
     bool editMode = false;
-    QMetaObject::Connection connection;
+    QMetaObject::Connection genres_connection;
+    QMetaObject::Connection actors_connection;
 
     bool eventFilter(QObject *watched, QEvent *event) override;
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <grpcpp/grpcpp.h>
+#include "components/database/services/chat_service/chat_service.hpp"
 #include "components/database/services/invite_service/invite_service.hpp"
 #include "components/database/services/authservice/authservice.hpp"
 #include "services/invitation_service/invitation.grpc.pb.h"

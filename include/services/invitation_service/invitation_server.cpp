@@ -7,6 +7,7 @@ grpc::Status invitation_service::InvitationStream(
 ) {
     invitation::InvitationRequest request;
     database::invite_service_database_api invite_db_api;
+    database::chat_service_database_api chat_db_api;
     while (stream->Read(&request)) {
         if (request.has_invite()) {
             bool is_group_invite = request.invite().has_chat_id();
@@ -91,7 +92,7 @@ grpc::Status invitation_service::InvitationStream(
                 int receiver_id = request.invite().receiver_id();
                 int sender_id = request.invite().sender_id();
 
-                if (invite_db_api.is_invite_already_sent(
+                if (invite_db_api.is_invite_already_sent(   
                     sender_id, receiver_id
                 )) {
                     invitation::InvitationResponse sender_response;
@@ -111,6 +112,17 @@ grpc::Status invitation_service::InvitationStream(
                     const auto invite_sender_response = new invitation::SendInvitationResponse;
 
                     invite_sender_response->set_error_message("This user has already sent you an invitation");
+
+                    sender_response.set_allocated_invite(invite_sender_response);
+                    stream->Write(sender_response);
+                    continue;
+                }
+
+                if (chat_db_api.check_is_private_chat_already_exists(sender_id, receiver_id)) {
+                    invitation::InvitationResponse sender_response;
+                    const auto invite_sender_response = new invitation::SendInvitationResponse;
+
+                    invite_sender_response->set_error_message("You already have a private chat with this user");
 
                     sender_response.set_allocated_invite(invite_sender_response);
                     stream->Write(sender_response);
@@ -198,9 +210,7 @@ grpc::Status invitation_service::InvitationStream(
                     respond_sender_response->mutable_chat()->CopyFrom(*group_chat);
                     respond_receiver_response->mutable_chat()->CopyFrom(*group_chat);
 
-                    std::cout << "ID: " << group_chat->chat_id();
-
-                    add_user_to_chat(sender_id, request.invite_respond().chat_id()); // TODO replace with group_chat->chat_id()
+                    add_user_to_chat(sender_id, group_chat->chat_id());
                 }
                             
             } else {

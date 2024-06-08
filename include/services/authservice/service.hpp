@@ -21,7 +21,7 @@ struct auth_service final : public authservice::AuthService::Service {
         const authservice::LogoutRequest *request,
         authservice::LogoutResponse *response
     ) override;
-    int save_user(authservice::User &user, std::string password, authservice::Tokens *tokens);
+    void save_user(authservice::User &user, std::string password);
     grpc::Status password_is_valid(const std::string &password);
     grpc::Status username_is_valid(const std::string &username);
     grpc::Status email_is_valid(const std::string &email);
@@ -39,4 +39,18 @@ struct auth_service_data final : public authservice::AuthServiceData::Service {
         const authservice::RequestWithUserId *request,
         common::UserFullPage *response
     ) override;
+
+    grpc::Status UpdateAccessToken(
+        grpc::ServerContext *context,
+        const authservice::RequestWithUserId *request,
+        authservice::AccessToken *response
+    ) override;
+
+    grpc::Status CreateTokens(
+        grpc::ServerContext *context,
+        const authservice::RequestWithUserId *request,
+        authservice::AccessToken *response
+    ) override;
+
+    authservice::RefreshToken *get_refresh_token(int user_id);
 };

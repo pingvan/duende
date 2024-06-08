@@ -17,6 +17,8 @@ OtherPage::OtherPage(int id, Manager *managerPtr, QWidget *parent)
 
     user = manager->new_client.get_user_full_page(id);
 
+    user_preview = manager->new_client.get_user_preview(id);
+
     login = user->preview().login();
 
     assert(user != nullptr);
@@ -28,12 +30,6 @@ OtherPage::OtherPage(int id, Manager *managerPtr, QWidget *parent)
 
 void OtherPage::sendInvite() {
     assert(manager != nullptr);
-    if (manager->new_client.is_blocked(id, manager->ID)) {
-        QMessageBox::information(
-            this, "Blocked User", "You should unblock this user first."
-        );
-        return;
-    }
     manager->new_client.send_invite(manager->ID, id);
 }
 
@@ -90,7 +86,6 @@ void OtherPage::toggleSubscription() {
             button->setText("Subscribe");
         }
     }
-    updatePage(id);
 }
 
 void OtherPage::updatePage(int newId) {
@@ -107,10 +102,6 @@ void OtherPage::updatePage(int newId) {
     // update all labels
     label_status->setText(QString::fromStdString(user->quote().c_str()));
     label_status->setMaximumWidth(500);
-    // label_status->setStyleSheet(
-    //     "color: #8023a8; border-radius: 5px; border: 1px solid #8023a8; "
-    //     "font-size: 14px;"
-    // );
     label_status->setStyleSheet(
         "color: black;"
         "font-size: 20px;"
@@ -119,10 +110,6 @@ void OtherPage::updatePage(int newId) {
     label_about->setMaximumWidth(500);
     label_about->setMaximumHeight(500);
     label_about->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    // label_about->setStyleSheet(
-    //     "color: #8023a8; border-radius: 5px; border: 1px solid #8023a8; "
-    //     "font-size: 14px;"
-    // );
     label_about->setStyleSheet(
         "color: #8023a8; "
         "font-size: 20px;"
@@ -135,26 +122,51 @@ void OtherPage::updatePage(int newId) {
         "font-size: 24px;"
     );
     label_username->setFixedHeight(30);
-    // label_username->setAlignment(Qt::AlignCenter);
     genres_text->setText(
         QString::fromStdString(user->preview().login().c_str()) +
         "'s favourite genres"
     );
 
+    actors_text->setText(
+        QString::fromStdString(user->preview().login().c_str()) +
+        "'s favourite actors"
+    );
+
+    movies_text->setText(
+        QString::fromStdString(user->preview().login().c_str()) + "'s watchlist"
+    );
+
     // update genres
     genresList->clear();
     genresList->setSpacing(10);
+    genresList->setFixedHeight(120);
     for (const auto &genre : user->favorite_genres()) {
         QListWidgetItem *item =
             new QListWidgetItem(common::Genre_Name(genre).c_str());
         item->setTextAlignment(Qt::AlignCenter);
         QFont font;
         font.setPointSize(30);
-        // font.setBold(true);
         item->setFont(font);
         item->setForeground(Qt::white);
         item->setBackground(QBrush(QColor("#8023a8")));
         genresList->addItem(item);
+    }
+
+    actorsList->clear();
+    actorsList->setSpacing(10);
+    actorsList->setMaximumHeight(200);
+
+    for (const auto &actor : user->favorite_actors()) {
+        QListWidgetItem *item = new QListWidgetItem(actor.full_name().c_str());
+        item->setTextAlignment(Qt::AlignCenter);
+        QFont font;
+        font.setPointSize(28);
+        item->setFont(font);
+        item->setForeground(QColor("#8023a8"));
+        item->setBackground(QBrush(Qt::white));
+        item->setData(Qt::UserRole, actor.actor_id());
+        qDebug() << "Add actor with id: " << actor.actor_id();
+        actorsList->addItem(item);
     }
 
     if (manager->new_client.is_blocked(id, manager->ID)) {
@@ -173,14 +185,35 @@ void OtherPage::updatePage(int newId) {
     } else {
         subscribeButton->setText("Subscribe");
     }
-    // subscribeButton->setChecked(
-    //     manager->new_client.is_subscribed(manager->ID, id)
-    // );
-    // subscribeButton->setText(
-    //     subscribeButton->isChecked() ? "Unsubscribe" : "Subscribe"
-    // );
 
-    // update scenes
+    label_photo = new QLabel();
+    QPixmap pixmap;
+    if (user->preview().photo().empty()) {
+        pixmap.load(":/img/person-circle2.png");
+    } else {
+        pixmap = QPixmap::fromImage(
+            QImage::fromData(QByteArray::fromStdString(user->preview().photo()))
+        );
+    }
+
+    int size = qMin(pixmap.width(), pixmap.height());
+    QPixmap squarePixmap = pixmap.copy(0, 0, size, size);
+
+    QPixmap scaledPixmap = squarePixmap.scaled(
+        300, 300, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation
+    );
+
+    QPixmap rounded = QPixmap(scaledPixmap.size());
+    rounded.fill(Qt::transparent);
+
+    QPainter painter(&rounded);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setBrush(QBrush(scaledPixmap));
+    painter.setPen(Qt::NoPen);
+    painter.drawEllipse(rounded.rect());
+
+    label_photo->setPixmap(rounded);
+
     build_scenes();
 
     qDebug() << "Update page end";
@@ -204,11 +237,10 @@ void OtherPage::update_watchlist() {
         auto full_page =
             manager->new_client.get_film_full_page(movie.preview().film_id());
         QUrl url;
-        if (full_page == nullptr){
+        if (full_page == nullptr) {
             qDebug() << "aaaaaaaaa";
             url = movie.preview().preview_cover_url().c_str();
-        }
-        else{
+        } else {
             url = full_page->full_page_cover_url().c_str();
         }
         QNetworkReply *reply = nam->get(QNetworkRequest(url));
@@ -221,7 +253,7 @@ void OtherPage::update_watchlist() {
             QImage image;
             image.loadFromData(data);
             pixmap = QPixmap::fromImage(image);
-            pixmap = pixmap.scaledToHeight(view_watchlist->height() - 50);
+            pixmap = pixmap.scaledToHeight(view_watchlist->height() - 100);
 
             QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap);
             item->setPos(start_films, 0);
@@ -253,15 +285,6 @@ void OtherPage::update_watchlist() {
 }
 
 void OtherPage::build_scenes() {
-    // delete if something
-    if (view_favActors != nullptr) {
-        delete view_favActors;
-        view_favActors = nullptr;
-    }
-    if (scene_favActors != nullptr) {
-        delete scene_favActors;
-        scene_favActors = nullptr;
-    }
     if (view_watchlist != nullptr) {
         delete view_watchlist;
         view_watchlist = nullptr;
@@ -270,77 +293,17 @@ void OtherPage::build_scenes() {
         delete scene_watchlist;
         scene_watchlist = nullptr;
     }
-    if (actors_text != nullptr) {
-        delete actors_text;
-        actors_text = nullptr;
-    }
-    if (movies_text != nullptr) {
-        delete movies_text;
-        movies_text = nullptr;
-    }
-
-    view_favActors = new QGraphicsView();
-    scene_favActors = new QGraphicsScene();
     view_watchlist = new QGraphicsView();
     scene_watchlist = new QGraphicsScene();
 
-    // fav actors
-    favActorsImages.clear();
-    favActorsImages << ":/img/tarantino.jpg" << ":/img/tarantino.jpg"
-                    << ":/img/tarantino.jpg";
-    view_favActors->setScene(scene_favActors);
-    view_favActors->setFixedHeight(150);
-    view_favActors->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view_favActors->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view_watchlist->setFrameShape(QFrame::NoFrame);
-    view_favActors->setFrameShape(QFrame::NoFrame);
-
     view_watchlist->setScene(scene_watchlist);
-    view_watchlist->setFixedHeight(300);
+    view_watchlist->setFixedHeight(350);
     view_watchlist->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view_watchlist->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    int x = 0;
-    for (auto it = favActorsImages.rbegin(); it != favActorsImages.rend();
-         ++it) {
-        QPixmap pixmap(*it);
-        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(
-            pixmap.scaledToHeight(view_favActors->height())
-        );
-        item->setPos(x, 0);
-        scene_favActors->addItem(item);
-        x += item->boundingRect().width() + 10;
-    }
+    view_watchlist->setFrameShape(QFrame::NoFrame);
 
     update_watchlist();
 
-    if (actors_text != nullptr) {
-        rightBox->removeWidget(actors_text);
-        delete actors_text;
-        actors_text = nullptr;
-    }
-    if (movies_text != nullptr) {
-        rightBox->removeWidget(movies_text);
-        delete movies_text;
-        movies_text = nullptr;
-    }
-
-    actors_text = new QLabel();
-    actors_text->setText(
-        QString::fromStdString(user->preview().login().c_str()) +
-        "'s favourite actors"
-    );
-    actors_text->setStyleSheet("font-size: 20px; color: black;");
-
-    movies_text = new QLabel();
-    movies_text->setText(
-        QString::fromStdString(user->preview().login().c_str()) + "'s watchlist"
-    );
-    movies_text->setStyleSheet("font-size: 20px; color: black;");
-
-    // add to layout
-    rightBox->addWidget(actors_text);
-    rightBox->addWidget(view_favActors);
-    rightBox->addWidget(movies_text);
     rightBox->addWidget(view_watchlist);
 }
 
@@ -352,10 +315,23 @@ void OtherPage::build() {
     genresList->setViewMode(QListView::IconMode);
     genresList->setFlow(QListView::LeftToRight);
 
+    actorsList = new QListWidget;
+    actorsList->setStyleSheet("border: none;");
+    actorsList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    actorsList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    actorsList->setViewMode(QListView::IconMode);
+    actorsList->setFlow(QListView::LeftToRight);
+
     if (genres_text != nullptr) {
         rightBox->removeWidget(genres_text);
         delete genres_text;
         genres_text = nullptr;
+    }
+
+    if (actors_text != nullptr) {
+        rightBox->removeWidget(actors_text);
+        delete actors_text;
+        actors_text = nullptr;
     }
 
     // main layout
@@ -369,17 +345,16 @@ void OtherPage::build() {
     this->setLayout(mainLayout);
 
     // photo
-    QLabel *label_photo = new QLabel();
-    common::UserPreview user_preview = user->preview();
+    label_photo = new QLabel();
     // std::string photo_data(
     //     user_preview.photo().begin(), user_preview.photo().end()
     // );
     QPixmap pixmap;
-    if (user_preview.photo().empty()) {
+    if (user_preview->photo().empty()) {
         pixmap.load(":/img/person-circle2.png");
     } else {
         pixmap = QPixmap::fromImage(
-            QImage::fromData(QByteArray::fromStdString(user_preview.photo()))
+            QImage::fromData(QByteArray::fromStdString(user_preview->photo()))
         );
     }
 
@@ -431,6 +406,23 @@ void OtherPage::build() {
         genresList->addItem(item);
     }
 
+    actorsList->clear();
+    actorsList->setSpacing(10);
+
+    for (const auto &actor : user->favorite_actors()) {
+        QListWidgetItem *item = new QListWidgetItem(actor.full_name().c_str());
+        item->setTextAlignment(Qt::AlignCenter);
+        QFont font;
+        font.setPointSize(28);
+        // font.setBold(true);
+        item->setFont(font);
+        item->setForeground(QColor("#8023a8"));
+        item->setBackground(QBrush(Qt::white));
+        item->setData(Qt::UserRole, actor.actor_id());
+        qDebug() << "Add actor with id: " << actor.actor_id();
+        actorsList->addItem(item);
+    }
+
     genres_text = new QLabel();
     genres_text->setText(
         QString::fromStdString(user->preview().login().c_str()) +
@@ -440,6 +432,22 @@ void OtherPage::build() {
     QHBoxLayout *genresLayout = new QHBoxLayout;
     genresLayout->addWidget(genresList);
     genresList->show();
+
+    actors_text = new QLabel();
+    actors_text->setText(
+        QString::fromStdString(user->preview().login().c_str()) +
+        "'s favourite actors"
+    );
+    actors_text->setStyleSheet("font-size: 20px; color: black;");
+    actorsLayout = new QHBoxLayout;
+    actorsLayout->addWidget(actorsList);
+    actorsList->show();
+
+    movies_text = new QLabel();
+    movies_text->setText(
+        QString::fromStdString(user->preview().login().c_str()) + "'s watchlist"
+    );
+    movies_text->setStyleSheet("font-size: 20px; color: black;");
 
     // spacer
     QSpacerItem *verticalSpacer =
@@ -485,6 +493,10 @@ void OtherPage::build() {
     rightBox->addWidget(label_username);
     rightBox->addWidget(genres_text);
     rightBox->addLayout(genresLayout);
+    rightBox->addWidget(actors_text);
+    rightBox->addLayout(actorsLayout);
+    rightBox->addWidget(movies_text);
+    rightBox->addItem(verticalSpacer);
 
     build_scenes();
 
@@ -496,6 +508,9 @@ void OtherPage::build() {
     connect(blockButton, &QPushButton::clicked, this, [this]() {
         showBlockDialog(blockButton);
     });
+    inviteButton->setCursor(Qt::PointingHandCursor);
+    subscribeButton->setCursor(Qt::PointingHandCursor);
+    blockButton->setCursor(Qt::PointingHandCursor);
 }
 
 OtherPage::~OtherPage() {
