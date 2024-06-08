@@ -10,7 +10,7 @@ namespace aes {
 
 void handleErrors() {
     unsigned long errCode;
-    while (errCode = ERR_get_error()) {
+    while ((errCode = ERR_get_error())) {
         char *err = ERR_error_string(errCode, nullptr);
         std::cerr << "Error: " << err << std::endl;
     }
