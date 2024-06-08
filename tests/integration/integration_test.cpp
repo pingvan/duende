@@ -90,10 +90,8 @@ TEST(Integration, RegistrationTest) {
     auto status = client.authservice_stub->Signup(&context, request, &response);
     ASSERT_TRUE(status.ok());
     ASSERT_TRUE(response.has_access_token());
-    // ASSERT_EQ(response.id(), 1);
     ASSERT_TRUE(response.id() > 0);
     dh.access_token = response.access_token().token();
-    // dh.refresh_token = response.tokens().refresh().token();
     dh.id = response.id();
 }
 
@@ -128,7 +126,6 @@ TEST(Integration, ChangeUserNameTest) {
     request.set_username(dh.username);
     auto status = client.profile_stub->ChangeUsername(&context, request, &response);
     ASSERT_TRUE(status.ok());
-    //check db state
     std::cerr << response.message() << std::endl;
 }
 
@@ -141,9 +138,5 @@ TEST(Integration, ChangeQuote) {
     request.set_quote(quote.data());
     auto status = client.profile_stub->ChangeQuote(&context, request, &response);
     ASSERT_TRUE(status.ok());
-    //check db state
     std::cerr << response.message() << std::endl;
 }
-
-
-

@@ -80,8 +80,6 @@ CREATE TABLE IF NOT EXISTS actors_to_film(
     FOREIGN KEY(actor_id) REFERENCES actors(id)
 );
 
---https://stackoverflow.com/questions/8416017/is-name-a-special-keyword-in-postgresql
-
 CREATE TABLE IF NOT EXISTS chats (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMP default NOW(),
@@ -126,7 +124,6 @@ CREATE TABLE IF NOT EXISTS messages (
     FOREIGN KEY(sender_id) REFERENCES users(id),
     FOREIGN KEY(chat_id) REFERENCES chats(id)
 );
-
 
 CREATE TABLE IF NOT EXISTS invites (
     id SERIAL PRIMARY KEY,

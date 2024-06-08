@@ -2,18 +2,17 @@
 
 #include <pqxx/pqxx>
 #include <string>
-
 #include "components/database/placeholders/placeholders.hpp"
 
 namespace database {
 struct authservice_database_api {
     [[nodiscard]] static bool is_email_used(const std::string &user_email);
-    [[nodiscard]] static bool is_nickname_used(const std::string &user_nickname);
+    [[nodiscard]] static bool is_nickname_used(const std::string &user_nickname
+    );
 
     [[nodiscard]] static int get_user_id(const std::string &login);
     [[nodiscard]] static std::string get_user_email(const int &user_id);
     [[nodiscard]] static std::string get_user_nickname(const int &user_id);
-
 
     [[nodiscard]] static int add_user(
         const std::string &user_email,
@@ -36,10 +35,10 @@ struct authservice_database_api {
 
     [[nodiscard]] static user_preview get_user_preview(const int &user_id);
     [[nodiscard]] static user_full_page get_user_full_page(const int &user_id);
-// private:
-    //TODO::move into common functions
-    [[nodiscard]] static std::vector<genre> array_parser(const std::string &json_string);
-    [[nodiscard]] static genre enum_from_string(const std::string &ss);
 
+    [[nodiscard]] static std::vector<genre> array_parser(
+        const std::string &json_string
+    );
+    [[nodiscard]] static genre enum_from_string(const std::string &ss);
 };
-}
+}  // namespace database

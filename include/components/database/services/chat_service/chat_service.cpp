@@ -4,34 +4,52 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include "components/aes/aes.hpp"
 #include "components/database/placeholders/placeholders.hpp"
 #include "components/database/services/authservice/authservice.hpp"
-#include "components/aes/aes.hpp"
 #include "pqxx/zview.hxx"
 
 namespace database {
-std::pair<uint32_t, std::string> chat_service_database_api::add_message(const int &sender_id, const int &chat_id, const std::string &message_text) {
+std::pair<uint32_t, std::string> chat_service_database_api::add_message(
+    const int &sender_id,
+    const int &chat_id,
+    const std::string &message_text
+) {
     const connector connection;
     aes::encryptor encryptor;
-    const auto result = connection.txn->exec_params("INSERT INTO messages (sender_id, chat_id, message_text_data) VALUES ($1, $2, $3) RETURNING id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS')", sender_id, chat_id, encryptor.encrypt(message_text));
+    const auto result = connection.txn->exec_params(
+        "INSERT INTO messages (sender_id, chat_id, message_text_data) VALUES "
+        "($1, $2, $3) RETURNING id, to_char(sended_at, 'YYYY-MM-DD "
+        "HH24:MI:SS')",
+        sender_id, chat_id, encryptor.encrypt(message_text)
+    );
     std::pair<uint32_t, std::string> id_timestamp;
     for (auto row : result) {
-        id_timestamp = std::make_pair(row[0].as<uint32_t>(), row[1].as<std::string>());
+        id_timestamp =
+            std::make_pair(row[0].as<uint32_t>(), row[1].as<std::string>());
     }
     connection.txn->commit();
     return id_timestamp;
 }
 
-void chat_service_database_api::add_unhandle_message(const int &user_id, const int &message_id) {
+void chat_service_database_api::add_unhandle_message(
+    const int &user_id,
+    const int &message_id
+) {
     const connector connection;
-    const auto result = connection.txn->exec_params("INSERT INTO unhandled_messages (user_id, message_id) VALUES ($1, $2)", user_id, message_id);
+    const auto result = connection.txn->exec_params(
+        "INSERT INTO unhandled_messages (user_id, message_id) VALUES ($1, $2)",
+        user_id, message_id
+    );
     connection.txn->commit();
 }
 
-
-std::vector<int> chat_service_database_api::get_members_ids(const int &chat_id) {
+std::vector<int> chat_service_database_api::get_members_ids(const int &chat_id
+) {
     const connector connection;
-    const auto result = connection.txn->exec_params("SELECT user_id FROM chat_membership WHERE chat_id = $1", chat_id);
+    const auto result = connection.txn->exec_params(
+        "SELECT user_id FROM chat_membership WHERE chat_id = $1", chat_id
+    );
     std::vector<int> ids;
     ids.reserve(result.size());
     for (const auto &row : result) {
@@ -41,9 +59,12 @@ std::vector<int> chat_service_database_api::get_members_ids(const int &chat_id) 
     return ids;
 }
 
-std::vector<int> chat_service_database_api::get_chat_admins(const int &chat_id) {
+std::vector<int> chat_service_database_api::get_chat_admins(const int &chat_id
+) {
     const connector connection;
-    const auto result = connection.txn->exec_params("SELECT user_id FROM chat_admins WHERE chat_id = $1", chat_id);
+    const auto result = connection.txn->exec_params(
+        "SELECT user_id FROM chat_admins WHERE chat_id = $1", chat_id
+    );
     std::vector<int> ids;
     ids.reserve(result.size());
     for (const auto &row : result) {
@@ -52,11 +73,11 @@ std::vector<int> chat_service_database_api::get_chat_admins(const int &chat_id) 
     connection.txn->commit();
     return ids;
 }
-  
-  
+
 user_chats chat_service_database_api::get_user_chats(const int &user_id) {
     const connector connection;
-    static std::string query = "SELECT chat_id FROM chat_membership WHERE user_id = $1"; 
+    static std::string query =
+        "SELECT chat_id FROM chat_membership WHERE user_id = $1";
     const auto result = connection.txn->exec_params(query, user_id);
     std::vector<uint32_t> chat_ids;
     chat_ids.reserve(result.size());
@@ -64,7 +85,10 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
         chat_ids.push_back(row[0].as<int>());
     }
     aes::encryptor encryptor;
-    static std::string query_sec = "SELECT id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS'), is_group_chat, chat_name, description, users_count, cover FROM chats WHERE id = $1";
+    static std::string query_sec =
+        "SELECT id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS'), "
+        "is_group_chat, chat_name, description, users_count, cover FROM chats "
+        "WHERE id = $1";
     user_chats chats;
     chats.user_chats.reserve(chat_ids.size());
     for (const auto &chat_id : chat_ids) {
@@ -83,35 +107,48 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
             if (!row[6].is_null()) {
                 preview.chat_cover = row[6].as<std::basic_string<std::byte>>();
             }
-            static std::string query_third = "SELECT sender_id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS'), message_text_data FROM messages WHERE chat_id = $1 ORDER BY sended_at DESC LIMIT 1";
-            const auto last_message = connection.txn->exec_params(query_third, chat_id);
+            static std::string query_third =
+                "SELECT sender_id, to_char(sended_at, 'YYYY-MM-DD "
+                "HH24:MI:SS'), message_text_data FROM messages WHERE chat_id = "
+                "$1 ORDER BY sended_at DESC LIMIT 1";
+            const auto last_message =
+                connection.txn->exec_params(query_third, chat_id);
             for (const auto &row : last_message) {
-                preview.last_message.sender = authservice_database_api::get_user_preview(row[0].as<int>());
+                preview.last_message.sender =
+                    authservice_database_api::get_user_preview(row[0].as<int>()
+                    );
                 preview.last_message.time_stamp = row[1].as<std::string>();
-                preview.last_message.message_text = encryptor.decrypt(row[2].as<std::string>());
+                preview.last_message.message_text =
+                    encryptor.decrypt(row[2].as<std::string>());
             }
         }
         auto chat_members = get_members_ids(chat_id);
         preview.chat_members.reserve(chat_members.size());
         for (const auto member_id : chat_members) {
-            preview.chat_members.push_back(authservice_database_api::get_user_preview(member_id));
+            preview.chat_members.push_back(
+                authservice_database_api::get_user_preview(member_id)
+            );
         }
         chats.user_chats.push_back(preview);
     }
     connection.txn->commit();
     return chats;
-}  
+}
 
-last_messages chat_service_database_api::get_chats_messages(const int &chat_id) {
+last_messages chat_service_database_api::get_chats_messages(const int &chat_id
+) {
     const connector connection;
     aes::encryptor encryptor;
-    static std::string query = "SELECT sender_id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS'), message_text_data FROM messages WHERE chat_id = $1 ORDER BY sended_at";
+    static std::string query =
+        "SELECT sender_id, to_char(sended_at, 'YYYY-MM-DD HH24:MI:SS'), "
+        "message_text_data FROM messages WHERE chat_id = $1 ORDER BY sended_at";
     const auto result = connection.txn->exec_params(query, chat_id);
     last_messages messages;
     messages.messages.reserve(result.size());
     for (const auto &row : result) {
         message new_message;
-        new_message.sender = authservice_database_api::get_user_preview(row[0].as<int>());
+        new_message.sender =
+            authservice_database_api::get_user_preview(row[0].as<int>());
         new_message.time_stamp = row[1].as<std::string>();
         new_message.message_text = encryptor.decrypt(row[2].as<std::string>());
         messages.messages.push_back(new_message);
@@ -122,7 +159,10 @@ last_messages chat_service_database_api::get_chats_messages(const int &chat_id) 
 
 chat_events chat_service_database_api::get_chat_events(const int &chat_id) {
     const connector connection;
-    static std::string query = "SELECT type_of_event, user_id, to_char(time_stamp, 'YYYY-MM-DD HH24:MI:SS'), affected_user FROM chat_events WHERE chat_id = $1 ORDER BY time_stamp";
+    static std::string query =
+        "SELECT type_of_event, user_id, to_char(time_stamp, 'YYYY-MM-DD "
+        "HH24:MI:SS'), affected_user FROM chat_events WHERE chat_id = $1 ORDER "
+        "BY time_stamp";
     const auto result = connection.txn->exec_params(query, chat_id);
     chat_events events;
     events.events.reserve(result.size());
@@ -130,31 +170,35 @@ chat_events chat_service_database_api::get_chat_events(const int &chat_id) {
         chat_event new_event;
         new_event.event = string_to_enum(row[0].as<std::string>());
         if (!row[1].is_null()) {
-            new_event.user = authservice_database_api::get_user_preview(row[1].as<int>());
+            new_event.user =
+                authservice_database_api::get_user_preview(row[1].as<int>());
         }
         new_event.time_stamp = row[2].as<std::string>();
         if (!row[3].is_null()) {
-            new_event.user_affected = authservice_database_api::get_user_preview(row[2].as<int>());
+            new_event.user_affected =
+                authservice_database_api::get_user_preview(row[2].as<int>());
         }
         events.events.push_back(new_event);
     }
     connection.txn->commit();
     return events;
-
 }
-
 
 chat_preview chat_service_database_api::get_chat_preview(const int &chat_id) {
     const connector connection;
     aes::encryptor encryptor;
-    static constexpr std::string_view query = 
-    "SELECT c.id, to_char(c.created_at, 'YYYY-MM-DD HH24:MI:SS'), c.is_group_chat, c.chat_name, c.description, c.users_count, c.cover, m.sender_id, to_char(m.sended_at, 'YYYY-MM-DD HH24:MI:SS'), m.message_text_data "
-    "FROM chats AS c "
-    "left JOIN messages AS m ON c.id = m.chat_id "
-    "WHERE c.id = $1 "
-    "ORDER BY sended_at "
-    "DESC LIMIT 1 ";
-    const auto result = connection.txn->exec_params(pqxx::zview(query), chat_id);
+    static constexpr std::string_view query =
+        "SELECT c.id, to_char(c.created_at, 'YYYY-MM-DD HH24:MI:SS'), "
+        "c.is_group_chat, c.chat_name, c.description, c.users_count, c.cover, "
+        "m.sender_id, to_char(m.sended_at, 'YYYY-MM-DD HH24:MI:SS'), "
+        "m.message_text_data "
+        "FROM chats AS c "
+        "left JOIN messages AS m ON c.id = m.chat_id "
+        "WHERE c.id = $1 "
+        "ORDER BY sended_at "
+        "DESC LIMIT 1 ";
+    const auto result =
+        connection.txn->exec_params(pqxx::zview(query), chat_id);
     chat_preview preview;
     for (const auto &row : result) {
         preview.chat_id = row[0].as<int>();
@@ -166,53 +210,65 @@ chat_preview chat_service_database_api::get_chat_preview(const int &chat_id) {
         if (!row[4].is_null()) {
             preview.description = row[4].as<std::string>();
         }
-        //users count
         if (!row[6].is_null()) {
             preview.chat_cover = row[6].as<std::basic_string<std::byte>>();
         }
         if (!row[7].is_null()) {
-            preview.last_message.sender = authservice_database_api::get_user_preview(row[7].as<int>());
+            preview.last_message.sender =
+                authservice_database_api::get_user_preview(row[7].as<int>());
             preview.last_message.time_stamp = row[8].as<std::string>();
-            preview.last_message.message_text = encryptor.decrypt(row[9].as<std::string>());
+            preview.last_message.message_text =
+                encryptor.decrypt(row[9].as<std::string>());
         }
     }
     auto chat_members = get_members_ids(chat_id);
     preview.chat_members.reserve(chat_members.size());
     for (const auto member_id : chat_members) {
-        preview.chat_members.push_back(authservice_database_api::get_user_preview(member_id));
+        preview.chat_members.push_back(
+            authservice_database_api::get_user_preview(member_id)
+        );
     }
     connection.txn->commit();
     return preview;
 }
 
-invite::group_chat_preview chat_service_database_api::get_group_chat_preview(const int &chat_id) {
+invite::group_chat_preview chat_service_database_api::get_group_chat_preview(
+    const int &chat_id
+) {
     const connector connection;
-    static std::string query = "SELECT id, chat_name, description, cover FROM chats WHERE id = $1";
+    static std::string query =
+        "SELECT id, chat_name, description, cover FROM chats WHERE id = $1";
     const auto result = connection.txn->exec_params(query, chat_id);
     invite::group_chat_preview preview;
     for (const auto &row : result) {
         preview.chat_id = row[0].as<int>();
         preview.name = row[1].as<std::string>();
         if (!row[2].is_null()) {
-        preview.description = row[2].as<std::string>();
+            preview.description = row[2].as<std::string>();
         }
         if (!row[3].is_null()) {
-        preview.chat_cover = row[3].as<std::basic_string<std::byte>>();
+            preview.chat_cover = row[3].as<std::basic_string<std::byte>>();
         }
     }
     auto chat_members = get_members_ids(chat_id);
     preview.chat_members.reserve(chat_members.size());
     for (const auto &member_id : chat_members) {
-        preview.chat_members.push_back(authservice_database_api::get_user_preview(member_id));
+        preview.chat_members.push_back(
+            authservice_database_api::get_user_preview(member_id)
+        );
     }
     connection.txn->commit();
     return preview;
-
 }
 
-bool chat_service_database_api::check_user_in_chat(const int &user_id, const int &chat_id) {
+bool chat_service_database_api::check_user_in_chat(
+    const int &user_id,
+    const int &chat_id
+) {
     const connector connection;
-    static std::string query = "SELECT EXISTS(SELECT 1 FROM chat_membership WHERE user_id = $1 AND chat_id = $2)";
+    static std::string query =
+        "SELECT EXISTS(SELECT 1 FROM chat_membership WHERE user_id = $1 AND "
+        "chat_id = $2)";
     const auto result = connection.txn->exec_params(query, user_id, chat_id);
     bool is_user_in_chat = false;
     for (const auto &row : result) {
@@ -221,56 +277,86 @@ bool chat_service_database_api::check_user_in_chat(const int &user_id, const int
     return is_user_in_chat;
 }
 
-std::pair<uint32_t, std::string> chat_service_database_api::create_private_chat(const std::pair<int, int> &users_ids)  {
-        const connector connection;
-        static std::string query = "INSERT INTO chats (is_group_chat, users_count) VALUES (false, 2) RETURNING id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS')";
-        const auto result = connection.txn->exec_params(query);
-        std::pair<uint32_t, std::string> id_timestamp;
-        for (const auto &row : result) {
-            id_timestamp = std::make_pair(row[0].as<int>(), row[1].as<std::string>());
-        }
-        static std::string query_sec = "INSERT INTO chat_membership (user_id, chat_id) VALUES ($1, $2)";
-        connection.txn->exec_params(query_sec, users_ids.first, id_timestamp.first);
-        connection.txn->exec_params(query_sec, users_ids.second, id_timestamp.first);
-        connection.txn->commit();
-        return id_timestamp;
-}
-
-std::pair<uint32_t, std::string> chat_service_database_api::create_group_chat(const int &creator_id, const std::string &chat_name, const std::string &description, const std::vector<uint32_t> &users_in_chat) {
+std::pair<uint32_t, std::string> chat_service_database_api::create_private_chat(
+    const std::pair<int, int> &users_ids
+) {
     const connector connection;
-    static constexpr std::string_view query = "INSERT INTO chats (is_group_chat, users_count, chat_name, description) VALUES (true, $1, $2, $3) RETURNING id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS')";
-    const auto result = connection.txn->exec_params(pqxx::zview(query), users_in_chat.size(), chat_name, description);
+    static std::string query =
+        "INSERT INTO chats (is_group_chat, users_count) VALUES (false, 2) "
+        "RETURNING id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS')";
+    const auto result = connection.txn->exec_params(query);
     std::pair<uint32_t, std::string> id_timestamp;
     for (const auto &row : result) {
-        id_timestamp = std::make_pair(row[0].as<int>(), row[1].as<std::string>());
+        id_timestamp =
+            std::make_pair(row[0].as<int>(), row[1].as<std::string>());
     }
-    static constexpr std::string_view query_sec = "INSERT INTO chat_membership (user_id, chat_id) VALUES ($1, $2)";
-    for (const auto &user_id : users_in_chat) {
-        connection.txn->exec_params(pqxx::zview(query_sec), user_id, id_timestamp.first);
-    }
-    static constexpr std::string_view query_third = "INSERT INTO chat_admins (user_id, chat_id) VALUES ($1, $2)";
-    connection.txn->exec_params(pqxx::zview(query_third), creator_id, id_timestamp.first);
+    static std::string query_sec =
+        "INSERT INTO chat_membership (user_id, chat_id) VALUES ($1, $2)";
+    connection.txn->exec_params(query_sec, users_ids.first, id_timestamp.first);
+    connection.txn->exec_params(
+        query_sec, users_ids.second, id_timestamp.first
+    );
     connection.txn->commit();
     return id_timestamp;
 }
 
-bool chat_service_database_api::check_is_private_chat_already_exists(const int &user_id_a, const int &user_id_b) {
+std::pair<uint32_t, std::string> chat_service_database_api::create_group_chat(
+    const int &creator_id,
+    const std::string &chat_name,
+    const std::string &description,
+    const std::vector<uint32_t> &users_in_chat
+) {
     const connector connection;
-    static constexpr std::string_view query = 
-    "SELECT m1.chat_id "
-    "FROM chat_membership AS m1 "
-    "JOIN chat_membership AS m2 ON m1.chat_id = m2.chat_id "
-    "JOIN chats AS c ON m1.chat_id = c.id "
-    "WHERE c.is_group_chat = false AND m1.user_id = $1 AND m2.user_id = $2"
-    ;
-    const auto result = connection.txn->exec_params(pqxx::zview(query), user_id_a, user_id_b);
+    static constexpr std::string_view query =
+        "INSERT INTO chats (is_group_chat, users_count, chat_name, "
+        "description) VALUES (true, $1, $2, $3) RETURNING id, "
+        "to_char(created_at, 'YYYY-MM-DD HH24:MI:SS')";
+    const auto result = connection.txn->exec_params(
+        pqxx::zview(query), users_in_chat.size(), chat_name, description
+    );
+    std::pair<uint32_t, std::string> id_timestamp;
+    for (const auto &row : result) {
+        id_timestamp =
+            std::make_pair(row[0].as<int>(), row[1].as<std::string>());
+    }
+    static constexpr std::string_view query_sec =
+        "INSERT INTO chat_membership (user_id, chat_id) VALUES ($1, $2)";
+    for (const auto &user_id : users_in_chat) {
+        connection.txn->exec_params(
+            pqxx::zview(query_sec), user_id, id_timestamp.first
+        );
+    }
+    static constexpr std::string_view query_third =
+        "INSERT INTO chat_admins (user_id, chat_id) VALUES ($1, $2)";
+    connection.txn->exec_params(
+        pqxx::zview(query_third), creator_id, id_timestamp.first
+    );
+    connection.txn->commit();
+    return id_timestamp;
+}
+
+bool chat_service_database_api::check_is_private_chat_already_exists(
+    const int &user_id_a,
+    const int &user_id_b
+) {
+    const connector connection;
+    static constexpr std::string_view query =
+        "SELECT m1.chat_id "
+        "FROM chat_membership AS m1 "
+        "JOIN chat_membership AS m2 ON m1.chat_id = m2.chat_id "
+        "JOIN chats AS c ON m1.chat_id = c.id "
+        "WHERE c.is_group_chat = false AND m1.user_id = $1 AND m2.user_id = $2";
+    const auto result =
+        connection.txn->exec_params(pqxx::zview(query), user_id_a, user_id_b);
     return !result.empty();
 }
 
 bool chat_service_database_api::check_is_group_chat(const int &chat_id) {
     const connector connection;
-    static constexpr std::string_view query = "SELECT is_group_chat FROM chats WHERE id = $1";
-    const auto result = connection.txn->exec_params(pqxx::zview(query), chat_id);
+    static constexpr std::string_view query =
+        "SELECT is_group_chat FROM chats WHERE id = $1";
+    const auto result =
+        connection.txn->exec_params(pqxx::zview(query), chat_id);
     bool is_group_chat = false;
     for (const auto &row : result) {
         is_group_chat = row[0].as<bool>();
@@ -278,10 +364,16 @@ bool chat_service_database_api::check_is_group_chat(const int &chat_id) {
     return is_group_chat;
 }
 
-bool chat_service_database_api::check_user_privileges(const int &user_id, const int &chat_id) {
+bool chat_service_database_api::check_user_privileges(
+    const int &user_id,
+    const int &chat_id
+) {
     const connector connection;
-    static constexpr std::string_view query = "SELECT EXISTS(SELECT 1 FROM chat_admins WHERE user_id = $1 AND chat_id = $2)";
-    const auto result = connection.txn->exec_params(pqxx::zview(query), user_id, chat_id);
+    static constexpr std::string_view query =
+        "SELECT EXISTS(SELECT 1 FROM chat_admins WHERE user_id = $1 AND "
+        "chat_id = $2)";
+    const auto result =
+        connection.txn->exec_params(pqxx::zview(query), user_id, chat_id);
     bool is_user_admin = false;
     for (const auto &row : result) {
         is_user_admin = row[0].as<bool>();
@@ -289,85 +381,148 @@ bool chat_service_database_api::check_user_privileges(const int &user_id, const 
     return is_user_admin;
 }
 
-void chat_service_database_api::add_user_to_chat(const int &chat_id, const int &user_id) {
+void chat_service_database_api::add_user_to_chat(
+    const int &chat_id,
+    const int &user_id
+) {
     const connector connection;
-    static constexpr std::string_view query = "INSERT INTO chat_membership (user_id, chat_id) VALUES ($1, $2)";
-    static constexpr std::string_view update_query = "UPDATE chats SET users_count = users_count + 1 WHERE id = $1";
-    static constexpr std::string_view store_chat_event = "INSERT INTO chat_events (type_of_event, chat_id, affected_user) VALUES ('user_entered', $1, $2)";
+    static constexpr std::string_view query =
+        "INSERT INTO chat_membership (user_id, chat_id) VALUES ($1, $2)";
+    static constexpr std::string_view update_query =
+        "UPDATE chats SET users_count = users_count + 1 WHERE id = $1";
+    static constexpr std::string_view store_chat_event =
+        "INSERT INTO chat_events (type_of_event, chat_id, affected_user) "
+        "VALUES ('user_entered', $1, $2)";
     connection.txn->exec_params(pqxx::zview(query), user_id, chat_id);
     connection.txn->exec_params(pqxx::zview(update_query), chat_id);
-    connection.txn->exec_params(pqxx::zview(store_chat_event), chat_id, user_id);
+    connection.txn->exec_params(
+        pqxx::zview(store_chat_event), chat_id, user_id
+    );
     connection.txn->commit();
 }
 
-
-void chat_service_database_api::remove_user_from_chat(const int &chat_id, const int &user_id) {
+void chat_service_database_api::remove_user_from_chat(
+    const int &chat_id,
+    const int &user_id
+) {
     const connector connection;
-    static constexpr std::string_view query = "DELETE FROM chat_membership WHERE user_id = $1 AND chat_id = $2";
-    static constexpr std::string_view update_query = "UPDATE chats SET users_count = users_count - 1 WHERE id = $1";
-    static constexpr std::string_view store_chat_event = "INSERT INTO chat_events (type_of_event, chat_id, affected_user) VALUES ('user_left', $1, $2)";
+    static constexpr std::string_view query =
+        "DELETE FROM chat_membership WHERE user_id = $1 AND chat_id = $2";
+    static constexpr std::string_view update_query =
+        "UPDATE chats SET users_count = users_count - 1 WHERE id = $1";
+    static constexpr std::string_view store_chat_event =
+        "INSERT INTO chat_events (type_of_event, chat_id, affected_user) "
+        "VALUES ('user_left', $1, $2)";
     connection.txn->exec_params(pqxx::zview(query), user_id, chat_id);
     connection.txn->exec_params(pqxx::zview(update_query), chat_id);
-    connection.txn->exec_params(pqxx::zview(store_chat_event), chat_id, user_id);
-    remove_privileges_from_user(chat_id, user_id); 
+    connection.txn->exec_params(
+        pqxx::zview(store_chat_event), chat_id, user_id
+    );
+    remove_privileges_from_user(chat_id, user_id);
     connection.txn->commit();
 }
 
-
-void chat_service_database_api::remove_user_from_chat(const int &chat_id, const int &admin_id, const int &user_id_to_remove) {
+void chat_service_database_api::remove_user_from_chat(
+    const int &chat_id,
+    const int &admin_id,
+    const int &user_id_to_remove
+) {
     const connector connection;
-    static constexpr std::string_view query = "DELETE FROM chat_membership WHERE user_id = $1 AND chat_id = $2";
-    static constexpr std::string_view update_query = "UPDATE chats SET users_count = users_count - 1 WHERE id = $1";
-    static constexpr std::string_view store_chat_event = "INSERT INTO chat_events (type_of_event, chat_id, affected_user) VALUES ('user_removed', $1, $2)";
+    static constexpr std::string_view query =
+        "DELETE FROM chat_membership WHERE user_id = $1 AND chat_id = $2";
+    static constexpr std::string_view update_query =
+        "UPDATE chats SET users_count = users_count - 1 WHERE id = $1";
+    static constexpr std::string_view store_chat_event =
+        "INSERT INTO chat_events (type_of_event, chat_id, affected_user) "
+        "VALUES ('user_removed', $1, $2)";
     connection.txn->exec_params(pqxx::zview(query), user_id_to_remove, chat_id);
     connection.txn->exec_params(pqxx::zview(update_query), chat_id);
-    connection.txn->exec_params(pqxx::zview(store_chat_event), chat_id, user_id_to_remove);
+    connection.txn->exec_params(
+        pqxx::zview(store_chat_event), chat_id, user_id_to_remove
+    );
     remove_privileges_from_user(chat_id, user_id_to_remove);
     connection.txn->commit();
 }
 
-void chat_service_database_api::change_chat_name(const int &chat_id, const int &admin_id, const std::string &name) {
+void chat_service_database_api::change_chat_name(
+    const int &chat_id,
+    const int &admin_id,
+    const std::string &name
+) {
     const connector connection;
-    static constexpr std::string_view query = "UPDATE chats SET chat_name = $1 WHERE id = $2";
-    static constexpr std::string_view store_chat_event = "INSERT INTO chat_events (type_of_event, chat_id, user_id) VALUES ('name_changed', $1, $2)";
+    static constexpr std::string_view query =
+        "UPDATE chats SET chat_name = $1 WHERE id = $2";
+    static constexpr std::string_view store_chat_event =
+        "INSERT INTO chat_events (type_of_event, chat_id, user_id) VALUES "
+        "('name_changed', $1, $2)";
     connection.txn->exec_params(pqxx::zview(query), name, chat_id);
-    connection.txn->exec_params(pqxx::zview(store_chat_event), chat_id, admin_id);
+    connection.txn->exec_params(
+        pqxx::zview(store_chat_event), chat_id, admin_id
+    );
     connection.txn->commit();
 }
 
-void chat_service_database_api::change_chat_description(const int &chat_id, const int &admin_id, const std::string &description) {
+void chat_service_database_api::change_chat_description(
+    const int &chat_id,
+    const int &admin_id,
+    const std::string &description
+) {
     const connector connection;
-    static constexpr std::string_view query = "UPDATE chats SET description = $1 WHERE id = $2";
-    static constexpr std::string_view store_chat_event = "INSERT INTO chat_events (type_of_event, chat_id, user_id) VALUES ('description_changed', $1, $2)";
+    static constexpr std::string_view query =
+        "UPDATE chats SET description = $1 WHERE id = $2";
+    static constexpr std::string_view store_chat_event =
+        "INSERT INTO chat_events (type_of_event, chat_id, user_id) VALUES "
+        "('description_changed', $1, $2)";
     connection.txn->exec_params(pqxx::zview(query), description, chat_id);
-    connection.txn->exec_params(pqxx::zview(store_chat_event), chat_id, admin_id);
+    connection.txn->exec_params(
+        pqxx::zview(store_chat_event), chat_id, admin_id
+    );
     connection.txn->commit();
 }
 
-void chat_service_database_api::change_chat_cover(const int &chat_id, const int &admin_id, const std::basic_string<std::byte> &photo_binary) {
+void chat_service_database_api::change_chat_cover(
+    const int &chat_id,
+    const int &admin_id,
+    const std::basic_string<std::byte> &photo_binary
+) {
     const connector connection;
-    static constexpr std::string_view query = "UPDATE chats SET cover = $1 WHERE id = $2";
-    static constexpr std::string_view store_chat_event = "INSERT INTO chat_events (type_of_event, chat_id, user_id) VALUES ('cover_changed', $1, $2)";
+    static constexpr std::string_view query =
+        "UPDATE chats SET cover = $1 WHERE id = $2";
+    static constexpr std::string_view store_chat_event =
+        "INSERT INTO chat_events (type_of_event, chat_id, user_id) VALUES "
+        "('cover_changed', $1, $2)";
     connection.txn->exec_params(pqxx::zview(query), photo_binary, chat_id);
-    connection.txn->exec_params(pqxx::zview(store_chat_event), chat_id, admin_id);
+    connection.txn->exec_params(
+        pqxx::zview(store_chat_event), chat_id, admin_id
+    );
     connection.txn->commit();
 }
 
-void chat_service_database_api::add_privileges_to_user(const int &chat_id, const int &user_id) {
+void chat_service_database_api::add_privileges_to_user(
+    const int &chat_id,
+    const int &user_id
+) {
     const connector connection;
-    static constexpr std::string_view query = "INSERT INTO chat_admins (user_id, chat_id) VALUES ($1, $2)";
+    static constexpr std::string_view query =
+        "INSERT INTO chat_admins (user_id, chat_id) VALUES ($1, $2)";
     connection.txn->exec_params(pqxx::zview(query), user_id, chat_id);
     connection.txn->commit();
 }
 
-void chat_service_database_api::remove_privileges_from_user(const int &chat_id, const int &user_id) {
+void chat_service_database_api::remove_privileges_from_user(
+    const int &chat_id,
+    const int &user_id
+) {
     const connector connection;
-    static constexpr std::string_view query = "DELETE FROM chat_admins WHERE user_id = $1 AND chat_id = $2";
+    static constexpr std::string_view query =
+        "DELETE FROM chat_admins WHERE user_id = $1 AND chat_id = $2";
     connection.txn->exec_params(pqxx::zview(query), user_id, chat_id);
     connection.txn->commit();
 }
 
-chat_events_types chat_service_database_api::string_to_enum(const std::string &event_type) {
+chat_events_types chat_service_database_api::string_to_enum(
+    const std::string &event_type
+) {
     if (event_type == "user_entered") {
         return chat_events_types::USER_ENTERED;
     } else if (event_type == "user_left") {
@@ -384,7 +539,4 @@ chat_events_types chat_service_database_api::string_to_enum(const std::string &e
     return {};
 }
 
-//we innore situation with no admins in chat
-//make democracy function to it!!!!!!
-
-}
+}  // namespace database
