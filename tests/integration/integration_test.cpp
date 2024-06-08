@@ -7,6 +7,7 @@
 #include <fstream>
 #include <string>
 #include <filesystem>
+#include <string_view>
 
 #include "components/database/connection/database-connector.hpp"
 
@@ -42,13 +43,18 @@ std::shared_ptr<grpc::ChannelCredentials> GetCredentials() {
   return grpc::SslCredentials(ssl_opts);
 }
 
-struct testClient : ::testing::Test {
-    static const std::string server_address;
-    static std::shared_ptr<grpc::Channel> channel;
+const std::string server_address = "127.0.0.1:50051";
+struct testClient {
+    std::shared_ptr<grpc::Channel> channel;
+    std::shared_ptr<authservice::AuthService::Stub> authservice_stub;
+    std::shared_ptr<profile::ProfileService::Stub> profile_stub;
+    testClient(std::shared_ptr<grpc::Channel> channel) : channel(channel),
+     authservice_stub(authservice::AuthService::NewStub(channel)),
+    profile_stub(profile::ProfileService::NewStub(channel))
+     {}
 };
 
-const std::string testClient::server_address = "127.0.0.1:50051";
-std::shared_ptr<grpc::Channel> testClient::channel = grpc::CreateChannel(testClient::server_address, GetCredentials());
+testClient client(grpc::CreateChannel(server_address, GetCredentials()));
 
 struct testConnector : ::testing::Test {
     static const std::string host;
@@ -64,6 +70,7 @@ struct dataHolder {
     std::string_view password = "test_password";
 
     std::string_view access_token;
+    std::string_view refresh_token;
     uint32_t id;
 };
 
@@ -75,44 +82,68 @@ void check_db_state_after_registratioin() {
 
 TEST(Integration, RegistrationTest) {
     grpc::ClientContext context;
-    auto stub = authservice::AuthService::NewStub(testClient::channel);
     authservice::SignupRequest request;
     authservice::SignupResponse response;
     request.set_username(dh.username);
     request.set_email(dh.email);
     request.set_password(dh.password);
     request.set_password_confirmation(dh.password);
-    auto status = stub->Signup(&context, request, &response);
+    auto status = client.authservice_stub->Signup(&context, request, &response);
     ASSERT_TRUE(status.ok());
-    ASSERT_TRUE(response.has_access_token());
+    ASSERT_TRUE(response.has_tokens());
     // ASSERT_EQ(response.id(), 1);
     ASSERT_TRUE(response.id() > 0);
-    dh.access_token = response.access_token().token();
+    dh.access_token = response.tokens().access().token();
+    dh.refresh_token = response.tokens().refresh().token();
     dh.id = response.id();
 }
 
 TEST(Integration, LoginTestWintEmail) {
     grpc::ClientContext context;
-    auto stub = authservice::AuthService::NewStub(testClient::channel);
     authservice::LoginRequest request;
     authservice::LoginResponse response;
     request.set_email(dh.email);
     request.set_password(dh.password);
-    auto status = stub->Login(&context, request, &response);
+    auto status = client.authservice_stub->Login(&context, request, &response);
     ASSERT_TRUE(status.ok());
     ASSERT_EQ(response.id(), dh.id);
 }
 
 TEST(Integration, LoginTestWithUsername) {
     grpc::ClientContext context;
-    auto stub = authservice::AuthService::NewStub(testClient::channel);
     authservice::LoginRequest request;
     authservice::LoginResponse response;
     request.set_username(dh.username);
     request.set_password(dh.password);
-    auto status = stub->Login(&context, request, &response);
+    auto status = client.authservice_stub->Login(&context, request, &response);
     ASSERT_TRUE(status.ok());
     ASSERT_EQ(response.id(), dh.id);
+}
+
+TEST(Integration, ChangeUserNameTest) {
+    grpc::ClientContext context;
+    profile::UsernameRequest request;
+    profile::ProfileReply response;
+    dh.username = "new_test_username";
+    request.set_id(dh.id);
+    request.set_username(dh.username);
+    auto status = client.profile_stub->ChangeUsername(&context, request, &response);
+    ASSERT_TRUE(status.ok());
+    //check db state
+    std::cerr << response.message() << std::endl;
+}
+
+TEST(Integration, ChangeQuote) {
+    grpc::ClientContext context;
+    profile::QuoteRequest request;
+    profile::ProfileReply response;
+    std::string_view quote = "new_test_quote";
+    request.set_id(dh.id);
+    request.set_quote(quote.data());
+    auto status = client.profile_stub->ChangeQuote(&context, request, &response);
+    ASSERT_TRUE(status.ok());
+    //check db state
+    std::cerr << response.message() << std::endl;
 }
 
 
