@@ -7,10 +7,15 @@ import "common/common.proto";
 service RecommendationService {
     rpc GetUsersRecommendations(UserId) returns (GetUsersRecommendationsResponse);
     rpc GetFilmsRecommendations(UserId) returns (GetFilmsRecommendationsResponse);
+    rpc GetFilmsRecommendationsForSeveralUsers(UserIds) returns (GetFilmsRecommendationsResponse);
 }
 
 message UserId {
     int32 id = 1;
+}
+
+message UserIds {
+    repeated int32 ids = 1;
 }
 
 message GetUsersRecommendationsResponse {
