@@ -15,15 +15,15 @@ public:
           manager(manager) {
         QGraphicsTextItem *titleItem =
             new QGraphicsTextItem(QString::fromStdString(title), this);
-        titleItem->setPos(0, pixmap.height());
-        titleItem->setTextWidth(pixmap.width());
+        titleItem->setPos(0, 250);
+        titleItem->setTextWidth(150);
         QFont font = titleItem->font();
         font.setPointSize(18);
         titleItem->setFont(font);
     }
 
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override {
-        if (manager->new_client.get_film_full_page(movieId) == nullptr){
+        if (manager->new_client.get_film_full_page(movieId) == nullptr) {
             return;
         }
         QDialog *dialog = new QDialog;
@@ -250,7 +250,7 @@ void Recommendations::updateRecommendations() {
             QByteArray data = reply->readAll();
             image.loadFromData(data);
         } else {
-            image = QImage(":/img/titanik.jpeg");
+            image = QImage(":/img/file.PNG");
         }
         pixmap = QPixmap::fromImage(image);
         pixmap = pixmap.scaledToHeight(view_films->height() - 100);
@@ -259,7 +259,6 @@ void Recommendations::updateRecommendations() {
             new FilmItem(pixmap, film.title(), film.film_id(), manager);
         int32_t movieId = film.film_id();
         item->setData(Qt::UserRole, movieId);
-
         item->setPos(start_films, 0);
         scene_films->addItem(item);
         reply->deleteLater();

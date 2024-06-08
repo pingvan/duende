@@ -1,20 +1,13 @@
 <RCC>
     <qresource prefix="/">
         <file>img/logo.jpg</file>
-        <file>img/tarantino.jpg</file>
-        <file>img/titanik.jpeg</file>
-        <file>img/robertdeniro.jpg</file>
         <file>img/plus.png</file>
         <file>img/people.png</file>
         <file>img/search.png</file>
-        <file>img/person.png</file>
         <file>img/chat.png</file>
         <file>img/logout.png</file>
-        <file>img/cross.png</file>
-        <file>img/follows.png</file>
         <file>img/person-add.png</file>
         <file>img/ban.png</file>
-        <file>img/background.JPG</file>
         <file>img/film.png</file>
         <file>img/box-arrow-left.png</file>
         <file>img/person-circle.png</file>
@@ -22,9 +15,10 @@
         <file>img/person-circle2.png</file>
         <file>img/plus-circle.png</file>
         <file>img/info-circle.png</file>
-        <file>img/x-circle.png</file>
-        <file>img/camera-reels.png</file>
         <file>img/plus-square.png</file>
         <file>img/people-fill.png</file>
+        <file>img/movie.png</file>
+        <file>img/box-arrow-right.png</file>
+        <file>img/file.PNG</file>
     </qresource>
 </RCC>

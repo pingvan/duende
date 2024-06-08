@@ -50,5 +50,6 @@ private:
     Profile *profile;
     Chats *chats;
     OtherPage *otherPage;
+    Follows followsInstance;
 };
 #endif // MAINWINDOW_H

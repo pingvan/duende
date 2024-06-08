@@ -13,11 +13,6 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
 
     currentList = Subscriptions;
 
-    // model = new QStringListModel(searchUsers(""), search_line);
-
-    // completer = new QCompleter(model);
-    // completer->setCaseSensitivity(Qt::CaseInsensitive);
-    // search_line->setCompleter(completer);
     search_line->setMinimumHeight(50);
     search_line->setStyleSheet(
         "font-size: 18px; color: #5a1e71; border: 1px solid #8023a8; "
@@ -75,19 +70,6 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
     layout->addWidget(search_line);
     layout->addWidget(scrollArea);
 
-    // subscribersList->setStyleSheet(
-    //     "QListWidget::item { border: 1px solid #8023a8; background-color:
-    //     #f4e9fe;}"
-    // );
-    // subscriptionsList->setStyleSheet(
-    //     "QListWidget::item { border: 1px solid #8023a8; border-radius: 5px;"
-    //     "margin: 2px;}"
-    // );
-    // blockedList->setStyleSheet(
-    //     "QListWidget::item { border: 1px solid #8023a8; border-radius: 5px;"
-    //     "margin: 2px;}"
-    // );
-
     subscribersList->hide();
     blockedList->hide();
     connect(subscriptionsButton, &QPushButton::clicked, [this]() {
@@ -96,7 +78,6 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
         subscribersList->hide();
         blockedList->hide();
         currentList = Subscriptions;
-        // updateUserList(search_line->text());
     });
 
     connect(subscribersButton, &QPushButton::clicked, [this]() {
@@ -120,11 +101,6 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
     connect(
         search_line, &QLineEdit::textChanged, this, &Follows::updateUserList
     );
-
-    // connect(
-    //     completer, QOverload<const QString &>::of(&QCompleter::activated),
-    //     this, &Follows::onUserClicked
-    // );
 
     connect(
         subscribersList, &QListWidget::itemClicked, this,
@@ -179,10 +155,6 @@ QStringList Follows::searchUsers(const QString &input) {
     return users;
 }
 
-// void Follows::updateUserList(const QString &input) {
-//     model->setStringList(searchUsers(input));
-// }
-
 void Follows::updateUserList(const QString &input) {
     QStringList users = searchUsers(input);
 
@@ -199,11 +171,42 @@ void Follows::updateUserList(const QString &input) {
     }
     for (const QString &user : users) {
         QListWidgetItem *item = new QListWidgetItem;
+        common::UserFullPage *user_full = manager->new_client.get_user_full_page(users_id[user]);
+        std::string photo_data(
+            user_full->preview().photo().begin(), user_full->preview().photo().end()
+        );
+        QPixmap pixmap;
+        if (photo_data.empty()) {
+            pixmap.load(":/img/person-circle2.png");
+        } else {
+            pixmap.loadFromData(
+                reinterpret_cast<const uchar *>(photo_data.data()),
+                photo_data.size()
+            );
+        }
+
+        int size = qMin(pixmap.width(), pixmap.height());
+        QPixmap squarePixmap = pixmap.copy(0, 0, size, size);
+
+        QPixmap scaledPixmap = squarePixmap.scaled(
+            50, 50, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation
+        );
+
+        QPixmap rounded = QPixmap(scaledPixmap.size());
+        rounded.fill(Qt::transparent);
+
+        QPainter painter(&rounded);
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setBrush(QBrush(scaledPixmap));
+        painter.setPen(Qt::NoPen);
+        painter.drawEllipse(rounded.rect());
+        QIcon icon(rounded);
+        item->setIcon(icon);
         item->setText(user);
         item->setData(Qt::UserRole, users_id[user]);
-        item->setSizeHint(QSize(item->sizeHint().width(), 45));
+        item->setSizeHint(QSize(item->sizeHint().width(), 80));
         QFont font = item->font();
-        font.setPointSize(18);
+        font.setPointSize(24);
         item->setFont(font);
         item->setForeground(QColor("#8023a8"));
         switch (currentList) {
@@ -226,17 +229,42 @@ void Follows::UpdateList(QListWidget &list, const std::vector<uint32_t> &ids) {
         common::UserFullPage *user = manager->new_client.get_user_full_page(id);
         if (user) {
             QString username = QString::fromStdString(user->preview().login());
-            // QString quote = QString::fromStdString(user->quote());
+            std::string photo_data(
+                user->preview().photo().begin(), user->preview().photo().end()
+            );
+            QPixmap pixmap;
+            if (photo_data.empty()) {
+                pixmap.load(":/img/person-circle2.png");
+            } else {
+                pixmap.loadFromData(
+                    reinterpret_cast<const uchar *>(photo_data.data()),
+                    photo_data.size()
+                );
+            }
+
+            int size = qMin(pixmap.width(), pixmap.height());
+            QPixmap squarePixmap = pixmap.copy(0, 0, size, size);
+
+            QPixmap scaledPixmap = squarePixmap.scaled(
+                50, 50, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation
+            );
+
+            QPixmap rounded = QPixmap(scaledPixmap.size());
+            rounded.fill(Qt::transparent);
+
+            QPainter painter(&rounded);
+            painter.setRenderHint(QPainter::Antialiasing, true);
+            painter.setBrush(QBrush(scaledPixmap));
+            painter.setPen(Qt::NoPen);
+            painter.drawEllipse(rounded.rect());
+            QIcon icon(rounded);
             QListWidgetItem *item = new QListWidgetItem;
-            // if (quote.isEmpty()) {
+            item->setIcon(icon);
             item->setText(username);
-            // } else {
-            //     item->setText(username + ": \" " + quote + "\"");
-            // }
             item->setData(Qt::UserRole, id);
-            item->setSizeHint(QSize(item->sizeHint().width(), 45));
+            item->setSizeHint(QSize(item->sizeHint().width(), 80));
             QFont font = item->font();
-            font.setPointSize(18);
+            font.setPointSize(24);
             item->setFont(font);
             item->setForeground(QColor("#8023a8"));
             list.addItem(item);

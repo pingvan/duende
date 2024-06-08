@@ -43,6 +43,9 @@ int main(int argc, char *argv[]) {
 
     a.setStyleSheet(
         "QWidget { background-color: #e9e9e9; }"
+        "QPushButton#сhatButton { width: 30px; height: 30px; font-size: 24px; "
+        "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #b24ee7, stop: 1 #982ecb); "
+        "color: white; border-radius: 5px;}"
         "QPushButton { min-width: 100px; min-height: 40px; font-size: 24px; "
         "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #b24ee7, stop: 1 #982ecb); "
         "color: white; border-radius: 5px;}"

@@ -86,6 +86,7 @@ message OperationStatusResponse {
 
 message AcceptMessageResponse {
     MessageReceived msg = 1;
+    optional string error_message = 2;
 }
 
 message MessageSend {
@@ -99,6 +100,7 @@ message MessageReceived {
     int32 chat_id = 2;
     string message_text = 3;
     string time_stamp = 4;
+    optional string error_message = 5;
 }
 
 message ChatPreview {

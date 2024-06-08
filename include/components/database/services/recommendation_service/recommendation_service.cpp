@@ -39,8 +39,11 @@ namespace database {
         const auto films_count = connection.txn->query_value<int>(pqxx::zview(get_films_count));
         std::stringstream ss;
         ss << '(';
-        for (const auto id : users_ids) {
-            ss << id << ',';
+        for (int i = 0; i < users_ids.size(); i++) {
+            ss << users_ids[i];
+            if (i != users_ids.size() - 1) {
+                ss << ',';
+            }
         }
         ss << ')';
         std::string query = "SELECT ratio, user_id, film_id FROM views WHERE user_id IN " + ss.str();

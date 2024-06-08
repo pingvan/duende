@@ -39,10 +39,15 @@ public:
 
 signals:
     void clicked();
+    void doubleClicked();
 
 protected:
     void mousePressEvent(QMouseEvent* event) override {
         emit clicked();
+    }
+
+    void mouseDoubleClickEvent(QMouseEvent* event) override {
+        emit doubleClicked();
     }
 };
 
@@ -87,6 +92,8 @@ private slots:
     void onUserInPrivateChatClicked();
     void onUserInInviteClicked();
     void onProfileButtonClicked();
+    void showLeaveDialog(QPushButton *button);
+    void onChatPhotoClicked();
 
 private:
     Ui::Chats *ui;

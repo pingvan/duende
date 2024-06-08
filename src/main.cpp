@@ -58,7 +58,6 @@ void run_server() {
     ProfileDataService profile_service_data;
     RecommendationServiceImpl recommendation_service;
 
-
     grpc::ServerBuilder builder;
     builder.AddListeningPort(server_address, GetServerCredentials());
     builder.RegisterService(&auth_service);
