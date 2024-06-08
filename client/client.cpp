@@ -21,6 +21,7 @@ client::client(const std::shared_ptr<grpc::Channel> &new_channel)
 }
 
 void client::init_invite_chat_stream(int user_id) {
+    invite_chat_context.AddMetadata("authorization", "Bearer " + access_token);
     invite_chat_stream = chat_stub->InvitesToChat(&invite_chat_context);
 
     chat_service::InvitesToChatRequests request;
@@ -269,11 +270,19 @@ void client::remove_user_from_chat(int sender_id, int receiver_id, int chat_id) 
     std::cout << inviteChatRequest.DebugString() << std::endl;
     bool status = invite_chat_stream->Write(inviteChatRequest);
     if (!status) {
-        std::cerr << "Error" << std::endl;
+        grpc::Status stream_status = invite_chat_stream->Finish();
+        if (stream_status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+            access_token = update_access_token(id);
+            init_invite_chat_stream(id);
+            remove_user_from_chat(sender_id, receiver_id, chat_id);
+        } else {
+            std::cerr << "Error: " << stream_status.error_message() << std::endl;
+        }
     }
 }
 
 void client::init_invite_stream(int user_id) {
+    invite_context.AddMetadata("authorization", "Bearer " + access_token);
     invite_stream = invite_stub->InvitationStream(&invite_context);
 
     invitation::InvitationRequest request;
@@ -352,7 +361,14 @@ void client::send_invite(
 
     bool status = invite_stream->Write(stream_request);
     if (!status) {
-        std::cerr << "Error" << std::endl;
+        if (invite_stream->Finish().error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+            access_token = update_access_token(id);
+            init_invite_stream(id);
+            send_invite(sender_id, receiver_id, chat_id);
+        }
+        else {
+            std::cerr << "Error" << std::endl;
+        }
     }
 }
 
@@ -386,7 +402,14 @@ void client::respond_invite(
 
     bool status = invite_stream->Write(stream_request);
     if (!status) {
-        std::cerr << "Error" << std::endl;
+        if (invite_stream->Finish().error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+            access_token = update_access_token(id);
+            init_invite_stream(id);
+            respond_invite(invite_id, sender_id, receiver_id, accept, chat_id);
+        }
+        else {
+            std::cerr << "Error" << std::endl;
+        }
     }
 }
 
@@ -443,6 +466,7 @@ std::vector<invitation::Invite> client::get_received_invites(int user_id) {
 }
 
 void client::init_chat_stream(int user_id) {
+    chat_context.AddMetadata("authorization", "Bearer " + access_token);
     chat_stream = chat_stub->HandleChat(&chat_context);
 
     chat_service::ChatRequests request;
@@ -503,7 +527,13 @@ void client::send_message(
     std::cout << chatRequest.DebugString() << std::endl;
     bool status = chat_stream->Write(chatRequest);
     if (!status) {
-        std::cerr << "Error" << std::endl;
+        if (chat_stream->Finish().error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+            access_token = update_access_token(id);
+            init_chat_stream(id);
+            send_message(user_id, chatId, messageText);
+        } else {
+            std::cerr << "Error: " << chat_stream->Finish().error_message() << std::endl;
+        }
     }
 }
 
