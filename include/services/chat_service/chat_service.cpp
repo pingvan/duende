@@ -8,6 +8,7 @@
 #include "components/database/placeholders/placeholders.hpp"
 #include "components/database/services/chat_service/chat_service.hpp"
 #include "components/database/services/authservice/authservice.hpp"
+#include "components/database/services/block_service/block_service.hpp"
 #include "services/chat_service/chat_service.pb.h"
 #include <iostream>
 #include <memory>
@@ -17,6 +18,7 @@
 
 grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests> *stream) {
     chat_service::ChatRequests request;
+    database::block_service_database_api block_db_api;
     uint32_t user_id = 0;
     while (stream->Read(&request)) {
         if (request.has_init()) {
