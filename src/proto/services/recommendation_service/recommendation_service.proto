@@ -5,9 +5,12 @@ package recommendation_service;
 import "common/common.proto";
 
 service RecommendationService {
-    rpc GetUsersRecommendations(UserId) returns (GetUsersRecommendationsResponse);
-    rpc GetFilmsRecommendations(UserId) returns (GetFilmsRecommendationsResponse);
-    rpc GetFilmsRecommendationsForSeveralUsers(UserIds) returns (GetFilmsRecommendationsResponse);
+    rpc GetUsersRecommendations(UserId)
+        returns (GetUsersRecommendationsResponse);
+    rpc GetFilmsRecommendations(UserId)
+        returns (GetFilmsRecommendationsResponse);
+    rpc GetFilmsRecommendationsForSeveralUsers(UserIds)
+        returns (GetFilmsRecommendationsResponse);
 }
 
 message UserId {

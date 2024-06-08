@@ -4,7 +4,6 @@
 Questionnaire::Questionnaire(Manager *managerPtr, QWidget *parent)
     : QWidget(parent), ui(new Ui::Questionnaire), manager(managerPtr) {
     ui->setupUi(this);
-    qDebug() << "Questionnaire page start\n";
     this->setStyleSheet(
         "QLineEdit { font-size: 16px; color: #8023a8; min-height: 40px; }"
         "QPushButton { min-width: 100px; min-height: 40px; font-size: 20px; "
@@ -150,8 +149,6 @@ Questionnaire::Questionnaire(Manager *managerPtr, QWidget *parent)
         addGenreButton, &QPushButton::clicked, this,
         &Questionnaire::onAddGenreClicked
     );
-
-    qDebug() << "Questionnaire page end\n";
 }
 
 Questionnaire::~Questionnaire() {

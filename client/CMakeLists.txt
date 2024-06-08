@@ -53,7 +53,6 @@ target_include_directories(client PRIVATE
     ${LIBPQXX_INCLUDE_DIRS}
 )
 
-
 target_link_libraries(client PRIVATE
     Qt6::Core
     Qt6::Widgets

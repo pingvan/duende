@@ -3,7 +3,9 @@
 
 grpc::Status invitation_service::InvitationStream(
     grpc::ServerContext *context,
-    grpc::ServerReaderWriter<invitation::InvitationResponse, invitation::InvitationRequest> *stream
+    grpc::ServerReaderWriter<
+        invitation::InvitationResponse,
+        invitation::InvitationRequest> *stream
 ) {
     invitation::InvitationRequest request;
     database::invite_service_database_api invite_db_api;
@@ -17,39 +19,54 @@ grpc::Status invitation_service::InvitationStream(
                 int sender_id = request.invite().sender_id();
                 int receiver_id = request.invite().receiver_id();
                 int chat_id = request.invite().chat_id();
-                common::GroupChatPreview *chat = get_group_chat_preview(chat_id);
+                common::GroupChatPreview *chat =
+                    get_group_chat_preview(chat_id);
 
                 if (invite_db_api.is_invite_already_sent_into_the_group_chat(
-                    chat_id, receiver_id
-                )) {
+                        chat_id, receiver_id
+                    )) {
                     invitation::InvitationResponse sender_response;
-                    const auto invite_sender_response = new invitation::SendInvitationResponse;
+                    const auto invite_sender_response =
+                        new invitation::SendInvitationResponse;
 
-                    invite_sender_response->set_error_message("This user is already invited to this chat");
+                    invite_sender_response->set_error_message(
+                        "This user is already invited to this chat"
+                    );
 
-                    sender_response.set_allocated_invite(invite_sender_response);
+                    sender_response.set_allocated_invite(invite_sender_response
+                    );
                     stream->Write(sender_response);
                     continue;
                 }
 
                 if (block_db_api.check_is_blocked(receiver_id, sender_id)) {
                     invitation::InvitationResponse sender_response;
-                    const auto invite_sender_response = new invitation::SendInvitationResponse;
+                    const auto invite_sender_response =
+                        new invitation::SendInvitationResponse;
 
-                    invite_sender_response->set_error_message("This user has blocked you so you can't send an invitation to him");
+                    invite_sender_response->set_error_message(
+                        "This user has blocked you so you can't send an "
+                        "invitation to him"
+                    );
 
-                    sender_response.set_allocated_invite(invite_sender_response);
+                    sender_response.set_allocated_invite(invite_sender_response
+                    );
                     stream->Write(sender_response);
                     continue;
                 }
 
                 if (block_db_api.check_is_blocked(sender_id, receiver_id)) {
                     invitation::InvitationResponse sender_response;
-                    const auto invite_sender_response = new invitation::SendInvitationResponse;
+                    const auto invite_sender_response =
+                        new invitation::SendInvitationResponse;
 
-                    invite_sender_response->set_error_message("You should unblock this user to send an invitation to him");
+                    invite_sender_response->set_error_message(
+                        "You should unblock this user to send an invitation to "
+                        "him"
+                    );
 
-                    sender_response.set_allocated_invite(invite_sender_response);
+                    sender_response.set_allocated_invite(invite_sender_response
+                    );
                     stream->Write(sender_response);
                     continue;
                 }
@@ -65,19 +82,27 @@ grpc::Status invitation_service::InvitationStream(
                 invitation::InvitationResponse receiver_response;
 
                 const auto sender = new common::UserPreview;
-                auto sender_preview = database::authservice_database_api::get_user_preview(sender_id);
+                auto sender_preview =
+                    database::authservice_database_api::get_user_preview(
+                        sender_id
+                    );
                 auto sender_preview_proto = new common::UserPreview;
                 sender_preview.convert_to_proto(sender_preview_proto);
                 sender->CopyFrom(*sender_preview_proto);
 
                 const auto receiver = new common::UserPreview;
-                auto receiver_preview = database::authservice_database_api::get_user_preview(receiver_id);
+                auto receiver_preview =
+                    database::authservice_database_api::get_user_preview(
+                        receiver_id
+                    );
                 auto receiver_preview_proto = new common::UserPreview;
                 receiver_preview.convert_to_proto(receiver_preview_proto);
                 receiver->CopyFrom(*receiver_preview_proto);
 
-                const auto invite_sender_response = new invitation::SendInvitationResponse;
-                const auto invite_receiver_response = new invitation::SendInvitationResponse;
+                const auto invite_sender_response =
+                    new invitation::SendInvitationResponse;
+                const auto invite_receiver_response =
+                    new invitation::SendInvitationResponse;
                 const auto sender_invite = new invitation::Invite;
                 const auto receiver_invite = new invitation::Invite;
                 sender_invite->set_allocated_sender(receiver);
@@ -100,14 +125,13 @@ grpc::Status invitation_service::InvitationStream(
                 invite_receiver_response->set_allocated_invite(receiver_invite);
 
                 sender_response.set_allocated_invite(invite_sender_response);
-                receiver_response.set_allocated_invite(invite_receiver_response);
-                
+                receiver_response.set_allocated_invite(invite_receiver_response
+                );
+
                 if (users_online.count(receiver_id)) {
                     users_online[receiver_id]->Write(receiver_response);
                 } else {
-                    invite_db_api.add_unhandled_invite(
-                        receiver_id, invite_id
-                    );
+                    invite_db_api.add_unhandled_invite(receiver_id, invite_id);
                 }
 
                 stream->Write(sender_response);
@@ -115,61 +139,85 @@ grpc::Status invitation_service::InvitationStream(
                 int receiver_id = request.invite().receiver_id();
                 int sender_id = request.invite().sender_id();
 
-                if (invite_db_api.is_invite_already_sent(   
-                    sender_id, receiver_id
-                )) {
+                if (invite_db_api.is_invite_already_sent(
+                        sender_id, receiver_id
+                    )) {
                     invitation::InvitationResponse sender_response;
-                    const auto invite_sender_response = new invitation::SendInvitationResponse;
+                    const auto invite_sender_response =
+                        new invitation::SendInvitationResponse;
 
-                    invite_sender_response->set_error_message("You have already sent an invitation to this user");
+                    invite_sender_response->set_error_message(
+                        "You have already sent an invitation to this user"
+                    );
 
-                    sender_response.set_allocated_invite(invite_sender_response);
+                    sender_response.set_allocated_invite(invite_sender_response
+                    );
                     stream->Write(sender_response);
                     continue;
                 }
 
                 if (invite_db_api.is_invite_already_sent(
-                    receiver_id, sender_id
-                )) {
+                        receiver_id, sender_id
+                    )) {
                     invitation::InvitationResponse sender_response;
-                    const auto invite_sender_response = new invitation::SendInvitationResponse;
+                    const auto invite_sender_response =
+                        new invitation::SendInvitationResponse;
 
-                    invite_sender_response->set_error_message("This user has already sent you an invitation");
+                    invite_sender_response->set_error_message(
+                        "This user has already sent you an invitation"
+                    );
 
-                    sender_response.set_allocated_invite(invite_sender_response);
+                    sender_response.set_allocated_invite(invite_sender_response
+                    );
                     stream->Write(sender_response);
                     continue;
                 }
 
-                if (chat_db_api.check_is_private_chat_already_exists(sender_id, receiver_id)) {
+                if (chat_db_api.check_is_private_chat_already_exists(
+                        sender_id, receiver_id
+                    )) {
                     invitation::InvitationResponse sender_response;
-                    const auto invite_sender_response = new invitation::SendInvitationResponse;
+                    const auto invite_sender_response =
+                        new invitation::SendInvitationResponse;
 
-                    invite_sender_response->set_error_message("You already have a private chat with this user");
+                    invite_sender_response->set_error_message(
+                        "You already have a private chat with this user"
+                    );
 
-                    sender_response.set_allocated_invite(invite_sender_response);
+                    sender_response.set_allocated_invite(invite_sender_response
+                    );
                     stream->Write(sender_response);
                     continue;
                 }
 
                 if (block_db_api.check_is_blocked(receiver_id, sender_id)) {
                     invitation::InvitationResponse sender_response;
-                    const auto invite_sender_response = new invitation::SendInvitationResponse;
+                    const auto invite_sender_response =
+                        new invitation::SendInvitationResponse;
 
-                    invite_sender_response->set_error_message("This user has blocked you so you can't send an invitation to him");
+                    invite_sender_response->set_error_message(
+                        "This user has blocked you so you can't send an "
+                        "invitation to him"
+                    );
 
-                    sender_response.set_allocated_invite(invite_sender_response);
+                    sender_response.set_allocated_invite(invite_sender_response
+                    );
                     stream->Write(sender_response);
                     continue;
                 }
 
                 if (block_db_api.check_is_blocked(sender_id, receiver_id)) {
                     invitation::InvitationResponse sender_response;
-                    const auto invite_sender_response = new invitation::SendInvitationResponse;
+                    const auto invite_sender_response =
+                        new invitation::SendInvitationResponse;
 
-                    invite_sender_response->set_error_message("You should unblock this user to send an invitation to him");
+                    invite_sender_response->set_error_message(
+                        "You should unblock this user to send an invitation to "
+                        "him"
+                    );
 
-                    sender_response.set_allocated_invite(invite_sender_response);
+                    sender_response.set_allocated_invite(invite_sender_response
+                    );
                     stream->Write(sender_response);
                     continue;
                 }
@@ -185,19 +233,27 @@ grpc::Status invitation_service::InvitationStream(
                 invitation::InvitationResponse receiver_response;
 
                 const auto sender = new common::UserPreview;
-                auto sender_preview = database::authservice_database_api::get_user_preview(sender_id);
+                auto sender_preview =
+                    database::authservice_database_api::get_user_preview(
+                        sender_id
+                    );
                 auto sender_preview_proto = new common::UserPreview;
                 sender_preview.convert_to_proto(sender_preview_proto);
                 sender->CopyFrom(*sender_preview_proto);
 
                 const auto receiver = new common::UserPreview;
-                auto receiver_preview = database::authservice_database_api::get_user_preview(receiver_id);
+                auto receiver_preview =
+                    database::authservice_database_api::get_user_preview(
+                        receiver_id
+                    );
                 auto receiver_preview_proto = new common::UserPreview;
                 receiver_preview.convert_to_proto(receiver_preview_proto);
                 receiver->CopyFrom(*receiver_preview_proto);
 
-                const auto invite_sender_response = new invitation::SendInvitationResponse;
-                const auto invite_receiver_response = new invitation::SendInvitationResponse;
+                const auto invite_sender_response =
+                    new invitation::SendInvitationResponse;
+                const auto invite_receiver_response =
+                    new invitation::SendInvitationResponse;
                 const auto sender_invite = new invitation::Invite;
                 const auto receiver_invite = new invitation::Invite;
                 sender_invite->set_allocated_sender(receiver);
@@ -218,14 +274,13 @@ grpc::Status invitation_service::InvitationStream(
                 invite_receiver_response->set_allocated_invite(receiver_invite);
 
                 sender_response.set_allocated_invite(invite_sender_response);
-                receiver_response.set_allocated_invite(invite_receiver_response);
-                
+                receiver_response.set_allocated_invite(invite_receiver_response
+                );
+
                 if (users_online.count(receiver_id)) {
                     users_online[receiver_id]->Write(receiver_response);
                 } else {
-                    invite_db_api.add_unhandled_invite(
-                        receiver_id, invite_id
-                    );
+                    invite_db_api.add_unhandled_invite(receiver_id, invite_id);
                 }
 
                 stream->Write(sender_response);
@@ -233,8 +288,10 @@ grpc::Status invitation_service::InvitationStream(
         } else if (request.has_invite_respond()) {
             invitation::InvitationResponse sender_response;
             invitation::InvitationResponse receiver_response;
-            const auto respond_sender_response = new invitation::RespondToInvitationResponse;
-            const auto respond_receiver_response = new invitation::RespondToInvitationResponse;
+            const auto respond_sender_response =
+                new invitation::RespondToInvitationResponse;
+            const auto respond_receiver_response =
+                new invitation::RespondToInvitationResponse;
             int invite_id = request.invite_respond().invite_id();
             int sender_id = request.invite_respond().sender_id();
             int receiver_id = request.invite_respond().receiver_id();
@@ -244,20 +301,29 @@ grpc::Status invitation_service::InvitationStream(
             if (status == invitation::InviteStatus::ACCEPTED) {
                 invite_db_api.change_invite_status(invite_id);
 
-                if (!is_group_chat) {   
-                    chat_service::ChatPreview *private_chat = create_private_chat(sender_id, receiver_id);
-                    respond_sender_response->mutable_chat()->CopyFrom(*private_chat);
-                    respond_receiver_response->mutable_chat()->CopyFrom(*private_chat);
+                if (!is_group_chat) {
+                    chat_service::ChatPreview *private_chat =
+                        create_private_chat(sender_id, receiver_id);
+                    respond_sender_response->mutable_chat()->CopyFrom(
+                        *private_chat
+                    );
+                    respond_receiver_response->mutable_chat()->CopyFrom(
+                        *private_chat
+                    );
                     delete private_chat;
-                }
-                else {
-                    chat_service::ChatPreview *group_chat = get_chat_preview(request.invite_respond().chat_id());
-                    respond_sender_response->mutable_chat()->CopyFrom(*group_chat);
-                    respond_receiver_response->mutable_chat()->CopyFrom(*group_chat);
+                } else {
+                    chat_service::ChatPreview *group_chat =
+                        get_chat_preview(request.invite_respond().chat_id());
+                    respond_sender_response->mutable_chat()->CopyFrom(
+                        *group_chat
+                    );
+                    respond_receiver_response->mutable_chat()->CopyFrom(
+                        *group_chat
+                    );
 
                     add_user_to_chat(sender_id, group_chat->chat_id());
                 }
-                            
+
             } else {
                 invite_db_api.change_invite_status(invite_id);
             }
@@ -266,13 +332,16 @@ grpc::Status invitation_service::InvitationStream(
             respond_sender_response->set_receiver_id(receiver_id);
             respond_sender_response->set_status(status);
             respond_sender_response->set_invite_id(invite_id);
-            sender_response.set_allocated_invite_respond(respond_sender_response);
+            sender_response.set_allocated_invite_respond(respond_sender_response
+            );
 
             respond_receiver_response->set_sender_id(sender_id);
             respond_receiver_response->set_receiver_id(receiver_id);
             respond_receiver_response->set_status(status);
             respond_receiver_response->set_invite_id(invite_id);
-            receiver_response.set_allocated_invite_respond(respond_receiver_response);
+            receiver_response.set_allocated_invite_respond(
+                respond_receiver_response
+            );
 
             if (users_online.count(receiver_id)) {
                 users_online[receiver_id]->Write(receiver_response);
@@ -285,7 +354,8 @@ grpc::Status invitation_service::InvitationStream(
             users_online.insert(
                 {request.init().user_id(),
                  std::make_shared<grpc::ServerReaderWriter<
-                     invitation::InvitationResponse, invitation::InvitationRequest>>(*stream)}
+                     invitation::InvitationResponse,
+                     invitation::InvitationRequest>>(*stream)}
             );
             const auto init_response = new invitation::InitResponse;
             init_response->set_status(invitation::Status::SUCCESS);
@@ -303,7 +373,8 @@ grpc::Status invitation_service::InvitationStream(
     return grpc::Status::OK;
 }
 
-chat_service::ChatPreview *invitation_service::create_private_chat(int first_id, int second_id) {
+chat_service::ChatPreview *
+invitation_service::create_private_chat(int first_id, int second_id) {
     grpc::ClientContext context;
 
     chat_service::CreatePrivateChatRequest request;
@@ -311,7 +382,8 @@ chat_service::ChatPreview *invitation_service::create_private_chat(int first_id,
     request.set_second_user_id(second_id);
 
     auto *response = new chat_service::ChatPreview;
-    grpc::Status status = chat_stub->CreatePrivateChat(&context, request, response);
+    grpc::Status status =
+        chat_stub->CreatePrivateChat(&context, request, response);
 
     return response;
 }
@@ -323,19 +395,22 @@ chat_service::ChatPreview *invitation_service::get_chat_preview(int chat_id) {
     request.set_chat_id(chat_id);
 
     auto *response = new chat_service::ChatPreview;
-    grpc::Status status = chat_data_stub->GetChatPreview(&context, request, response);
+    grpc::Status status =
+        chat_data_stub->GetChatPreview(&context, request, response);
 
     return response;
 }
 
-common::GroupChatPreview *invitation_service::get_group_chat_preview(int chat_id) {
+common::GroupChatPreview *invitation_service::get_group_chat_preview(int chat_id
+) {
     grpc::ClientContext context;
 
     chat_service::UserChat request;
     request.set_chat_id(chat_id);
 
     auto *response = new common::GroupChatPreview;
-    grpc::Status status = chat_data_stub->GetGroupChatPreview(&context, request, response);
+    grpc::Status status =
+        chat_data_stub->GetGroupChatPreview(&context, request, response);
 
     return response;
 }

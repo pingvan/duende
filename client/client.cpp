@@ -76,15 +76,16 @@ chat_service::ChatPreview *client::create_group_chat(
     request.set_chat_name(chat_name);
     request.set_description(description);
 
-    grpc::Status status = chat_stub->CreateGroupChat(&context, request, response);
+    grpc::Status status =
+        chat_stub->CreateGroupChat(&context, request, response);
 
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return create_group_chat(creator_id, chat_name, description);
     }
-    
+
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     return response;
@@ -99,15 +100,16 @@ bool client::check_user_privileges(int user_id, int chat_id) {
     request.set_user_id(user_id);
     request.set_chat_id(chat_id);
 
-    grpc::Status status = chat_stub->CheckUserPrivileges(&context, request, response);
+    grpc::Status status =
+        chat_stub->CheckUserPrivileges(&context, request, response);
 
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return check_user_privileges(user_id, chat_id);
     }
-    
+
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
     return (response->privilege() == chat_service::UserPrivilege::ADMIN);
 }
@@ -130,7 +132,8 @@ bool client::change_chat_name(
     request.set_admin_id(admin_id);
     request.set_new_chat_name(new_chat_name);
 
-    grpc::Status status = chat_stub->ChangeChatName(&context, request, response);
+    grpc::Status status =
+        chat_stub->ChangeChatName(&context, request, response);
 
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
@@ -138,7 +141,7 @@ bool client::change_chat_name(
     }
 
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     return true;
@@ -162,7 +165,8 @@ bool client::change_description(
     request.set_admin_id(admin_id);
     request.set_new_description(new_description);
 
-    grpc::Status status = chat_stub->ChangeChatDescription(&context, request, response);
+    grpc::Status status =
+        chat_stub->ChangeChatDescription(&context, request, response);
 
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
@@ -170,7 +174,7 @@ bool client::change_description(
     }
 
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     return true;
@@ -188,7 +192,7 @@ void client::change_chat_cover(
 
     std::ifstream file(photo_path, std::ios::binary);
     if (!file) {
-        std::cout << "Cannot open file: " << photo_path << std::endl;
+        std::cerr << "Cannot open file: " << photo_path << std::endl;
         return;
     }
     std::basic_string photo_data(
@@ -201,17 +205,17 @@ void client::change_chat_cover(
     chat_service::OperationStatusResponse response;
     grpc::ClientContext context;
     context.AddMetadata("authorization", "Bearer " + access_token);
-    
+
     grpc::Status status =
         chat_stub->ChangeChatCover(&context, request, &response);
-        
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return change_chat_cover(chat_id, admin_id, photo_path);
     }
-    
+
     if (!status.ok()) {
-        std::cout << status.error_code() << ": " << status.error_message()
+        std::cerr << status.error_code() << ": " << status.error_message()
                   << std::endl;
         return;
     }
@@ -223,7 +227,7 @@ void client::add_privileges_to_user(
     int chat_id
 ) {
     if (!check_user_privileges(sender_id, chat_id)) {
-        return;  // TODO add errors
+        return;
     }
 
     grpc::ClientContext context;
@@ -234,15 +238,16 @@ void client::add_privileges_to_user(
     request.set_user_id(receiver_id);
     request.set_chat_id(chat_id);
 
-    grpc::Status status = chat_stub->AddPrivilegesToUser(&context, request, response);
+    grpc::Status status =
+        chat_stub->AddPrivilegesToUser(&context, request, response);
 
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return add_privileges_to_user(sender_id, receiver_id, chat_id);
     }
-    
+
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 }
 
@@ -252,7 +257,7 @@ void client::remove_privileges_from_user(
     int chat_id
 ) {
     if (!check_user_privileges(sender_id, chat_id)) {
-        return;  // TODO add errors
+        return;
     }
 
     grpc::ClientContext context;
@@ -263,15 +268,16 @@ void client::remove_privileges_from_user(
     request.set_user_id(receiver_id);
     request.set_chat_id(chat_id);
 
-    grpc::Status status = chat_stub->RemovePrivilegesFromUser(&context, request, response);
+    grpc::Status status =
+        chat_stub->RemovePrivilegesFromUser(&context, request, response);
 
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return remove_privileges_from_user(sender_id, receiver_id, chat_id);
     }
-    
+
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 }
 
@@ -282,7 +288,7 @@ void client::remove_user_from_chat(
 ) {
     if (!check_user_privileges(sender_id, chat_id) &&
         sender_id != receiver_id) {
-        return;  // TODO add errors
+        return;
     }
 
     chat_service::RemoveRequest request;
@@ -293,7 +299,7 @@ void client::remove_user_from_chat(
     chat_service::InvitesToChatRequests inviteChatRequest;
     inviteChatRequest.mutable_remove()->CopyFrom(request);
 
-    std::cout << inviteChatRequest.DebugString() << std::endl;
+    std::cerr << inviteChatRequest.DebugString() << std::endl;
     bool status = invite_chat_stream->Write(inviteChatRequest);
     if (!status) {
         std::cerr << "Error" << std::endl;
@@ -360,7 +366,7 @@ void client::send_invite(int sender_id, int receiver_id, int chat_id) {
         request.set_chat_id(chat_id);
     }
 
-    std::cout << request.DebugString() << std::endl;
+    std::cerr << request.DebugString() << std::endl;
 
     invitation::InvitationRequest stream_request;
     stream_request.mutable_invite()->CopyFrom(request);
@@ -393,7 +399,7 @@ void client::respond_invite(
         request.set_chat_id(chat_id);
     }
 
-    std::cout << request.DebugString() << std::endl;
+    std::cerr << request.DebugString() << std::endl;
 
     invitation::InvitationRequest stream_request;
     stream_request.mutable_invite_respond()->CopyFrom(request);
@@ -420,7 +426,7 @@ std::vector<invitation::Invite> client::get_sent_invites(int user_id) {
         access_token = update_access_token(id);
         return get_sent_invites(user_id);
     }
-    
+
     if (!status.ok()) {
         return {};
     }
@@ -441,12 +447,12 @@ std::vector<invitation::Invite> client::get_received_invites(int user_id) {
     request.set_id(user_id);
     grpc::Status status =
         invite_data_stub->GetReceivedInvitations(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return get_received_invites(user_id);
     }
-    
+
     if (!status.ok()) {
         return {};
     }
@@ -516,7 +522,7 @@ void client::send_message(
     chat_service::ChatRequests chatRequest;
     chatRequest.mutable_send_message()->CopyFrom(request);
 
-    std::cout << chatRequest.DebugString() << std::endl;
+    std::cerr << chatRequest.DebugString() << std::endl;
     bool status = chat_stream->Write(chatRequest);
     if (!status) {
         std::cerr << "Error" << std::endl;
@@ -577,7 +583,7 @@ common::UserFullPage *client::get_user_full_page(int user_id) {
         access_token = update_access_token(id);
         return get_user_full_page(user_id);
     }
-    
+
     if (!status.ok()) {
         return {};
     }
@@ -594,12 +600,12 @@ common::UserPreview *client::get_user_preview(int user_id) {
     request.set_user_id(user_id);
     grpc::Status status =
         authorization_data_stub->GetUserPrewiew(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return get_user_preview(user_id);
     }
-    
+
     if (!status.ok()) {
         return {};
     }
@@ -617,7 +623,7 @@ void client::add_genre(int user_id, const std::string &genre_name) {
     genre->set_name(genre_name);
     grpc::Status status =
         profile_stub->AddToListOfGenres(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         add_genre(user_id, genre_name);
@@ -637,12 +643,12 @@ void client::remove_genre(int user_id, const std::string &genre_name) {
              << genre_name.c_str();
     grpc::Status status =
         profile_stub->RemoveFromListOfGenres(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         remove_genre(user_id, genre_name);
     }
-    
+
     if (!status.ok()) {
         qDebug() << status.error_message().c_str();
     }
@@ -679,14 +685,14 @@ void client::remove_movie(int user_id, int movie_id, int rating) {
     movie->set_rating(rating);
     grpc::Status status =
         profile_stub->RemoveFromWatchlist(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         remove_movie(user_id, movie_id, rating);
     }
-    
+
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 }
 
@@ -701,12 +707,11 @@ void client::add_actor(int user_id, int actor_id) {
     actor->set_id(actor_id);
     grpc::Status status =
         profile_stub->AddToListOfActors(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         add_actor(user_id, actor_id);
     }
-    
 }
 
 void client::remove_actor(int user_id, int actor_id) {
@@ -720,14 +725,14 @@ void client::remove_actor(int user_id, int actor_id) {
     actor->set_id(actor_id);
     grpc::Status status =
         profile_stub->RemoveFromListOfActors(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         remove_actor(user_id, actor_id);
     }
-    
-    if (!status.ok()){
-        std::cout << status.error_message() << '\n';
+
+    if (!status.ok()) {
+        std::cerr << status.error_message() << '\n';
     }
 }
 
@@ -745,7 +750,6 @@ void client::change_bio(int user_id, const std::string &new_bio) {
         access_token = update_access_token(id);
         change_bio(user_id, new_bio);
     }
-    
 }
 
 void client::change_quote(int user_id, const std::string &new_quote) {
@@ -758,12 +762,11 @@ void client::change_quote(int user_id, const std::string &new_quote) {
     request.set_quote(new_quote);
     grpc::Status status =
         profile_stub->ChangeQuote(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         change_quote(user_id, new_quote);
     }
-    
 }
 
 void client::change_username(int user_id, const std::string &new_username) {
@@ -776,12 +779,11 @@ void client::change_username(int user_id, const std::string &new_username) {
     request.set_username(new_username);
     grpc::Status status =
         profile_stub->ChangeUsername(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         change_username(user_id, new_username);
     }
-    
 }
 
 std::vector<chat_service::ChatPreview> client::get_user_chats(int user_id) {
@@ -792,7 +794,7 @@ std::vector<chat_service::ChatPreview> client::get_user_chats(int user_id) {
     auto *response = new chat_service::UserChats;
     request.set_user_id(user_id);
 
-    std::cout << "GetUserChats called from client\n";
+    std::cerr << "GetUserChats called from client\n";
     grpc::Status status =
         chat_data_stub->GetUserChats(&context, request, response);
 
@@ -800,7 +802,7 @@ std::vector<chat_service::ChatPreview> client::get_user_chats(int user_id) {
         access_token = update_access_token(id);
         return get_user_chats(user_id);
     }
-    
+
     if (!status.ok()) {
         return {};
     }
@@ -823,12 +825,12 @@ client::get_last_messages(int user_id, int chat_id) {
     request.set_chat_id(chat_id);
     grpc::Status status =
         chat_data_stub->GetLastMessages(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return get_last_messages(user_id, chat_id);
     }
-    
+
     if (!status.ok()) {
         return {};
     }
@@ -849,12 +851,12 @@ std::vector<common::UserPreview> client::get_chat_members(int chat_id) {
     request.set_chat_id(chat_id);
     grpc::Status status =
         chat_data_stub->GetChatMembers(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return get_chat_members(chat_id);
     }
-    
+
     if (!status.ok()) {
         return {};
     }
@@ -877,14 +879,14 @@ bool client::check_user_in_chat(int user_id, int chat_id) {
 
     grpc::Status status =
         chat_data_stub->CheckUserInChat(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return check_user_in_chat(user_id, chat_id);
     }
-    
+
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     return response->response();
@@ -898,15 +900,16 @@ chat_service::ChatPreview *client::get_chat_preview(int chat_id) {
     auto *response = new chat_service::ChatPreview;
     request.set_chat_id(chat_id);
 
-    grpc::Status status = chat_data_stub->GetChatPreview(&context, request, response);
+    grpc::Status status =
+        chat_data_stub->GetChatPreview(&context, request, response);
 
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return get_chat_preview(chat_id);
     }
-    
+
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     return response;
@@ -920,15 +923,16 @@ common::GroupChatPreview *client::get_group_chat_preview(int chat_id) {
     auto *response = new common::GroupChatPreview;
     request.set_chat_id(chat_id);
 
-    grpc::Status status = chat_data_stub->GetGroupChatPreview(&context, request, response);
+    grpc::Status status =
+        chat_data_stub->GetGroupChatPreview(&context, request, response);
 
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return get_group_chat_preview(chat_id);
     }
-    
+
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     return response;
@@ -942,7 +946,8 @@ std::vector<chat_service::ChatEvent> client::get_chat_events(int chat_id) {
     auto *response = new chat_service::ChatEvents;
     request.set_chat_id(chat_id);
 
-    grpc::Status status = chat_data_stub->GetChatEvents(&context, request, response);
+    grpc::Status status =
+        chat_data_stub->GetChatEvents(&context, request, response);
 
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
@@ -950,7 +955,7 @@ std::vector<chat_service::ChatEvent> client::get_chat_events(int chat_id) {
     }
 
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     std::vector<chat_service::ChatEvent> events;
@@ -968,7 +973,8 @@ std::vector<int> client::get_chat_admins(int chat_id) {
     auto *response = new chat_service::ChatAdmins;
     request.set_chat_id(chat_id);
 
-    grpc::Status status = chat_data_stub->GetChatAdmins(&context, request, response);
+    grpc::Status status =
+        chat_data_stub->GetChatAdmins(&context, request, response);
 
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
@@ -976,7 +982,7 @@ std::vector<int> client::get_chat_admins(int chat_id) {
     }
 
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     std::vector<int> admins;
@@ -1000,7 +1006,7 @@ client::login(const std::string &client_login, const std::string &password) {
     grpc::Status status =
         authorization_stub->Login(&context, request, response);
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 
     access_token = create_tokens(response->id());
@@ -1028,7 +1034,7 @@ authservice::SignupResponse *client::registration(
         authorization_stub->Signup(&context, request, response);
 
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 
     access_token = response->access_token().token();
@@ -1054,7 +1060,7 @@ std::string client::update_access_token(int user_id) {
     }
 
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 
     return response->token();
@@ -1070,7 +1076,7 @@ std::string client::create_tokens(int user_id) {
     grpc::Status status =
         authorization_data_stub->CreateTokens(&context, request, response);
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 
     return response->token();
@@ -1089,14 +1095,14 @@ client::subscribe(int subscriber_id, int subscribie_id) {
 
     grpc::Status status =
         users_interaction_stub->Subscribe(&context, request, &response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return subscribe(subscriber_id, subscribie_id);
     }
 
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
     return response;
 }
@@ -1113,14 +1119,14 @@ void client::unsubscribe(int subscriber_id, int subscribie_id) {
 
     grpc::Status status =
         users_interaction_stub->Unsubscribe(&context, request, &response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return unsubscribe(subscriber_id, subscribie_id);
     }
 
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 }
 
@@ -1141,14 +1147,14 @@ std::vector<uint32_t> client::get_subscriptions(uint32_t subscriber_id) {
         access_token = update_access_token(id);
         return get_subscriptions(subscriber_id);
     }
-    
+
     std::vector<uint32_t> result;
     if (status.ok()) {
         for (int i = 0; i < response.subscribie_id_size(); i++) {
             result.push_back(response.subscribie_id(i));
         }
     } else {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
     return result;
 }
@@ -1170,14 +1176,14 @@ std::vector<uint32_t> client::get_subscribers(uint32_t subscribie_id) {
         access_token = update_access_token(id);
         return get_subscribers(subscribie_id);
     }
-    
+
     std::vector<uint32_t> result;
     if (status.ok()) {
         for (int i = 0; i < response.subscriber_id_size(); i++) {
             result.push_back(response.subscriber_id(i));
         }
     } else {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
     return result;
 }
@@ -1199,9 +1205,9 @@ void client::block(int blocker_id, int blockie_id) {
         access_token = update_access_token(id);
         block(blocker_id, blockie_id);
     }
-    
+
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 }
 
@@ -1222,9 +1228,9 @@ void client::unblock(int blocker_id, int blockie_id) {
         access_token = update_access_token(id);
         unblock(blocker_id, blockie_id);
     }
-    
+
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 }
 
@@ -1251,7 +1257,7 @@ std::vector<uint32_t> client::get_blocked(uint32_t blockie_id) {
             result.push_back(response.blockie_id(i));
         }
     } else {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
     return result;
 }
@@ -1281,9 +1287,9 @@ std::vector<uint32_t> client::get_mutual_subscriptions(uint32_t user_id) {
         access_token = update_access_token(id);
         return get_mutual_subscriptions(user_id);
     }
-    
+
     if (!status.ok()) {
-        std::cout << status.error_code() << ": " << status.error_message()
+        std::cerr << status.error_code() << ": " << status.error_message()
                   << std::endl;
         return {};
     }
@@ -1298,13 +1304,13 @@ void client::change_photo(uint32_t user_id, const std::string &photo_path) {
 
     std::ifstream file(photo_path, std::ios::binary);
     if (!file) {
-        std::cout << "Cannot open file: " << photo_path << std::endl;
+        std::cerr << "Cannot open file: " << photo_path << std::endl;
         return;
     }
     std::basic_string photo_data(
         (std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()
     );
-    std::cout << photo_data;
+    std::cerr << photo_data;
     request.set_user_id(user_id);
     request.set_photo(photo_data);
 
@@ -1313,14 +1319,14 @@ void client::change_photo(uint32_t user_id, const std::string &photo_path) {
     context.AddMetadata("authorization", "Bearer " + access_token);
     grpc::Status status =
         profile_stub->ChangeProfilePhoto(&context, request, &response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         change_photo(user_id, photo_path);
     }
 
     if (!status.ok()) {
-        std::cout << status.error_code() << ": " << status.error_message()
+        std::cerr << status.error_code() << ": " << status.error_message()
                   << std::endl;
         return;
     }
@@ -1345,13 +1351,13 @@ std::vector<common::UserPreview> client::get_user_recommendations(
         access_token = update_access_token(id);
         return get_user_recommendations(user_id);
     }
-    
+
     if (status.ok()) {
         for (const auto &user : response.user()) {
             user_recommendations.push_back(user);
         }
     } else {
-        std::cout << status.error_code() << ": " << status.error_message()
+        std::cerr << status.error_code() << ": " << status.error_message()
                   << std::endl;
     }
 
@@ -1375,14 +1381,14 @@ std::vector<common::FilmPreview> client::get_film_recommendations(
         access_token = update_access_token(id);
         return get_film_recommendations(user_id);
     }
-    
+
     std::vector<common::FilmPreview> film_recommendations;
     if (status.ok()) {
         for (const auto &film : response.film()) {
             film_recommendations.push_back(film);
         }
     } else {
-        std::cout << status.error_code() << ": " << status.error_message()
+        std::cerr << status.error_code() << ": " << status.error_message()
                   << std::endl;
     }
 
@@ -1399,12 +1405,12 @@ common::FilmFullPage *client::get_film_full_page(int film_id) {
     request.set_id(film_id);
     grpc::Status status =
         profile_data_stub->GetFilmFullPage(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return get_film_full_page(film_id);
     }
-    
+
     if (!status.ok()) {
         qDebug() << status.error_message().c_str();
         return {};
@@ -1422,12 +1428,12 @@ common::FilmPreview *client::get_film_preview(int film_id) {
     request.set_id(film_id);
     grpc::Status status =
         profile_data_stub->GetFilmPreview(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return get_film_preview(film_id);
     }
-    
+
     if (!status.ok()) {
         qDebug() << status.error_message().c_str();
         return {};
@@ -1449,12 +1455,12 @@ bool client::is_genre_favourite(
     genre->set_name(genre_name);
     grpc::Status status =
         profile_stub->CheckIsGenreFavourite(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return is_genre_favourite(user_id, genre_name);
     }
-    
+
     if (!status.ok()) {
         return false;
     }
@@ -1472,12 +1478,12 @@ bool client::is_actor_favourite(uint32_t user_id, uint32_t actor_id) {
     actor->set_id(actor_id);
     grpc::Status status =
         profile_stub->CheckIsActorFavourite(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return is_actor_favourite(user_id, actor_id);
     }
-    
+
     if (!status.ok()) {
         return false;
     }
@@ -1495,12 +1501,12 @@ bool client::is_movie_watched(uint32_t user_id, uint32_t movie_id) {
     movie->set_id(movie_id);
     grpc::Status status =
         profile_stub->CheckIsMovieChosen(&context, request, response);
-    
+
     if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         access_token = update_access_token(id);
         return is_movie_watched(user_id, movie_id);
     }
-    
+
     if (!status.ok()) {
         return false;
     }
@@ -1526,6 +1532,6 @@ common::FilmPreview *client::get_film_for_users(std::vector<uint32_t> users) {
         common::FilmPreview *film = new common::FilmPreview(response.film(0));
         return film;
     } else {
-        std::cout << "RPC failed" << std::endl;
+        std::cerr << "RPC failed" << std::endl;
     }
 }

@@ -11,8 +11,7 @@ grpc::Status auth_service::password_is_valid(const std::string &password) {
     }
     if (password.empty()) {
         return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT,
-            "Password must not be empty"
+            grpc::StatusCode::INVALID_ARGUMENT, "Password must not be empty"
         );
     }
     return grpc::Status::OK;
@@ -21,8 +20,7 @@ grpc::Status auth_service::password_is_valid(const std::string &password) {
 grpc::Status auth_service::username_is_valid(const std::string &username) {
     if (username.empty()) {
         return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT,
-            "Username must not be empty"
+            grpc::StatusCode::INVALID_ARGUMENT, "Username must not be empty"
         );
     }
     if (username.size() > 20) {
@@ -37,8 +35,7 @@ grpc::Status auth_service::username_is_valid(const std::string &username) {
 grpc::Status auth_service::email_is_valid(const std::string &email) {
     if (email.empty()) {
         return grpc::Status(
-            grpc::StatusCode::INVALID_ARGUMENT,
-            "Email must not be empty"
+            grpc::StatusCode::INVALID_ARGUMENT, "Email must not be empty"
         );
     }
     for (char symbol : email) {

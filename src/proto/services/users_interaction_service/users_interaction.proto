@@ -3,17 +3,31 @@ syntax = "proto3";
 package users_interaction;
 
 service UsersInteractionService {
-  rpc Subscribe(SubscribeRequest) returns (SubscribeResponse) {}
-  rpc Unsubscribe(UnsubscribeRequest) returns (UnsubscribeResponse) {}
-  rpc ShowAllSubscriptions(ShowAllSubscriptionsRequest) returns (ShowAllSubscriptionsResponse) {}
-  rpc ShowAllSubscribers(ShowAllSubscribersRequest) returns (ShowAllSubscribersResponse) {}
-  rpc Block(BlockRequest) returns (BlockResponse) {}
-  rpc Unblock(UnblockRequest) returns (UnblockResponse) {}
-  rpc ShowAllBlocked(ShowAllBlockedRequest) returns (ShowAllBlockedResponse) {}
-  rpc CheckIsMutual(CheckIsMutualRequest) returns (CheckIsMutualResponse) {}
-  rpc GetMutualSubscriptions(GetMutualSubscriptionsRequest) returns (GetMutualSubscriptionsResponse) {}
-  rpc CheckIsBlocked(BlockRequest) returns (BoolResponse) {}
-  rpc CheckIsSubscribed(SubscribeRequest) returns (BoolResponse) {}
+    rpc Subscribe(SubscribeRequest) returns (SubscribeResponse) {
+    }
+    rpc Unsubscribe(UnsubscribeRequest) returns (UnsubscribeResponse) {
+    }
+    rpc ShowAllSubscriptions(ShowAllSubscriptionsRequest)
+        returns (ShowAllSubscriptionsResponse) {
+    }
+    rpc ShowAllSubscribers(ShowAllSubscribersRequest)
+        returns (ShowAllSubscribersResponse) {
+    }
+    rpc Block(BlockRequest) returns (BlockResponse) {
+    }
+    rpc Unblock(UnblockRequest) returns (UnblockResponse) {
+    }
+    rpc ShowAllBlocked(ShowAllBlockedRequest) returns (ShowAllBlockedResponse) {
+    }
+    rpc CheckIsMutual(CheckIsMutualRequest) returns (CheckIsMutualResponse) {
+    }
+    rpc GetMutualSubscriptions(GetMutualSubscriptionsRequest)
+        returns (GetMutualSubscriptionsResponse) {
+    }
+    rpc CheckIsBlocked(BlockRequest) returns (BoolResponse) {
+    }
+    rpc CheckIsSubscribed(SubscribeRequest) returns (BoolResponse) {
+    }
 }
 
 message BlockRequest {
@@ -31,11 +45,11 @@ message ShowAllBlockedRequest {
 }
 
 message BlockResponse {
-  string message = 1;
+    string message = 1;
 }
 
 message UnblockResponse {
-  string message = 1;
+    string message = 1;
 }
 
 message ShowAllBlockedResponse {
@@ -61,12 +75,12 @@ message ShowAllSubscribersRequest {
 }
 
 message SubscribeResponse {
-  string message = 1;
-  optional string error_message = 2;
+    string message = 1;
+    optional string error_message = 2;
 }
 
 message UnsubscribeResponse {
-  string message = 1;
+    string message = 1;
 }
 
 message ShowAllSubscriptionsResponse {
@@ -86,14 +100,14 @@ message CheckIsMutualResponse {
     bool is_mutual = 1;
 }
 
-message GetMutualSubscriptionsRequest{
+message GetMutualSubscriptionsRequest {
     int32 subscriber_id = 1;
 }
 
-message GetMutualSubscriptionsResponse{
+message GetMutualSubscriptionsResponse {
     repeated int32 subscribie_id = 1;
 }
 
-message BoolResponse{
+message BoolResponse {
     bool is_true = 1;
 }

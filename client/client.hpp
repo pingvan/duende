@@ -1,29 +1,28 @@
 #pragma once
 
 #include <grpcpp/grpcpp.h>
+#include <QDebug>
+#include <QtConcurrent/QtConcurrent>
+#include <fstream>
+#include <iostream>
 #include <memory>
 #include <string>
-#include <QtConcurrent/QtConcurrent>
-#include <QDebug>
-#include <iostream>
-#include <fstream>
-
 #include "common/common.grpc.pb.h"
 #include "common/common.pb.h"
 #include "services/authservice/authservice.grpc.pb.h"
 #include "services/authservice/authservice.pb.h"
 #include "services/chat_service/chat_service.grpc.pb.h"
 #include "services/chat_service/chat_service.pb.h"
-#include "services/profile_service/profile.grpc.pb.h"
-#include "services/profile_service/profile.pb.h"
-#include "services/search_service/search_service.grpc.pb.h"
-#include "services/search_service/search_service.pb.h"
 #include "services/invitation_service/invitation.grpc.pb.h"
 #include "services/invitation_service/invitation.pb.h"
-#include "services/users_interaction_service/users_interaction.grpc.pb.h"
-#include "services/users_interaction_service/users_interaction.pb.h"
+#include "services/profile_service/profile.grpc.pb.h"
+#include "services/profile_service/profile.pb.h"
 #include "services/recommendation_service/recommendation_service.grpc.pb.h"
 #include "services/recommendation_service/recommendation_service.pb.h"
+#include "services/search_service/search_service.grpc.pb.h"
+#include "services/search_service/search_service.pb.h"
+#include "services/users_interaction_service/users_interaction.grpc.pb.h"
+#include "services/users_interaction_service/users_interaction.pb.h"
 
 struct client {
 private:
@@ -37,12 +36,23 @@ private:
     std::unique_ptr<search_service::SerachService::Stub> search_stub;
     std::unique_ptr<invitation::InvitationService::Stub> invite_stub;
     std::unique_ptr<invitation::InvitationDataService::Stub> invite_data_stub;
-    std::unique_ptr<users_interaction::UsersInteractionService::Stub> users_interaction_stub;
-    std::unique_ptr<recommendation_service::RecommendationService::Stub> recommendation_stub;
+    std::unique_ptr<users_interaction::UsersInteractionService::Stub>
+        users_interaction_stub;
+    std::unique_ptr<recommendation_service::RecommendationService::Stub>
+        recommendation_stub;
 
-    std::unique_ptr<grpc::ClientReaderWriter<chat_service::ChatRequests, chat_service::ChatResponses>> chat_stream;
-    std::unique_ptr<grpc::ClientReaderWriter<chat_service::InvitesToChatRequests, chat_service::InvitesToChatResponses>> invite_chat_stream;
-    std::unique_ptr<grpc::ClientReaderWriter<invitation::InvitationRequest, invitation::InvitationResponse>> invite_stream;
+    std::unique_ptr<grpc::ClientReaderWriter<
+        chat_service::ChatRequests,
+        chat_service::ChatResponses>>
+        chat_stream;
+    std::unique_ptr<grpc::ClientReaderWriter<
+        chat_service::InvitesToChatRequests,
+        chat_service::InvitesToChatResponses>>
+        invite_chat_stream;
+    std::unique_ptr<grpc::ClientReaderWriter<
+        invitation::InvitationRequest,
+        invitation::InvitationResponse>>
+        invite_stream;
 
     grpc::ClientContext chat_context;
     grpc::ClientContext invite_chat_context;
@@ -52,53 +62,82 @@ private:
     int id;
 
 public:
-    std::function<void(const chat_service::MessageReceived&)> onNewMessageReceived;
-    std::function<void(const invitation::SendInvitationResponse&)> onNewInviteReceived;
-    std::function<void(const invitation::RespondToInvitationResponse&)> onInviteRespondReceived;
-    std::function<void(const chat_service::RemoveResponse&)> onRemoveFromChatReceived;
-    std::function<void(const users_interaction::SubscribeResponse&)> onSubscribersChanged;
-    std::function<void(const users_interaction::SubscribeResponse&)> onSubscriptionsChanged;
-    std::function<void(const users_interaction::BlockResponse&)> onBlockedChanged;
+    std::function<void(const chat_service::MessageReceived &)>
+        onNewMessageReceived;
+    std::function<void(const invitation::SendInvitationResponse &)>
+        onNewInviteReceived;
+    std::function<void(const invitation::RespondToInvitationResponse &)>
+        onInviteRespondReceived;
+    std::function<void(const chat_service::RemoveResponse &)>
+        onRemoveFromChatReceived;
+    std::function<void(const users_interaction::SubscribeResponse &)>
+        onSubscribersChanged;
+    std::function<void(const users_interaction::SubscribeResponse &)>
+        onSubscriptionsChanged;
+    std::function<void(const users_interaction::BlockResponse &)>
+        onBlockedChanged;
     std::function<void()> onNeedLogin;
 
-    explicit client(const std::shared_ptr<grpc::Channel> &new_channel); 
+    explicit client(const std::shared_ptr<grpc::Channel> &new_channel);
 
-    void init_invite_chat_stream(int user_id);  
+    void init_invite_chat_stream(int user_id);
     void start_reading_invite_chat_stream();
     void leave_invite_chat_stream(int user_id);
-    chat_service::ChatPreview *create_group_chat(int creator_id, std::string chat_name, std::string description);
+    chat_service::ChatPreview *create_group_chat(
+        int creator_id,
+        std::string chat_name,
+        std::string description
+    );
     bool check_user_privileges(int user_id, int chat_id);
     bool change_chat_name(int chat_id, int admin_id, std::string new_chat_name);
-    bool change_description(int chat_id, int admin_id, std::string new_description);
-    void change_chat_cover(uint32_t chat_id, uint32_t admin_id, const std::string &photo_path);
+    bool
+    change_description(int chat_id, int admin_id, std::string new_description);
+    void change_chat_cover(
+        uint32_t chat_id,
+        uint32_t admin_id,
+        const std::string &photo_path
+    );
     void add_privileges_to_user(int sender_id, int receiver_id, int chat_id);
-    void remove_privileges_from_user(int sender_id, int receiver_id, int chat_id);
+    void
+    remove_privileges_from_user(int sender_id, int receiver_id, int chat_id);
     void remove_user_from_chat(int sender_id, int receiver_id, int chat_id);
 
-    void init_chat_stream(int user_id);  
+    void init_chat_stream(int user_id);
     void start_reading_chat_stream();
     void leave_chat_stream(int user_id);
-    void send_message(int user_id, int chatId, const std::string& messageText);
+    void send_message(int user_id, int chatId, const std::string &messageText);
 
     void init_invite_stream(int user_id);
     void start_reading_invite_stream();
     void leave_invite_stream(int user_id);
     void send_invite(int sender_id, int receiver_id, int chat_id = -1);
-    void respond_invite(int invite_id, int sender_id, int receiver_id, bool accept, int chat_id = -1);
+    void respond_invite(
+        int invite_id,
+        int sender_id,
+        int receiver_id,
+        bool accept,
+        int chat_id = -1
+    );
 
     std::vector<invitation::Invite> get_sent_invites(int user_id);
     std::vector<invitation::Invite> get_received_invites(int user_id);
 
-    search_service::UserSearchResponse *search_user_by_credentials(const std::string &user_credentials);
-    search_service::ActorSearchResponse *search_actor_by_name(const std::string &actor_name);
-    search_service::FilmSearchResponse *search_film_by_title(const std::string &film_title);
+    search_service::UserSearchResponse *search_user_by_credentials(
+        const std::string &user_credentials
+    );
+    search_service::ActorSearchResponse *search_actor_by_name(
+        const std::string &actor_name
+    );
+    search_service::FilmSearchResponse *search_film_by_title(
+        const std::string &film_title
+    );
 
     common::UserFullPage *get_user_full_page(int user_id);
     common::UserPreview *get_user_preview(int user_id);
 
-    void change_username(int user_id, const std::string &new_username); 
-    void change_quote(int user_id, const std::string &new_quote); 
-    void change_bio(int user_id, const std::string &new_bio); 
+    void change_username(int user_id, const std::string &new_username);
+    void change_quote(int user_id, const std::string &new_quote);
+    void change_bio(int user_id, const std::string &new_bio);
     void change_photo(uint32_t user_id, const std::string &photo_path);
     void add_actor(int user_id, int actor_id);
     void remove_actor(int user_id, int actor_id);
@@ -108,7 +147,8 @@ public:
     void remove_genre(int user_id, const std::string &genre_name);
 
     std::vector<chat_service::ChatPreview> get_user_chats(int user_id);
-    std::vector<chat_service::MessageReceived> get_last_messages(int user_id, int chat_id);
+    std::vector<chat_service::MessageReceived>
+    get_last_messages(int user_id, int chat_id);
     std::vector<common::UserPreview> get_chat_members(int chat_id);
     bool check_user_in_chat(int user_id, int chat_id);
     chat_service::ChatPreview *get_chat_preview(int chat_id);
@@ -116,12 +156,13 @@ public:
     std::vector<chat_service::ChatEvent> get_chat_events(int chat_id);
     std::vector<int> get_chat_admins(int chat_id);
 
-    users_interaction::SubscribeResponse subscribe(int subscriber_id, int subscribie_id);
+    users_interaction::SubscribeResponse
+    subscribe(int subscriber_id, int subscribie_id);
     void unsubscribe(int subscriber_id, int subscribie_id);
     std::vector<uint32_t> get_subscriptions(uint32_t subscriber_id);
     std::vector<uint32_t> get_subscribers(uint32_t subscribie_id);
     bool is_subscribed(uint32_t user_id, uint32_t subscribie_id);
-    std::vector <uint32_t> get_mutual_subscriptions(uint32_t user_id);
+    std::vector<uint32_t> get_mutual_subscriptions(uint32_t user_id);
 
     void block(int blocker_id, int blockie_id);
     void unblock(int blocker_id, int blockie_id);
@@ -136,9 +177,10 @@ public:
     bool is_genre_favourite(uint32_t user_id, const std::string &genre_name);
     bool is_actor_favourite(uint32_t user_id, uint32_t actor_id);
     bool is_movie_watched(uint32_t user_id, uint32_t movie_id);
-    common::FilmPreview* get_film_for_users(std::vector<uint32_t> users);
+    common::FilmPreview *get_film_for_users(std::vector<uint32_t> users);
 
-    authservice::LoginResponse *login(const std::string &client_login, const std::string &password);
+    authservice::LoginResponse *
+    login(const std::string &client_login, const std::string &password);
     authservice::SignupResponse *registration(
         const std::string &client_login,
         const std::string &email,

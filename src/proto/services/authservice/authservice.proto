@@ -4,6 +4,22 @@ package authservice;
 
 import "common/common.proto";
 
+service AuthService {
+    rpc Login(LoginRequest) returns (LoginResponse) {
+    }
+    rpc Signup(SignupRequest) returns (SignupResponse) {
+    }
+    rpc Logout(LogoutRequest) returns (LogoutResponse) {
+    }
+};
+
+service AuthServiceData {
+    rpc GetUserPrewiew(RequestWithUserId) returns (common.UserPreview);
+    rpc GetUserFullPage(RequestWithUserId) returns (common.UserFullPage);
+    rpc UpdateAccessToken(RequestWithUserId) returns (AccessToken);
+    rpc CreateTokens(RequestWithUserId) returns (AccessToken);
+};
+
 message User {
     string username = 1;
     string email = 2;
@@ -30,15 +46,6 @@ message Tokens {
     AccessToken access = 1;
     RefreshToken refresh = 2;
 };
-
-service AuthService {
-    rpc Login(LoginRequest) returns (LoginResponse) {
-    }
-    rpc Signup(SignupRequest) returns (SignupResponse) {
-    }
-    rpc Logout(LogoutRequest) returns (LogoutResponse) {
-    }
-}
 
 message LoginRequest {
     oneof login {
@@ -70,13 +77,6 @@ message LogoutRequest {
 };
 
 message LogoutResponse {
-};
-
-service AuthServiceData {
-    rpc GetUserPrewiew(RequestWithUserId) returns (common.UserPreview);
-    rpc GetUserFullPage(RequestWithUserId) returns (common.UserFullPage);
-    rpc UpdateAccessToken(RequestWithUserId) returns (AccessToken);
-    rpc CreateTokens(RequestWithUserId) returns (AccessToken);
 };
 
 message RequestWithUserId {

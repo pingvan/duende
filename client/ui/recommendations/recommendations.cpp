@@ -67,7 +67,6 @@ public:
           callback(std::move(callback)) {
         QGraphicsTextItem *usernameItem =
             new QGraphicsTextItem(QString::fromStdString(username), this);
-        // usernameItem->setPos(0, pixmap.height());
         usernameItem->setTextWidth(pixmap.width());
         usernameItem->setPos(
             (pixmap.width() - usernameItem->boundingRect().width()) / 2,

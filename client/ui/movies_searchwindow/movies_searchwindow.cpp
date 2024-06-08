@@ -53,7 +53,6 @@ void Movies_SearchWindow::saveChanges()
             bool is_film_already_chosen = false;
             for (const auto &film : manager->watchlist) {
                 if (film.id == movies_map[selectedMovie]) {
-                    qDebug() << "Film already chosen!";
                     is_film_already_chosen = true;
                     break;
                 }

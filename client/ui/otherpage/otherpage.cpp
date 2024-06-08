@@ -13,8 +13,6 @@ OtherPage::OtherPage(int id, Manager *managerPtr, QWidget *parent)
     : QWidget(parent), ui(new Ui::OtherPage), id(id), manager(managerPtr) {
     ui->setupUi(this);
 
-    qDebug() << "Other page start";
-
     user = manager->new_client.get_user_full_page(id);
 
     user_preview = manager->new_client.get_user_preview(id);
@@ -24,8 +22,6 @@ OtherPage::OtherPage(int id, Manager *managerPtr, QWidget *parent)
     assert(user != nullptr);
 
     build();
-
-    qDebug() << "Other page end";
 }
 
 void OtherPage::sendInvite() {
@@ -77,18 +73,15 @@ void OtherPage::toggleSubscription() {
                 );
                 return;
             }
-            qDebug() << "Subscribed";
             button->setText("Unsubscribe");
         } else {
             manager->new_client.unsubscribe(manager->ID, id);
-            qDebug() << "Unsubscribed";
             button->setText("Subscribe");
         }
     }
 }
 
 void OtherPage::updatePage(int newId) {
-    qDebug() << "Update page start";
 
     id = newId;
 
@@ -162,7 +155,6 @@ void OtherPage::updatePage(int newId) {
         item->setForeground(QColor("#8023a8"));
         item->setBackground(QBrush(Qt::white));
         item->setData(Qt::UserRole, actor.actor_id());
-        qDebug() << "Add actor with id: " << actor.actor_id();
         actorsList->addItem(item);
     }
 
@@ -211,8 +203,6 @@ void OtherPage::updatePage(int newId) {
     label_photo->setPixmap(rounded);
 
     build_scenes();
-
-    qDebug() << "Update page end";
 }
 
 void OtherPage::update_watchlist() {
@@ -234,7 +224,6 @@ void OtherPage::update_watchlist() {
             manager->new_client.get_film_full_page(movie.preview().film_id());
         QUrl url;
         if (full_page == nullptr) {
-            qDebug() << "aaaaaaaaa";
             url = movie.preview().preview_cover_url().c_str();
         } else {
             url = full_page->full_page_cover_url().c_str();
@@ -251,8 +240,6 @@ void OtherPage::update_watchlist() {
             image.loadFromData(data);
             pixmap = QPixmap::fromImage(image);
         } else {
-            qDebug() << "Failed to load image from url:"
-                     << reply->errorString();
             pixmap.load(":/img/file.PNG");
         }
         pixmap = pixmap.scaledToHeight(view_watchlist->height() - 100);

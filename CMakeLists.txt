@@ -4,12 +4,11 @@ project(duende)
 
 include(./cmake/grpc-generation.cmake)
 
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-# set(CMAKE_CXX_FLAGS "-fsanitize=undefined,address")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-fsanitize=undefined,address")
 
 add_subdirectory(./include/)
 add_subdirectory(./tests/ build-tests)
@@ -45,12 +44,10 @@ add_executable(tests
         ${generated_proto_models_srcs}
 )
 
-
 add_dependencies(main generate_proto_models)
 add_dependencies(main pqxx)
 add_dependencies(tests generate_proto_models)
 add_dependencies(tests pqxx)
-
 
 target_link_libraries(main
         absl::flags_parse

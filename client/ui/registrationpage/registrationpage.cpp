@@ -9,13 +9,9 @@ RegistrationPage::RegistrationPage(Manager* managerPtr, QWidget *parent)
 {
     ui->setupUi(this);
 
-    qDebug() << "Registration page start\n";
-
     build();
 
     connect_slots();
-
-    qDebug() << "Registration page end\n";
 }
 
 void RegistrationPage::loginButton_clicked()
@@ -26,8 +22,6 @@ void RegistrationPage::loginButton_clicked()
     authservice::LoginResponse *response = manager->new_client.login(login.toStdString(), password.toStdString());
     manager->ID = response->id();
     manager->username = manager->new_client.get_user_preview(manager->ID)->login();
-
-    qDebug() << "ID: " << manager->ID;
 
     emit loginSuccessful();
 }
@@ -42,8 +36,6 @@ void RegistrationPage::signupButton_clicked()
     authservice::SignupResponse *response = manager->new_client.registration(username.toStdString(), email.toStdString(), password.toStdString(), password_confirmation.toStdString());
     manager->ID = response->id();
     manager->username = username.toStdString();
-
-    qDebug() << "ID: " << manager->ID;
 
     emit registrationSuccessful();
 }

@@ -54,7 +54,6 @@ void Genres_SearchWindow::saveChanges() {
         for (const auto &genre : user->favorite_genres()) {
             if (selectedGenre.toUpper() ==
                 QString(common::Genre_Name(genre).c_str())) {
-                qDebug() << "Genre already favorite!";
                 isGenreAlreadyFavorite = true;
                 break;
             }
@@ -63,7 +62,6 @@ void Genres_SearchWindow::saveChanges() {
             manager->new_client.add_genre(
                 manager->ID, selectedGenre.toStdString()
             );
-            qDebug() << "Sending genreAdded signal";
             emit genreAdded();
         }
     }

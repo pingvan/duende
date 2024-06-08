@@ -5,8 +5,6 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), manager(managerPtr), followsInstance(managerPtr) {
     ui->setupUi(this);
 
-    qDebug() << "Main window start\n";
-
     auto *centralWidget = new QWidget(this);
     auto *layout = new QHBoxLayout(centralWidget);
 
@@ -14,10 +12,6 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
     sidebar->setFixedWidth(200);
     auto *sidebar_layout = new QVBoxLayout(sidebar);
     sidebar_layout->addStretch();
-    // QLabel *imageLabel = new QLabel(sidebar);
-    // imageLabel->setPixmap(QPixmap("/path/to/your/image.jpg"));
-    // imageLabel->show();
-    // sidebar->setStyleSheet("background-color: rgba(128, 35, 168, 128);");
 
     auto *chats_button = new QPushButton();
     chats_button->setIcon(createIcon(":/img/chat.png", ":/img/film.png"));
@@ -27,9 +21,6 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
 
     auto *rec_button = new QPushButton();
     rec_button->setIcon(createIcon(":/img/person-add.png", ":/img/film.png"));
-    // rec_button->setIcon(QIcon(peoplePixmap.scaled(
-    //     50, 50, Qt::KeepAspectRatio, Qt::SmoothTransformation
-    // )));
     rec_button->setIconSize(QSize(180, 180));
     rec_button->setCursor(Qt::PointingHandCursor);
     rec_button->setFlat(true);
@@ -71,30 +62,15 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
 
     setCentralWidget(centralWidget);
 
-    // auto *profileButton = new QToolButton();
-    // QPixmap personPixmap(":/img/person-circle.png");
-    // profileButton->setIcon(QIcon(personPixmap.scaled(
-    //     60, 60, Qt::KeepAspectRatio, Qt::SmoothTransformation
-    // )));
-    // profileButton->setCursor(Qt::PointingHandCursor);
-    // connect(
-    //     profileButton, &QToolButton::clicked, this, &MainWindow::openProfilePage
-    // );
-
     auto *toolbar = addToolBar("Profile toolbar");
     toolbar->setFixedHeight(60);
     toolbar->setStyleSheet("QToolBar { border: none; }");
-    // toolbar->setStyleSheet("background-color: rgba(128, 35, 168, 128);");
-    // toolbar->addWidget(profileButton);
     toolbar->setMovable(false);
     toolbar->setFloatable(false);
     toolbar->setAllowedAreas(Qt::TopToolBarArea);
     toolbar->setToolButtonStyle(Qt::ToolButtonIconOnly);
     toolbar->setCursor(Qt::PointingHandCursor);
     toolbar->setIconSize(QSize(60, 60));
-    // toolbar->setStyleSheet("QToolButton { background: qlineargradient(x1: 0,
-    // y1: 0, x2: 0, y2: 1, stop: 0 #b24ee7, stop: 1 #982ecb); border-radius:
-    // 5px;}");
 
     toolbar->addAction(
         QIcon(":/img/box-arrow-left.png"), "Exit", this, &QApplication::quit
@@ -106,18 +82,6 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
         QIcon(":/img/person-circle.png"), "Profile", this,
         &MainWindow::openProfilePage
     );
-    // toolbar->addWidget(profileButton);
-    // connect(
-    //     this->pages, &QStackedWidget::currentChanged,
-    //     [this, profileButton]() {
-    //         profileButton->setVisible(this->pages->currentIndex() != 3);
-    //     }
-    // );
-
-    // connect(
-    //     profileButton, &QToolButton::clicked, this,
-    //     &MainWindow::openProfilePage
-    // );
 
     connect(chats_button, &QPushButton::clicked, this, [this]() {
         pages->setCurrentIndex(1);
@@ -151,17 +115,10 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
         recommendationsPage, &Recommendations::userFromListClicked, this,
         &MainWindow::openOtherPage
     );
-    // connect(
-    //     chatsPage, &Chats::profileButtonClicked, this,
-    //     &MainWindow::openOtherPage
-    // );
-
-    qDebug() << "Main window end\n";
 }
 
 MainWindow::~MainWindow() {
     delete ui;
-    qDebug() << "Main window deleted\n";
     manager->new_client.leave_chat_stream(manager->ID);
     manager->new_client.leave_invite_stream(manager->ID);
     manager->new_client.leave_invite_chat_stream(manager->ID);
@@ -178,7 +135,6 @@ void MainWindow::openOtherPage(int id) {
         );
         return;
     }
-    qDebug() << "openOtherPage called with id:" << id;
     otherPage->updatePage(id);
     pages->setCurrentWidget(otherPage);
 }

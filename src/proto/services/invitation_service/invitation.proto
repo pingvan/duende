@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package invitation;
 
-import "common/common.proto"; 
-import "services/chat_service/chat_service.proto"; 
+import "common/common.proto";
+import "services/chat_service/chat_service.proto";
 
 enum InviteStatus {
     SENT = 0;
@@ -17,93 +17,97 @@ enum Status {
 }
 
 service InvitationService {
-  rpc InvitationStream(stream InvitationRequest) returns (stream InvitationResponse) {}
+    rpc InvitationStream(stream InvitationRequest)
+        returns (stream InvitationResponse) {
+    }
 }
 
 service InvitationDataService {
-  rpc GetReceivedInvitations(RequestWithId) returns (InvitesReceived) {}
-  rpc GetSentInvitations(RequestWithId) returns (InvitesSent) {} 
+    rpc GetReceivedInvitations(RequestWithId) returns (InvitesReceived) {
+    }
+    rpc GetSentInvitations(RequestWithId) returns (InvitesSent) {
+    }
 }
 
 message Invite {
-  uint32 invite_id = 1;
-  common.UserPreview sender = 2;
-  string invite_text = 3;
-  string time_stamp = 4;
-  InviteStatus status = 6;
-  optional common.GroupChatPreview chat_preview = 7;
+    uint32 invite_id = 1;
+    common.UserPreview sender = 2;
+    string invite_text = 3;
+    string time_stamp = 4;
+    InviteStatus status = 6;
+    optional common.GroupChatPreview chat_preview = 7;
 }
 
 message InvitesReceived {
-  repeated Invite invites = 1;
+    repeated Invite invites = 1;
 }
 
 message InvitesSent {
-  repeated Invite invites = 1;
+    repeated Invite invites = 1;
 }
 
 message RequestWithId {
-  int32 id = 1;
+    int32 id = 1;
 }
 
 message InvitationRequest {
-  oneof request {
-    InitRequest init = 1;
-    SendInvitationRequest invite = 2;
-    RespondToInvitationRequest invite_respond = 3;
-    LeaveRequest leave = 4;
-  }
+    oneof request {
+        InitRequest init = 1;
+        SendInvitationRequest invite = 2;
+        RespondToInvitationRequest invite_respond = 3;
+        LeaveRequest leave = 4;
+    }
 }
 
 message InvitationResponse {
-  oneof response {
-    InitResponse init = 1;
-    SendInvitationResponse invite = 2;
-    RespondToInvitationResponse invite_respond = 3;
-    LeaveResponse leave = 4;
-  }
+    oneof response {
+        InitResponse init = 1;
+        SendInvitationResponse invite = 2;
+        RespondToInvitationResponse invite_respond = 3;
+        LeaveResponse leave = 4;
+    }
 }
 
 message SendInvitationRequest {
-  int32 sender_id = 1;
-  int32 receiver_id = 2;
-  optional int32 chat_id = 3;
+    int32 sender_id = 1;
+    int32 receiver_id = 2;
+    optional int32 chat_id = 3;
 }
 
 message RespondToInvitationRequest {
-  int32 sender_id = 1;
-  int32 receiver_id = 2;
-  int32 invite_id = 3;
-  InviteStatus status = 4;
-  optional int32 chat_id = 5;
+    int32 sender_id = 1;
+    int32 receiver_id = 2;
+    int32 invite_id = 3;
+    InviteStatus status = 4;
+    optional int32 chat_id = 5;
 }
 
 message SendInvitationResponse {
-  int32 sender_id = 1;
-  Invite invite = 2;
-  optional string error_message = 3;
+    int32 sender_id = 1;
+    Invite invite = 2;
+    optional string error_message = 3;
 }
 
 message RespondToInvitationResponse {
-  int32 sender_id = 1;
-  int32 receiver_id = 2;
-  InviteStatus status = 3;
-  int32 invite_id = 4;
-  optional chat_service.ChatPreview chat = 5;
+    int32 sender_id = 1;
+    int32 receiver_id = 2;
+    InviteStatus status = 3;
+    int32 invite_id = 4;
+    optional chat_service.ChatPreview chat = 5;
 }
 
 message InitRequest {
-  int32 user_id = 1;
+    int32 user_id = 1;
 }
 
 message InitResponse {
-  Status status = 1;
+    Status status = 1;
 }
 
 message LeaveRequest {
-  int32 user_id = 1;
+    int32 user_id = 1;
 }
 
 message LeaveResponse {
-  Status status = 1;
+    Status status = 1;
 }

@@ -1,11 +1,11 @@
 #pragma once
 
 #include <grpcpp/grpcpp.h>
+#include <vector>
 #include "components/database/services/block_service/block_service.hpp"
 #include "components/database/services/subscription_service/subscription_service.hpp"
 #include "services/users_interaction_service/users_interaction.grpc.pb.h"
 #include "services/users_interaction_service/users_interaction.pb.h"
-#include <vector>
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -13,25 +13,26 @@ using grpc::ServerContext;
 using grpc::Status;
 using users_interaction::BlockRequest;
 using users_interaction::BlockResponse;
-using users_interaction::UnblockRequest;
-using users_interaction::UnblockResponse;
-using users_interaction::ShowAllBlockedRequest;
-using users_interaction::ShowAllBlockedResponse;
-using users_interaction::SubscribeRequest;
-using users_interaction::SubscribeResponse;
-using users_interaction::UnsubscribeRequest;
-using users_interaction::UnsubscribeResponse;
-using users_interaction::ShowAllSubscriptionsRequest;
-using users_interaction::ShowAllSubscriptionsResponse;
-using users_interaction::ShowAllSubscribersRequest;
-using users_interaction::ShowAllSubscribersResponse;
+using users_interaction::BoolResponse;
 using users_interaction::CheckIsMutualRequest;
 using users_interaction::CheckIsMutualResponse;
 using users_interaction::GetMutualSubscriptionsRequest;
 using users_interaction::GetMutualSubscriptionsResponse;
-using users_interaction::BoolResponse;
+using users_interaction::ShowAllBlockedRequest;
+using users_interaction::ShowAllBlockedResponse;
+using users_interaction::ShowAllSubscribersRequest;
+using users_interaction::ShowAllSubscribersResponse;
+using users_interaction::ShowAllSubscriptionsRequest;
+using users_interaction::ShowAllSubscriptionsResponse;
+using users_interaction::SubscribeRequest;
+using users_interaction::SubscribeResponse;
+using users_interaction::UnblockRequest;
+using users_interaction::UnblockResponse;
+using users_interaction::UnsubscribeRequest;
+using users_interaction::UnsubscribeResponse;
 
-class UsersInteractionServiceImpl final : public users_interaction::UsersInteractionService::Service {
+class UsersInteractionServiceImpl final
+    : public users_interaction::UsersInteractionService::Service {
     database::subscription_service_database_api subscription_db_api;
     database::block_service_database_api block_db_api;
     Status Block(
@@ -91,10 +92,12 @@ class UsersInteractionServiceImpl final : public users_interaction::UsersInterac
     Status CheckIsBlocked(
         ServerContext *context,
         const BlockRequest *request,
-        BoolResponse *response) override;
+        BoolResponse *response
+    ) override;
 
     Status CheckIsSubscribed(
         ServerContext *context,
         const SubscribeRequest *request,
-        BoolResponse *response) override;
+        BoolResponse *response
+    ) override;
 };

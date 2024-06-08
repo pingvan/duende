@@ -5,9 +5,13 @@ package search_service;
 import "common/common.proto";
 
 service SerachService {
-    rpc SearchUserByCredentials(UserSearchRequest) returns (UserSearchResponse) {}
-    rpc SearchFilmByTitle(FilmSearchRequest) returns (FilmSearchResponse) {}
-    rpc SearchActorByName(ActorSearchRequest) returns (ActorSearchResponse) {}
+    rpc SearchUserByCredentials(UserSearchRequest)
+        returns (UserSearchResponse) {
+    }
+    rpc SearchFilmByTitle(FilmSearchRequest) returns (FilmSearchResponse) {
+    }
+    rpc SearchActorByName(ActorSearchRequest) returns (ActorSearchResponse) {
+    }
 }
 
 message UserSearchRequest {
@@ -33,5 +37,3 @@ message FilmSearchResponse {
 message ActorSearchResponse {
     repeated common.ActorPreview actors = 1;
 }
-
-

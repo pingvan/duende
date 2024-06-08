@@ -54,7 +54,6 @@ public:
         int rating = data(Qt::UserRole + 1).toInt();
         QGraphicsProxyWidget *proxy =
             data(Qt::UserRole + 2).value<QGraphicsProxyWidget *>();
-        qDebug() << "Double click detected. Removing movie with ID:" << movieId;
         manager->new_client.remove_movie(manager->ID, movieId, rating);
         auto it = std::find_if(
             manager->watchlist.begin(), manager->watchlist.end(),
@@ -65,11 +64,7 @@ public:
 
         if (it != manager->watchlist.end()) {
             manager->watchlist.erase(it);
-            qDebug() << "Movie removed successfully.";
-        } else {
-            qDebug() << "Movie not found in watchlist.";
         }
-        qDebug() << "Movie removed successfully.";
         scene()->removeItem(this);
         delete this;
     }
@@ -84,15 +79,11 @@ Profile::Profile(Manager *managerPtr, QWidget *parent)
     : QWidget(parent), ui(new Ui::Profile), manager(managerPtr) {
     ui->setupUi(this);
 
-    qDebug() << "Profile page start\n";
-
     user = manager->new_client.get_user_full_page(manager->ID);
 
     assert(user != nullptr);
 
     build();
-
-    qDebug() << "Profile page end\n";
 }
 
 void Profile::button_edit_clicked() {
@@ -133,7 +124,6 @@ void Profile::button_edit_clicked() {
         [this](QListWidgetItem *item) {
             int row = actorsList->row(item);
             int actor_id = item->data(Qt::UserRole).toInt();
-            qDebug() << "Removing actor with id: " << actor_id;
             manager->new_client.remove_actor(manager->ID, actor_id);
             actorsList->takeItem(row);
             delete item;
@@ -263,7 +253,6 @@ void Profile::update_watchlist(int start_films, bool edit_mode) {
             manager->new_client.get_film_full_page(movie.preview().film_id());
         QUrl url;
         if (full_page == nullptr) {
-            qDebug() << "aaaaaaaaa";
             url = movie.preview().preview_cover_url().c_str();
         } else {
             url = full_page->full_page_cover_url().c_str();
@@ -279,8 +268,6 @@ void Profile::update_watchlist(int start_films, bool edit_mode) {
             image.loadFromData(data);
             pixmap = QPixmap::fromImage(image);
         } else {
-            qDebug() << "Failed to load image from url:"
-                     << reply->errorString();
             pixmap.load(":/img/file.PNG");
         }
         pixmap = pixmap.scaledToHeight(view_watchlist->height() - 100);
@@ -320,7 +307,6 @@ void Profile::update_favorite_actors() {
         item->setForeground(QColor("#8023a8"));
         item->setBackground(QBrush(Qt::white));
         item->setData(Qt::UserRole, actor.actor_id());
-        qDebug() << "Add actor with id: " << actor.actor_id();
         actorsList->addItem(item);
     }
 }

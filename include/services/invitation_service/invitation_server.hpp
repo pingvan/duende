@@ -1,22 +1,27 @@
 #pragma once
 
 #include <grpcpp/grpcpp.h>
-#include "components/database/services/chat_service/chat_service.hpp"
-#include "components/database/services/invite_service/invite_service.hpp"
 #include "components/database/services/authservice/authservice.hpp"
 #include "components/database/services/block_service/block_service.hpp"
-#include "services/invitation_service/invitation.grpc.pb.h"
-#include "services/invitation_service/invitation.pb.h"
+#include "components/database/services/chat_service/chat_service.hpp"
+#include "components/database/services/invite_service/invite_service.hpp"
 #include "services/chat_service/chat_service.grpc.pb.h"
 #include "services/chat_service/chat_service.pb.h"
+#include "services/invitation_service/invitation.grpc.pb.h"
+#include "services/invitation_service/invitation.pb.h"
 
-struct invitation_service final : public invitation::InvitationService::Service {
-    invitation_service(const std::shared_ptr<grpc::Channel> &channel) : chat_stub(chat_service::ChatHandler::NewStub(channel)), chat_data_stub(chat_service::ChatDataService::NewStub(channel)) {}
+struct invitation_service final
+    : public invitation::InvitationService::Service {
+    invitation_service(const std::shared_ptr<grpc::Channel> &channel)
+        : chat_stub(chat_service::ChatHandler::NewStub(channel)),
+          chat_data_stub(chat_service::ChatDataService::NewStub(channel)) {
+    }
 
     grpc::Status InvitationStream(
         grpc::ServerContext *context,
-        grpc::ServerReaderWriter<invitation::InvitationResponse, invitation::InvitationRequest>
-            *stream
+        grpc::ServerReaderWriter<
+            invitation::InvitationResponse,
+            invitation::InvitationRequest> *stream
     ) override;
 
     chat_service::ChatPreview *create_private_chat(int first_id, int second_id);
@@ -35,7 +40,8 @@ private:
         users_online;
 };
 
-struct invitation_data_service final : public invitation::InvitationDataService::Service {
+struct invitation_data_service final
+    : public invitation::InvitationDataService::Service {
     grpc::Status GetReceivedInvitations(
         grpc::ServerContext *context,
         const invitation::RequestWithId *request,

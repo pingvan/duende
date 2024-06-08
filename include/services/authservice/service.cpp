@@ -1,15 +1,15 @@
 #include "service.hpp"
+#include <iostream>
+#include "components/database/services/authservice/authservice.hpp"
 #include "hash.hpp"
 #include "token.hpp"
-#include "components/database/services/authservice/authservice.hpp"
-
-#include <iostream>
-
 
 void auth_service::save_user(authservice::User &user, std::string password) {
     user.set_salt(generate_salt(10));
     user.set_hashed_password(generate_hash(password + user.salt()));
-    user.set_id(database::authservice_database_api::add_user(user.email(), user.username(), "", user.hashed_password(), user.salt()));
+    user.set_id(database::authservice_database_api::add_user(
+        user.email(), user.username(), "", user.hashed_password(), user.salt()
+    ));
 }
 
 grpc::Status auth_service::Login(
@@ -55,9 +55,7 @@ grpc::Status auth_service::Login(
 
     std::string hashed_password = connector.get_hash_salt(id).first;
     std::string salt = connector.get_hash_salt(id).second;
-    user.set_hashed_password(
-        generate_hash(password + salt)
-    );
+    user.set_hashed_password(generate_hash(password + salt));
     if (hashed_password != user.hashed_password()) {
         return grpc::Status(
             grpc::StatusCode::INVALID_ARGUMENT, "Incorrect password"
@@ -117,11 +115,11 @@ grpc::Status auth_service::Signup(
 
     authservice::Tokens *tokens = token_service.generate_tokens(payload);
     token_service.save_refresh_token(user.id(), tokens->refresh());
-    authservice::AccessToken* access_token = new authservice::AccessToken();
+    authservice::AccessToken *access_token = new authservice::AccessToken();
     *access_token = tokens->access();
     response->set_allocated_access_token(access_token);
     response->set_id(user.id());
-    
+
     return grpc::Status::OK;
 }
 
@@ -145,15 +143,23 @@ authservice::RefreshToken *auth_service_data::get_refresh_token(int user_id) {
     return refresh_token;
 }
 
-grpc::Status auth_service_data::GetUserPrewiew(grpc::ServerContext *context,
- const authservice::RequestWithUserId *request,
-  common::UserPreview *response) {
-    database::authservice_database_api::get_user_preview(request->user_id()).convert_to_proto(response);
+grpc::Status auth_service_data::GetUserPrewiew(
+    grpc::ServerContext *context,
+    const authservice::RequestWithUserId *request,
+    common::UserPreview *response
+) {
+    database::authservice_database_api::get_user_preview(request->user_id())
+        .convert_to_proto(response);
     return grpc::Status::OK;
 }
 
-grpc::Status auth_service_data::GetUserFullPage(grpc::ServerContext *context, const authservice::RequestWithUserId *request, common::UserFullPage *response) {
-    database::authservice_database_api::get_user_full_page(request->user_id()).convert_to_proto(response);
+grpc::Status auth_service_data::GetUserFullPage(
+    grpc::ServerContext *context,
+    const authservice::RequestWithUserId *request,
+    common::UserFullPage *response
+) {
+    database::authservice_database_api::get_user_full_page(request->user_id())
+        .convert_to_proto(response);
     return grpc::Status::OK;
 }
 
@@ -163,15 +169,18 @@ grpc::Status auth_service_data::UpdateAccessToken(
     authservice::AccessToken *response
 ) {
     token_service token_service;
-    authservice::RefreshToken *refresh_token = get_refresh_token(request->user_id());
+    authservice::RefreshToken *refresh_token =
+        get_refresh_token(request->user_id());
 
-    if (token_service.is_refresh_token_active(refresh_token->token()).error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+    if (token_service.is_refresh_token_active(refresh_token->token())
+            .error_code() == grpc::StatusCode::UNAUTHENTICATED) {
         return grpc::Status(
             grpc::StatusCode::UNAUTHENTICATED, "Refresh token is invalid"
         );
     }
 
-    authservice::AccessToken *access_token = token_service.refresh_access_token(*refresh_token);
+    authservice::AccessToken *access_token =
+        token_service.refresh_access_token(*refresh_token);
 
     response->set_token(access_token->token());
 
@@ -186,8 +195,12 @@ grpc::Status auth_service_data::CreateTokens(
     token_service token_service;
     authservice::Payload payload;
     payload.set_user_id(request->user_id());
-    payload.set_email(database::authservice_database_api::get_user_email(request->user_id()));
-    payload.set_username(database::authservice_database_api::get_user_nickname(request->user_id()));
+    payload.set_email(
+        database::authservice_database_api::get_user_email(request->user_id())
+    );
+    payload.set_username(database::authservice_database_api::get_user_nickname(
+        request->user_id()
+    ));
     authservice::Tokens *tokens = token_service.generate_tokens(payload);
 
     token_service.save_refresh_token(request->user_id(), tokens->refresh());

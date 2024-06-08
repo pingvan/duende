@@ -3,72 +3,72 @@ syntax = "proto3";
 package common;
 
 enum Genre {
-  ACTION = 0;
-  ADVENTURE = 1;
-  COMEDY = 2;
-  DRAMA = 3;
-  HORROR = 4;
-  SCI_FI = 5;
-  FANTASY = 6;
-  THRILLER = 7;
-  MYSTERY = 8;
-  ROMANCE = 9;
-  ANIMATION = 10;
-  DOCUMENTARY = 11;
-  CRIME = 12;
-  WESTERN = 13;
-  MUSIC = 14;
-  HISTORY = 15;
-  WAR = 16;
-  BIOGRAPHICAL = 17;
-  SPORTS = 18;
-  FAMILY = 19;
-  FOREIGN = 20;
-  TV_MOVIE = 21;
+    ACTION = 0;
+    ADVENTURE = 1;
+    COMEDY = 2;
+    DRAMA = 3;
+    HORROR = 4;
+    SCI_FI = 5;
+    FANTASY = 6;
+    THRILLER = 7;
+    MYSTERY = 8;
+    ROMANCE = 9;
+    ANIMATION = 10;
+    DOCUMENTARY = 11;
+    CRIME = 12;
+    WESTERN = 13;
+    MUSIC = 14;
+    HISTORY = 15;
+    WAR = 16;
+    BIOGRAPHICAL = 17;
+    SPORTS = 18;
+    FAMILY = 19;
+    FOREIGN = 20;
+    TV_MOVIE = 21;
 }
 
 message ActorPreview {
     int32 actor_id = 1;
-  string full_name = 2;
+    string full_name = 2;
 }
 
 message FilmPreview {
     int32 film_id = 1;
-  string title = 2;
-  optional string preview_cover_url = 3;
+    string title = 2;
+    optional string preview_cover_url = 3;
 }
 
 message FilmFullPage {
-  FilmPreview preview = 1;
-  string description = 2;
-  repeated Genre genres = 3;
-  optional string full_page_cover_url = 4;
+    FilmPreview preview = 1;
+    string description = 2;
+    repeated Genre genres = 3;
+    optional string full_page_cover_url = 4;
 }
 
 message FilmOnUserPage {
-  FilmPreview preview = 1;
-  int32 ratio = 2;
+    FilmPreview preview = 1;
+    int32 ratio = 2;
 }
 
 message UserPreview {
-  int32 user_id = 1;
-  string login = 2;
-  optional bytes photo = 3;
+    int32 user_id = 1;
+    string login = 2;
+    optional bytes photo = 3;
 }
 
 message UserFullPage {
-  UserPreview preview = 1;
-  string quote = 2;
-  string about = 3;
-  repeated Genre favorite_genres = 4;
-  repeated ActorPreview favorite_actors = 5;
-  repeated FilmOnUserPage watched_films = 6;
+    UserPreview preview = 1;
+    string quote = 2;
+    string about = 3;
+    repeated Genre favorite_genres = 4;
+    repeated ActorPreview favorite_actors = 5;
+    repeated FilmOnUserPage watched_films = 6;
 }
 
 message GroupChatPreview {
-  int32 chat_id = 1;
-  string name = 2;
-  string description = 3;
-  repeated UserPreview members = 4;
-  optional bytes chat_cover = 5;
+    int32 chat_id = 1;
+    string name = 2;
+    string description = 3;
+    repeated UserPreview members = 4;
+    optional bytes chat_cover = 5;
 }

@@ -1,11 +1,9 @@
 #include "token.hpp"
-#include "components/jwt/jwt.hpp"
 #include "components/database/services/authservice/authservice.hpp"
+#include "components/jwt/jwt.hpp"
 
-authservice::Tokens *token_service::generate_tokens(
-    authservice::Payload payload
+authservice::Tokens *token_service::generate_tokens(authservice::Payload payload
 ) {
-
     jwt_tokens jwt_tokens;
     authservice::AccessToken *access_token =
         jwt_tokens.create_access_token(payload, std::chrono::seconds{30 * 60});
@@ -19,7 +17,10 @@ authservice::Tokens *token_service::generate_tokens(
     return tokens;
 }
 
-grpc::Status token_service::save_refresh_token(int user_id, authservice::RefreshToken token) {
+grpc::Status token_service::save_refresh_token(
+    int user_id,
+    authservice::RefreshToken token
+) {
     database::authservice_database_api connector;
     connector.update_refresh_token(user_id, token.token());
     return grpc::Status::OK;
@@ -37,7 +38,9 @@ grpc::Status token_service::validate_token(authservice::RefreshToken token) {
     }
 }
 
-authservice::RefreshToken *token_service::refresh_refresh_token(authservice::RefreshToken token) {
+authservice::RefreshToken *token_service::refresh_refresh_token(
+    authservice::RefreshToken token
+) {
     if (!validate_token(token).ok()) {
         throw invalid_refresh_token();
     }
@@ -57,10 +60,15 @@ authservice::RefreshToken *token_service::refresh_refresh_token(authservice::Ref
     return refresh_token;
 }
 
-authservice::AccessToken *token_service::refresh_access_token(authservice::RefreshToken refresh_token) {
+authservice::AccessToken *token_service::refresh_access_token(
+    authservice::RefreshToken refresh_token
+) {
     jwt_tokens jwt_tokens;
-    authservice::Payload payload = jwt_tokens.decode_token(refresh_token.token());
-    return jwt_tokens.create_access_token(payload, std::chrono::seconds{30 * 60});
+    authservice::Payload payload =
+        jwt_tokens.decode_token(refresh_token.token());
+    return jwt_tokens.create_access_token(
+        payload, std::chrono::seconds{30 * 60}
+    );
 }
 
 grpc::Status token_service::is_access_token_active(std::string token) {
@@ -80,9 +88,7 @@ grpc::Status token_service::is_access_token_active(std::string token) {
     }
 }
 
-grpc::Status token_service::is_refresh_token_active(
-    std::string token
-) {
+grpc::Status token_service::is_refresh_token_active(std::string token) {
     try {
         jwt_tokens jwt_tokens;
         std::string secret_refresh = jwt_tokens.get_env_var("SECRET_REFRESH");

@@ -1,13 +1,11 @@
 #pragma once
 
+#include <grpcpp/grpcpp.h>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-#include <grpcpp/grpcpp.h>
-
 #include "common/common.pb.h"
 #include "services/profile_service/profile.grpc.pb.h"
 #include "services/profile_service/profile.pb.h"
@@ -17,62 +15,105 @@ using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::Status;
 using profile::Actor;
-using profile::Genre;
-using profile::Movie;
-using profile::ProfileReply;
-using profile::UsernameRequest;
-using profile::MovieRequest;
 using profile::ActorRequest;
-using profile::GenreRequest;
 using profile::BioRequest;
-using profile::QuoteRequest;
-using profile::ProfileService;
-using profile::ProfilePhotoRequest;
+using profile::Genre;
+using profile::GenreRequest;
 using profile::IsChosenReply;
+using profile::Movie;
+using profile::MovieRequest;
+using profile::ProfilePhotoRequest;
+using profile::ProfileReply;
+using profile::ProfileService;
+using profile::QuoteRequest;
+using profile::UsernameRequest;
 
-class ProfileServiceImpl final : public ProfileService::Service
-{
+class ProfileServiceImpl final : public ProfileService::Service {
+    Status ChangeUsername(
+        ServerContext *context,
+        const UsernameRequest *request,
+        ProfileReply *reply
+    ) override;
 
-  Status ChangeUsername(ServerContext *context, const UsernameRequest *request,
-                         ProfileReply *reply) override;
+    Status ChangeQuote(
+        ServerContext *context,
+        const QuoteRequest *request,
+        ProfileReply *reply
+    ) override;
 
-  Status ChangeQuote(ServerContext *context, const QuoteRequest *request,
-                     ProfileReply *reply) override;
+    Status ChangeBio(
+        ServerContext *context,
+        const BioRequest *request,
+        ProfileReply *reply
+    ) override;
 
-  Status ChangeBio(ServerContext *context, const BioRequest *request,
-                    ProfileReply *reply) override;
+    Status AddToWatchlist(
+        ServerContext *context,
+        const MovieRequest *request,
+        ProfileReply *reply
+    ) override;
 
-  Status AddToWatchlist(ServerContext *context, const MovieRequest *request,
-                       ProfileReply *reply) override;
+    Status RemoveFromWatchlist(
+        ServerContext *context,
+        const MovieRequest *request,
+        ProfileReply *reply
+    ) override;
 
-  Status RemoveFromWatchlist(ServerContext *context, const MovieRequest *request,
-                             ProfileReply *reply) override;
+    Status AddToListOfActors(
+        ServerContext *context,
+        const ActorRequest *request,
+        ProfileReply *reply
+    ) override;
 
-  Status AddToListOfActors(ServerContext *context, const ActorRequest *request,
-                           ProfileReply *reply) override;
+    Status RemoveFromListOfActors(
+        ServerContext *context,
+        const ActorRequest *request,
+        ProfileReply *reply
+    ) override;
 
-  Status RemoveFromListOfActors(ServerContext *context, const ActorRequest *request,
-                                ProfileReply *reply) override;
+    Status AddToListOfGenres(
+        ServerContext *context,
+        const GenreRequest *request,
+        ProfileReply *reply
+    ) override;
 
-  Status AddToListOfGenres(ServerContext *context, const GenreRequest *request,
-                           ProfileReply *reply) override;
+    Status RemoveFromListOfGenres(
+        ServerContext *context,
+        const GenreRequest *request,
+        ProfileReply *reply
+    ) override;
 
-  Status RemoveFromListOfGenres(ServerContext *context, const GenreRequest *request,
-                                ProfileReply *reply) override;
-
-  Status ChangeProfilePhoto(ServerContext *context, const ProfilePhotoRequest *request,
-                            ProfileReply *reply) override; 
-  Status CheckIsGenreFavourite(ServerContext *context, const GenreRequest *request,
-                               IsChosenReply *reply) override;
-  Status CheckIsActorFavourite(ServerContext *context, const ActorRequest *request,
-                               IsChosenReply *reply) override;
-  Status CheckIsMovieChosen(ServerContext *context, const MovieRequest *request,
-                           IsChosenReply *reply) override;
+    Status ChangeProfilePhoto(
+        ServerContext *context,
+        const ProfilePhotoRequest *request,
+        ProfileReply *reply
+    ) override;
+    Status CheckIsGenreFavourite(
+        ServerContext *context,
+        const GenreRequest *request,
+        IsChosenReply *reply
+    ) override;
+    Status CheckIsActorFavourite(
+        ServerContext *context,
+        const ActorRequest *request,
+        IsChosenReply *reply
+    ) override;
+    Status CheckIsMovieChosen(
+        ServerContext *context,
+        const MovieRequest *request,
+        IsChosenReply *reply
+    ) override;
 };
 
 struct ProfileDataService final : public profile::ProfileServiceData::Service {
-  grpc::Status GetFilmFullPage(grpc::ServerContext *context, const profile::FilmId *request,
-                               common::FilmFullPage *response) override;
-  grpc::Status GetFilmPreview(grpc::ServerContext *context, const profile::FilmId *request,
-                               common::FilmPreview *response) override;
+    grpc::Status GetFilmFullPage(
+        grpc::ServerContext *context,
+        const profile::FilmId *request,
+        common::FilmFullPage *response
+    ) override;
+    grpc::Status GetFilmPreview(
+        grpc::ServerContext *context,
+        const profile::FilmId *request,
+        common::FilmPreview *response
+    ) override;
 };
