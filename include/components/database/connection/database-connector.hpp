@@ -25,13 +25,12 @@ struct connector {
         txn = std::make_unique<pqxx::work>(*con);
     }
 
-    #ifdef TESTING
+    
     connector(const std::string &connection_string_) {
         connection_string = connection_string_;
         con = std::make_unique<pqxx::connection>(connection_string);
         txn = std::make_unique<pqxx::work>(*con);
     }
-    #endif
 
     friend struct authservice_database_api;
     friend struct profile_service_database_api;

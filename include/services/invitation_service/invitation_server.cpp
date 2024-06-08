@@ -115,7 +115,7 @@ grpc::Status invitation_service::InvitationStream(
                 int receiver_id = request.invite().receiver_id();
                 int sender_id = request.invite().sender_id();
 
-                if (invite_db_api.is_invite_already_sent(
+                if (invite_db_api.is_invite_already_sent(   
                     sender_id, receiver_id
                 )) {
                     invitation::InvitationResponse sender_response;

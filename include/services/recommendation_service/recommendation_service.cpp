@@ -39,25 +39,14 @@ grpc::Status RecommendationServiceImpl::GetFilmsRecommendations(grpc::ServerCont
     return grpc::Status::OK;
 }
 
-#include <iostream>
-
 grpc::Status RecommendationServiceImpl::GetFilmsRecommendationsForSeveralUsers(grpc::ServerContext *context, const recommendation_service::UserIds *request, recommendation_service::GetFilmsRecommendationsResponse *response) {
-    try {
-        const google::protobuf::RepeatedField<int> &users_ids = request->ids();
-        auto users_id = std::vector<int>(users_ids.begin(), users_ids.end());
-        auto recommended_film_id = RecommendFilmsForSeveralUsers(users_id);
-        auto film = database::profile_service_database_api::get_film_preview(recommended_film_id);
-        auto film_proto = response->add_film();
-        film.convert_to_proto(film_proto);
-        std::cout << "Successfully recommended film with id: " << recommended_film_id << std::endl;
-        return grpc::Status::OK;
-    } catch (const std::exception& e) {
-        std::cout << "Exception caught: " << e.what() << std::endl;
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
-    } catch (...) {
-        std::cout << "Unknown exception caught" << std::endl;
-        return grpc::Status(grpc::StatusCode::UNKNOWN, "Unknown exception caught");
-    }
+    const google::protobuf::RepeatedField<int> &users_ids = request->ids();
+    auto users_id = std::vector<int>(users_ids.begin(), users_ids.end());
+    auto recommended_film_id = RecommendFilmsForSeveralUsers(users_id);
+    auto film = database::profile_service_database_api::get_film_preview(recommended_film_id);
+    auto film_proto = response->add_film();
+    film.convert_to_proto(film_proto);
+    return grpc::Status::OK;
 }
 
 std::vector<std::vector<int>> RecommendationServiceImpl::Transpose(const std::vector<std::vector<int>> &matrix) {

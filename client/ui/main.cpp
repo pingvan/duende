@@ -14,6 +14,26 @@
 
 std::string server_address("0.0.0.0:50051");
 
+std::string ReadFile(const std::filesystem::path &path) {
+    auto cert_path = std::filesystem::current_path().parent_path() / path;
+    std::ifstream file(cert_path);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file: " << cert_path << std::endl;
+        std::exit(1);
+    }
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
+
+std::shared_ptr<grpc::ChannelCredentials> GetCredentials() {
+  grpc::SslCredentialsOptions ssl_opts;
+  ssl_opts.pem_root_certs = ReadFile("certs/ca.crt");
+  ssl_opts.pem_private_key = ReadFile("certs/client.key");
+  ssl_opts.pem_cert_chain = ReadFile("certs/client.crt");
+  return grpc::SslCredentials(ssl_opts);
+}
+
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
@@ -46,7 +66,7 @@ int main(int argc, char *argv[]) {
 
     // Manager
     Manager manager(
-        grpc::CreateChannel(server_address, grpc::InsecureChannelCredentials())
+        grpc::CreateChannel(server_address, GetCredentials())
     );
 
     // Main window
@@ -94,6 +114,11 @@ int main(int argc, char *argv[]) {
             stackedWidget->setCurrentWidget(mainPage);
         }
     );
+
+    QObject::connect(&manager, &Manager::needLogin, [&]() {
+        stackedWidget->setCurrentIndex(0);
+        manager.logout();
+    });
 
     mainWindow.setCentralWidget(stackedWidget);
     QTimer::singleShot(2500, [&]() { mainWindow.showFullScreen(); });

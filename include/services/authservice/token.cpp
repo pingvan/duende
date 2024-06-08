@@ -37,7 +37,7 @@ grpc::Status token_service::validate_token(authservice::RefreshToken token) {
     }
 }
 
-authservice::Tokens *token_service::refresh(authservice::RefreshToken token) {
+authservice::RefreshToken *token_service::refresh_refresh_token(authservice::RefreshToken token) {
     if (!validate_token(token).ok()) {
         throw invalid_refresh_token();
     }
@@ -51,22 +51,19 @@ authservice::Tokens *token_service::refresh(authservice::RefreshToken token) {
     payload.set_email(connector.get_user_email(id));
     payload.set_username(connector.get_user_nickname(id));
 
-    authservice::AccessToken *access_token =
-        jwt_tokens.create_access_token(payload, std::chrono::seconds{30 * 60});
     authservice::RefreshToken *refresh_token = jwt_tokens.create_refresh_token(
         payload, std::chrono::seconds{30 * 24 * 60 * 60}
     );
-    authservice::Tokens *tokens = new authservice::Tokens();
-    tokens->set_allocated_access(access_token);
-    tokens->set_allocated_refresh(refresh_token);
-    return tokens;
+    return refresh_token;
 }
 
-grpc::Status token_service::activate_access_token(
-    int user_id,
-    std::string token,
-    authservice::Payload payload
-) {
+authservice::AccessToken *token_service::refresh_access_token(authservice::RefreshToken refresh_token) {
+    jwt_tokens jwt_tokens;
+    authservice::Payload payload = jwt_tokens.decode_token(refresh_token.token());
+    return jwt_tokens.create_access_token(payload, std::chrono::seconds{30 * 60});
+}
+
+grpc::Status token_service::is_access_token_active(std::string token) {
     try {
         jwt_tokens jwt_tokens;
         std::string secret_access = jwt_tokens.get_env_var("SECRET_ACCESS");
@@ -75,20 +72,12 @@ grpc::Status token_service::activate_access_token(
             .allow_algorithm(jwt::algorithm::hs256{secret_access})
             .with_issuer("auth0")
             .verify(jwt::decode(token));
+        return grpc::Status::OK;
     } catch (...) {
-        database::authservice_database_api connector;
-        if (is_refresh_token_active(connector.get_refresh_token(user_id)).ok()) {
-            jwt_tokens jwt_tokens;
-            jwt_tokens.create_access_token(
-                payload, std::chrono::seconds{30 * 60}
-            );
-        } else {
-            return grpc::Status(
-                grpc::StatusCode::UNAUTHENTICATED, "Token is invalid"
-            );
-        }
+        return grpc::Status(
+            grpc::StatusCode::UNAUTHENTICATED, "Access token is invalid"
+        );
     }
-    return grpc::Status::OK;
 }
 
 grpc::Status token_service::is_refresh_token_active(
@@ -105,7 +94,7 @@ grpc::Status token_service::is_refresh_token_active(
         return grpc::Status::OK;
     } catch (...) {
         return grpc::Status(
-            grpc::StatusCode::UNAUTHENTICATED, "Token is invalid"
+            grpc::StatusCode::UNAUTHENTICATED, "Refresh token is invalid"
         );
     }
 }

@@ -52,7 +52,8 @@ std::vector<int> chat_service_database_api::get_chat_admins(const int &chat_id) 
     connection.txn->commit();
     return ids;
 }
-
+  
+  
 user_chats chat_service_database_api::get_user_chats(const int &user_id) {
     const connector connection;
     static std::string query = "SELECT chat_id FROM chat_membership WHERE user_id = $1"; 
@@ -62,15 +63,6 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
     for (const auto &row : result) {
         chat_ids.push_back(row[0].as<int>());
     }
-
-    // static constexpr std::string_view query_get_user_chats = 
-    // "SELECT c.id, to_char(c.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at, c.is_group_chat, c.chat_name, c.description, c.users_count " 
-    // "FROM chats AS c "
-    // "JOIN chat_membership AS c_m on id = c_m.chat_id "
-    // "WHERE c_m.user_id = $1";
-
-    // const auto user_chats_result = connection.txn->exec_params(pqxx::zview(query_get_user_chats), user_id);
-
     aes::encryptor encryptor;
     static std::string query_sec = "SELECT id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS'), is_group_chat, chat_name, description, users_count, cover FROM chats WHERE id = $1";
     user_chats chats;
@@ -108,7 +100,7 @@ user_chats chat_service_database_api::get_user_chats(const int &user_id) {
     }
     connection.txn->commit();
     return chats;
-}
+}  
 
 last_messages chat_service_database_api::get_chats_messages(const int &chat_id) {
     const connector connection;
@@ -152,7 +144,6 @@ chat_events chat_service_database_api::get_chat_events(const int &chat_id) {
 }
 
 
-//can do int one select with join
 chat_preview chat_service_database_api::get_chat_preview(const int &chat_id) {
     const connector connection;
     aes::encryptor encryptor;
@@ -309,7 +300,7 @@ void chat_service_database_api::add_user_to_chat(const int &chat_id, const int &
     connection.txn->commit();
 }
 
-//function to delete user when he leaves chat
+
 void chat_service_database_api::remove_user_from_chat(const int &chat_id, const int &user_id) {
     const connector connection;
     static constexpr std::string_view query = "DELETE FROM chat_membership WHERE user_id = $1 AND chat_id = $2";
@@ -322,7 +313,7 @@ void chat_service_database_api::remove_user_from_chat(const int &chat_id, const 
     connection.txn->commit();
 }
 
-//this overload is for admin to delete user 
+
 void chat_service_database_api::remove_user_from_chat(const int &chat_id, const int &admin_id, const int &user_id_to_remove) {
     const connector connection;
     static constexpr std::string_view query = "DELETE FROM chat_membership WHERE user_id = $1 AND chat_id = $2";

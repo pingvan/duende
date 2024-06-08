@@ -39,4 +39,18 @@ struct auth_service_data final : public authservice::AuthServiceData::Service {
         const authservice::RequestWithUserId *request,
         common::UserFullPage *response
     ) override;
+
+    grpc::Status UpdateAccessToken(
+        grpc::ServerContext *context,
+        const authservice::RequestWithUserId *request,
+        authservice::AccessToken *response
+    ) override;
+
+    grpc::Status CreateTokens(
+        grpc::ServerContext *context,
+        const authservice::RequestWithUserId *request,
+        authservice::AccessToken *response
+    ) override;
+
+    authservice::RefreshToken *get_refresh_token(int user_id);
 };
