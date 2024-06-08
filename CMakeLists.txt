@@ -12,10 +12,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # set(CMAKE_CXX_FLAGS "-fsanitize=undefined,address")
 
 add_subdirectory(./include/)
-add_subdirectory(./libs/libpqxx)
+add_subdirectory(./tests/ build-tests)
+add_subdirectory(./libs/libpqxx build-pqxx)
 
 message(NOTICE "COMPONENTS_SRCS: " ${COMPONENTS_SRCS})
 message(NOTICE "SERVICES_SRCS: " ${SERVICES_SRCS})
+message(NOTICE "TESTS_SRCS: " ${TESTS_SRCS})
 
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
@@ -33,22 +35,21 @@ add_executable(main
     ${generated_proto_models_srcs}
 )
 
-# add_executable(gtests
-#         gtests/gtest_main.cpp
+add_executable(tests
+        tests/test_main.cpp
 
-#         # ${TESTS_SRCS}
+        ${TESTS_SRCS}
 
-#         ${COMPONENTS_SRCS}
-#         ${SERVICES_SRCS}
+        ${COMPONENTS_SRCS}
 
-#         ${generated_proto_models_srcs}
-# )
+        ${generated_proto_models_srcs}
+)
 
 
 add_dependencies(main generate_proto_models)
 add_dependencies(main pqxx)
-# add_dependencies(gtests generate_proto_models)
-# add_dependencies(gtests pqxx)
+add_dependencies(tests generate_proto_models)
+add_dependencies(tests pqxx)
 
 
 target_link_libraries(main
@@ -65,22 +66,20 @@ target_include_directories(main PUBLIC
         ./include
         ./libs
         ${CMAKE_CURRENT_BINARY_DIR}
-        ${LIBPQXX_INCLUDE_DIRS}
 )
 
-# target_link_libraries(gtests
-#         absl::flags_parse
-#         gRPC::grpc++
-#         protobuf::libprotobuf
-#         Threads::Threads
-#         GTest::gtest_main 
-#         GTest::gmock_main
-#         pqxx
-# )
+target_link_libraries(tests
+        absl::flags_parse
+        gRPC::grpc++
+        protobuf::libprotobuf
+        Threads::Threads
+        GTest::gtest_main 
+        GTest::gmock_main
+        pqxx
+)
 
-# target_include_directories(gtests PUBLIC
-#         ./include
-#         ./libs
-#         ${CMAKE_CURRENT_BINARY_DIR}
-#         ${LIBPQXX_INCLUDE_DIRS}
-# )
+target_include_directories(tests PUBLIC
+        ./include
+        ./libs
+        ${CMAKE_CURRENT_BINARY_DIR}
+)

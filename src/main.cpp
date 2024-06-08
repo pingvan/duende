@@ -55,16 +55,12 @@ void run_server() {
     invitation_service invitation_service(chat_channel);
     invitation_data_service invitation_data_service;
     UsersInteractionServiceImpl users_interaction_service;
-    RecommendationServiceImpl recommendation_service;
     ProfileDataService profile_service_data;
-    recommendation_service.Init();
+    RecommendationServiceImpl recommendation_service;
 
 
     grpc::ServerBuilder builder;
-    auto processor = std::make_shared<Processor>();
-    auto creds = GetServerCredentials();
-    creds->SetAuthMetadataProcessor(processor);
-    builder.AddListeningPort(server_address, creds);
+    builder.AddListeningPort(server_address, GetServerCredentials());
     builder.RegisterService(&auth_service);
     builder.RegisterService(&profile_service);
     builder.RegisterService(&chat_service); 

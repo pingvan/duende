@@ -1,4 +1,5 @@
 #include "recommendation_service.hpp"
+#include <algorithm>
 #include <functional>
 #include <mutex>
 #include <vector>
@@ -8,34 +9,16 @@
 #include "components/database/services/recommendation_service/recommendation_service.hpp"
 #include "components/database/services/authservice/authservice.hpp"
 
-// make temp copy of ratings matrix, to use it while recounting
 
-void RecommendationServiceImpl::Init() {
-    std::thread ([this] {
-        while (true) {
-            std::cerr << "Recomendation service started recomputing simularity\n";
-            auto rating_matrix_temp = database::recommendation_service_database_api::getUserRatingMarix();
-            auto users_similarity_temp = computeCosineSimularity(rating_matrix_temp);
-            auto films_similarity_temp = computeCosineSimularity(transpose(rating_matrix_temp));
-            {
-                std::unique_lock<std::mutex> l(m);
-                copying = true;
-                rating_matrix = rating_matrix_temp;
-                users_simularity = users_similarity_temp;
-                films_simularity = films_similarity_temp;
-                copying = false;
-            }
-            cv.notify_all();
-            std::cerr << "Recomendation service recomputed simularity\n";
-            std::this_thread::sleep_for(std::chrono::hours(24));
-        }
-    }).detach();
+RecommendationServiceImpl::RecommendationServiceImpl() {
+    auto rating_matrix = database::recommendation_service_database_api::getUserRatingMarix();
+    films_simularity = ComputeCosineSimularity(Transpose(rating_matrix));
 }
 
 grpc::Status RecommendationServiceImpl::GetUsersRecommendations(grpc::ServerContext *context, const recommendation_service::UserId *request, recommendation_service::GetUsersRecommendationsResponse *response) {
     auto user_id = request->id();
     constexpr uint32_t recommendation_count = 15;
-    auto top_users = recommendUsers(user_id, recommendation_count);
+    auto top_users = RecommendUsers(user_id, recommendation_count);
     for (const auto &recommended_user_id : top_users) {
         auto preview = database::authservice_database_api::get_user_preview(recommended_user_id);
         auto preview_proto = response->add_user();
@@ -47,7 +30,7 @@ grpc::Status RecommendationServiceImpl::GetUsersRecommendations(grpc::ServerCont
 grpc::Status RecommendationServiceImpl::GetFilmsRecommendations(grpc::ServerContext *context, const recommendation_service::UserId *request, recommendation_service::GetFilmsRecommendationsResponse *response) {
     auto user_id = request->id();
     constexpr uint32_t recommendation_count = 15;
-    auto top_films = recommendFilms(user_id, recommendation_count);
+    auto top_films = RecommendFilms(user_id, recommendation_count);
     for (const auto &recommended_film_id : top_films) {
         auto film = database::profile_service_database_api::get_film_preview(recommended_film_id);
         auto film_proto = response->add_film();
@@ -56,7 +39,17 @@ grpc::Status RecommendationServiceImpl::GetFilmsRecommendations(grpc::ServerCont
     return grpc::Status::OK;
 }
 
-std::vector<std::vector<int>> RecommendationServiceImpl::transpose(const std::vector<std::vector<int>> &matrix) {
+grpc::Status RecommendationServiceImpl::GetFilmsRecommendationsForSeveralUsers(grpc::ServerContext *context, const recommendation_service::UserIds *request, recommendation_service::GetFilmsRecommendationsResponse *response) {
+    const google::protobuf::RepeatedField<int> &users_ids = request->ids();
+    auto users_id = std::vector<int>(users_ids.begin(), users_ids.end());
+    auto recommended_film_id = RecommendFilmsForSeveralUsers(users_id);
+    auto film = database::profile_service_database_api::get_film_preview(recommended_film_id);
+    auto film_proto = response->add_film();
+    film.convert_to_proto(film_proto);
+    return grpc::Status::OK;
+}
+
+std::vector<std::vector<int>> RecommendationServiceImpl::Transpose(const std::vector<std::vector<int>> &matrix) {
     int num_rows = matrix.size();
     int num_cols = matrix[0].size();
     std::vector<std::vector<int>> transposed_matrix(num_cols, std::vector<int>(num_rows, 0));
@@ -68,7 +61,30 @@ std::vector<std::vector<int>> RecommendationServiceImpl::transpose(const std::ve
     return transposed_matrix;
 }
 
-std::vector<std::vector<double>> RecommendationServiceImpl::computeCosineSimularity(const std::vector<std::vector<int>> &ratings_matrix) {
+std::vector<double> RecommendationServiceImpl::AggregateUserRatings(const std::vector<std::vector<int>> &users_ratings) {
+    size_t num_users = users_ratings.size();
+    size_t num_movies = users_ratings[0].size(); 
+    std::vector<double> aggregated_ratings(num_movies, 0);
+    for (size_t i = 0; i < num_movies; ++i) {
+        double sum = 0;
+        int count = 0;
+        for (size_t j = 0; j < num_users; ++j) {
+            if (users_ratings[j][i] > 0) {
+                sum += users_ratings[j][i];
+                count++;
+            }
+        }
+        if (count > 0) {
+            aggregated_ratings[i] = sum / count;
+        } else {
+            aggregated_ratings[i] = 0;
+        }
+    }
+
+    return aggregated_ratings;
+}
+
+std::vector<std::vector<double>> RecommendationServiceImpl::ComputeCosineSimularity(const std::vector<std::vector<int>> &ratings_matrix) {
     int num_rows = ratings_matrix.size();
     int num_cols = ratings_matrix[0].size();
     std::vector<std::vector<double>> similarity(num_rows, std::vector<double>(num_rows, 0.0));
@@ -92,11 +108,12 @@ std::vector<std::vector<double>> RecommendationServiceImpl::computeCosineSimular
     return similarity;
 }
 
-std::vector<double> computeCosineSimularityForOneUser(const std::vector<std::vector<int>> &rating_matrix, const int &user_id) {
+std::vector<double> RecommendationServiceImpl::ComputeCosineSimularityForOneUser(const int &user_id) {
+    auto rating_matrix = database::recommendation_service_database_api::getUserRatingMarix();
     int num_rows = rating_matrix.size();
     int num_cols = rating_matrix[0].size();
     double user_norm = 0.0;
-    for (int i = 0; i < num_cols; i++) {
+    for (int i = 1; i < num_cols; i++) {
         user_norm += rating_matrix[user_id][i] * rating_matrix[user_id][i];
     }
     if (user_norm == 0.0) {
@@ -120,28 +137,18 @@ std::vector<double> computeCosineSimularityForOneUser(const std::vector<std::vec
     return simularity;
 }
 
-std::vector<int> RecommendationServiceImpl::recommendUsers(const uint32_t user_id, const uint32_t reccomendation_count) {
-    std::unique_lock<std::mutex> l(m);
-    cv.wait(l, [this] { return !copying; });
-    std::vector<std::pair<double, int>> user_scores;
-    auto size = users_simularity.size();
-    user_scores.reserve(size-1);
-    for (int i = 0; i < size; i++) {
-        if (i != user_id) {
-            user_scores.push_back({users_simularity[user_id][i], i});
-        }
-    }
+std::vector<int> RecommendationServiceImpl::RecommendUsers(const uint32_t user_id, const uint32_t reccomendation_count) {
+    auto user_scores = ComputeCosineSimularityForOneUser(user_id);
     std::sort(user_scores.begin(), user_scores.end(), std::greater<>());
     std::vector<int> top_users;
-    for (int i = 0; i < reccomendation_count && i < user_scores.size(); i++) {
-        top_users.push_back(user_scores[i].second);
+    for (int i = 1; i < reccomendation_count && i < user_scores.size(); i++) {
+        top_users.push_back(i);
     }
     return top_users;
 }
 
-std::vector<int> RecommendationServiceImpl::recommendFilms(const uint32_t user_id, const uint32_t reccomendation_count) {
-    std::unique_lock<std::mutex> l(m);
-    cv.wait(l, [this] { return !copying; });
+std::vector<int> RecommendationServiceImpl::RecommendFilms(const uint32_t user_id, const uint32_t reccomendation_count) {
+    auto rating_matrix = database::recommendation_service_database_api::getUserRatingMarix();
     auto size = films_simularity.size();
     std::vector<double> film_scores(size, 0.0);
     for (int i = 0; i < size; i++) {
@@ -159,4 +166,21 @@ std::vector<int> RecommendationServiceImpl::recommendFilms(const uint32_t user_i
         top_films.push_back(scored_films[i].second);
     }
     return top_films;
+}
+
+int RecommendationServiceImpl::RecommendFilmsForSeveralUsers(const std::vector<int> &users_ids) {
+    auto rating_matrix = database::recommendation_service_database_api::getUsersRatingsVector(users_ids);
+    auto combined_ratings = AggregateUserRatings(rating_matrix);
+    auto size = films_simularity.size();
+    std::vector<double> film_scores(size, 0.0);
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < films_simularity[i].size(); j++) {
+            film_scores[i] += films_simularity[i][j] * combined_ratings[j];
+        }
+    }
+    std::vector<std::pair<double, int>> scored_films;
+    for (int i = 0; i < film_scores.size(); i++) {
+        scored_films.push_back({film_scores[i], i});
+    }
+    return std::max_element(scored_films.begin(), scored_films.end())->second;
 }
