@@ -86,6 +86,7 @@ void run_server() {
     builder.RegisterService(&invitation_data_service);
     builder.RegisterService(&users_interaction_service);
     builder.RegisterService(&recommendation_service);
+    builder.RegisterService(&recommendation_service);
     builder.RegisterService(&profile_service_data);
 
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());

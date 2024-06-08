@@ -33,16 +33,16 @@ add_executable(main
     ${generated_proto_models_srcs}
 )
 
-# add_executable(gtests
-#         gtests/gtest_main.cpp
+add_executable(gtests
+        gtests/gtest_main.cpp
 
-#         # ${TESTS_SRCS}
+        # ${TESTS_SRCS}
 
-#         ${COMPONENTS_SRCS}
-#         ${SERVICES_SRCS}
+        ${COMPONENTS_SRCS}
+        ${SERVICES_SRCS}
 
-#         ${generated_proto_models_srcs}
-# )
+        ${generated_proto_models_srcs}
+)
 
 
 add_dependencies(main generate_proto_models)
@@ -78,9 +78,9 @@ target_include_directories(main PUBLIC
 #         pqxx
 # )
 
-# target_include_directories(gtests PUBLIC
-#         ./include
-#         ./libs
-#         ${CMAKE_CURRENT_BINARY_DIR}
-#         ${LIBPQXX_INCLUDE_DIRS}
-# )
+target_include_directories(gtests PUBLIC
+        ./include
+        ./libs
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${LIBPQXX_INCLUDE_DIRS}
+)
