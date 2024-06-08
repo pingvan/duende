@@ -82,7 +82,6 @@ void OtherPage::toggleSubscription() {
 }
 
 void OtherPage::updatePage(int newId) {
-
     id = newId;
 
     user = manager->new_client.get_user_full_page(id);

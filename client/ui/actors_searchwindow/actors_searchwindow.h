@@ -1,28 +1,28 @@
 #ifndef ACTORS_SEARCHWINDOW_H
 #define ACTORS_SEARCHWINDOW_H
 
-#include "manager.h"
-
-#include <QWidget>
-#include <QLineEdit>
-#include <QStringListModel>
-#include <QCompleter>
-#include <QVBoxLayout>
-#include <QSpacerItem>
 #include <QAbstractItemView>
+#include <QCompleter>
+#include <QLineEdit>
 #include <QPushButton>
-
+#include <QSpacerItem>
+#include <QStringListModel>
+#include <QVBoxLayout>
+#include <QWidget>
+#include "manager.h"
 
 namespace Ui {
 class Actors_SearchWindow;
 }
 
-class Actors_SearchWindow : public QWidget
-{
+class Actors_SearchWindow : public QWidget {
     Q_OBJECT
 
 public:
-    explicit Actors_SearchWindow(Manager* managerPtr, QWidget *parent = nullptr);
+    explicit Actors_SearchWindow(
+        Manager *managerPtr,
+        QWidget *parent = nullptr
+    );
     QStringList searchActors(const QString &input);
     ~Actors_SearchWindow();
 
@@ -39,4 +39,4 @@ private:
     QMap<QString, int> actors_map;
 };
 
-#endif // ACTORS_SEARCHWINDOW_H
+#endif  // ACTORS_SEARCHWINDOW_H

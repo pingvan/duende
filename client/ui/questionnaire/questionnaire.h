@@ -1,32 +1,30 @@
 #ifndef QUESTIONNAIRE_H
 #define QUESTIONNAIRE_H
 
-#include "manager.h"
-
-#include <QWidget>
-#include <QFormLayout>
-#include <QLineEdit>
-#include <QGuiApplication>
-#include <QScreen>
-#include <QDebug>
-#include <QPushButton>
 #include <QCompleter>
-#include <QStringListModel>
-#include <QMap>
-#include <QLabel>
+#include <QDebug>
+#include <QFormLayout>
+#include <QGuiApplication>
 #include <QInputDialog>
+#include <QLabel>
+#include <QLineEdit>
 #include <QList>
+#include <QMap>
+#include <QPushButton>
+#include <QScreen>
+#include <QStringListModel>
+#include <QWidget>
+#include "manager.h"
 
 namespace Ui {
 class Questionnaire;
 }
 
-class Questionnaire : public QWidget
-{
+class Questionnaire : public QWidget {
     Q_OBJECT
 
 public:
-    explicit Questionnaire(Manager* managerPtr, QWidget *parent = nullptr);
+    explicit Questionnaire(Manager *managerPtr, QWidget *parent = nullptr);
     QStringList searchActors(const QString &input);
     QStringList searchMovies(const QString &input);
     QStringList searchGenres(const QString &input);
@@ -68,4 +66,4 @@ private:
     QMap<QString, int> genres_map;
 };
 
-#endif // QUESTIONNAIRE_H
+#endif  // QUESTIONNAIRE_H

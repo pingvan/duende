@@ -212,11 +212,17 @@ QStringList Questionnaire::searchMovies(const QString &input) {
 
 QStringList Questionnaire::searchGenres(const QString &input) {
     QStringList genres;
-    genres << "action" << "adventure" << "comedy" << "drama" << "horror"
-           << "sci_fi" << "fantasy" << "thriller" << "mystery" << "romance"
-           << "animation" << "documentary" << "crime" << "western" << "music"
-           << "history" << "war" << "biographical" << "sports" << "family"
-           << "foreign" << "tv_movie";
+
+    auto descriptor = common::Genre_descriptor();
+    if (descriptor) {
+        for (int i = 0; i < descriptor->value_count(); ++i) {
+            std::string genre = descriptor->value(i)->name();
+            std::transform(
+                genre.begin(), genre.end(), genre.begin(), ::tolower
+            );
+            genres << QString::fromStdString(genre);
+        }
+    }
 
     return genres;
 }

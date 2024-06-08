@@ -1,46 +1,44 @@
 #ifndef PROFILE_H
 #define PROFILE_H
 
-#include "manager.h"
-#include "actors_searchwindow/actors_searchwindow.h"
-#include "movies_searchwindow/movies_searchwindow.h"
-#include "genres_searchwindow/genres_searchwindow.h"
-
+#include <QApplication>
+#include <QCompleter>
+#include <QDebug>
+#include <QFileDialog>
+#include <QGraphicsDropShadowEffect>
+#include <QGraphicsPixmapItem>
+#include <QGraphicsProxyWidget>
+#include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QGridLayout>
-#include <QVBoxLayout>
+#include <QImageReader>
 #include <QLabel>
 #include <QLineEdit>
-#include <QTextEdit>
-#include <QPixmap>
-#include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QPushButton>
-#include <QDebug>
-#include <QCompleter>
-#include <QStringListModel>
-#include <QGraphicsPixmapItem>
-#include <QApplication>
-#include <QScreen>
-#include <QGraphicsDropShadowEffect>
 #include <QListWidget>
-#include <QFileDialog>
-#include <QGraphicsProxyWidget>
-#include <QImageReader>
 #include <QNetworkAccessManager>
-#include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QPixmap>
+#include <QPushButton>
+#include <QScreen>
+#include <QStringListModel>
+#include <QTextEdit>
 #include <QUrl>
+#include <QVBoxLayout>
+#include "actors_searchwindow/actors_searchwindow.h"
+#include "genres_searchwindow/genres_searchwindow.h"
+#include "manager.h"
+#include "movies_searchwindow/movies_searchwindow.h"
 
 namespace Ui {
 class Profile;
 }
 
-class Profile : public QWidget
-{
+class Profile : public QWidget {
     Q_OBJECT
 
 public:
-    explicit Profile(Manager* managerPtr, QWidget *parent = nullptr);
+    explicit Profile(Manager *managerPtr, QWidget *parent = nullptr);
     ~Profile();
     void build();
     void build_scenes(bool edit_mode = false);
@@ -56,9 +54,11 @@ private slots:
     void update_watchlist(int start_films, bool edit_mode);
     // void update_actors(int start_actors, bool edit_mode);
     void update_favorite_actors();
+
     void onEditButtonClicked() {
         editMode = !editMode;
     }
+
     void uploadPhoto();
 
 private:
@@ -68,7 +68,7 @@ private:
 
     QVBoxLayout *leftBox;
     QVBoxLayout *rightBox;
-    
+
     QLabel *label_status;
     QLabel *label_about;
     QLabel *label_username;
@@ -112,21 +112,21 @@ private:
     bool eventFilter(QObject *watched, QEvent *event) override;
 };
 
-class ClickablePixmapItem : public QObject, public QGraphicsPixmapItem
-{
+class ClickablePixmapItem : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
 public:
-    explicit ClickablePixmapItem(const QPixmap &pixmap) : QGraphicsPixmapItem(pixmap) {}
+    explicit ClickablePixmapItem(const QPixmap &pixmap)
+        : QGraphicsPixmapItem(pixmap) {
+    }
 
 signals:
     void clicked();
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent *event) override
-    {
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override {
         emit clicked();
         QGraphicsPixmapItem::mousePressEvent(event);
     }
 };
 
-#endif // PROFILE_H
+#endif  // PROFILE_H

@@ -171,9 +171,11 @@ void Follows::updateUserList(const QString &input) {
     }
     for (const QString &user : users) {
         QListWidgetItem *item = new QListWidgetItem;
-        common::UserFullPage *user_full = manager->new_client.get_user_full_page(users_id[user]);
+        common::UserFullPage *user_full =
+            manager->new_client.get_user_full_page(users_id[user]);
         std::string photo_data(
-            user_full->preview().photo().begin(), user_full->preview().photo().end()
+            user_full->preview().photo().begin(),
+            user_full->preview().photo().end()
         );
         QPixmap pixmap;
         if (photo_data.empty()) {

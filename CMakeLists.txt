@@ -73,6 +73,8 @@ target_link_libraries(tests
         GTest::gtest_main 
         GTest::gmock_main
         pqxx
+        OpenSSL::SSL
+        OpenSSL::Crypto
 )
 
 target_include_directories(tests PUBLIC

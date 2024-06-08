@@ -1,32 +1,30 @@
 #ifndef REGISTRATIONPAGE_H
 #define REGISTRATIONPAGE_H
 
-#include "manager.h"
-
 #include <grpcpp/grpcpp.h>
-#include <QWidget>
-#include <QGuiApplication>
-#include <QScreen>
-#include <QMessageBox>
 #include <QDebug>
-#include <QTabWidget>
 #include <QFormLayout>
 #include <QGridLayout>
-#include <QSpacerItem>
-#include <QSizePolicy>
+#include <QGuiApplication>
 #include <QLineEdit>
+#include <QMessageBox>
 #include <QPushButton>
+#include <QScreen>
+#include <QSizePolicy>
+#include <QSpacerItem>
+#include <QTabWidget>
+#include <QWidget>
+#include "manager.h"
 
 namespace Ui {
 class RegistrationPage;
 }
 
-class RegistrationPage : public QWidget
-{
+class RegistrationPage : public QWidget {
     Q_OBJECT
 
 public:
-    explicit RegistrationPage(Manager* managerPtr, QWidget *parent = nullptr);
+    explicit RegistrationPage(Manager *managerPtr, QWidget *parent = nullptr);
     void build();
     void connect_slots();
     ~RegistrationPage();
@@ -52,4 +50,4 @@ private:
     QPushButton *loginButton;
 };
 
-#endif // REGISTRATIONPAGE_H
+#endif  // REGISTRATIONPAGE_H

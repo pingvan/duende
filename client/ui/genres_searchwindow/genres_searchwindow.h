@@ -1,28 +1,28 @@
 #ifndef GENRES_SEARCHWINDOW_H
 #define GENRES_SEARCHWINDOW_H
 
-#include "manager.h"
-
-#include <QWidget>
-#include <QLineEdit>
-#include <QStringListModel>
-#include <QCompleter>
-#include <QVBoxLayout>
-#include <QSpacerItem>
 #include <QAbstractItemView>
+#include <QCompleter>
+#include <QLineEdit>
 #include <QPushButton>
-
+#include <QSpacerItem>
+#include <QStringListModel>
+#include <QVBoxLayout>
+#include <QWidget>
+#include "manager.h"
 
 namespace Ui {
 class Genres_SearchWindow;
 }
 
-class Genres_SearchWindow : public QWidget
-{
+class Genres_SearchWindow : public QWidget {
     Q_OBJECT
 
 public:
-    explicit Genres_SearchWindow(Manager* managerPtr, QWidget *parent = nullptr);
+    explicit Genres_SearchWindow(
+        Manager *managerPtr,
+        QWidget *parent = nullptr
+    );
     QStringList searchGenres(const QString &input);
     ~Genres_SearchWindow();
 
@@ -43,4 +43,4 @@ private:
     QMap<QString, int> genres_map;
 };
 
-#endif // GENRES_SEARCHWINDOW_H
+#endif  // GENRES_SEARCHWINDOW_H

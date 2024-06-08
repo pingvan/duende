@@ -2,7 +2,10 @@
 #include "./ui_mainwindow.h"
 
 MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), manager(managerPtr), followsInstance(managerPtr) {
+    : QMainWindow(parent),
+      ui(new Ui::MainWindow),
+      manager(managerPtr),
+      followsInstance(managerPtr) {
     ui->setupUi(this);
 
     auto *centralWidget = new QWidget(this);
@@ -94,7 +97,6 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
         followsInstance.UpdateSubscribers();
         followsInstance.UpdateBlocked();
         pages->setCurrentIndex(3);
-        
     });
     connect(
         followsPage, &Follows::userClicked, this, &MainWindow::openOtherPage
@@ -107,10 +109,7 @@ MainWindow::MainWindow(Manager *managerPtr, QWidget *parent)
         recommendationsPage, &Recommendations::userClicked, this,
         &MainWindow::openOtherPage
     );
-    connect(
-        chatsPage, &Chats::userClicked, this,
-        &MainWindow::openOtherPage
-    );
+    connect(chatsPage, &Chats::userClicked, this, &MainWindow::openOtherPage);
     connect(
         recommendationsPage, &Recommendations::userFromListClicked, this,
         &MainWindow::openOtherPage

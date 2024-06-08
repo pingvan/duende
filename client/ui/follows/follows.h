@@ -36,7 +36,7 @@ public slots:
     void UpdateSubscribers();
     void UpdateSubscriptions();
     void UpdateBlocked();
-    
+
 private slots:
     void updateUserList(const QString &input);
     void onUserClicked(const QString &username);
@@ -53,7 +53,9 @@ private:
     QStringListModel *model;
     QCompleter *completer;
     QMap<QString, int> users_id;
+
     enum ListType { Subscriptions, Subscribers, Blocked };
+
     ListType currentList;
 };
 

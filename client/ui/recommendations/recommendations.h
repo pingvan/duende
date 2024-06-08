@@ -1,30 +1,28 @@
 #ifndef RECOMMENDATIONS_H
 #define RECOMMENDATIONS_H
 
-#include "manager.h"
-#include "otherpage/otherpage.h"
-
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QLineEdit>
 #include <QComboBox>
-#include <QStringListModel>
 #include <QCompleter>
-#include <QSpacerItem>
 #include <QDebug>
+#include <QLineEdit>
 #include <QListWidget>
 #include <QListWidgetItem>
+#include <QSpacerItem>
+#include <QStringListModel>
+#include <QVBoxLayout>
+#include <QWidget>
+#include "manager.h"
+#include "otherpage/otherpage.h"
 
 namespace Ui {
 class Recommendations;
 }
 
-class Recommendations : public QWidget
-{
+class Recommendations : public QWidget {
     Q_OBJECT
 
 public:
-    explicit Recommendations(Manager* managerPtr, QWidget *parent = nullptr);
+    explicit Recommendations(Manager *managerPtr, QWidget *parent = nullptr);
     QStringList searchUsers(const QString &input);
 
     ~Recommendations();
@@ -57,4 +55,4 @@ private:
     // common::FilmFullPage *film;
 };
 
-#endif // RECOMMENDATIONS_H
+#endif  // RECOMMENDATIONS_H

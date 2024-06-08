@@ -1,28 +1,29 @@
 #ifndef MOVIES_SEARCHWINDOW_H
 #define MOVIES_SEARCHWINDOW_H
 
-#include "manager.h"
-
-#include <QWidget>
-#include <QLineEdit>
+#include <QAbstractItemView>
 #include <QCompleter>
-#include <QVBoxLayout>
+#include <QInputDialog>
+#include <QLineEdit>
+#include <QPushButton>
 #include <QSpacerItem>
 #include <QStringListModel>
-#include <QAbstractItemView>
-#include <QPushButton>
-#include <QInputDialog>
+#include <QVBoxLayout>
+#include <QWidget>
+#include "manager.h"
 
 namespace Ui {
 class Movies_SearchWindow;
 }
 
-class Movies_SearchWindow : public QWidget
-{
+class Movies_SearchWindow : public QWidget {
     Q_OBJECT
 
 public:
-    explicit Movies_SearchWindow(Manager* managerPtr, QWidget *parent = nullptr);
+    explicit Movies_SearchWindow(
+        Manager *managerPtr,
+        QWidget *parent = nullptr
+    );
     QStringList searchMovies(const QString &input);
     ~Movies_SearchWindow();
 
@@ -39,4 +40,4 @@ private:
     QMap<QString, int> movies_map;
 };
 
-#endif // MOVIES_SEARCHWINDOW_H
+#endif  // MOVIES_SEARCHWINDOW_H
