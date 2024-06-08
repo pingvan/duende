@@ -30,8 +30,6 @@ grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::Serve
             stream->Write(response);
         } else if (request.has_send_message()) {
             std::cerr << "sending\n";
-            // auto a = request.send_message().msg();
-            // stream->Write(send_to_chat(request.send_message().msg()));
             send_to_chat(request.send_message().msg()); 
         } else { 
             users_online.erase(request.leave().user_id());
@@ -132,9 +130,6 @@ grpc::Status chat_service_::CheckUserPrivileges(grpc::ServerContext* context, co
     response->set_privilege(privilege);
     return grpc::Status::OK;
 }
-
-// static void add_user_to_chat(const int &chat_id, const int &user_id);
-// static void remove_user_from_chat(const int &chat_id, const int &user_id);
 
 grpc::Status chat_service_::ChangeChatName(grpc::ServerContext* context, const chat_service::ChangeChatNameRequest* request, chat_service::OperationStatusResponse* response) {
     database::chat_service_database_api::change_chat_name(request->chat_id(), request->admin_id(), request->new_chat_name());
@@ -264,29 +259,19 @@ grpc::Status chat_service_::AddUserToChat(grpc::ServerContext* context, const ch
 }
 
 grpc::Status chat_data_service::GetUserChats(grpc::ServerContext *context, const chat_service::GetChatsRequest *request, chat_service::UserChats *response) {
-        std::cout << "GetUserChats called from server\n";
-        try {
-            auto chats = database::chat_service_database_api::get_user_chats(request->user_id());
-            chats.convert_to_proto(response);
-        }
-        catch (std::exception &e) {
-            std::cerr << e.what() << std::endl;
-        }
-        
-        std::cout << "response->user_chats_size(): " << response->user_chats_size() << '\n';
-        return grpc::Status::OK;
+    auto chats = database::chat_service_database_api::get_user_chats(request->user_id());
+    chats.convert_to_proto(response);
+    return grpc::Status::OK;
 }
 
 grpc::Status chat_data_service::GetLastMessages(grpc::ServerContext *context, const ::chat_service::GetChatMessagesRequest *request, ::chat_service::LastMessages *response) {
-        std::cout << "Server got chat_id: " << request->chat_id() << std::endl;
-        auto is_user_in_chat = database::chat_service_database_api::check_user_in_chat(request->user_id(), request->chat_id());
-        if (!is_user_in_chat) {
-            return grpc::Status(grpc::StatusCode::PERMISSION_DENIED, "User is not in chat");
-        }
-        auto messages = database::chat_service_database_api::get_chats_messages(request->chat_id());
-        messages.convert_to_proto(response);
-        std::cout << "response->messages_size(): " << response->messages_size() << '\n';
-        return grpc::Status::OK;
+    auto is_user_in_chat = database::chat_service_database_api::check_user_in_chat(request->user_id(), request->chat_id());
+    if (!is_user_in_chat) {
+        return grpc::Status(grpc::StatusCode::PERMISSION_DENIED, "User is not in chat");
+    }
+    auto messages = database::chat_service_database_api::get_chats_messages(request->chat_id());
+    messages.convert_to_proto(response);
+    return grpc::Status::OK;
 }
 
 grpc::Status chat_data_service::GetChatMembers(grpc::ServerContext *context, const chat_service::UserChat *request, chat_service::GetChatMembersResponse *response) {
@@ -306,13 +291,8 @@ grpc::Status chat_data_service::CheckUserInChat(grpc::ServerContext *context, co
 }
 
 grpc::Status chat_data_service::GetChatPreview(grpc::ServerContext *context, const chat_service::UserChat *request, chat_service::ChatPreview *response) {
-    try {
-        auto chat_preview = database::chat_service_database_api::get_chat_preview(request->chat_id());
-        chat_preview.convert_to_proto(response);
-    }
-    catch (std::exception &e) {
-        std::cout << e.what() << '\n';
-    }
+    auto chat_preview = database::chat_service_database_api::get_chat_preview(request->chat_id());
+    chat_preview.convert_to_proto(response);
     return grpc::Status::OK;
 }
 

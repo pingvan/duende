@@ -23,6 +23,7 @@ Chats::Chats(Manager* managerPtr, QWidget *parent)
     qDebug() << "Received invites size: " << received_invites.size();
     std::vector<invitation::Invite> sent_invites = manager->new_client.get_sent_invites(manager->ID);
     qDebug() << "Sent invites size: " << sent_invites.size();
+    
     std::vector<std::pair<invitation::Invite, bool>> merged_invites;
     for (const auto& invite : received_invites) {
         merged_invites.push_back({invite, false});
@@ -259,7 +260,11 @@ void Chats::showChatInfo(bool editMode)
 
                 if (selectedAction == removeMemberAction) {
                     qDebug() << "Remove user ID: " << userId;
-                    manager->new_client.remove_user_from_chat(manager->ID, userId, chat_id);
+                    if (!manager->new_client.remove_user_from_chat(manager->ID, userId, chat_id)) {
+                        QMessageBox::critical(
+                            this, "Permission denied", "You are not admin of this chat!"
+                        );
+                    }
                     delete item;
                     dialog.accept();
                 }
@@ -267,7 +272,11 @@ void Chats::showChatInfo(bool editMode)
                 if (selectedAction == toggleAdminAction) {
                     if (is_member_admin) {
                         qDebug() << "Remove admin role for user ID: " << userId;
-                        manager->new_client.remove_privileges_from_user(manager->ID, userId, chat_id);
+                        if (!manager->new_client.remove_privileges_from_user(manager->ID, userId, chat_id)) {
+                            QMessageBox::critical(
+                                this, "Permission denied", "You are not admin of this chat!"
+                            );
+                        }
                         item->setText(item->text().remove(" (admin)"));
                         if (userId == manager->ID) {
                             am_i_admin = false;
@@ -275,7 +284,11 @@ void Chats::showChatInfo(bool editMode)
                         is_member_admin = false;
                     } else {
                         qDebug() << "Add admin role for user ID: " << userId;
-                        manager->new_client.add_privileges_to_user(manager->ID, userId, chat_id);
+                        if (!manager->new_client.add_privileges_to_user(manager->ID, userId, chat_id)) {
+                            QMessageBox::critical(
+                                this, "Permission denied", "You are not admin of this chat!"
+                            );
+                        }
                         item->setText(item->text() + " (admin)");
                         is_member_admin = true;
                     }
@@ -329,9 +342,6 @@ void Chats::showChatInfo(bool editMode)
                     );
                 }
                 else {
-                    // std::string message_text = manager->username + " changed chat name.";
-                    // manager->new_client.send_message(-1, chat_id, message_text);
-
                     chatTitle->setText(new_chat_name);
 
                     chatList->currentItem()->setData(Qt::UserRole + 2, new_chat_name);
@@ -344,9 +354,6 @@ void Chats::showChatInfo(bool editMode)
                     );
                 }
                 else {
-                    // std::string message_text = manager->username + " changed chat description.";
-                    // manager->new_client.send_message(-1, chat_id, message_text);
-
                     chatList->currentItem()->setData(Qt::UserRole + 4, new_chat_desc);
                 }
             }
@@ -476,17 +483,10 @@ void Chats::onInviteRespondReceived(const invitation::RespondToInvitationRespons
     if (accept) {
         if (response.chat().is_group_chat()) {
             if (sender_id == manager->ID) {
-                // std::string message_text = manager->new_client.get_user_full_page(receiver_id)->preview().login() + " added " + manager->username + " to chat.";
-                // manager->new_client.send_message(-1, response.chat().chat_id(), message_text);
-
                 auto *chatPage = new QWidget();
                 int index = chatPages->addWidget(chatPage);
                 
                 make_chat_item(response.chat(), index, -1);
-            }
-            else {
-                // std::string message_text = manager->username + " added " + manager->new_client.get_user_full_page(sender_id)->preview().login()+  " to chat.";
-                // manager->new_client.send_message(-1, response.chat().chat_id(), message_text);
             }
         }
         else {
@@ -674,7 +674,6 @@ void Chats::onChatClicked(QListWidgetItem* item)
     scrollWidget->setLayout(scrollWidgetLayout);
     scrollArea->setWidget(scrollWidget);
 
-    // TODO
     QTimer::singleShot(100, [this]() {
         scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->maximum());
     });
@@ -984,7 +983,7 @@ void Chats::make_chat_item(const chat_service::ChatPreview& chat, int chat_page_
     int sender_id        = chat.last_message().sender().user_id();
     bool is_group_chat   = chat.is_group_chat();
     QString description  = QString::fromStdString(chat.description());
-    // TODO chat_cover
+
     QPixmap chat_cover;
     if (!is_group_chat){
         // std::vector<common::UserPreview> chat_members = chat.chat_members();

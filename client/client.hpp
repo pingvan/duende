@@ -71,9 +71,9 @@ public:
     bool change_chat_name(int chat_id, int admin_id, std::string new_chat_name);
     bool change_description(int chat_id, int admin_id, std::string new_description);
     void change_chat_cover(uint32_t chat_id, uint32_t admin_id, const std::string &photo_path);
-    void add_privileges_to_user(int sender_id, int receiver_id, int chat_id);
-    void remove_privileges_from_user(int sender_id, int receiver_id, int chat_id);
-    void remove_user_from_chat(int sender_id, int receiver_id, int chat_id);
+    bool add_privileges_to_user(int sender_id, int receiver_id, int chat_id);
+    bool remove_privileges_from_user(int sender_id, int receiver_id, int chat_id);
+    bool remove_user_from_chat(int sender_id, int receiver_id, int chat_id);
 
     void init_chat_stream(int user_id);  
     void start_reading_chat_stream();

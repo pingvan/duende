@@ -82,7 +82,7 @@ chat_service::ChatPreview *client::create_group_chat(int creator_id, std::string
     }
 
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     return response;
@@ -105,7 +105,7 @@ bool client::check_user_privileges(int user_id, int chat_id) {
     }
 
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
     return (response->privilege() == chat_service::UserPrivilege::ADMIN);
 }
@@ -132,7 +132,7 @@ bool client::change_chat_name(int chat_id, int admin_id, std::string new_chat_na
     }
 
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     return true;
@@ -160,7 +160,7 @@ bool client::change_description(int chat_id, int admin_id, std::string new_descr
     }
     
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     return true;
@@ -174,7 +174,7 @@ void client::change_chat_cover(uint32_t chat_id, uint32_t admin_id, const std::s
 
     std::ifstream file(photo_path, std::ios::binary);
     if (!file) {
-        std::cout << "Cannot open file: " << photo_path << std::endl;
+        std::cerr << "Cannot open file: " << photo_path << std::endl;
         return;
     }
     std::basic_string photo_data(
@@ -197,15 +197,15 @@ void client::change_chat_cover(uint32_t chat_id, uint32_t admin_id, const std::s
     }
     
     if (!status.ok()) {
-        std::cout << status.error_code() << ": " << status.error_message()
+        std::cerr << status.error_code() << ": " << status.error_message()
                   << std::endl;
         return;
     }
 }
 
-void client::add_privileges_to_user(int sender_id, int receiver_id, int chat_id) {
+bool client::add_privileges_to_user(int sender_id, int receiver_id, int chat_id) {
     if (!check_user_privileges(sender_id, chat_id)) {
-        return; // TODO add errors
+        return false;
     }
 
     grpc::ClientContext context;
@@ -224,13 +224,13 @@ void client::add_privileges_to_user(int sender_id, int receiver_id, int chat_id)
     }
     
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 }
 
-void client::remove_privileges_from_user(int sender_id, int receiver_id, int chat_id) {
+bool client::remove_privileges_from_user(int sender_id, int receiver_id, int chat_id) {
     if (!check_user_privileges(sender_id, chat_id)) {
-        return; // TODO add errors
+        return false;
     }
 
     grpc::ClientContext context;
@@ -249,13 +249,13 @@ void client::remove_privileges_from_user(int sender_id, int receiver_id, int cha
     }
     
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 }
 
-void client::remove_user_from_chat(int sender_id, int receiver_id, int chat_id) {
+bool client::remove_user_from_chat(int sender_id, int receiver_id, int chat_id) {
     if (!check_user_privileges(sender_id, chat_id) && sender_id != receiver_id) {
-        return; // TODO add errors
+        return false;
     }
 
     chat_service::RemoveRequest request;
@@ -266,7 +266,7 @@ void client::remove_user_from_chat(int sender_id, int receiver_id, int chat_id) 
     chat_service::InvitesToChatRequests inviteChatRequest;
     inviteChatRequest.mutable_remove()->CopyFrom(request);
 
-    std::cout << inviteChatRequest.DebugString() << std::endl;
+    std::cerr << inviteChatRequest.DebugString() << std::endl;
     bool status = invite_chat_stream->Write(inviteChatRequest);
     if (!status) {
         std::cerr << "Error" << std::endl;
@@ -343,7 +343,7 @@ void client::send_invite(
         request.set_chat_id(chat_id);
     }
 
-    std::cout << request.DebugString() << std::endl;
+    std::cerr << request.DebugString() << std::endl;
 
     invitation::InvitationRequest stream_request;
     stream_request.mutable_invite()->CopyFrom(request);
@@ -377,7 +377,7 @@ void client::respond_invite(
         request.set_chat_id(chat_id);
     }
     
-    std::cout << request.DebugString() << std::endl;
+    std::cerr << request.DebugString() << std::endl;
 
     invitation::InvitationRequest stream_request;
     stream_request.mutable_invite_respond()->CopyFrom(request);
@@ -500,7 +500,7 @@ void client::send_message(
     chat_service::ChatRequests chatRequest;
     chatRequest.mutable_send_message()->CopyFrom(request);
 
-    std::cout << chatRequest.DebugString() << std::endl;
+    std::cerr << chatRequest.DebugString() << std::endl;
     bool status = chat_stream->Write(chatRequest);
     if (!status) {
         std::cerr << "Error" << std::endl;
@@ -670,7 +670,7 @@ void client::remove_movie(int user_id, int movie_id, int rating) {
     }
     
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 }
 
@@ -711,7 +711,7 @@ void client::remove_actor(int user_id, int actor_id) {
     }
     
     if (!status.ok()){
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 }
 
@@ -776,7 +776,7 @@ std::vector<chat_service::ChatPreview> client::get_user_chats(int user_id) {
     auto *response = new chat_service::UserChats;
     request.set_user_id(user_id);
 
-    std::cout << "GetUserChats called from client\n";
+    std::cerr << "GetUserChats called from client\n";
     grpc::Status status =
         chat_data_stub->GetUserChats(&context, request, response);
 
@@ -868,7 +868,7 @@ bool client::check_user_in_chat(int user_id, int chat_id) {
     }
     
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     return response->response();
@@ -890,7 +890,7 @@ chat_service::ChatPreview *client::get_chat_preview(int chat_id) {
     }
     
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     return response;
@@ -912,7 +912,7 @@ common::GroupChatPreview *client::get_group_chat_preview(int chat_id) {
     }
     
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     return response;
@@ -934,7 +934,7 @@ std::vector<chat_service::ChatEvent> client::get_chat_events(int chat_id) {
     }
     
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     std::vector<chat_service::ChatEvent> events;
@@ -960,7 +960,7 @@ std::vector<int> client::get_chat_admins(int chat_id) {
     }
     
     if (!status.ok()) {
-        std::cout << status.error_message() << '\n';
+        std::cerr << status.error_message() << '\n';
     }
 
     std::vector<int> admins;
@@ -984,7 +984,7 @@ client::login(const std::string &client_login, const std::string &password) {
     grpc::Status status =
         authorization_stub->Login(&context, request, response);
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 
     access_token = create_tokens(response->id());
@@ -1012,7 +1012,7 @@ authservice::SignupResponse *client::registration(
         authorization_stub->Signup(&context, request, response);
 
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 
     access_token = response->access_token().token();
@@ -1038,7 +1038,7 @@ std::string client::update_access_token(int user_id) {
     }
 
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 
     return response->token();
@@ -1054,7 +1054,7 @@ std::string client::create_tokens(int user_id) {
     grpc::Status status =
         authorization_data_stub->CreateTokens(&context, request, response);
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 
     return response->token();
@@ -1079,7 +1079,7 @@ void client::subscribe(int subscriber_id, int subscribie_id) {
     }
 
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 }
 
@@ -1102,7 +1102,7 @@ void client::unsubscribe(int subscriber_id, int subscribie_id) {
     }
 
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 }
 
@@ -1130,7 +1130,7 @@ std::vector<uint32_t> client::get_subscriptions(uint32_t subscriber_id) {
             result.push_back(response.subscribie_id(i));
         }
     } else {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
     return result;
 }
@@ -1159,7 +1159,7 @@ std::vector<uint32_t> client::get_subscribers(uint32_t subscribie_id) {
             result.push_back(response.subscriber_id(i));
         }
     } else {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
     return result;
 }
@@ -1183,7 +1183,7 @@ void client::block(int blocker_id, int blockie_id) {
     }
     
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 }
 
@@ -1206,7 +1206,7 @@ void client::unblock(int blocker_id, int blockie_id) {
     }
     
     if (!status.ok()) {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
 }
 
@@ -1233,7 +1233,7 @@ std::vector<uint32_t> client::get_blocked(uint32_t blockie_id) {
             result.push_back(response.blockie_id(i));
         }
     } else {
-        std::cout << status.error_message() << std::endl;
+        std::cerr << status.error_message() << std::endl;
     }
     return result;
 }
@@ -1265,7 +1265,7 @@ std::vector<uint32_t> client::get_mutual_subscriptions(uint32_t user_id) {
     }
     
     if (!status.ok()) {
-        std::cout << status.error_code() << ": " << status.error_message()
+        std::cerr << status.error_code() << ": " << status.error_message()
                   << std::endl;
         return {};
     }
@@ -1280,13 +1280,13 @@ void client::change_photo(uint32_t user_id, const std::string &photo_path) {
 
     std::ifstream file(photo_path, std::ios::binary);
     if (!file) {
-        std::cout << "Cannot open file: " << photo_path << std::endl;
+        std::cerr << "Cannot open file: " << photo_path << std::endl;
         return;
     }
     std::basic_string photo_data(
         (std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()
     );
-    std::cout << photo_data;
+    std::cerr << photo_data;
     request.set_user_id(user_id);
     request.set_photo(photo_data);
 
@@ -1302,7 +1302,7 @@ void client::change_photo(uint32_t user_id, const std::string &photo_path) {
     }
 
     if (!status.ok()) {
-        std::cout << status.error_code() << ": " << status.error_message()
+        std::cerr << status.error_code() << ": " << status.error_message()
                   << std::endl;
         return;
     }
@@ -1333,7 +1333,7 @@ std::vector<common::UserPreview> client::get_user_recommendations(
             user_recommendations.push_back(user);
         }
     } else {
-        std::cout << status.error_code() << ": " << status.error_message()
+        std::cerr << status.error_code() << ": " << status.error_message()
                   << std::endl;
     }
 
@@ -1364,7 +1364,7 @@ std::vector<common::FilmPreview> client::get_film_recommendations(
             film_recommendations.push_back(film);
         }
     } else {
-        std::cout << status.error_code() << ": " << status.error_message()
+        std::cerr << status.error_code() << ": " << status.error_message()
                   << std::endl;
     }
 
