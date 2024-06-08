@@ -29,6 +29,7 @@ using users_interaction::CheckIsMutualRequest;
 using users_interaction::CheckIsMutualResponse;
 using users_interaction::GetMutualSubscriptionsRequest;
 using users_interaction::GetMutualSubscriptionsResponse;
+using users_interaction::BoolResponse;
 
 class UsersInteractionServiceImpl final : public users_interaction::UsersInteractionService::Service {
     database::subscription_service_database_api subscription_db_api;
@@ -86,4 +87,14 @@ class UsersInteractionServiceImpl final : public users_interaction::UsersInterac
         const GetMutualSubscriptionsRequest *request,
         GetMutualSubscriptionsResponse *response
     ) override;
+
+    Status CheckIsBlocked(
+        ServerContext *context,
+        const BlockRequest *request,
+        BoolResponse *response) override;
+
+    Status CheckIsSubscribed(
+        ServerContext *context,
+        const SubscribeRequest *request,
+        BoolResponse *response) override;
 };

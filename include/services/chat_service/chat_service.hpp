@@ -7,6 +7,9 @@
 
 #include "components/database/services/chat_service/chat_service.hpp"
 #include "components/aes/aes.hpp"
+#include "services/users_interaction_service/users_interaction_service.hpp"
+#include "services/users_interaction_service/users_interaction.grpc.pb.h"
+#include "services/users_interaction_service/users_interaction.pb.h"
 
 #include "services/chat_service/chat_service.grpc.pb.h"
 #include "services/chat_service/chat_service.pb.h"

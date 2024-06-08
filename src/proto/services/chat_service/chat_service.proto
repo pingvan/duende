@@ -86,6 +86,7 @@ message OperationStatusResponse {
 
 message AcceptMessageResponse {
     MessageReceived msg = 1;
+    optional string error_message = 2;
 }
 
 message MessageSend {

@@ -108,16 +108,53 @@ void Chats::onGenerateFilmButtonClicked() {
 
     QVBoxLayout layout(&filmDialog);
     filmDialog.setLayout(&layout);
-    // filmDialog.setMaximumSize(500, 500);
+    filmDialog.resize(500, 500);
 
-    QLabel *textLabel = new QLabel("We recommend that you watch this film:");
-    layout.addWidget(textLabel);
+    // auto recommended_film = manager->new_client.get_recommended_film(manager->ID, chat_id);
+    // QNetworkAccessManager *nam = new QNetworkAccessManager(this);
+    // auto full_page = manager->new_client.get_film_full_page(film.film_id());
+    // QUrl url;
+    // bool is_full_page = false;
+    // if (full_page == nullptr) {
+    //     url = film.preview_cover_url().c_str();
+    // } else {
+    //     is_full_page = true;
+    //     url = full_page->full_page_cover_url().c_str();
+    // }
+    // QNetworkReply *reply = nam->get(QNetworkRequest(url));
 
-    QLabel *imageLabel = new QLabel;
-    QPixmap pixmap(":/img/titanik.jpeg");
-    imageLabel->setPixmap(pixmap);
-    layout.addWidget(imageLabel);
+    // QEventLoop loop;
+    // connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    // loop.exec();
+    // QImage image;
+    // if (reply->error() == QNetworkReply::NoError) {
+    //     QByteArray data = reply->readAll();
+    //     image.loadFromData(data);
+    // } else {
+    //     image = QImage(":/img/file.PNG");
+    // }
+    // QLabel *textLabel = new QLabel("We think you both will like this film: " + QString::fromStdString(recommended_film->title()));
+    // layout.addWidget(textLabel);
+    // textLabel->setAlignment(Qt::AlignCenter);
+    // textLabel->setWordWrap(true);
+    // QFont font = textLabel->font();
+    // font.setPointSize(20);
+    // textLabel->setFont(font);
 
+    // QLabel *imageLabel = new QLabel;
+    // QPixmap pixmap(img.scaled(300, 300, Qt::KeepAspectRatio));
+    // imageLabel->setPixmap(pixmap);
+    // layout.addWidget(imageLabel);
+
+    // if (is_full_page) {
+    //     QTextLabel *descriptionLabel = new QLabel(QString::fromStdString(recommended_film->description()));
+    //     QFont font = descriptionLabel->font();
+    //     font.setPointSize(16);
+    //     descriptionLabel->setFont(font);
+    //     layout.addWidget(descriptionLabel);
+    // }
+    // QSpacerItem *spacer = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    // layout.addItem(spacer);
     filmDialog.exec();
 }
 
@@ -1480,6 +1517,7 @@ void Chats::build()
     leaveChatButton->setIcon(QIcon(":/img/box-arrow-right.png"));
     leaveChatButton->setIconSize(QSize(20, 20));
     leaveChatButton->setToolTip("Leave chat");
+    leaveChatButton->setFixedWidth(40);
     leaveChatButton->hide();
     leaveChatButton->setCursor(Qt::PointingHandCursor);
     leaveChatButton->setObjectName("сhatButton");

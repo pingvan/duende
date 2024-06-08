@@ -10,6 +10,12 @@ Status UsersInteractionServiceImpl::Block(
         return Status(grpc::ALREADY_EXISTS, "User is already blocked");
     } else {
         block_db_api.block_user(request->blocker_id(), request->blockie_id());
+        if (subscription_db_api.check_is_subscribed(request->blocker_id(), request->blockie_id())) {
+            subscription_db_api.unsubscribe_from_user(request->blocker_id(), request->blockie_id());
+        }
+        if (subscription_db_api.check_is_subscribed(request->blockie_id(), request->blocker_id())) {
+            subscription_db_api.unsubscribe_from_user(request->blockie_id(), request->blocker_id());
+        }
         response->set_message("User blocked");
     }
     return Status::OK;
@@ -115,5 +121,25 @@ Status UsersInteractionServiceImpl::GetMutualSubscriptions(
             response->add_subscribie_id(subscription_id);
         }
     }
+    return Status::OK;
+}
+
+Status UsersInteractionServiceImpl::CheckIsBlocked(
+    ServerContext *context,
+    const BlockRequest *request,
+    BoolResponse *response
+) {
+    bool is_blocked = block_db_api.check_is_blocked(request->blocker_id(), request->blockie_id());
+    response->set_is_true(is_blocked);
+    return Status::OK;
+}
+
+Status UsersInteractionServiceImpl::CheckIsSubscribed(
+    ServerContext *context,
+    const SubscribeRequest *request,
+    BoolResponse *response
+) {
+    bool is_subscribed = subscription_db_api.check_is_subscribed(request->subscriber_id(), request->subscribie_id());
+    response->set_is_true(is_subscribed);
     return Status::OK;
 }

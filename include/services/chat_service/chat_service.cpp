@@ -19,6 +19,7 @@
 grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::ServerReaderWriter<chat_service::ChatResponses, chat_service::ChatRequests> *stream) {
     chat_service::ChatRequests request;
     database::block_service_database_api block_db_api;
+    database::chat_service_database_api chat_db_api;
     uint32_t user_id = 0;
     while (stream->Read(&request)) {
         if (request.has_init()) {
@@ -31,6 +32,33 @@ grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::Serve
             response.set_allocated_response_with_status(init_response);
             stream->Write(response);
         } else if (request.has_send_message()) {
+            int chat_id = request.send_message().msg().chat_id();
+            if (!chat_db_api.check_is_group_chat(chat_id)) {
+                auto members = chat_db_api.get_members_ids(chat_id);
+                int sender_id = request.send_message().msg().sender_id();
+                int receiver_id = request.send_message().msg().sender_id() != members[0] ? members[0] : members[1];
+                if (block_db_api.check_is_blocked(sender_id, receiver_id)) {
+                    chat_service::ChatResponses message_response;
+                    const auto message_sender_response = new chat_service::AcceptMessageResponse;
+
+                    message_sender_response->set_error_message("You should unblock this user to send messages");
+
+                    message_response.set_allocated_accept_message(message_sender_response);
+                    stream->Write(message_response);
+                    continue;
+                }
+
+                if (block_db_api.check_is_blocked(receiver_id, sender_id)) {
+                    chat_service::ChatResponses message_response;
+                    const auto message_sender_response = new chat_service::AcceptMessageResponse;
+
+                    message_sender_response->set_error_message("This user has blocked you so you cant send messages to him");
+
+                    message_response.set_allocated_accept_message(message_sender_response);
+                    stream->Write(message_response);
+                    continue;
+                }
+            }
             std::cerr << "sending\n";
             // auto a = request.send_message().msg();
             // stream->Write(send_to_chat(request.send_message().msg()));

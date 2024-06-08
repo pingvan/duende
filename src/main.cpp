@@ -12,26 +12,19 @@
 
 static const std::string server_address("0.0.0.0:50051");
 
-std::string ReadFile(const std::filesystem::path &path) {
-    auto cert_path = std::filesystem::current_path().parent_path() / path;
-    std::ifstream file(cert_path);
+void read(const std::string &path, std::string& content) {
+    // std::cout << "Reading file: " << path << "\n";
+    std::ifstream file(path);
     if (!file.is_open()) {
-        std::cerr << "Failed to open file: " << cert_path << std::endl;
-        std::exit(1);
+        std::cerr << "Failed to open file: " << path << '\n';
+        // std::exit(1);
     }
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
-
-std::shared_ptr<grpc::ServerCredentials> GetServerCredentials() {
-    grpc::SslServerCredentialsOptions ssl_opts;
-    ssl_opts.pem_root_certs = ReadFile("certs/ca.crt");
-    ssl_opts.pem_key_cert_pairs.push_back({
-    ReadFile("certs/server.key"),
-    ReadFile("certs/server.crt")
-  });
-  return grpc::SslServerCredentials(ssl_opts);
+    std::string line;
+    while (std::getline(file, line)) {
+        // std::cout << line << '\n';
+        content += line + '\n';
+    }
+    // std::cout << "File read successfully\n";
 }
 
 void run_server() {
@@ -49,10 +42,40 @@ void run_server() {
     RecommendationServiceImpl recommendation_service;
     ProfileDataService profile_service_data;
     recommendation_service.Init();
+    // recommendation_service.computed = true;
+    // recommendation_service.recomputeSimularity();
 
+    // std::string key;
+    // std::string cert;
+    // std::string root;
+
+    // auto key_path = std::filesystem::path("src/cert/server.key");
+    // auto cert_path = std::filesystem::path("src/cert/server.crt");
+    // auto root_path = std::filesystem::path("src/cert/ca.crt");
+
+    auto current_path = std::filesystem::current_path();
+
+    std::cout << "current path: " << current_path << std::endl;
+
+    auto parent_path = current_path.parent_path();
+
+    // read(parent_path / key_path, key);
+    // read(parent_path / cert_path, cert);
+    // read(parent_path / root_path, root);
+
+    // auto key_cert_pair = grpc::SslServerCredentialsOptions::PemKeyCertPair{
+    //     key, cert
+    // };
+
+    // grpc::SslServerCredentialsOptions ssl_options;
+    // ssl_options.pem_root_certs = root;
+    // ssl_options.pem_key_cert_pairs.push_back(key_cert_pair);
+
+    // auto server_credentials = grpc::SslServerCredentials(ssl_options);
 
     grpc::ServerBuilder builder;
-    builder.AddListeningPort(server_address, GetServerCredentials());
+    // builder.AddListeningPort(server_address, server_credentials);
+    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
     builder.RegisterService(&auth_service);
     builder.RegisterService(&profile_service);
     builder.RegisterService(&chat_service); 
