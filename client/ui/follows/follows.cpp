@@ -13,11 +13,6 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
 
     currentList = Subscriptions;
 
-    // model = new QStringListModel(searchUsers(""), search_line);
-
-    // completer = new QCompleter(model);
-    // completer->setCaseSensitivity(Qt::CaseInsensitive);
-    // search_line->setCompleter(completer);
     search_line->setMinimumHeight(50);
     search_line->setStyleSheet(
         "font-size: 18px; color: #5a1e71; border: 1px solid #8023a8; "
@@ -75,19 +70,6 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
     layout->addWidget(search_line);
     layout->addWidget(scrollArea);
 
-    // subscribersList->setStyleSheet(
-    //     "QListWidget::item { border: 1px solid #8023a8; background-color:
-    //     #f4e9fe;}"
-    // );
-    // subscriptionsList->setStyleSheet(
-    //     "QListWidget::item { border: 1px solid #8023a8; border-radius: 5px;"
-    //     "margin: 2px;}"
-    // );
-    // blockedList->setStyleSheet(
-    //     "QListWidget::item { border: 1px solid #8023a8; border-radius: 5px;"
-    //     "margin: 2px;}"
-    // );
-
     subscribersList->hide();
     blockedList->hide();
     connect(subscriptionsButton, &QPushButton::clicked, [this]() {
@@ -96,7 +78,6 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
         subscribersList->hide();
         blockedList->hide();
         currentList = Subscriptions;
-        // updateUserList(search_line->text());
     });
 
     connect(subscribersButton, &QPushButton::clicked, [this]() {
@@ -120,11 +101,6 @@ Follows::Follows(Manager *managerPtr, QWidget *parent)
     connect(
         search_line, &QLineEdit::textChanged, this, &Follows::updateUserList
     );
-
-    // connect(
-    //     completer, QOverload<const QString &>::of(&QCompleter::activated),
-    //     this, &Follows::onUserClicked
-    // );
 
     connect(
         subscribersList, &QListWidget::itemClicked, this,
@@ -178,10 +154,6 @@ QStringList Follows::searchUsers(const QString &input) {
 
     return users;
 }
-
-// void Follows::updateUserList(const QString &input) {
-//     model->setStringList(searchUsers(input));
-// }
 
 void Follows::updateUserList(const QString &input) {
     QStringList users = searchUsers(input);
