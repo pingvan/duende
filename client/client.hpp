@@ -48,6 +48,9 @@ private:
     grpc::ClientContext invite_chat_context;
     grpc::ClientContext invite_context;
 
+    std::string access_token;
+    int id;
+
 public:
     std::function<void(const chat_service::MessageReceived&)> onNewMessageReceived;
     std::function<void(const invitation::SendInvitationResponse&)> onNewInviteReceived;
@@ -56,6 +59,7 @@ public:
     std::function<void(const users_interaction::SubscribeResponse&)> onSubscribersChanged;
     std::function<void(const users_interaction::SubscribeResponse&)> onSubscriptionsChanged;
     std::function<void(const users_interaction::BlockResponse&)> onBlockedChanged;
+    std::function<void()> onNeedLogin;
 
     explicit client(const std::shared_ptr<grpc::Channel> &new_channel); 
 
@@ -140,4 +144,6 @@ public:
         const std::string &password,
         const std::string &password_confirmation
     );
+    std::string update_access_token(int user_id);
+    std::string create_tokens(int user_id);
 };

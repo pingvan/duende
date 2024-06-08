@@ -793,6 +793,9 @@ client::login(const std::string &client_login, const std::string &password) {
         std::cout << status.error_message() << std::endl;
     }
 
+    access_token = create_tokens(response->id());
+    id = response->id();
+
     return response;
 }
 
@@ -818,11 +821,54 @@ authservice::SignupResponse *client::registration(
         std::cout << status.error_message() << std::endl;
     }
 
+    access_token = response->access_token().token();
+    id = response->id();
+
     return response;
+}
+
+std::string client::update_access_token(int user_id) {
+    grpc::ClientContext context;
+
+    authservice::RequestWithUserId request;
+    auto *response = new authservice::AccessToken;
+    request.set_user_id(user_id);
+
+    grpc::Status status =
+        authorization_data_stub->UpdateAccessToken(&context, request, response);
+
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        if (onNeedLogin) {
+            onNeedLogin();
+        }
+    }
+
+    if (!status.ok()) {
+        std::cout << status.error_message() << std::endl;
+    }
+
+    return response->token();
+}
+
+std::string client::create_tokens(int user_id) {
+    grpc::ClientContext context;
+
+    authservice::RequestWithUserId request;
+    auto *response = new authservice::AccessToken;
+    request.set_user_id(user_id);
+
+    grpc::Status status =
+        authorization_data_stub->CreateTokens(&context, request, response);
+    if (!status.ok()) {
+        std::cout << status.error_message() << std::endl;
+    }
+
+    return response->token();
 }
 
 void client::subscribe(int subscriber_id, int subscribie_id) {
     grpc::ClientContext context;
+    context.AddMetadata("authorization", "Bearer " + access_token);
 
     users_interaction::SubscribeRequest request;
     request.set_subscriber_id(subscriber_id);
@@ -832,6 +878,11 @@ void client::subscribe(int subscriber_id, int subscribie_id) {
 
     grpc::Status status =
         users_interaction_stub->Subscribe(&context, request, &response);
+    
+    if (status.error_code() == grpc::StatusCode::UNAUTHENTICATED) {
+        access_token = update_access_token(id);
+        return subscribe(subscriber_id, subscribie_id);
+    }
 
     if (!status.ok()) {
         std::cout << status.error_message() << std::endl;
