@@ -112,7 +112,7 @@ public:
     std::vector<chat_service::ChatEvent> get_chat_events(int chat_id);
     std::vector<int> get_chat_admins(int chat_id);
 
-    void subscribe(int subscriber_id, int subscribie_id);
+    users_interaction::SubscribeResponse subscribe(int subscriber_id, int subscribie_id);
     void unsubscribe(int subscriber_id, int subscribie_id);
     std::vector<uint32_t> get_subscriptions(uint32_t subscriber_id);
     std::vector<uint32_t> get_subscribers(uint32_t subscribie_id);
@@ -132,6 +132,7 @@ public:
     bool is_genre_favourite(uint32_t user_id, const std::string &genre_name);
     bool is_actor_favourite(uint32_t user_id, uint32_t actor_id);
     bool is_movie_watched(uint32_t user_id, uint32_t movie_id);
+    common::FilmPreview* get_film_for_users(std::vector<uint32_t> users);
 
     authservice::LoginResponse *login(const std::string &client_login, const std::string &password);
     authservice::SignupResponse *registration(

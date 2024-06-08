@@ -1,7 +1,6 @@
 #include "profile.h"
 #include "ui_profile.h"
 
-// i will change
 bool was_watchlist_changed = false;
 
 std::string repeat_symbols(const std::string &str, int times) {
@@ -65,7 +64,6 @@ public:
         );
 
         if (it != manager->watchlist.end()) {
-            // Удаляем найденный объект movie
             manager->watchlist.erase(it);
             qDebug() << "Movie removed successfully.";
         } else {
@@ -98,7 +96,6 @@ Profile::Profile(Manager *managerPtr, QWidget *parent)
 }
 
 void Profile::button_edit_clicked() {
-    // replace labels with lineEdits
     label_photo->setCursor(Qt::PointingHandCursor);
     genresList->setCursor(Qt::PointingHandCursor);
     actorsList->setCursor(Qt::PointingHandCursor);
@@ -142,7 +139,7 @@ void Profile::button_edit_clicked() {
             delete item;
         }
     );
-    // update scenes
+
     build_scenes(true);
 }
 
@@ -153,10 +150,9 @@ void Profile::button_save_clicked() {
     label_photo->setCursor(Qt::ArrowCursor);
     genresList->setCursor(Qt::ArrowCursor);
     actorsList->setCursor(Qt::ArrowCursor);
-    // update user
+
     user = manager->new_client.get_user_full_page(manager->ID);
 
-    // change user data
     manager->new_client.change_username(
         manager->ID, lineEdit_username->text().toStdString()
     );
@@ -170,14 +166,12 @@ void Profile::button_save_clicked() {
     greeting->clear();
     greeting->setText(QString("Hello, %1!").arg(lineEdit_username->text()));
     update_favorite_genres();
-    // update_actors(0, false);
     update_favorite_actors();
     if (was_watchlist_changed) {
         update_watchlist(0, false);
         was_watchlist_changed = false;
     }
 
-    // replace lineEdits with labels
     label_status->setText(lineEdit_status->text());
     label_about->setText(textEdit_about->toPlainText());
     label_username->setText(lineEdit_username->text());
@@ -197,7 +191,6 @@ void Profile::button_save_clicked() {
     label_photo->setToolTip("");
     genresList->setToolTip("");
 
-    // update scenes
     build_scenes();
 }
 
@@ -242,7 +235,6 @@ void Profile::uploadPhoto() {
 
 void Profile::plusItem_watchlist_clicked() {
     was_watchlist_changed = true;
-    // open search window
     Movies_SearchWindow *searchWindow = new Movies_SearchWindow(manager, this);
     searchWindow->setWindowModality(Qt::ApplicationModal);
     searchWindow->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
@@ -254,7 +246,6 @@ void Profile::plusItem_watchlist_clicked() {
 }
 
 void Profile::update_watchlist(int start_films, bool edit_mode) {
-    // TODO: without new vector
     std::vector<common::FilmOnUserPage> current_watchlist;
     for (const auto &movie : user->watched_films()) {
         current_watchlist.push_back(movie);
@@ -325,7 +316,6 @@ void Profile::update_favorite_actors() {
         item->setTextAlignment(Qt::AlignCenter);
         QFont font;
         font.setPointSize(28);
-        // font.setBold(true);
         item->setFont(font);
         item->setForeground(QColor("#8023a8"));
         item->setBackground(QBrush(Qt::white));
@@ -379,7 +369,6 @@ void Profile::update_favorite_genres() {
 }
 
 void Profile::build_scenes(bool edit_mode) {
-    // delete if something
     if (view_watchlist != nullptr) {
         delete view_watchlist;
         view_watchlist = nullptr;
@@ -401,7 +390,6 @@ void Profile::build_scenes(bool edit_mode) {
     view_watchlist->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view_watchlist->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    // add plus item in edit mode
     if (edit_mode) {
         QPixmap plusPixmap(":/img/plus.png");
         ClickablePixmapItem *plusItem_watchlist = new ClickablePixmapItem(
@@ -432,7 +420,6 @@ void Profile::build_scenes(bool edit_mode) {
 }
 
 void Profile::build() {
-    // main layout
     leftBox = new QVBoxLayout;
     rightBox = new QVBoxLayout;
     QGridLayout *mainLayout = new QGridLayout(this);
@@ -480,7 +467,6 @@ void Profile::build() {
 
     label_photo->setPixmap(rounded);
 
-    // status
     label_status = new QLabel(QString::fromStdString(user->quote().c_str()));
     label_status->setMaximumWidth(500);
     label_status->setMinimumHeight(40);
@@ -492,7 +478,6 @@ void Profile::build() {
     lineEdit_status->setMaximumWidth(500);
     lineEdit_status->hide();
 
-    // about
     label_about = new QLabel(QString::fromStdString(user->about().c_str()));
     label_about->setMaximumWidth(500);
     label_about->setMaximumHeight(300);
@@ -510,14 +495,12 @@ void Profile::build() {
     textEdit_about->setStyleSheet("color: #8023a8; font-size: 18px;");
     textEdit_about->setMaximumHeight(300);
 
-    // username
     label_username =
         new QLabel(QString::fromStdString(user->preview().login().c_str()));
 
     lineEdit_username = new QLineEdit();
     lineEdit_username->hide();
 
-    // genres
     std::string genres_str = "Favorite genres: ";
 
     genresLayout = new QHBoxLayout;
@@ -569,7 +552,6 @@ void Profile::build() {
     );
     label_username->setFixedHeight(40);
 
-    // edit button
     button_edit = new QPushButton("Edit");
     button_edit->setCursor(Qt::PointingHandCursor);
     connect(
@@ -577,7 +559,6 @@ void Profile::build() {
     );
     button_edit->setMaximumWidth(300);
 
-    // save button
     button_save = new QPushButton("Save");
     button_save->setCursor(Qt::PointingHandCursor);
     connect(
@@ -586,11 +567,9 @@ void Profile::build() {
     button_save->setVisible(false);
     button_save->setMaximumWidth(300);
 
-    // spacer
     QSpacerItem *verticalSpacer =
         new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-    // left layout
     leftBox->addWidget(greeting);
     leftBox->addWidget(label_photo);
     leftBox->addWidget(label_status);
@@ -611,7 +590,6 @@ void Profile::build() {
     movies_text->setText("Your watchlist");
     movies_text->setStyleSheet("font-size: 20px; color: black;");
 
-    // right layout
     rightBox->addWidget(label_username);
     rightBox->addWidget(lineEdit_username);
     rightBox->addWidget(genres_text);
@@ -621,7 +599,6 @@ void Profile::build() {
     rightBox->addWidget(movies_text);
     rightBox->addItem(verticalSpacer);
 
-    // scenes
     build_scenes();
 }
 

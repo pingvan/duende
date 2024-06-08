@@ -41,7 +41,7 @@ grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::Serve
                     chat_service::ChatResponses message_response;
                     const auto message_sender_response = new chat_service::AcceptMessageResponse;
 
-                    message_sender_response->set_error_message("You should unblock this user to send messages");
+                    message_sender_response->mutable_msg()->set_error_message("You should unblock this user to send messages");
 
                     message_response.set_allocated_accept_message(message_sender_response);
                     stream->Write(message_response);
@@ -52,7 +52,7 @@ grpc::Status chat_service_::HandleChat(grpc::ServerContext *context, grpc::Serve
                     chat_service::ChatResponses message_response;
                     const auto message_sender_response = new chat_service::AcceptMessageResponse;
 
-                    message_sender_response->set_error_message("This user has blocked you so you cant send messages to him");
+                    message_sender_response->mutable_msg()->set_error_message("This user has blocked you so you can't send messages to him");
 
                     message_response.set_allocated_accept_message(message_sender_response);
                     stream->Write(message_response);

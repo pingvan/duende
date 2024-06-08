@@ -54,9 +54,6 @@ void OtherPage::showBlockDialog(QPushButton *blockButton) {
         );
         if (reply == QMessageBox::Yes) {
             manager->new_client.block(manager->ID, id);
-            manager->new_client.unsubscribe(manager->ID, id);
-            manager->new_client.unsubscribe(id, manager->ID);
-            // delete invite if it was?..
             blockButton->setStyleSheet(
                 "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: "
                 "0 #8023A8, stop: 1 #691e8a); "
@@ -69,15 +66,17 @@ void OtherPage::showBlockDialog(QPushButton *blockButton) {
 void OtherPage::toggleSubscription() {
     assert(manager != nullptr);
     QPushButton *button = qobject_cast<QPushButton *>(sender());
-    if (manager->new_client.is_blocked(id, manager->ID)) {
-        QMessageBox::information(
-            this, "Blocked User", "You should unblock this user first."
-        );
-        return;
-    }
     if (button) {
         if (button->text() == "Subscribe") {
-            manager->new_client.subscribe(manager->ID, id);
+            const users_interaction::SubscribeResponse subscribe_response =
+                manager->new_client.subscribe(manager->ID, id);
+            if (subscribe_response.has_error_message()) {
+                QMessageBox::information(
+                    this, "Error",
+                    QString::fromStdString(subscribe_response.error_message())
+                );
+                return;
+            }
             qDebug() << "Subscribed";
             button->setText("Unsubscribe");
         } else {

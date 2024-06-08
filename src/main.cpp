@@ -41,7 +41,7 @@ void run_server() {
     UsersInteractionServiceImpl users_interaction_service;
     RecommendationServiceImpl recommendation_service;
     ProfileDataService profile_service_data;
-    recommendation_service.Init();
+    // recommendation_service.Init();
     // recommendation_service.computed = true;
     // recommendation_service.recomputeSimularity();
 
@@ -85,7 +85,6 @@ void run_server() {
     builder.RegisterService(&invitation_service);
     builder.RegisterService(&invitation_data_service);
     builder.RegisterService(&users_interaction_service);
-    builder.RegisterService(&recommendation_service);
     builder.RegisterService(&recommendation_service);
     builder.RegisterService(&profile_service_data);
 
