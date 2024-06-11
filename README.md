@@ -1,47 +1,68 @@
 <div align="center">
     <img src="client/ui/img/logo.jpg" alt="Duende Logo" />
     <h1>Duende</h1>
-    <p>Duende is a desktop app for movie lovers chatting and meetings</p>
+    <p>- application where movie lovers can meet and chat about topics that interest them</p>
     <a href="#special-thanks-to">Gratitude</a> •
     <a href="#about-duende">About</a> •
     <a href="#key-features">Features</a> •
     <a href="#some-preview">Preview</a> •
-    <a href="#how-can-you-build-it">Build</a> •
+    <a href="#how-can-you-build-it">Installation</a> •
     <a href="#authors">Authors</a>
+    <h2></h2>
 </div>
 
-Read this in other languages: [English](./README.md), [Русский](./README.ru.md)
+Предпочитаете русский? Читайте: [Русская версия](./README.ru.md)
 
-Some gif ??
+TODO GIF
 
-## Special thanks to:
 
----
+## Special thanks:
 
-## About Duende:
+We would like to express our sincere gratitude to the mentor of our project, [Vlad Artyukhov]<!--(https://github.com/Vladislav0Art)-->. During development, we discovered a lot of new things not only within the assigned tasks, but also beyond them. The experience gained while working with Vlad, his contribution, valuable recommendations, regular online meetings to solve problems that arose along the way, helped us turn the idea into reality. His mentorship behind the scenes of our movie application was reminiscent of an experienced director helping his team achieve the best results.
 
----
+We are extremely grateful to Vlad for his support, professionalism and commitment to excellence that made Duende possible.
 
-## Key features:
+## About project:
 
----
+Duende (from Spanish - the ability of a piece of art to cut to the heart) is an application where movie lovers can chat about topics that interest them.
 
-## Some preview:
+The user shares his preferences in cinema, based on which we recommend his interlocutors or films to watch. You can send invitations to the people you like for private correspondence (and even there we will generate a movie for you that will suit both of you!), as well as create group chats for large companies. By going to someone’s profile, you can see not only general information about the user, but also what genres he prefers, what actors he likes and how he responds to the films he has watched.
 
-there will be presentation link
+Duende is a platform for dating and communication, where there is always something to talk about!
 
-there will be video link
 
-there will be screenshots
+## Why Duende?
 
----
+- **Recommendation service:** users and movies - for one or two users.
+- **Chat:** private and group.
+- **Interaction between users:** subscription, blocking, search services
 
-## How can you build it?
+## Look at the preview:
 
----
+Presentation
 
-## Authors:
+Video
 
----
+Screenshots
 
-Our names, HSE, year
+
+## How to install it?
+
+TODO
+
+
+## About authors:
+
+<p align="center">
+ <b>Starring:</b><br>
+ Albov Egor - <a href="https://github.com/pingvan">pingvan</a><br>
+ Kolesova Sonya - <a href="https://github.com/kolesovasonya">kolesovasonya</a><br>
+ Chernokulskaya Alina - <a href="https://github.com/chernaaaa">chernaaaa</a><br>
+ <br>
+ <b>Under the direction of:</b><br>
+ <!-- Artyukhov Vlad - <a href="https://github.com/Vladislav0Art">Vladislav0Art</a><br> -->
+ <br>
+ <b>Place and time of action:</b><br>
+ National Research University Higher School of Economics<br>St. Petersburg<br>
+ spring 2024
+</p>
