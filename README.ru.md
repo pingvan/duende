@@ -13,8 +13,9 @@
 
 Prefer English? Read this: [English version](./README.md)
 
-TODO GIF
-
+<div align="center">
+    <img src="client/ui/img/my_page.png" alt="My page png" />
+</div>
 
 ## Особая благодарность:
 
@@ -41,9 +42,13 @@ Duende - платформа для знакомств и общения, где 
 
 ## Посмотреть в действии:
 
-Вы можете посмотреть [презентацию] нашего проекта, а также [видео с демонстрацией] на YouTube.
+Вы можете посмотреть [презентацию](https://docs.google.com/presentation/d/1Ex-56XNowumhmJBxGufaQl8g7dLR2u_9ogB1gdCyv50/edit#slide=id.p4) нашего проекта, а также [видео с демонстрацией](https://youtu.be/vyidtRRDYiE) на YouTube.
 
-TODO
+<div align="center">
+    <img src="client/ui/img/recs.gif" alt="Recommendations gif" />
+    <img src="client/ui/img/groupchat_creation.gif" alt="Group chat creation gif" />
+    <img src="client/ui/img/movie_recs.gif" alt="Movie recs gif" />
+</div>
 
 
 ## Как установить?

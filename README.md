@@ -13,8 +13,9 @@
 
 Предпочитаете русский? Читайте: [Русская версия](./README.ru.md)
 
-TODO GIF
-
+<div align="center">
+    <img src="client/ui/img/my_page.png" alt="My page png" />
+</div>
 
 ## Special thanks:
 
@@ -41,9 +42,13 @@ Duende is a platform for dating and communication, where there is always somethi
 
 ## Look at the preview:
 
-You can watch the [presentation] (ru) of our project, as well as the [demonstration video] on YouTube.
+You can watch the [presentation](https://docs.google.com/presentation/d/1Ex-56XNowumhmJBxGufaQl8g7dLR2u_9ogB1gdCyv50/edit#slide=id.p4) (ru) of our project, as well as the [demonstration video](https://youtu.be/vyidtRRDYiE) on YouTube.
 
-TODO
+<div align="center">
+    <img src="client/ui/img/recs.gif" alt="Recommendations gif" />
+    <img src="client/ui/img/groupchat_creation.gif" alt="Group chat creation gif" />
+    <img src="client/ui/img/movie_recs.gif" alt="Movie recs gif" />
+</div>
 
 
 ## How to install it?
