@@ -31,6 +31,10 @@ The user shares his preferences in cinema, based on which we recommend his inter
 
 Duende is a platform for dating and communication, where there is always something to talk about!
 
+<div align="center">
+    <img src="client/ui/img/logo.png" alt="Duende Logo" width="200" />
+</div>
+
 
 ## Why Duende?
 

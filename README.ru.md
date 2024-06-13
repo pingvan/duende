@@ -31,6 +31,9 @@ Prefer English? Read this: <a href="./README.md">English version</a>
 
 Duende - платформа для знакомств и общения, где всегда есть, о чём поговорить!
 
+<div align="center">
+    <img src="client/ui/img/logo.png" alt="Duende Logo" width="200" />
+</div>
 
 ## Почему Duende?
 
