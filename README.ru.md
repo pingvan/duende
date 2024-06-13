@@ -2,12 +2,12 @@
     <img src="client/ui/img/duende_wallpaper.png" alt="Duende Logo" />
     <h1>Duende</h1>
     <p>- приложение, где вы можете пополнить свой список фильмов и друзей.</p>
-    <a href="#special-thanks-to">Благодарность</a> •
-    <a href="#about-duende">О проекте</a> •
-    <a href="#key-features">Особенности</a> •
-    <a href="#some-preview">Превью</a> •
-    <a href="#how-can-you-build-it">Установка</a> •
-    <a href="#authors">Авторы</a>
+    <a href="#особая-благодарность">Благодарность</a> •
+    <a href="#о-проекте">О проекте</a> •
+    <a href="#почему-duende">Особенности</a> •
+    <a href="#посмотреть-в-действии">Превью</a> •
+    <a href="#как-установить">Установка</a> •
+    <a href="#об-авторах">Авторы</a>
     <h2></h2>
 </div>
 

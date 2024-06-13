@@ -2,12 +2,12 @@
     <img src="client/ui/img/duende_wallpaper.png" alt="Duende Logo" />
     <h1>Duende</h1>
     <p>- an application where you can fill your watch and friends lists.</p>
-    <a href="#special-thanks-to">Gratitude</a> •
-    <a href="#about-duende">About</a> •
-    <a href="#key-features">Features</a> •
-    <a href="#some-preview">Preview</a> •
-    <a href="#how-can-you-build-it">Installation</a> •
-    <a href="#authors">Authors</a>
+    <a href="#special-thanks">Gratitude</a> •
+    <a href="#about-project">About</a> •
+    <a href="#why-duende">Features</a> •
+    <a href="#look-at-the-preview">Preview</a> •
+    <a href="#how-to-install-it">Installation</a> •
+    <a href="#about-authors">Authors</a>
     <h2></h2>
 </div>
 
