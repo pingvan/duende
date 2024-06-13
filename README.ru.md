@@ -14,7 +14,7 @@
 Prefer English? Read this: <a href="./README.md" style="color: #b551b5;">English version</a>
 
 <div align="center">
-    <img src="client/ui/img/my_page.png" alt="My page png" />
+    <img src="client/ui/img/profile.gif" alt="My page gif" />
 </div>
 
 ## Особая благодарность:
