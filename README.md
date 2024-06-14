@@ -74,7 +74,9 @@ You can watch the <a href="https://docs.google.com/presentation/d/1Ex-56XNowumhm
 
 ## How to install it?
 
-### Setting up gRPC for Server and Client
+<details>
+
+<summary><strong>Setting up gRPC for Server and Client</strong></summary>
 
 ---
 
@@ -110,7 +112,11 @@ make -j 4
 sudo make install
 ```
 
-### Building server
+</details>
+
+<details>
+
+<summary><strong>Building server</strong></summary>
 
 ---
 
@@ -141,7 +147,11 @@ cd ..
 bash export_env.sh
 ```
 
-### Building client 
+</details>
+
+<details>
+
+<summary><strong>Building client</strong></summary>
 
 ---
 
@@ -155,6 +165,8 @@ mkdir -p build
 cd build
 cmake ..
 ```
+
+</details>
 
 ## About authors:
 
