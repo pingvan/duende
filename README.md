@@ -76,7 +76,7 @@ You can watch the <a href="https://docs.google.com/presentation/d/1Ex-56XNowumhm
 
 # Setting up gRPC for Server and Client
 
-To set up gRPC for both server and client, you need to install gRPC first. You can follow the [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/) or follow the instructions below.
+To set up both server and client, you need to install gRPC first. You can follow the [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/) or follow the instructions below.
 
 ```bash
 # Setting up gRPC Install Directory
@@ -148,7 +148,6 @@ cd client
 mkdir -p build
 cd build
 cmake ..
-make
 ```
 
 ## About authors:

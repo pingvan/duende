@@ -74,7 +74,80 @@ Duende - платформа для знакомств и общения, где 
 
 ## Как установить?
 
-TODO
+# Настройка gRPC для сервера и клиента
+
+Для настройки как сервера, так и клиента, необходимо сначала установить gRPC. Вы можете исользовать [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/) или сделать это по инструкции ниже.
+
+```bash
+# Настройка каталога установки gRPC
+export MY_INSTALL_DIR=$HOME/.local
+mkdir -p $MY_INSTALL_DIR
+export PATH="$MY_INSTALL_DIR/bin:$PATH"
+
+# Установка CMake и зависимостей gRPC
+sudo apt-get update   
+sudo apt-get install -y cmake
+sudo apt-get install -y build-essential autoconf libtool pkg-config
+sudo apt-get install -y git
+
+# Установка OpenSSL
+sudo apt-get install -y openssl
+sudo apt-get install -y libssl-dev
+
+# Установка gRPC
+git config --global http.postBuffer 524288000 # Изменение размера буфера для избежания проблем с клонированием
+git clone --recurse-submodules -b v1.64.0 --depth 1 --shallow-submodules https://github.com/grpc/grpc
+cd grpc
+mkdir -p cmake/build
+cd cmake/build/
+cmake -DgRPC_INSTALL=ON \
+      -DgRPC_BUILD_TESTS=OFF \
+      -DCMAKE_INSTALL_PREFIX=$MY_INSTALL_DIR \
+      ../..
+make -j 4
+sudo make install
+```
+# Сборка сервера
+
+```bash
+# Установка GoogleTest
+git clone https://github.com/google/googletest.git -b v1.14.0
+cd googletest/
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+
+# Установка Libpq
+sudo apt-get install -y libpq-dev
+
+# Клонирование репозитория Duende
+git clone https://github.com/pingvan/duende.git
+git submodule update --init --recursive
+cd duende/
+mkdir -p build
+cd build/
+cmake ..
+make
+cd ../certs
+bash generate_certs.sh
+cd ..
+bash export_env.sh
+```
+
+# Сборка клиента
+
+```bash
+# Установка Qt-6
+sudo apt-get install -y qt6-base-dev
+
+# Внутри директории duende
+cd client
+mkdir -p build
+cd build
+cmake ..
+```
 
 
 ## Об авторах:
