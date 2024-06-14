@@ -74,8 +74,82 @@ You can watch the <a href="https://docs.google.com/presentation/d/1Ex-56XNowumhm
 
 ## How to install it?
 
-TODO
+# Setting up gRPC for Server and Client
 
+To set up gRPC for both server and client, you need to install gRPC first. You can follow the [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/) or follow the instructions below.
+
+```bash
+# Setting up gRPC Install Directory
+export MY_INSTALL_DIR=$HOME/.local
+mkdir -p $MY_INSTALL_DIR
+export PATH="$MY_INSTALL_DIR/bin:$PATH"
+
+# Installing CMake and gRPC Dependencies
+sudo apt-get update   
+sudo apt-get install -y cmake
+sudo apt-get install -y build-essential autoconf libtool pkg-config
+sudo apt-get install -y git
+
+# Installing OpenSSL
+sudo apt-get install -y openssl
+sudo apt-get install -y libssl-dev
+
+# Installing gRPC
+git config --global http.postBuffer 524288000 # Changing buffer size to avoid cloning problems
+git clone --recurse-submodules -b v1.64.0 --depth 1 --shallow-submodules https://github.com/grpc/grpc
+cd grpc
+mkdir -p cmake/build
+cd cmake/build/
+cmake -DgRPC_INSTALL=ON \
+      -DgRPC_BUILD_TESTS=OFF \
+      -DCMAKE_INSTALL_PREFIX=$MY_INSTALL_DIR \
+      ../..
+make -j 4
+sudo make install
+```
+
+# Building server
+
+```bash
+# Installing GoogleTest
+git clone https://github.com/google/googletest.git -b v1.14.0
+cd googletest/
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+
+# Installing Libpq
+sudo apt-get install -y libpq-dev
+
+# Cloning Duende Repository
+git clone https://github.com/pingvan/duende.git
+git submodule update --init --recursive
+cd duende/
+mkdir -p build
+cd build/
+cmake ..
+make
+cd ../certs
+bash generate_certs.sh
+cd ..
+bash export_env.sh
+```
+
+# Building client 
+
+```bash
+#Installing Qt-6
+sudo apt-get install -y qt6-base-dev
+
+#Inside duende dir
+cd client
+mkdir -p build
+cd build
+cmake ..
+make
+```
 
 ## About authors:
 
