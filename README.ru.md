@@ -45,7 +45,7 @@ Duende - платформа для знакомств и общения, где 
 
 ## Посмотреть в действии:
 
-Вы можете посмотреть <a href="https://docs.google.com/presentation/d/1Ex-56XNowumhmJBxGufaQl8g7dLR2u_9ogB1gdCyv50/edit#slide=id.p4">презентацию</a> нашего проекта, а также <a href="https://youtu.be/vyidtRRDYiE">демонстрационное видео</a> на YouTube.
+Вы можете посмотреть <a href="https://docs.google.com/presentation/d/1Ex-56XNowumhmJBxGufaQl8g7dLR2u_9ogB1gdCyv50/edit#slide=id.p1">презентацию</a> нашего проекта, а также <a href="https://youtu.be/vyidtRRDYiE">демонстрационное видео</a> на YouTube.
 
 <div align="center">
     <div>
@@ -71,12 +71,15 @@ Duende - платформа для знакомств и общения, где 
 </div>
 
 
-
 ## Как установить?
 
-# Настройка gRPC для сервера и клиента
+<details>
 
-Для настройки как сервера, так и клиента, необходимо сначала установить gRPC. Вы можете исользовать [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/) или сделать это по инструкции ниже.
+<summary><strong>Настройка gRPC для сервера и клиента</strong></summary>
+
+---
+
+Для настройки как сервера, так и клиента, необходимо сначала установить gRPC. Вы можете использовать [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/) или сделать это по инструкции ниже:
 
 ```bash
 # Настройка каталога установки gRPC
@@ -107,7 +110,14 @@ cmake -DgRPC_INSTALL=ON \
 make -j 4
 sudo make install
 ```
-# Сборка сервера
+
+</details>
+
+<details>
+
+<summary><strong>Сборка сервера</strong></summary>
+
+---
 
 ```bash
 # Установка GoogleTest
@@ -136,7 +146,13 @@ cd ..
 bash export_env.sh
 ```
 
-# Сборка клиента
+</details>
+
+<details>
+
+<summary><strong>Сборка клиента</strong></summary>
+
+---
 
 ```bash
 # Установка Qt-6
@@ -148,6 +164,7 @@ mkdir -p build
 cd build
 cmake ..
 ```
+</details>
 
 
 ## Об авторах:

@@ -46,7 +46,7 @@ Duende is a platform for dating and communication, where there is always somethi
 
 ## Look at the preview:
 
-You can watch the <a href="https://docs.google.com/presentation/d/1Ex-56XNowumhmJBxGufaQl8g7dLR2u_9ogB1gdCyv50/edit#slide=id.p4">presentation</a> (ru) of our project, as well as the <a href="https://youtu.be/vyidtRRDYiE">demonstration video</a> on YouTube.
+You can watch the <a href="https://docs.google.com/presentation/d/1Ex-56XNowumhmJBxGufaQl8g7dLR2u_9ogB1gdCyv50/edit#slide=id.p1">presentation</a> (ru) of our project, as well as the <a href="https://youtu.be/vyidtRRDYiE">demonstration video</a> on YouTube.
 
 <div align="center">
     <div>
@@ -74,7 +74,9 @@ You can watch the <a href="https://docs.google.com/presentation/d/1Ex-56XNowumhm
 
 ## How to install it?
 
-# Setting up gRPC for Server and Client
+### Setting up gRPC for Server and Client
+
+---
 
 To set up both server and client, you need to install gRPC first. You can follow the [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/) or follow the instructions below.
 
@@ -108,7 +110,9 @@ make -j 4
 sudo make install
 ```
 
-# Building server
+### Building server
+
+---
 
 ```bash
 # Installing GoogleTest
@@ -137,7 +141,9 @@ cd ..
 bash export_env.sh
 ```
 
-# Building client 
+### Building client 
+
+---
 
 ```bash
 #Installing Qt-6
